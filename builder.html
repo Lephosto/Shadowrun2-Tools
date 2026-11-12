@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SR2 Runner Builder</title>
-<style>
+<style id="appCss">
 /* Layout: a run-sheet. Sticky summary rail on wide screens, single column on phones. Sections are numbered because character creation is a real sequence. */
 :root{
   --bg:#eef1f4; --paper:#fbfcfd; --ink:#18202b; --muted:#5c6776; --line:#d3d9e1; --soft:#e4e9ef;
@@ -380,7 +380,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1794458903315","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwd2hzau"}};</script>
+<script>window.__SR2_EMBED={"stamp":"1794459233239","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwd2p1v9"}};</script>
 <script id="appJs">
 /*@shared:decks*/
 // ---------- Cyberdeck rules shared by both tools (core p. 172–176; VR2 p. 16, 85–89) ----------
@@ -1244,7 +1244,7 @@ function renderExtras(){
     $('softNote').innerHTML=`Skillwires ${sw||'none'}: ActiveSofts in use at once can total rating ${sw||0}${act.length?` (yours total ${sumR}${sumR>sw?', so not all can run together':''})`:''}. Chipjacks: ${jacks} (skillwires include one). Headware memory: ${mem} Mp. ActiveSofts need skillwires and give no dice pools (p. 248).`;
   }
   // languages
-  $('langNative').textContent=`Native language: rating ${attrNow('int')+2}, free.`;
+  $('langNative').textContent=`Native language: rating ${nativeLang()}, free (Intelligence at creation + 2).`;
   $('langBody').innerHTML=(S.langs||[]).map((L,i)=>`<tr><td><input data-lg="${i}" data-f="name" id="lg_n_${i}" value="${esc(L.name)}" placeholder="Language"></td><td class="n"><input type="number" min="1" max="6" data-lg="${i}" data-f="rating" id="lg_r_${i}" value="${L.rating||1}"></td><td><button class="x" data-del="langs" data-i="${i}" aria-label="Remove language">×</button></td></tr>`).join('');
   // advancement
   const tg=advTargets(); const sel=$('advPick').value;
@@ -1607,7 +1607,7 @@ function rFor(it,r){if(!it||!it.r) return undefined; const lo=it.r[0],hi=it.r[1]
 function calc(key,st,E){const k=kind(key), host=E.item(key), bad=[], notes=[]; const S=Object.assign(defaults(key),st||{}); const ids=new Set();
   const rows=(S.opts||[]).map(o=>{const it=E.item(o.id); const r=rFor(it,o.r); if(!it){bad.push('Unknown option'); return null;} if(ids.has(o.id)) bad.push(it.n+' is listed twice'); ids.add(o.id);
     if(!pool(key,E).includes(o.id)) bad.push(it.n+' doesn’t fit a '+host.n);
-    return {id:o.id,it,r,n:it.n+(it.r?' '+r:''),cost:cost(it,r),ess:ess(it,r),pg:it.pg||'',d:it.desc||it.s||''};}).filter(Boolean);
+    return {id:o.id,it,r,n:it.n.replace(/^Helmet option: /,'')+(it.r?' '+r:''),cost:cost(it,r),ess:ess(it,r),pg:it.pg||'',d:it.desc||it.s||''};}).filter(Boolean);
   let hostCost=cost(host), hostEss=ess(host), free=0, cap=null, accEss=0, disc=0, sub=0, total=0, essTotal=0;
   if(k==='eyes'){ if(S.single){hostCost=Math.round(hostCost*.6); hostEss=.1;} free=S.single?.25:.5; cap=S.ct?(S.single?.6:1.2):null;
     accEss=r2(rows.reduce((a,x)=>a+x.ess,0)); if(cap!=null&&accEss>cap+1e-9) bad.push(`Accessories total ${accEss} Essence; ${S.single?'a single eye':'a pair'} holds ${cap} (CT p. 45)`);
@@ -2145,6 +2145,7 @@ function augAttr(k){return attrEff(k)+(k==='str'||k==='quick'?gearLevel('body:Mu
 const CONTACT_COST={'Contact':5000,'Buddy':10000,'Gang/Tribe':50000,'Followers':200000};
 function contactCost(){let free=2;return S.contacts.reduce((a,c)=>{const cost=CONTACT_COST[c.level]??5000;if(free>0){free--;return a+Math.max(0,cost-5000);}return a+cost;},0);}
 function deckMPCP(){return S.gear.reduce((m,g)=>{const it=g.key&&GEARDB[g.key];return it&&it.mpcp?Math.max(m,it.mpcp):m;},0);}
+function nativeLang(){return Math.max(1,attrFinal('int'))+2;} // set at creation; raising Intelligence later doesn’t raise it (p. 45)
 function attrFinal(k){const m=(R().mod[k]||0);return (+S.attrs[k]||0)+m;}
 function adeptOn(){return S.magic==='adept';}
 function boost(k){return adeptOn()?S.powers.filter(p=>p.type==='improvedAttr'&&p.attr===k).reduce((a,p)=>a+(+p.n||0),0):0;}
@@ -2359,7 +2360,7 @@ function summary(magicRating,rSpent,rBudget){
   const mx=matrixInfo();
   if(mx&&(mx.vr2||mx.hasDeck||comp)) rows.push([mx.vr2||mx.hasDeck?'Hacking Pool':'Hacking Pool (with a deck)',mx.pool]);
   if(mx&&(mx.lv||mx.vr2)) rows.push(['Matrix Initiative',`${mx.react} + ${mx.dice}D6`]);
-  rows.push(['Native language',attrNow('int')+2]);
+  rows.push(['Native language',nativeLang()]);
   rows.push(['Karma Pool',pool+(+S.kPoolBonus||0)],['Good Karma',`${(+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog()} available`]);
   $('sumStats').innerHTML=rows.map(([k,v])=>`<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
   // issues
@@ -2545,11 +2546,11 @@ async function offer(filename,data,mime){
   catch(e){msg.textContent="This view can't save files. Use the text code below instead.";}
 }
 const safeJSON=o=>JSON.stringify(o).replace(/</g,'\\u003c');
-function docShell(title,css,body){return `<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>\n<style>${css}</style></head><body>\n${body}\n</body></html>`;}
+function docShell(title,css,body,styleId){return `<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>\n<style${styleId?` id="${styleId}"`:''}>${css}</style></head><body>\n${body}\n</body></html>`;}
 function builderFile(){
-  const css=$('appCss').textContent, js=$('appJs').textContent;
+  const css=($('appCss')||document.querySelector('head style')||{textContent:''}).textContent, js=$('appJs').textContent;
   const embed={stamp:String(Date.now()),char:S};
-  return docShell('SR2 Runner Builder'+(S.name?' · '+S.name:''),css,`${PRISTINE}\n<script>window.__SR2_EMBED=${safeJSON(embed)};<\/script>\n<script id="appJs">${js}<\/script>`);
+  return docShell('SR2 Runner Builder'+(S.name?' · '+S.name:''),css,`${PRISTINE}\n<script>window.__SR2_EMBED=${safeJSON(embed)};<\/script>\n<script id="appJs">${js}<\/script>`,'appCss');
 }
 function sheetStats(){
   const magicRating=S.magic==='none'?0:Math.max(0,Math.floor(6-essenceUsed()));
@@ -2578,7 +2579,7 @@ function sheetStats(){
   const mx=matrixInfo();
   if(mx&&(mx.vr2||mx.hasDeck||comp)) rows.push([mx.vr2||mx.hasDeck?'Hacking Pool':'Hacking Pool (with a deck)',mx.pool]);
   if(mx&&(mx.lv||mx.vr2)) rows.push(['Matrix Initiative',`${mx.react} + ${mx.dice}D6`]);
-  rows.push(['Native language',attrNow('int')+2]);
+  rows.push(['Native language',nativeLang()]);
   rows.push(['Karma Pool',pool+(+S.kPoolBonus||0)],['Good Karma',`${(+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog()} available`]);
   return {rows,reaction,dice,wmod,ar,mx,cpool:Math.max(0,Math.floor((qAug+i+w)/2)+cs-ar.poolPenalty),kpool:pool+(+S.kPoolBonus||0),bi:bodyIndexUsed()};
 }
@@ -2616,10 +2617,16 @@ function sheetFile(){
   const chip=(p)=>`<span class="sk ${p.part}"><i>${esc(p.part==='gen'?'General':p.part==='conc'?'Concentration':'Specialization')}</i>${esc(p.label)} <b>${p.r}</b></span>`;
   let skills=Object.entries(groups).map(([c,L])=>`<div class="skg"><h3>${esc(c)}</h3>${L.map(x=>`<div class="skr"><span class="skn">${esc(x.name)}</span><span class="skv">${skillParts(x).map(chip).join('')}</span></div>`).join('')}</div>`).join('');
   const nsk=Object.entries(advSkills()); if(nsk.length) skills+=`<div class="skg"><h3>Learned with Karma</h3>${nsk.map(([n,r])=>`<div class="skr"><span class="skn">${esc(n)}</span><span class="skv"><span class="sk gen">${esc(n)} <b>${r}</b></span></span></div>`).join('')}</div>`;
-  skills+=`<div class="skg"><h3>Languages</h3><div class="skr"><span class="skn">Native language <span class="pg">p. 45</span></span><span class="skv"><span class="sk gen">Intelligence + 2 <b>${attrNow('int')+2}</b></span></span></div>${(S.langs||[]).map(L=>`<div class="skr"><span class="skn">${esc(L.name||'Language')}</span><span class="skv"><span class="sk gen">Language <b>${L.rating}</b></span></span></div>`).join('')}</div>`;
+  skills+=`<div class="skg"><h3>Languages</h3><div class="skr"><span class="skn">Native language <span class="pg">p. 45</span></span><span class="skv"><span class="sk gen">Creation Intelligence + 2 <b>${nativeLang()}</b></span></span></div>${(S.langs||[]).map(L=>`<div class="skr"><span class="skn">${esc(L.name||'Language')}</span><span class="skv"><span class="sk gen">Language <b>${L.rating}</b></span></span></div>`).join('')}</div>`;
   // ---- weapons ----
   const str=augAttr('str'),recStr=booksOn().fof&&S.optRecoil?strRecoil(str):0;
-  const weap=S.gear.filter(g=>WSTAT[g.key]||MSTAT[g.key]).map(g=>{const it=GEARDB[g.key];
+  const unarmed=(()=>{const sk=S.skills.find(x=>x.name==='Unarmed Combat'); const kh=adeptOn()?S.powers.find(p=>p.type==='killing'):null; if(!sk&&!kh) return '';
+    const parts=sk?skillParts(sk):[]; const best=parts.reduce((m,p)=>p.r>m.r?p:m,{r:0,label:'—'}); const ia=adeptOn()?S.powers.filter(p=>p.type==='improvedAbility'&&p.skill==='Unarmed Combat').reduce((a,p)=>a+(+p.n||0),0):0;
+    const reach=baseRace()==='Troll'?1:0;
+    return `<article class="wcard"><header><b>Unarmed${kh?' · Killing Hands':''}</b><span class="ts">Unarmed Combat${best.label!=='Unarmed Combat'&&best.r?' · '+esc(best.label):''} · p. 98${kh?' · p. 126':''}</span></header>
+      <div class="wstats">${kh?tile('Killing Hands',`${str}${esc(kh.level||'M')}`,'Physical, or Stun if you choose'):''}${tile('Normal blow',`${str}M Stun`,'')}${tile('Reach',reach,reach?'troll +1':'')}${tile('Skill dice',`${best.r||'—'}${ia?'+'+ia:''}`,best.r?esc(parts.map(p=>p.label+' '+p.r).join(' · ')):'')}</div>
+      ${kh?`<p class="ts">Killing Hands also affects Immunity to Normal Weapons and manifested spirits (p. 126, 142).</p>`:''}</article>`;})();
+  const weap=unarmed+S.gear.filter(g=>WSTAT[g.key]||MSTAT[g.key]).map(g=>{const it=GEARDB[g.key];
     if(MSTAT[g.key]){const [cc,reach,dmg,conc,msk]=MSTAT[g.key];const sd=skillDiceFor(msk||'Armed Combat',conc,it.n);
       return `<article class="wcard"><header><b>${esc(it.n)}</b><span class="ts">${esc(msk||'Armed Combat')} · ${esc(conc)} · ${esc(it.pg||'')}</span></header>
       <div class="wstats">${tile('Damage',esc(strDmg(dmg,str)),'')}${tile('Reach',reach+(baseRace()==='Troll'?1:0),'')}${tile('Skill dice',`${sd.dice??'—'}${sd.ia?'+'+sd.ia:''}`,'')}${tile('Conceal',cc??'—','')}</div></article>`;}

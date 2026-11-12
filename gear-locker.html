@@ -457,7 +457,7 @@ function rFor(it,r){if(!it||!it.r) return undefined; const lo=it.r[0],hi=it.r[1]
 function calc(key,st,E){const k=kind(key), host=E.item(key), bad=[], notes=[]; const S=Object.assign(defaults(key),st||{}); const ids=new Set();
   const rows=(S.opts||[]).map(o=>{const it=E.item(o.id); const r=rFor(it,o.r); if(!it){bad.push('Unknown option'); return null;} if(ids.has(o.id)) bad.push(it.n+' is listed twice'); ids.add(o.id);
     if(!pool(key,E).includes(o.id)) bad.push(it.n+' doesn’t fit a '+host.n);
-    return {id:o.id,it,r,n:it.n+(it.r?' '+r:''),cost:cost(it,r),ess:ess(it,r),pg:it.pg||'',d:it.desc||it.s||''};}).filter(Boolean);
+    return {id:o.id,it,r,n:it.n.replace(/^Helmet option: /,'')+(it.r?' '+r:''),cost:cost(it,r),ess:ess(it,r),pg:it.pg||'',d:it.desc||it.s||''};}).filter(Boolean);
   let hostCost=cost(host), hostEss=ess(host), free=0, cap=null, accEss=0, disc=0, sub=0, total=0, essTotal=0;
   if(k==='eyes'){ if(S.single){hostCost=Math.round(hostCost*.6); hostEss=.1;} free=S.single?.25:.5; cap=S.ct?(S.single?.6:1.2):null;
     accEss=r2(rows.reduce((a,x)=>a+x.ess,0)); if(cap!=null&&accEss>cap+1e-9) bad.push(`Accessories total ${accEss} Essence; ${S.single?'a single eye':'a pair'} holds ${cap} (CT p. 45)`);
