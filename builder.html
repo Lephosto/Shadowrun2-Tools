@@ -150,6 +150,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
 .plist{gap:0}.plist li{border-top:1px solid var(--line);padding:9px 0}.pl-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .padd{flex:none;font:inherit;font-size:.8125rem;font-weight:600;padding:3px 12px;border-radius:6px;border:1px solid var(--line);background:var(--soft);color:var(--ink);cursor:pointer}
 .vg{margin:12px 0 2px;font-size:.6875rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}.vno li{font-size:.8125rem}
+.xfer{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:0.75rem;border:1px solid var(--accent);border-left-width:4px;border-radius:0.5rem;background:var(--paper);padding:0.75rem 1rem;margin:0 0 1rem}.xfer[hidden]{display:none}.xfer .note{display:block}
 </style></head><body>
 <div class="wrap" id="appRoot">
   <header class="top">
@@ -166,6 +167,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
       <button id="btnExample" class="ghost">Load example</button>
     </div>
   </header>
+  <div id="xferBar" class="xfer" hidden="" role="status"></div>
   <div id="confirmBox" hidden=""></div>
 
   <div class="layout">
@@ -347,7 +349,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         <p class="note">The page remembers your character in this browser only. To move it to another device or share it, copy the code below and paste it into the box on the other side.</p>
         <textarea id="exportBox" rows="3" readonly=""></textarea>
         <div class="row"><button id="copyExport">Copy character code</button><span class="note" id="copyMsg"></span></div>
-        <textarea id="importBox" rows="3" placeholder="Paste a character code here"></textarea>
+        <textarea id="importBox" rows="3" placeholder="Paste a character code, or a gear code from the Gear Locker"></textarea>
         <div class="row"><button id="doImport">Load pasted character</button><span class="note" id="importMsg"></span></div>
       </section>
     </div>
@@ -375,7 +377,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1794449246092","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwcwqzr5"}};</script>
+<script>window.__SR2_EMBED={"stamp":"1794454999498","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwd06b3k"}};</script>
 <script id="appJs">
 (function(){
 const PRISTINE=document.getElementById('appRoot').outerHTML;
@@ -2409,7 +2411,7 @@ function ask(msg,action){const box=$('confirmBox');box.hidden=false;box.innerHTM
 $('btnNew').onclick=()=>{roster();S=blank();S.id='c'+Date.now().toString(36);render();$('fName').focus();};
 $('btnExample').onclick=()=>ask('Load the example decker into this character slot? The current character in this slot will be replaced.',()=>{const id=S.id;S=example();S.id=id;render();});
 $('copyExport').onclick=()=>{const v=$('exportBox').value;navigator.clipboard.writeText(v).then(()=>{$('copyMsg').textContent='Copied.';},()=>{$('exportBox').select();$('copyMsg').textContent='Selected. Press Ctrl+C or Cmd+C to copy.';});};
-$('doImport').onclick=()=>{try{const obj=JSON.parse(decodeURIComponent(escape(atob($('importBox').value.trim()))));S=Object.assign(blank(),obj);render();$('importMsg').textContent='Loaded.';}catch(e){$('importMsg').textContent="That code didn't load. Copy the whole code and try again.";}};
+$('doImport').onclick=()=>{const raw=$('importBox').value.trim(); if(/^SR2GEAR:/.test(raw)){try{const p=JSON.parse(decodeURIComponent(escape(atob(raw.slice(8))))); const r=gearImport(p); if(p.at) try{localStorage.setItem(XFER_KEY+'-seen',String(Math.max(p.at,xferSeen())));}catch(e){} $('importMsg').textContent=`Added ${r.added.length} item${r.added.length===1?'':'s'} from the Gear Locker to ${S.name||'this character'}${r.skipped.length?` (skipped: ${r.skipped.join(', ')})`:''}.`; $('importBox').value='';}catch(e){$('importMsg').textContent="That gear code didn't load. Copy the whole code and try again.";} return;} try{const obj=JSON.parse(decodeURIComponent(escape(atob($('importBox').value.trim()))));S=Object.assign(blank(),obj);render();$('importMsg').textContent='Loaded.';}catch(e){$('importMsg').textContent="That code didn't load. Copy the whole code and try again.";}};
 
 // ---------- export ----------
 function slug(){return (S.handle||S.name||'runner').trim().replace(/[^\w\- ]+/g,'').replace(/\s+/g,'-')||'runner';}
@@ -2505,9 +2507,37 @@ $('expSheet').onclick=()=>offer(slug()+'-sheet.html',sheetFile(),'text/html');
 $('expBuilder').onclick=()=>offer(slug()+'-sr2-builder.html',builderFile(),'text/html');
 $('expJson').onclick=()=>offer(slug()+'.json',JSON.stringify(S,null,2),'application/json');
 $('openJson').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!o||typeof o!=='object'||!o.attrs)throw 0;ask(`Load ${esc(f.name)}? The current character will be replaced.`,()=>{S=Object.assign(blank(),o);render();$('expMsg').textContent=`Loaded ${f.name}.`;});}catch(_){$('expMsg').textContent="That file isn't a character file from this builder.";}e.target.value='';};r.readAsText(f);};
+
+// ---------- Gear sent from the Gear Locker ----------
+const XFER_KEY='sr2-transfer';
+function xferRead(){try{const p=JSON.parse(localStorage.getItem(XFER_KEY)||'null'); if(p&&Array.isArray(p.items)&&p.at) return p;}catch(e){} return null;}
+function xferSeen(){try{return +localStorage.getItem(XFER_KEY+'-seen')||0;}catch(e){return 0;}}
+function gearImport(p){const added=[],skipped=[]; const books=Object.assign({},booksOn());
+  (p.items||[]).slice(0,200).forEach(x=>{
+    if(x&&x.key){const it=GEARDB[x.key]; if(!it){skipped.push(String(x.key).split(':').slice(1).join(':'));return;}
+      const row={key:x.key,qty:Math.max(1,Math.min(9999,Math.floor(+x.qty||1)))}; if(x.r!=null&&isFinite(+x.r)) row.r=+x.r;
+      if(x.build&&typeof x.build==='object') row.build=JSON.parse(JSON.stringify(x.build));
+      if(x.vb&&typeof x.vb==='object') row.vb=JSON.parse(JSON.stringify(x.vb));
+      if(x.loaded) row.loaded=true;
+      S.gear.push(row); if(it.src&&it.src!=='core') books[it.src]=true; added.push(it.n);}
+    else if(x&&x.name){S.gear.push({name:String(x.name).slice(0,140),cat:'other',qty:1,cost:Math.max(0,+x.cost||0),ess:0}); added.push(String(x.name));}});
+  if(p.vr2deck&&typeof p.vr2deck==='object'){S.vr2deck=Object.assign(vr2Default(),p.vr2deck); books.vr2=true;}
+  S.books=books; if(typeof fillGearCats==='function') fillGearCats(); render(); return {added,skipped};}
+function xferCheck(){const p=xferRead(), bar=$('xferBar'); if(!bar) return; if(!p||p.at<=xferSeen()){bar.hidden=true; return;}
+  const n=p.items.length;
+  bar.innerHTML=`<div><b>The Gear Locker sent ${esc(p.label||n+' items')}</b><span class="note">${n} item${n>1?'s':''}${p.vr2deck?' and a custom deck design':''}, build-outs included. Switch characters first if it’s for someone else.</span></div>
+    <div class="row"><button class="primary" id="xferAdd">Add to ${esc(S.name||'this character')}</button><button class="ghost" id="xferNo">Dismiss</button></div>`;
+  bar.hidden=false;}
+function xferDone(p){try{localStorage.setItem(XFER_KEY+'-seen',String(p.at));}catch(e){} $('xferBar').hidden=true;}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#xferAdd,#xferNo'); if(!b) return; const p=xferRead(); if(!p){$('xferBar').hidden=true;return;}
+  if(b.id==='xferAdd'){const r=gearImport(p); xferDone(p); $('saveState').textContent=`Added ${r.added.length} item${r.added.length===1?'':'s'} from the Gear Locker${r.skipped.length?` (skipped ${r.skipped.length} this builder doesn’t know)`:''}.`; const g=document.getElementById('gearCard')||document.getElementById('gearBody'); if(g&&g.scrollIntoView) g.scrollIntoView({block:'start'});}
+  else xferDone(p);});
+window.addEventListener('storage',e=>{if(e.key===XFER_KEY) xferCheck();});
+window.addEventListener('focus',xferCheck); document.addEventListener('visibilitychange',()=>{if(!document.hidden) xferCheck();});
 $('skillList').innerHTML=SKILLS.map(s=>`<option value="${s}">`).join('');
 render();
-window.__sr2={get S(){return S;},VB,R2OBJ,vbFixG,VTYPE,deckEnforce,deckRowMax,deckPickOk,vr2Clamp,syncGear,DESC,EDGES,FLAWS,RACES,EF_DESC,CAT,GCATS,GEARDB,WSTAT,VSTAT,MSTAT,ASTAT,DSTAT,RANGES,RT_SKILL,vr2DeckCost,vr2Default,itemVisible,render,sheetFile,deckInfo,matrixInfo,builderFile,SPELLS,POWERS,XPOWERS,IA_COST};
+xferCheck();
+window.__sr2={get S(){return S;},gearImport,xferCheck,VB,R2OBJ,vbFixG,VTYPE,deckEnforce,deckRowMax,deckPickOk,vr2Clamp,syncGear,DESC,EDGES,FLAWS,RACES,EF_DESC,CAT,GCATS,GEARDB,WSTAT,VSTAT,MSTAT,ASTAT,DSTAT,RANGES,RT_SKILL,vr2DeckCost,vr2Default,itemVisible,render,sheetFile,deckInfo,matrixInfo,builderFile,SPELLS,POWERS,XPOWERS,IA_COST};
 })();
 </script>
 </body></html>

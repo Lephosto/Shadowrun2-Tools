@@ -1,4 +1,5 @@
 <!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SR2 Gear Locker</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -152,6 +153,10 @@ tr.on td{background:color-mix(in srgb,var(--accent) 14%,transparent)}
 .vb-t{height:6px;border-radius:3px;background:var(--panel2);border:1px solid var(--line);overflow:hidden;margin-top:3px}.vb-t i{display:block;height:100%;background:var(--accent)}
 .vtiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}.vt{border:1px solid var(--line);border-radius:6px;padding:6px 8px;background:var(--panel)}.vt span{display:block;font-size:.6875rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}.vt b{font-family:var(--mono);font-size:1rem}.vt em{display:block;font-style:normal;font-size:.75rem;color:var(--muted)}.vt.chg{border-color:var(--accent)}.vt.chg b{color:var(--accent)}
 .vg{margin:12px 0 2px;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.sd{position:fixed;inset:0;z-index:50;background:rgba(10,14,20,.5);display:flex;align-items:center;justify-content:center;padding:16px}.sd[hidden]{display:none}
+.sd-card{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;max-width:520px;width:100%;padding:16px 18px;box-shadow:0 10px 40px rgba(0,0,0,.3);max-height:90vh;overflow:auto}
+.sd-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}.sd-card p{margin:6px 0;font-size:.9rem;line-height:1.45}
+.sd-card textarea{width:100%;font-family:var(--mono);font-size:.75rem;border:1px solid var(--line);border-radius:6px;padding:6px;background:var(--panel2);color:var(--ink);resize:vertical}.sd-a{display:flex;gap:8px;margin-top:8px}
 </style>
 
 <div class="wrap">
@@ -175,6 +180,7 @@ tr.on td{background:color-mix(in srgb,var(--accent) 14%,transparent)}
   <article class="tag" id="tag" aria-live="polite"></article>
 </div>
 <section class="kit" id="kit" aria-label="Shopping list"></section>
+<div id="sendDlg" class="sd" hidden></div>
 <p class="foot">Prices and stats are list values from your books; each item shows its book and printed page. Item notes are short summaries, not book text. Links between items come from the rules: what a weapon can mount, what cyberware needs, what a deck runs and so on. Check the page for the full rule.</p>
 </div>
 
@@ -465,7 +471,7 @@ function vehHTML(i){
    ${rows?`<ul class="ulist">${rows}</ul>`:''}${guide}
    <dl class="facts">${fact('Vehicle',fmt(i.cost)+'¥')}${fact('Modifications',fmt(R.cost)+'¥')}${fact('Total',fmt(total)+'¥')}</dl>
    <p class="note">Install times, skills and target numbers are on each mod’s page; installed by a mechanic with the parts in hand (R2 p. 118).</p>
-   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn" id="addVeh">Add vehicle and mods to shopping list</button><button class="btn ghost" id="clrVeh">Start over</button></div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn" id="addVeh">Add vehicle and mods to shopping list</button><button class="btn ghost" data-send="item">Send to a character</button><button class="btn ghost" id="clrVeh">Start over</button></div>
   </section>`;
 }
 
@@ -1094,7 +1100,7 @@ function buildHTML(g){
    ${rec}
    ${chosenFx?`<h4 class="bh">What the add-ons do</h4><ul class="bfx">${chosenFx}</ul>`:''}
    ${noList}
-   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn" id="addBuild">Add gun and add-ons to shopping list</button><button class="btn ghost" id="clrBuild">Clear add-ons</button></div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn" id="addBuild">Add gun and add-ons to shopping list</button><button class="btn ghost" data-send="item">Send to a character</button><button class="btn ghost" id="clrBuild">Clear add-ons</button></div>
   </section>`;
 }
 function fxHTML(i){ if(i.desc&&!i.efd) return `<div class="fx"><b>What it does</b><p>${esc(i.desc)}</p><span class="note">Full description: ${esc(/^p\./.test(i.dpg)?'Core '+i.dpg:i.dpg)}</span></div>`; if(i.efd) return `<div class="fx"><b>What it does</b><p>${esc(i.efd)}</p><span class="note">Full description: ${esc(i.pg)} · listed in the Edges and Flaws Table, SRC p. 35</span></div>`; const f=FX[i.id]; if(!f) return ''; return `<div class="fx"><b>What it does</b><p>${esc(f[0])}</p><span class="note">${esc(f[1])}</span></div>`;}
@@ -1245,7 +1251,7 @@ function deckHTML(i){
    ${C.warn.map(w=>`<p class="rule">${esc(w)}</p>`).join('')}
    <details class="bno"><summary>Price breakdown (${C.parts.length})</summary><ul>${C.parts.map(p=>`<li>${esc(p.n)}: ${p.c<0?'−':''}${fmt(Math.abs(p.c))}¥</li>`).join('')}</ul></details>
    ${C.no.length?`<details class="bno"><summary>Won’t fit this deck (${C.no.length})</summary><ul>${C.no.map(([a,b])=>`<li>${esc(a)}: ${esc(b)}</li>`).join('')}</ul></details>`:''}
-   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn" id="addDeck">Add deck and programs to shopping list</button><button class="btn ghost" id="clrDeck">Start over</button></div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn" id="addDeck">Add deck and programs to shopping list</button><button class="btn ghost" data-send="item">Send to a character</button><button class="btn ghost" id="clrDeck">Start over</button></div>
   </section>`;
 }
 
@@ -1273,15 +1279,47 @@ function renderTag(){
    ${gradeTable(i,r)}
    ${spellTable(i)}
    ${rulesFor(i)}
-   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">${i.sp||i.ef||i.mt||i.cat==='power'||canBuild(i)||isDeck(i)||isVeh(i)?'':'<button class="btn" id="addKit">Add to shopping list</button>'}${i.m1?'<span class="note">Matrix 1.0 item: VR2 replaces it if your table uses VR2.</span>':''}</div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">${i.sp||i.ef||i.mt||i.cat==='power'||canBuild(i)||isDeck(i)||isVeh(i)?'':'<button class="btn" id="addKit">Add to shopping list</button><button class="btn ghost" data-send="item">Send to a character</button>'}${i.m1?'<span class="note">Matrix 1.0 item: VR2 replaces it if your table uses VR2.</span>':''}</div>
    ${G.length?`<h3>Goes with</h3><div class="links">${G.map(g=>`<div class="lgrp"><h4>${esc(g.title)}</h4>${g.note?`<p>${esc(g.note)}</p>`:''}${g.text?`<p>${esc(g.text)}</p>`:`<div class="pills">${g.list.map(x=>`<button class="pill ${visible(x)?'':'off'}" data-id="${esc(x.id)}" title="${esc(BOOK[x.src][0]+' '+pageRef(x))}">${srcTag(x.src)}${esc(x.n)}<span class="pp">${priceLabel(x)}</span></button>`).join('')}</div>`}</div>`).join('')}</div>`:''}`;
 }
 function kitChip(){const el=$('kitchip'); if(!el) return; let c=0; st.kit.forEach(k=>{const i=BYID[k.id]||{cost:k.cost}; c+=costAt(i,k.r)||0;}); el.textContent=st.kit.length?`Shopping list: ${st.kit.length} · ${fmt(c)}¥`:'Shopping list: empty';}
+
+// ---------- Send gear to the Runner Builder ----------
+// Same site (GitHub Pages, or both files opened locally): the builder picks it up from browser storage. Anywhere else: a code to paste.
+const XFER_KEY='sr2-transfer';
+function xferItem(i){const items=[]; let vr2deck=null; const ok=k=>!!BYID[k];
+  if(canBuild(i)){const B=JSON.parse(JSON.stringify(bstate(i))); items.push({key:i.id,qty:1,build:B});}
+  else if(isDeck(i)){const C=deckCalc(i),B=C.B;
+    if(i.vr2deck){items.push({key:'deck:Custom cyberdeck (VR2 à la carte)',qty:1}); vr2deck=JSON.parse(JSON.stringify(B.v));}
+    else{items.push({key:i.id,qty:1}); const M=C.M;
+      if(B.ri) items.push({key:'deck:Response Increase '+B.ri,qty:1,r:M});
+      if(B.am) items.push({key:'deck:Extra Active Memory (per Mp)',qty:B.am});
+      if(B.sm) items.push({key:'deck:Extra Storage Memory (per Mp)',qty:B.sm});
+      if(B.hitch) items.push({key:'deck:Hitcher Jack',qty:B.hitch,r:M});
+      if(B.vid) items.push({key:'deck:Vidscreen Display',qty:1});
+      if(B.off) items.push({key:'deck:Off-line Storage (per Mp)',qty:B.off});
+      PERS.forEach(([n])=>{const r=+B.per[n]||0; if(r) items.push({key:'prog:Persona: '+n,qty:1,r});});}
+    C.U.forEach(x=>items.push({key:x.it.id,qty:1,r:x.u.r,loaded:!!x.u.loaded}));}
+  else if(isVeh(i)){const {B}=vbFix(i); items.push({key:i.id,qty:1,vb:JSON.parse(JSON.stringify(B))});}
+  else items.push({key:i.id,qty:1,r:i.r?(st.rate[i.id]??(i.mult!=null?1000:i.r[0])):undefined});
+  return {items:items.filter(x=>ok(x.key)),vr2deck,label:i.n};}
+function xferKit(){const items=st.kit.map(k=>BYID[k.id]?{key:k.id,qty:1,r:BYID[k.id].r?k.r:undefined}:{name:k.n,cost:k.cost}); return {items,label:'Shopping list ('+st.kit.length+')'};}
+function sendGear(p){p.v=1; p.at=Date.now(); p.from='Gear Locker';
+  let stored=false; try{localStorage.setItem(XFER_KEY,JSON.stringify(p)); stored=true;}catch(e){}
+  const code='SR2GEAR:'+btoa(unescape(encodeURIComponent(JSON.stringify(p))));
+  let copied=false; try{navigator.clipboard.writeText(code).then(()=>{const m=$('sendCopied'); if(m) m.textContent='Code copied.';},()=>{});}catch(e){}
+  const n=p.items.length;
+  $('sendDlg').innerHTML=`<div class="sd-card" role="dialog" aria-label="Send to a character"><div class="sd-h"><b>Sent: ${esc(p.label)}</b><button class="x" id="sendClose" aria-label="Close">×</button></div>
+    <p>${n} item${n>1?'s':''}${p.vr2deck?' plus the custom deck design':''}, with ${n>1?'their':'its'} build-out, ready for the Runner Builder.</p>
+    <p><b>Builder on the same website</b> (like your GitHub Pages link): open it and it will ask before adding ${n>1?'them':'it'} to your current character.</p>
+    <p><b>Anywhere else</b> (another site, another device, or a saved file): copy this code and paste it into the builder’s <i>Paste a character code</i> box, then press <i>Load pasted character</i>. It adds the gear instead of replacing the character. <span class="note" id="sendCopied"></span></p>
+    <textarea readonly rows="3" id="sendCode">${esc(code)}</textarea><div class="sd-a"><button class="btn" id="sendCopy">Copy code</button><button class="btn ghost" id="sendClose2">Done</button></div></div>`;
+  $('sendDlg').hidden=false; const t=$('sendCode'); if(t){t.focus(); t.select();}}
 function renderKit(){ kitChip();
   if(!st.kit.length){$('kit').innerHTML=`<div class="hd"><b>Shopping list</b><span class="note">Add items to total their price and Essence. Saved in this browser only.</span></div>`;return;}
   let c=0,e=0; const rows=st.kit.map((k,ix)=>{const i=BYID[k.id]||{n:k.n,src:k.src||'core',cost:k.cost}; const p=costAt(i,k.r)||0; const es=+(essAt(i,k.r)||0); c+=p; e+=es;
     return `<li><span>${srcTag(i.src)} ${esc(i.n)}${i.r?` <span class="note">(${esc(i.r[2])} ${k.r})</span>`:''}</span><span class="c">${fmt(p)}¥${es?` · ${es} Ess`:''}</span><button class="x" data-rm="${ix}" aria-label="Remove ${esc(i.n)}">×</button></li>`;}).join('');
-  $('kit').innerHTML=`<div class="hd"><b>Shopping list</b><span class="tot">${fmt(c)}¥${e?` · ${Math.round(e*100)/100} Essence`:''}</span><button class="btn ghost" id="clearKit">Clear</button></div><ul>${rows}</ul>`;
+  $('kit').innerHTML=`<div class="hd"><b>Shopping list</b><span class="tot">${fmt(c)}¥${e?` · ${Math.round(e*100)/100} Essence`:''}</span><button class="btn ghost" data-send="kit">Send to a character</button><button class="btn ghost" id="clearKit">Clear</button></div><ul>${rows}</ul>`;
 }
 function select(id,scroll){
   st.sel=id; const i=BYID[id];
@@ -1301,6 +1339,9 @@ document.addEventListener('click',e=>{
   if(e.target.id==='ftog'){const sh=document.querySelector('.shelf'); const o=sh.classList.toggle('fopen'); e.target.setAttribute('aria-expanded',o); return;}
   if(e.target.id==='dir'){st.dir=-st.dir; renderSortFilter(); renderList(); return;}
   const it=e.target.closest('[data-id]'); if(it){select(it.dataset.id,true); return;}
+  if(e.target.dataset&&e.target.dataset.send){ if(e.target.dataset.send==='kit'){ if(st.kit.length) sendGear(xferKit()); } else {const i=BYID[st.sel]; if(i) sendGear(xferItem(i));} return;}
+  if(e.target.id==='sendClose'||e.target.id==='sendClose2'||e.target.id==='sendDlg'){$('sendDlg').hidden=true; return;}
+  if(e.target.id==='sendCopy'){const t=$('sendCode'); t.select(); let ok=false; try{navigator.clipboard.writeText(t.value).then(()=>{e.target.textContent='Copied';},()=>{try{document.execCommand('copy');e.target.textContent='Copied';}catch(_){}});}catch(_){try{document.execCommand('copy');e.target.textContent='Copied';}catch(__){}} return;}
   if(e.target.id==='addKit'){const i=BYID[st.sel]; st.kit.push({id:i.id,r:st.rate[i.id]??(i.r?(i.mult!=null?1000:i.r[0]):0)}); save(); renderKit(); e.target.textContent='Added'; setTimeout(()=>{const b=$('addKit'); if(b) b.textContent='Add to shopping list';},1200); return;}
   if(e.target.id==='addBuild'){const g=BYID[st.sel]; const C=buildCalc(g); st.kit.push({id:g.id,r:0});
     C.chosen.forEach(p=>{ if(BYID[p.id]){ const it=BYID[p.id]; st.kit.push({id:p.id,r:it.mult!=null?Math.round((g.cost||0)):0}); } else st.kit.push({n:p.n+' ('+g.n+')',cost:Math.round((g.cost||0)*(p.costMult||0)),src:p.src||'core'}); if(p.extra) st.kit.push({n:'Grenade launcher modification for the link',cost:p.extra,src:'ssc'}); });
@@ -1356,3 +1397,5 @@ window.addEventListener('hashchange',fromHash);
 all();
 if(location.hash) fromHash(); else select('guns:Ares Predator');
 </script>
+
+</html>
