@@ -518,6 +518,205 @@ function hostHTML(i){ if(!HB.isHost(i.id)) return '';
    ${head}${cap}<h4 class="bh">Options <span class="note">${C.rows.filter(x=>!x.fixed).length||'none yet'}</span></h4>${drop}${cards?`<ul class="ulist">${cards}</ul>`:''}${guide}${no}
    <dl class="facts">${facts.join('')}</dl>${C.notes.map(n=>`<p class="note">${esc(n)}</p>`).join('')}
    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn" id="addHost">Add to shopping list</button><button class="btn ghost" data-send="item">Send to a character</button><button class="btn ghost" id="clrHost">Start over</button></div></section>`;}
+/*@shared:cyberbody*/
+// ---------- Cyber body: cyberlimbs, torso and skull (Cybertechnology p. 30–37, 49–52) ----------
+// Shared by both tools. Each page defines CBENV: item(key) → {n,pg,cost,e,desc}.
+// Plan: {limbs:{la,ra,ll,rl:{full,gyro,fore,hand,str,hstr,fstr,qui,plate,hard,cover,mag,acc:[ids]}}, bodyArms, bodyLegs, torso:{on,plate,hard}, skull:{on,plate,hard}, cap4}
+// Character: {troll, body, str, quick} (natural, unaugmented; str includes muscle replacement for natural limbs).
+const CB=(()=>{
+const SIDES=[['la','Left arm','arm'],['ra','Right arm','arm'],['ll','Left leg','leg'],['rl','Right leg','leg']];
+const PAIR={arm:['la','ra'],leg:['ll','rl']};
+const r2=x=>Math.round(x*1000)/1000;
+// accessories that fit in a limb: where (hand/arm/leg/foot), Essence when built into the limb (CT p. 49 compatibility), page note
+const ACC={
+ 'body:Hand Razors':{at:'hand',e:0,why:'Spurs and razors cost no Essence in a cyberlimb (CT p. 49)'},
+ 'body:Retractable Hand Razors':{at:'hand',e:0,why:'Spurs and razors cost no Essence in a cyberlimb (CT p. 49)'},
+ 'body:Improved Hand Razor Blades':{at:'hand',e:0,needs:['body:Hand Razors','body:Retractable Hand Razors'],why:'Upgrade for hand razors'},
+ 'body:Spur':{at:'fore',e:0,why:'Spurs and razors cost no Essence in a cyberlimb (CT p. 49)'},
+ 'body:Retractable Spur':{at:'fore',e:0,why:'Spurs and razors cost no Essence in a cyberlimb (CT p. 49)'},
+ 'body:Cyberarm Hand Blade':{at:'hand',e:0,why:'Essence applies only in a natural hand (CT p. 36)'},
+ 'body:Cyberarm Hand Blade, retractable':{at:'hand',e:0,why:'Essence applies only in a natural hand (CT p. 36)'},
+ 'body:Shock Hand':{at:'hand'},'body:Cyberarm Taser':{at:'fore'},'body:CyberSquirt':{at:'fore'},
+ 'body:Fingertip Compartment':{at:'hand',e:0,why:'No Essence in a cyberlimb (CT p. 49)'},'body:Fingertip ExpertPicks':{at:'hand'},'body:Fingertip Needle':{at:'hand'},
+ 'body:Replacement Hand':{at:'fore',why:'Detachable hand: swap tool or weapon hands (Complex Action); built-in weapons +1 TN'},
+ 'body:Smartlink':{at:'hand',e:.25,why:'Smartgun links cost .25 Essence in a cyberlimb (CT p. 49)'},
+ 'body:Smartlink II':{at:'hand',e:.25,why:'Smartgun links cost .25 Essence in a cyberlimb (CT p. 49)'},
+ 'body:Cybergun: Hold-Out Pistol':{at:'fore',gun:1,e:0,why:'Cyberguns in a cyberlimb cost no Essence (CT p. 51)'},
+ 'body:Cybergun: Light Pistol':{at:'fore',gun:1,e:0,why:'Cyberguns in a cyberlimb cost no Essence (CT p. 51)'},
+ 'body:Cybergun: Machine Pistol':{at:'fore',gun:1,e:0,why:'Cyberguns in a cyberlimb cost no Essence (CT p. 51)'},
+ 'body:Cybergun: SMG':{at:'fore',gun:1,e:0,why:'Cyberguns in a cyberlimb cost no Essence (CT p. 51)'},
+ 'body:Cybergun: Heavy Pistol':{at:'fore',gun:1,e:0,why:'Cyberguns in a cyberlimb cost no Essence (CT p. 51)'},
+ 'body:Cybergun: Shotgun':{at:'fore',gun:1,e:0,why:'Cyberguns in a cyberlimb cost no Essence (CT p. 51)'},
+ 'body:Direct Neural Interface':{at:'arm',why:'Cybernetic control of a device in the limb not built for it; the device costs 50% more (CT p. 33)'},
+ 'head:Tactical Computer':{at:'full',lvl:1,emul:.75,why:'In a cyberarm: Essence −25%, round down (CT p. 49)'},
+ 'head:Orientation System':{at:'full',e:.25,why:'Orientation system costs .25 Essence in a cyberlimb (CT p. 49)'},
+ 'body:Foot Anchor':{at:'foot',why:'Foot spur: (Str−1)M, or anchors you (+50 kg hold per foot) (CT p. 34)'},
+};
+const ACC_ARM=Object.keys(ACC).filter(k=>ACC[k].at!=='foot'), ACC_LEG=['body:Foot Anchor'];
+function defLimb(){return {full:false,gyro:false,fore:false,hand:false,str:0,hstr:0,fstr:0,qui:0,plate:0,hard:false,cover:false,mag:false,acc:[]};}
+function defPlan(){return {limbs:{la:defLimb(),ra:defLimb(),ll:defLimb(),rl:defLimb()},bodyArms:0,bodyLegs:0,torso:{on:false,plate:0,hard:false},skull:{on:false,plate:0,hard:false},cap4:true};}
+const kind=s=>SIDES.find(x=>x[0]===s)[2];
+const hasHand=L=>L.full||L.hand, hasFore=L=>L.full||L.fore;
+const any=L=>L.full||L.fore||L.hand;
+function word(s,L){const k=kind(s); if(L.full) return L.gyro?'gyromount cyberarm':k==='arm'?'cyberarm':'cyberleg'; const p=[]; if(L.fore) p.push(k==='arm'?'cyber forearm':'cyber lower leg'); if(L.hand) p.push(k==='arm'?'cyberhand':'cyberfoot'); return p.join(' + ')||'natural';}
+function calc(P,C,E){
+ P=P||defPlan(); C=C||{troll:false,body:3,str:3,quick:3}; const bad=[],warn=[],rows=[]; let cost=0,ess=0;
+ const add=(where,n,c,e,pg,note)=>{rows.push({where,n,cost:Math.round(c),ess:r2(e),pg:pg||'',note:note||''}); cost+=c; ess+=e;};
+ const torso=!!(P.torso&&P.torso.on); const base=C.troll?8:3;
+ const limbStr={},limbQui={};
+ SIDES.forEach(([s,label,k])=>{const L=Object.assign(defLimb(),P.limbs[s]||{});
+   if(L.full&&(L.fore||L.hand)) bad.push(`${label}: a full ${k==='arm'?'cyberarm':'cyberleg'} already includes the ${k==='arm'?'forearm and hand':'lower leg and foot'}`);
+   if(L.gyro&&(!L.full||k!=='arm')) bad.push(`${label}: the gyromount is a full cyberarm`);
+   if(L.full){ if(L.gyro) add(label,'Gyromount cyberarm (recoil comp 3, up to LMGs)',260000,1.5,'CT p. 33'); else add(label,k==='arm'?'Cyberarm':'Cyberleg',100000,1,'CT p. 30'); }
+   else { if(L.fore) add(label,k==='arm'?'Cyber forearm':'Cyber lower leg',70000,.65,'CT p. 30'); if(L.hand) add(label,k==='arm'?'Cyberhand':'Cyberfoot',45000,.35,'CT p. 30'); }
+   const limbPrice=(L.full?(L.gyro?260000:100000):0)+(L.fore?70000:0)+(L.hand?45000:0);
+   if(L.cover){ if(!any(L)) bad.push(`${label}: covering needs a cyberlimb`); else add(label,'Semi-natural covering (+3 TN to spot it)',limbPrice*.1,0,'CT p. 30'); }
+   if(L.mag){ if(!any(L)) bad.push(`${label}: the magnetic system needs a cyberlimb`); else add(label,'Magnetic system (holds 25 kg of ferrous metal)',2800,0,'CT p. 32'); }
+   // enhancements
+   const types=[]; if(L.full&&+L.str) types.push('str'); if(L.full&&+L.qui) types.push('qui'); const pairBody=k==='arm'?+P.bodyArms||0:+P.bodyLegs||0; if(L.full&&pairBody) types.push('bod');
+   const surcharge=t=>types.indexOf(t)>0?1.1:1;
+   if(+L.str){ if(!L.full) bad.push(`${label}: Strength enhancement for a whole limb needs a full cyberlimb (use hand or forearm strength for partial limbs)`); else {
+     const n=+L.str; let c=0,e=0; for(let i=1;i<=n;i++){ c+=i<=3?150000:175000; if(C.troll||i>3) e+=.4; }
+     if(torso) e=Math.ceil(e/2*100)/100;
+     add(label,`Strength enhancement +${n}${surcharge('str')>1?' (+10%, second enhancement)':''}`,c*surcharge('str'),e,'CT p. 31, 50–51',(C.troll?'Troll: every point costs .4 Essence (CT p. 51)':(n>3?'.4 Essence each point past 3':''))+(torso&&e?' · halved by the cybertorso':''));}}
+   if(+L.qui){ if(!L.full) bad.push(`${label}: Quickness enhancement needs a full cyberlimb`); else {
+     const n=+L.qui; let c=0,e=0; for(let i=1;i<=n;i++){ c+=i<=3?90000:110000; if(i>3) e+=.3; } if(torso) e=Math.ceil(e/2*100)/100;
+     add(label,`Quickness enhancement +${n}${surcharge('qui')>1?' (+10%, additional enhancement)':''}`,c*surcharge('qui'),e,'CT p. 31, 51');}}
+   if(L.full&&pairBody){ add(label,`Body enhancement +${pairBody}${surcharge('bod')>1?' (+10%, additional enhancement)':''}`,75000*pairBody*surcharge('bod'),0,'CT p. 31, 51'); }
+   if(+L.hstr){ if(L.full||!L.hand) bad.push(`${label}: hand/foot strength is for a partial cyberhand or cyberfoot`); else if(+L.hstr>3) bad.push(`${label}: hand/foot strength tops out at +3`); else add(label,`${k==='arm'?'Hand':'Foot'} strength +${L.hstr} (grip only)`,65000*L.hstr,0,'CT p. 51'); }
+   if(+L.fstr){ if(L.full||!L.fore) bad.push(`${label}: forearm/lower leg strength is for a partial limb`); else if(+L.fstr>3) bad.push(`${label}: forearm/lower leg strength tops out at +3`); else add(label,`${k==='arm'?'Forearm':'Lower leg'} strength +${L.fstr} (grip only)`,(+L.hstr?60000:120000)*L.fstr,0,'CT p. 51',+L.hstr?'60,000¥ a point: the hand is already enhanced':''); }
+   if(+L.plate){ if(!L.full) bad.push(`${label}: body plating goes on a full cyberlimb`); else add(label,`${L.hard?'Hard':'Soft'} body plating ${L.plate}`,(L.hard?25000:10000)*L.plate,0,'CT p. 37'); }
+   // accessories
+   const seen=new Set(); let guns=0;
+   (L.acc||[]).forEach(id=>{const a=ACC[id], it=E.item(id); if(!a||!it){bad.push(`${label}: unknown accessory`);return;} if(seen.has(id)) bad.push(`${label}: ${it.n} is listed twice`); seen.add(id);
+     const okAt=a.at==='hand'?hasHand(L)&&k==='arm':a.at==='fore'?hasFore(L)&&k==='arm':a.at==='arm'?any(L)&&k==='arm':a.at==='full'?L.full&&k==='arm':a.at==='foot'?hasHand(L)&&k==='leg':false;
+     if(!okAt) bad.push(`${label}: ${it.n} needs ${({hand:'a cyberhand',fore:'a cyber forearm or full cyberarm',arm:'a cyberarm part',full:'a full cyberarm',foot:'a cyberfoot'})[a.at]}`);
+     if(a.needs&&!a.needs.some(x=>(L.acc||[]).includes(x))) bad.push(`${label}: ${it.n} needs hand razors in the same hand`);
+     if(a.gun) guns++;
+     const base=it.cost||0, be=+it.e||0; const e=a.emul!=null?Math.floor(be*a.emul*10)/10:(a.e!=null?a.e:be);
+     add(label,it.n,base,e,it.pg,a.why||'');});
+   if(guns>1) bad.push(`${label}: one cybergun per limb`);
+   // strength / quickness of this limb
+   limbStr[s]=L.full?base+(+L.str||0):C.str; limbQui[s]=L.full?C.quick+(+L.qui||0):C.quick;
+ });
+ // pairs
+ const full=s=>!!(P.limbs[s]&&P.limbs[s].full);
+ ['arm','leg'].forEach(k=>{const v=k==='arm'?+P.bodyArms||0:+P.bodyLegs||0, [a,b]=PAIR[k];
+   if(v&&!(full(a)&&full(b))) bad.push(`Body enhancement needs a pair of full cyber${k}s (CT p. 51)`); if(v>3) bad.push(`Body enhancement tops out at +3 per pair (CT p. 51)`);
+   if(full(a)&&full(b)){const qa=+(P.limbs[a].qui||0),qb=+(P.limbs[b].qui||0); if(qa!==qb) warn.push(`Cyber${k}s have Quickness +${qa} and +${qb}: +${Math.abs(qa-qb)} TN on all movement and coordination tests until they match (CT p. 51)`);}});
+ // torso and skull
+ [['torso','Cybertorso',120000,1.5],['skull','Cyberskull',75000,.75]].forEach(([k,n,c,e])=>{const T=P[k]||{}; if(T.on){add(n,n+' (+1 Body)',c,e,'CT p. 37'); if(+T.plate) add(n,`${T.hard?'Hard':'Soft'} body plating ${T.plate}`,(T.hard?25000:10000)*T.plate,0,'CT p. 37');} else if(+T.plate) bad.push(`${n}: plating needs the ${n.toLowerCase()}`);});
+ // averages and limits (CT p. 50–51)
+ const avg=o=>Math.floor(SIDES.reduce((a,[s])=>a+o[s],0)/4);
+ const avgStr=avg(limbStr), avgQui=avg(limbQui);
+ const strCap=Math.min(2*C.body,C.body+4), quiCap=Math.min(2*C.quick,C.quick+4);
+ const anyFull=SIDES.some(([s])=>full(s));
+ // the caps limit what enhancements add; a plain cyberlimb (Strength 3, or 8 for trolls) is never illegal on its own
+ const plainStr=avg(Object.fromEntries(SIDES.map(([s])=>[s,full(s)?base:C.str]))), plainQui=C.quick;
+ const strLim=Math.max(strCap,plainStr), quiLim=Math.max(quiCap,plainQui);
+ if(anyFull&&avgStr>strLim) bad.push(`Average Strength ${avgStr} is over the limit of ${strLim} (twice Body or Body + 4, the lower; CT p. 51)`);
+ if(anyFull&&avgQui>quiLim) bad.push(`Average Quickness ${avgQui} is over the limit of ${quiLim} (twice Quickness or Quickness + 4, the lower; CT p. 51)`);
+ const highStr=Math.max(...SIDES.map(([s])=>limbStr[s]));
+ if(anyFull&&highStr!==avgStr) warn.push(`Leading with the strongest limb (Strength ${highStr}) is +${highStr-avgStr} TN on melee tests; or fight at the average Strength ${avgStr} (CT p. 50)`);
+ // body, power, armor, detection
+ const pairs=(full('la')&&full('ra')?1:0)+(full('ll')&&full('rl')?1:0);
+ const bodyBonus=pairs+(full('la')&&full('ra')?+P.bodyArms||0:0)+(full('ll')&&full('rl')?+P.bodyLegs||0:0)+(P.torso&&P.torso.on?1:0)+(P.skull&&P.skull.on?1:0);
+ const hands=SIDES.filter(([s])=>P.limbs[s]&&hasHand(P.limbs[s])).length; const power=Math.min(2,hands);
+ const cap=v=>P.cap4?Math.min(4,v):v, pl=s=>full(s)?+(P.limbs[s].plate||0):0;
+ const loc=[Math.min(pl('la'),pl('ra')),Math.min(pl('ll'),pl('rl')),P.skull&&P.skull.on?+P.skull.plate||0:0,P.torso&&P.torso.on?+P.torso.plate||0:0,P.torso&&P.torso.on?+P.torso.plate||0:0].map(cap);
+ const plateArmor=Math.floor(loc.reduce((a,b)=>a+b,0)/5);
+ const hardAll=['la','ra','ll','rl'].filter(full).every(s=>!+P.limbs[s].plate||P.limbs[s].hard)&&(!(P.torso&&+P.torso.plate)||P.torso.hard)&&(!(P.skull&&+P.skull.plate)||P.skull.hard);
+ const bodyEnhPts=(+P.bodyArms||0)+(+P.bodyLegs||0), covered=SIDES.some(([s])=>P.limbs[s]&&P.limbs[s].cover);
+ return {rows,cost:Math.round(cost),ess:r2(ess),bad,warn,ok:!bad.length,limbStr,limbQui,avgStr,avgQui,strCap:strLim,quiCap:quiLim,highStr,bodyBonus,power,plateArmor,plateHard:plateArmor>0&&hardAll,loc,hands,
+   detectTN:4+(covered?3:0)-bodyEnhPts,recoil:full('la')&&P.limbs.la.gyro||full('ra')&&P.limbs.ra.gyro?3:0,anyCyber:SIDES.some(([s])=>P.limbs[s]&&any(P.limbs[s]))||!!(P.torso&&P.torso.on)||!!(P.skull&&P.skull.on)};}
+const clone=P=>JSON.parse(JSON.stringify(P));
+// make any plan legal: whole numbers, ranges, then drop or lower whatever still breaks a rule
+function clamp(P,C,E){P=Object.assign(defPlan(),clone(P||{})); const dropped=[];
+ SIDES.forEach(([s,,k])=>{const L=P.limbs[s]=Object.assign(defLimb(),P.limbs[s]||{});
+  ['full','gyro','fore','hand','hard','cover','mag'].forEach(f=>L[f]=!!L[f]); if(L.full){L.fore=false;L.hand=false;} if(k!=='arm'||!L.full) L.gyro=false;
+  const I=(f,hi)=>{L[f]=Math.max(0,Math.min(hi,Math.floor(+L[f]||0)));}; I('str',12); I('qui',12); I('hstr',3); I('fstr',3); I('plate',6);
+  if(!L.full){L.str=0;L.qui=0;L.plate=0;} if(L.full||!L.hand) L.hstr=0; if(L.full||!L.fore) L.fstr=0; if(!(L.full||L.fore||L.hand)){L.cover=false;L.mag=false;}
+  L.acc=[...new Set((Array.isArray(L.acc)?L.acc:[]).filter(id=>ACC[id]&&E.item(id)))]; let g1=false; L.acc=L.acc.filter(id=>{if(!ACC[id].gun) return true; if(g1) return false; g1=true; return true;});});
+ P.bodyArms=Math.max(0,Math.min(3,Math.floor(+P.bodyArms||0))); P.bodyLegs=Math.max(0,Math.min(3,Math.floor(+P.bodyLegs||0)));
+ if(!(P.limbs.la.full&&P.limbs.ra.full)) P.bodyArms=0; if(!(P.limbs.ll.full&&P.limbs.rl.full)) P.bodyLegs=0;
+ ['torso','skull'].forEach(k=>{const T=P[k]=Object.assign({on:false,plate:0,hard:false},P[k]||{}); T.on=!!T.on; T.hard=!!T.hard; T.plate=T.on?Math.max(0,Math.min(6,Math.floor(+T.plate||0))):0;});
+ P.cap4=P.cap4!==false;
+ // accessories that don't fit come off
+ for(let g=0;g<60;g++){const r=calc(P,C,E); if(r.ok) break; let fixed=false;
+  for(const [s,label] of SIDES){const L=P.limbs[s]; for(let i=L.acc.length-1;i>=0;i--){const t={...clone(P)}; t.limbs[s].acc.splice(i,1); const b1=calc(P,C,E).bad.filter(x=>x.startsWith(label+':')).length, b2=calc(t,C,E).bad.filter(x=>x.startsWith(label+':')).length; if(b2<b1){dropped.push(E.item(L.acc[i]).n); L.acc.splice(i,1); fixed=true; break;}} if(fixed) break;}
+  if(fixed) continue;
+  // over the average caps: lower the highest enhancement one point at a time
+  if(r.avgStr>r.strCap){const s=SIDES.map(x=>x[0]).filter(x=>P.limbs[x].str>0).sort((a,b)=>P.limbs[b].str-P.limbs[a].str)[0]; if(s){P.limbs[s].str--; continue;}}
+  if(r.avgQui>r.quiCap){const s=SIDES.map(x=>x[0]).filter(x=>P.limbs[x].qui>0).sort((a,b)=>P.limbs[b].qui-P.limbs[a].qui)[0]; if(s){P.limbs[s].qui--; continue;}}
+  break;}
+ return {P,dropped};}
+// legal values for a numeric field (keeps everything else as is)
+function options(P,C,E,path,lo,hi){const out=[]; for(let v=lo;v<=hi;v++){const t=clone(P); let o=t; for(let i=0;i<path.length-1;i++) o=o[path[i]]; o[path[path.length-1]]=v; if(calc(t,C,E).ok) out.push(v);} return out;}
+function accFor(P,C,E,s){const k=kind(s), L=P.limbs[s], pool=k==='arm'?ACC_ARM:ACC_LEG, yes=[], no=[];
+ pool.forEach(id=>{const it=E.item(id); if(!it||L.acc.includes(id)) return; const t=clone(P); t.limbs[s].acc.push(id); const r=calc(t,C,E); if(r.ok) yes.push({id,it,row:r.rows.filter(x=>x.n===it.n).pop()}); else no.push({id,it,why:r.bad[r.bad.length-1].replace(/^[^:]+: /,'')});}); return {yes,no};}
+return {SIDES,ACC,defPlan,defLimb,calc,clamp,options,accFor,word,hasHand,hasFore,any};
+})();
+/*@end:cyberbody*/
+/*@shared:cyberbody_ui*/
+// ---------- Cyber body planner view (shared by both tools) ----------
+// cbView(P,C,E,opts) returns HTML. Controls carry data-cb="path.to.field" (select/checkbox), data-cbadd="side" (select), data-cbdel="side|index" (button).
+const CBUI=(()=>{
+const h=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const yen=n=>Math.round(n).toLocaleString('en-US')+'¥';
+const PARTS={arm:[['none','Natural arm'],['full','Cyberarm'],['gyro','Gyromount cyberarm'],['fore','Cyber forearm'],['hand','Cyberhand'],['forehand','Cyber forearm + hand']],
+             leg:[['none','Natural leg'],['full','Cyberleg'],['fore','Cyber lower leg'],['hand','Cyberfoot'],['forehand','Cyber lower leg + foot']]};
+function partOf(L){return L.full?(L.gyro?'gyro':'full'):L.fore&&L.hand?'forehand':L.fore?'fore':L.hand?'hand':'none';}
+function sel(path,lab,opts,cur,fmt){return `<label class="cb-f"><span>${h(lab)}</span><select data-cb="${path}">${opts.map(v=>{const [val,t]=Array.isArray(v)?v:[v,fmt?fmt(v):v];return `<option value="${h(val)}" ${String(val)===String(cur)?'selected':''}>${h(t)}</option>`;}).join('')}</select></label>`;}
+function chk(path,lab,cur){return `<label class="cb-c"><input type="checkbox" data-cb="${path}" ${cur?'checked':''}> ${h(lab)}</label>`;}
+function view(P,C,E,o){o=o||{}; const R=CB.calc(P,C,E);
+ const card=([s,label,k])=>{const L=P.limbs[s], part=partOf(L);
+  const opt=(f,hi,fmt)=>CB.options(P,C,E,['limbs',s,f],0,hi);
+  let body=sel(`limbs.${s}.part`,'Part',PARTS[k],part);
+  if(L.full){ const so=opt('str',12), qo=opt('qui',12);
+    body+=sel(`limbs.${s}.str`,`Strength enhancement (limb ${R.limbStr[s]})`,so,L.str,v=>v?`+${v}`:'None')+sel(`limbs.${s}.qui`,`Quickness enhancement (limb ${R.limbQui[s]})`,qo,L.qui,v=>v?`+${v}`:'None')
+      +sel(`limbs.${s}.plate`,'Body plating',[0,1,2,3,4,5,6],L.plate,v=>v?`Level ${v}`:'None')+(+L.plate?sel(`limbs.${s}.hard`,'Plating type',[['false','Soft (10,000¥/level)'],['true','Hard, hardened (25,000¥/level)']],String(!!L.hard)):'');}
+  if(!L.full&&L.hand) body+=sel(`limbs.${s}.hstr`,k==='arm'?'Hand strength (grip only)':'Foot strength (grip only)',[0,1,2,3],L.hstr,v=>v?`+${v}`:'None');
+  if(!L.full&&L.fore) body+=sel(`limbs.${s}.fstr`,k==='arm'?'Forearm strength (grip only)':'Lower leg strength (grip only)',[0,1,2,3],L.fstr,v=>v?`+${v}`:'None');
+  let extra='';
+  if(CB.any(L)){ extra+=`<div class="cb-chks">${chk(`limbs.${s}.cover`,'Semi-natural covering (+10%)',L.cover)}${chk(`limbs.${s}.mag`,'Magnetic system (2,800¥)',L.mag)}</div>`;
+   const A=CB.accFor(P,C,E,s);
+   extra+=(L.acc.length?`<ul class="cb-acc">${L.acc.map((id,i)=>{const it=E.item(id), a=CB.ACC[id]; const row=R.rows.filter(x=>x.where===label&&x.n===it.n).pop()||{};
+      return `<li><div><b>${h(it.n)}</b> <span class="cb-n">${yen(row.cost||0)}${row.ess?` · ${row.ess} Ess`:' · no Essence'} · ${h(it.pg||'')}</span>${a.why?`<span class="cb-w">${h(a.why)}</span>`:''}</div><button type="button" class="cb-x" data-cbdel="${s}|${i}" aria-label="Remove ${h(it.n)}">×</button></li>`;}).join('')}</ul>`:'')
+     +(A.yes.length?`<label class="cb-f"><span>Add to this ${k}</span><select data-cbadd="${s}"><option value="">Choose…</option>${A.yes.map(y=>`<option value="${h(y.id)}">${h(y.it.n)} · ${yen(y.row?y.row.cost:0)}${y.row&&y.row.ess?` · ${y.row.ess} Ess`:''}</option>`).join('')}</select></label>`:'');}
+  return `<article class="cb-card${CB.any(L)?' on':''}"><header><b>${h(label)}</b><span class="cb-n">${h(CB.word(s,L))}</span></header><div class="cb-grid">${body}</div>${extra}</article>`;};
+ const arms=CB.SIDES.filter(x=>x[2]==='arm').map(card).join(''), legs=CB.SIDES.filter(x=>x[2]==='leg').map(card).join('');
+ const pairSel=(k,f,lab)=>{const [a,b]=k==='arm'?['la','ra']:['ll','rl']; if(!(P.limbs[a].full&&P.limbs[b].full)) return `<p class="cb-note">${h(lab)}: needs a full cyber${k} on both sides (CT p. 51).</p>`; return `<div class="cb-grid">${sel(f,lab+' (per pair, both limbs)',CB.options(P,C,E,[f],0,3),P[f],v=>v?`+${v} Body`:'None')}</div>`;};
+ const ts=(k,n,p)=>{const T=P[k]; return `<article class="cb-card${T.on?' on':''}"><header><b>${n}</b><span class="cb-n">${p}</span></header><div class="cb-chks">${chk(`${k}.on`,`${n} (+1 Body)`,T.on)}</div>${T.on?`<div class="cb-grid">${sel(`${k}.plate`,'Body plating',[0,1,2,3,4,5,6],T.plate,v=>v?`Level ${v}`:'None')}${+T.plate?sel(`${k}.hard`,'Plating type',[['false','Soft'],['true','Hard (hardened)']],String(!!T.hard)):''}</div>`:''}</article>`;};
+ const stat=(k,v,sub,on)=>`<div class="cb-t${on?' chg':''}"><span>${h(k)}</span><b>${v}</b>${sub?`<em>${sub}</em>`:''}</div>`;
+ const tiles=[stat('Strength (average)',R.avgStr,`natural ${C.str}${R.highStr!==R.avgStr?` · best limb ${R.highStr}`:''} · cap ${R.strCap}`,R.avgStr!==C.str),
+   stat('Quickness (average)',R.avgQui,`natural ${C.quick} · cap ${R.quiCap}`,R.avgQui!==C.quick),stat('Body',`+${R.bodyBonus}`,'pairs, enhancements, torso, skull',R.bodyBonus>0),
+   stat('Armor from plating',R.plateArmor?`${R.plateArmor} / ${R.plateArmor}`:'—',R.plateArmor?(R.plateHard?'hardened · stacks with worn armor':'stacks with worn armor'):'',R.plateArmor>0),
+   stat('Unarmed Power',R.power?`+${R.power}`:'—','+1 per cyberhand or foot, max +2',R.power>0),stat('Spotting the limbs',R.anyCyber?`TN ${R.detectTN}`:'—','base 4 for a short meeting (CT p. 49)',false),
+   stat('Cost',yen(R.cost),'',false),stat('Essence',R.ess,'',R.ess>0)].join('');
+ return `<div class="cb">${o.intro||''}
+  <div class="cb-tiles">${tiles}</div>
+  ${R.warn.map(w=>`<p class="cb-warn">${h(w)}</p>`).join('')}${R.bad.map(w=>`<p class="cb-bad">${h(w)}</p>`).join('')}${(o.dropped||[]).length?`<p class="cb-warn">No longer fit, so removed: ${h(o.dropped.join(', '))}.</p>`:''}
+  <h4 class="cb-h">Arms</h4><div class="cb-cards">${arms}</div>${pairSel('arm','bodyArms','Body enhancement for the arms')}
+  <h4 class="cb-h">Legs</h4><div class="cb-cards">${legs}</div>${pairSel('leg','bodyLegs','Body enhancement for the legs')}
+  <h4 class="cb-h">Torso and skull</h4><div class="cb-cards">${ts('torso','Cybertorso','CT p. 37 · halves extra Essence for enhancements')}${ts('skull','Cyberskull','CT p. 37')}</div>
+  <div class="cb-chks">${chk('cap4','Count at most 4 plating points per hit location (GM option, CT p. 49)',P.cap4)}</div>
+  ${R.rows.length?`<details class="cb-det"><summary>Price and Essence breakdown (${R.rows.length})</summary><table><thead><tr><th>Where</th><th>Item</th><th>¥</th><th>Essence</th></tr></thead><tbody>${R.rows.map(x=>`<tr><td>${h(x.where)}</td><td>${h(x.n)}${x.note?`<div class="cb-w">${h(x.note)}</div>`:''}</td><td>${yen(x.cost)}</td><td>${x.ess||'—'}</td></tr>`).join('')}</tbody></table></details>`:''}
+  <p class="cb-note">Rules: CT p. 30–37 (prices), p. 49–52 (Cyberware Rules). Cyberlimbs start at Strength 3 (8 for trolls). Strength and Quickness for melee and Reaction use the average of all four limbs. Enhancement past +3 on a limb costs Essence; a second enhancement type on the same limb costs 10% more. Pairs of full cyberarms or cyberlegs each add +1 Body.</p>
+ </div>`;}
+// apply a control change to the plan
+function apply(P,path,val){const parts=path.split('.'); if(parts[2]==='part'){const L=P.limbs[parts[1]]; L.full=val==='full'||val==='gyro'; L.gyro=val==='gyro'; L.fore=val==='fore'||val==='forehand'; L.hand=val==='hand'||val==='forehand'; return;}
+ let o=P; for(let i=0;i<parts.length-1;i++) o=o[parts[i]]; const f=parts[parts.length-1]; o[f]=typeof val==='boolean'?val:(val==='true'?true:val==='false'?false:+val);}
+const CSS=`.cb-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:6px;margin:8px 0}.cb-t{border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-width:0}.cb-t span{display:block;font-size:.6875rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}.cb-t b{font-size:1.05rem;font-variant-numeric:tabular-nums}.cb-t em{display:block;font-style:normal;font-size:.72rem;color:var(--muted);line-height:1.3}.cb-t.chg{border-color:var(--accent)}.cb-t.chg b{color:var(--accent)}
+.cb-h{margin:14px 0 6px;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.cb-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:8px}
+.cb-card{border:1px solid var(--line);border-radius:8px;padding:9px 11px;min-width:0}.cb-card.on{border-left:3px solid var(--accent)}.cb-card header{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:6px}.cb-n{font-size:.78rem;color:var(--muted)}
+.cb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:6px 8px}.cb-f{display:flex;flex-direction:column;gap:2px;font-size:.72rem;color:var(--muted);min-width:0;text-transform:none;letter-spacing:0}.cb-f select{font:inherit;font-size:.85rem;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:transparent;color:inherit;max-width:100%}
+.cb-chks{display:flex;flex-wrap:wrap;gap:4px 14px;margin:6px 0;font-size:.82rem}.cb-c{display:inline-flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-size:.82rem;flex-direction:row}
+.cb-acc{list-style:none;margin:6px 0;padding:0;display:grid;gap:4px}.cb-acc li{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;border-top:1px solid var(--line);padding-top:4px;font-size:.85rem}.cb-w{display:block;font-size:.72rem;color:var(--muted)}.cb-x{border:0;background:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:0 4px}
+.cb-warn,.cb-bad{margin:6px 0;padding:6px 10px;border-left:3px solid var(--accent);font-size:.85rem;border-radius:3px}.cb-bad{border-color:#c0392b}.cb-note{font-size:.78rem;color:var(--muted);margin:8px 0}
+.cb-det{margin-top:10px;font-size:.85rem}.cb-det summary{cursor:pointer;font-weight:600}.cb-det table{width:100%;border-collapse:collapse;margin-top:6px;font-size:.8rem}.cb-det td,.cb-det th{text-align:left;padding:3px 6px;border-top:1px solid var(--line);vertical-align:top}`;
+return {view,apply,CSS,partOf};
+})();
+/*@end:cyberbody_ui*/
 const VTYPE={"Aerodesign Systems Condor Series (LDSD-41)": ["lta", 1], "Aerodesign Systems Condor Series (LDSD-23)": ["lta", 1], "Aeroquip \"Redball Express\" Long-Range Resupply Drone": ["rotor", 1], "Agusta-Cierva Plutocrat (Standard)": ["rotor", 0], "Agusta-Cierva Plutocrat (Armed)": ["rotor", 0], "Airship Industries Skyswimmer": ["lta", 0], "Ares Arms Sentry II": ["tracked", 1], "Ares Citymaster": ["car", 0], "Ares Dragon": ["rotor", 0], "Ares Guardian Drone": ["rotor", 1], "Ares Mobmaster": ["car", 0], "Ares Roadmaster": ["car", 0], "Ares Sentinel \"P\" Series Drone": ["car", 1], "Ares TR-55C Cargoliner": ["rotor", 0], "Ares TR-55E \"President's Edition\" Executive": ["rotor", 0], "Ares TR-55T Traveller": ["rotor", 0], "Artemis Industries Nightglider": ["plane", 0], "Aztech GCR-23C Crawler": ["tracked", 1], "Aztech Nightrunner (Standard)": ["boat", 0], "Aztech Nightrunner (Electric)": ["boat", 0], "Aztechnology Aguilar-EX": ["rotor", 0], "Aztechnology Halcón Ground-Attack Aircraft": ["plane", 0], "Aztechnology Hedgehog Signal Interceptor": ["tracked", 1], "Aztechnology Liebre Surveillance/Pursuit RPV": ["plane", 1], "Aztechnology Lobo Medium Scout LAV": ["rotor", 0], "Aztechnology Tiburón Patrol Boat": ["boat", 0], "Aztechnology Tiburón Patrol Boat (Interdiction Variant)": ["boat", 0], "BAC-Dassault-MBB EFA Variants": ["plane", 0], "Blohm & Voss River Commander": ["boat", 0], "BMW Blitzen 2050": ["bike", 0], "CAS Wandjina RPV": ["plane", 1], "CASA J-239 Raven": ["plane", 0], "Cessna C750 (Standard)": ["plane", 0], "Cessna C750 (Pass.)": ["plane", 0], "Chrysler-Nissan G12A (Pass.)": ["hover", 0], "Chrysler-Nissan G12A (Cargo)": ["hover", 0], "Chrysler-Nissan Jackrabbit (Elec.)": ["car", 0], "Chrysler-Nissan Jackrabbit (Meth.)": ["car", 0], "Chrysler-Nissan Patrol-1": ["car", 0], "Citroën Brouillard Smoke Generator": ["tracked", 1], "Colorado Craft Cigarette Hydrofoil": ["boat", 0], "Conestoga Trailblazer": ["car", 0], "Cyberspace Designs Dalmatian": ["rotor", 1], "Cyberspace Systems Wolfhound Advanced Reconnaissance Aircraft": ["rotor", 1], "Doc Wagon Citymaster Variant": ["car", 0], "Doc Wagon CRT Ambulance": ["car", 0], "Doc Wagon CRT Air Unit": ["rotor", 0], "Doc Wagon Osprey II": ["rotor", 0], "Doc Wagon SRT Ambulance": ["car", 0], "Doc Wagon SRT Helicopter": ["rotor", 0], "Doc Wagon WK-2 Stallion Variant": ["rotor", 0], "Dodge Scoot": ["bike", 0], "Embraer-Dassault Mistral": ["plane", 0], "Entertainment Systems Papoose": ["bike", 0], "Eurocar Westwind 2000 (Standard)": ["car", 0], "Eurocar Westwind 2000 (Turbo)": ["car", 0], "Federated Boeing Commuter": ["rotor", 0], "Federated Boeing Eagle": ["plane", 0], "Ferrari Appaloosa Light Scout": ["car", 0], "Ferret RPD-VI Perimeter Drone": ["car", 1], "Fiat-Fokker Cloud Nine": ["plane", 0], "FMC-Stonebrooke TADS Firebird": ["plane", 1], "FMC-Stonebrooke TADS Salamander": ["plane", 1], "Ford Americar": ["car", 0], "Ford-Canada Bison": ["car", 0], "Gaz-Niki GNRD-71 BIS Snooper": ["car", 1], "Gaz-Niki White Eagle": ["car", 0], "Gaz-Willys Nomad": ["car", 0], "General Products COP": ["car", 0], "Generic Surveillance Drone": ["rotor", 1], "GM-Nissan Doberman": ["car", 1], "GM-Nissan Spotter": ["plane", 1], "GMC 4201": ["car", 0], "GMC Banshee": ["rotor", 0], "GMC Beachcraft Patroller": ["hover", 0], "GMC Beachcraft Vacationer": ["hover", 0], "GMC Bulldog Step-Van (Standard)": ["car", 0], "GMC Bulldog Step-Van (BC Var.)": ["car", 0], "GMC \"Harpy Scout\" LAV": ["rotor", 0], "GMC MPUV": ["car", 0], "GMC Riverine": ["boat", 0], "GMC Riverine (Police Model)": ["boat", 0], "GMC Riverine (Security Model)": ["boat", 0], "GMC-Nissan Hovertruck": ["hover", 0], "Goodyear Commuter-47": ["lta", 0], "GTE-Ford Retrans Unit": ["plane", 1], "Harland & Wolff Classique": ["boat", 0], "Harley Electroglide-1000": ["bike", 0], "Harley-Davidson Scorpion": ["bike", 0], "Hawker-Ridley HS-895 Skytruck": ["plane", 0], "Honda-GM 3220 ZX (Standard)": ["car", 0], "Honda-GM 3220 ZX (Turbo)": ["car", 0], "Honda Viking": ["bike", 0], "Hughes Aerospace Airstar 2050": ["rotor", 0], "Hughes WK-2 Stallion": ["rotor", 0], "Hyundai Offroader": ["car", 0], "Integrated Weapon System DLK Mk 6 Utility Machine": ["tracked", 1], "Integrated Weapon System DLK Mk 6 Utility Machine (Armed Variant)": ["tracked", 1], "Landrover Model 2046 (SW)": ["car", 0], "Landrover Model 2046 (LW)": ["car", 0], "LAV-93 Devil Rat": ["car", 0], "LAV-103 Striker Light Tank": ["car", 0], "Lear-Cessna Platinum I": ["plane", 0], "Lear-Cessna Platinum II": ["plane", 0], "Leyland-Rover Transport/Electric (Open Tray)": ["car", 0], "Leyland-Rover Transport/Electric (Encl. Box)": ["car", 0], "Leyland-Rover Transport/Electric (Minibus)": ["car", 0], "Leyland-Rover Transport/Gasoline (Open Tray)": ["car", 0], "Leyland-Rover Transport/Gasoline (Encl. Box)": ["car", 0], "Leyland-Rover Transport/Gasoline (Minibus)": ["car", 0], "Leyland-Zil Tsarina (Elec.)": ["car", 0], "Leyland-Zil Tsarina (Meth.)": ["car", 0], "Lockheed C-260 Transport": ["plane", 0], "Lone Star \"Black Mariah\" USPTV": ["car", 0], "Lone Star Modified Ford Americar": ["car", 0], "Lone Star Modified Honda 3220ZX Turbo": ["car", 0], "Lone Star Strato-9 Surveillance Drone": ["rotor", 1], "Lone Star SWAT Hovertruck": ["hover", 0], "Luftschiffbau Zeppelin LZ-2049": ["lta", 0], "Luftschiffbau Zeppelin LZ-2051-C": ["lta", 0], "Marine Technologies Dolphin II": ["boat", 0], "MCT-Nissan Roto-Drone": ["rotor", 1], "Mesametric Kodiak Roadway Clearance System": ["tracked", 1], "Mitsubishi Nightsky": ["car", 0], "Mitsubishi Runabout": ["car", 0], "Moonlight Aerospace Avenger": ["plane", 0], "Mostrans KVP-14T (Standard)": ["hover", 0], "Mostrans KVP-14T (Pass.)": ["hover", 0], "Nissan-Holden Brumby": ["car", 0], "Nordkapp-Conestoga Bergen (Tractor)": ["car", 0], "Nordkapp-Conestoga Bergen (Trailer)": ["car", 0], "Northrup Wasp (PRC-42B Variant)": ["rotor", 0], "Northrup Wasp (PRC-42F Variant)": ["rotor", 0], "Northrup Yellowjacket (PRC-44B Variant)": ["rotor", 0], "Northrup Yellowjacket (PRC-44F Variant)": ["rotor", 0], "Pratt & Whitney Sundowner Aerial Sprayer": ["plane", 1], "Renault-Fiat Eurovan (Open Tray)": ["car", 0], "Renault-Fiat Eurovan (Encl. Cargo)": ["car", 0], "Renault-Fiat Eurovan (Camper)": ["car", 0], "Renraku Arachnoid Mini-Drone": ["walker", 1], "Rolls-Royce Phaeton": ["car", 0], "Rolls-Royce Prairie Cat": ["car", 0], "Saab Dynamit 778 TI": ["car", 0], "Saab-Thyssen Bloodhound": ["car", 1], "Samuvani Criscraft Otter": ["boat", 0], "Sendanko Marlin": ["boat", 0], "Shiawase Kanmushi Mechanical Crawler": ["walker", 1], "Sikorsky-Bell Microskimmer": ["hover", 1], "Sikorsky-Bell Microskimmer II": ["hover", 1], "Sikorsky-Bell Red Ranger": ["hover", 0], "Steel Lynx Ground Combat Drone": ["car", 1], "Surfstar Marine Seacop": ["boat", 0], "Suzuki Aurora": ["bike", 0], "Suzuki Watersport (Elec.)": ["boat", 0], "Suzuki Watersport (Gas)": ["boat", 0], "Toyota Elite": ["car", 0], "Toyota MK-Guyver Search and Rescue Robot": ["walker", 1], "Toyotacorp Gopher": ["car", 0], "Thundercloud Pinto": ["car", 0], "Volkswagen Elektro": ["car", 0], "Volkswagen Superkombi III (Flatbed)": ["car", 0], "Volkswagen Superkombi III (Pickup)": ["car", 0], "Volkswagen Superkombi III (Encl. Van)": ["car", 0], "Volkswagen Superkombi III (Commuter)": ["car", 0], "Volkswagen Superkombi III (RV)": ["car", 0], "Yamaha Rapier": ["bike", 0], "Zemlya-Poltava Swordsman (Standard)": ["boat", 0], "Zemlya-Poltava Swordsman (Outboard)": ["boat", 0], "Zemlya-Poltava Swordsman (Elec.)": ["boat", 0]};
 // ---------- Vehicle build-out UI (Gear Locker) ----------
 const VSHORT={car:'Car or truck',bike:'Motorcycle',tracked:'Tracked or ground',walker:'Walker',hover:'Hovercraft',boat:'Boat',plane:'Fixed-wing aircraft',rotor:'Helicopter or VTOL',lta:'Airship'};
@@ -579,8 +778,8 @@ const fmt=n=>n==null||isNaN(n)?'—':Math.round(n).toLocaleString('en-US');
 const slug=id=>id.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const BYSLUG=Object.fromEntries(ITEMS.map(i=>[slug(i.id),i]));
 let st={books:{core:1,ssc:1,r2:1,vr2:1,fof:1,st:1,ct:1,csh:1,gr:1,aw:1,co:1},cat:'all',q:'',sort:'book',dir:1,f:{},sel:null,rate:{},kit:[]};
-try{const s=JSON.parse(localStorage.getItem('sr2gear')||'null'); if(s){st.books=Object.assign(st.books,s.books||{}); st.kit=Array.isArray(s.kit)?s.kit.map(k=>{const f={'elec:BattleTac Master Unit':'elec:Tacticom Master Unit','elec:BattleTac Portable Master Unit':'elec:Tacticom Portable Master Unit','elec:BattleTac Personal Comm Unit':'elec:Tacticom Personal Comm Unit'}[k.id]; return f?{...k,id:f}:k;}).filter(k=>BYID[k.id]||k.n):[]; if(s.build&&typeof s.build==='object') st.build=s.build; if(s.dbuild&&typeof s.dbuild==='object') st.dbuild=s.dbuild; if(s.vbuild&&typeof s.vbuild==='object') st.vbuild=s.vbuild; if(s.hbuild&&typeof s.hbuild==='object') st.hbuild=s.hbuild; if(typeof s.charId==='string') st.charId=s.charId;}}catch(e){}
-const save=()=>{try{localStorage.setItem('sr2gear',JSON.stringify({books:st.books,kit:st.kit,build:st.build||{},dbuild:st.dbuild||{},vbuild:st.vbuild||{},hbuild:st.hbuild||{},charId:st.charId||''}));}catch(e){}};
+try{const s=JSON.parse(localStorage.getItem('sr2gear')||'null'); if(s){st.books=Object.assign(st.books,s.books||{}); st.kit=Array.isArray(s.kit)?s.kit.map(k=>{const f={'elec:BattleTac Master Unit':'elec:Tacticom Master Unit','elec:BattleTac Portable Master Unit':'elec:Tacticom Portable Master Unit','elec:BattleTac Personal Comm Unit':'elec:Tacticom Personal Comm Unit'}[k.id]; return f?{...k,id:f}:k;}).filter(k=>BYID[k.id]||k.n):[]; if(s.build&&typeof s.build==='object') st.build=s.build; if(s.dbuild&&typeof s.dbuild==='object') st.dbuild=s.dbuild; if(s.vbuild&&typeof s.vbuild==='object') st.vbuild=s.vbuild; if(s.hbuild&&typeof s.hbuild==='object') st.hbuild=s.hbuild; if(s.cbody&&typeof s.cbody==='object') st.cbody=s.cbody; if(typeof s.charId==='string') st.charId=s.charId;}}catch(e){}
+const save=()=>{try{localStorage.setItem('sr2gear',JSON.stringify({books:st.books,kit:st.kit,build:st.build||{},dbuild:st.dbuild||{},vbuild:st.vbuild||{},hbuild:st.hbuild||{},cbody:st.cbody||null,charId:st.charId||''}));}catch(e){}};
 const srcTag=s=>`<span class="src" style="--bc:var(${BOOK[s][2]})">${BOOK[s][1]}</span>`;
 function pageRef(i){const p=i.pg||'';return /^(SSC|R2|VR2|FoF|ST|CT|CSH|GR|AW|SRC)\b/.test(p)?p:(p?'Core '+p:'');}
 function costAt(i,r){ if(i.cost!=null) return i.cost; if(i.costs) return i.costs[r]; if(i.mult!=null) return i.mult*r; return null;}
@@ -890,6 +1089,7 @@ function ownedMap(C){const m={}; if(!C) return m; const S=C.S, add=(k,q,note)=>{
     add(g.key,q,note);});
   if((S.gear||[]).some(g=>g&&g.key===CUSTOM_DECK)&&S.vr2deck&&m[CUSTOM_DECK]) m[CUSTOM_DECK].notes.push('MPCP '+(S.vr2deck.mpcp||'?'));
   if(S.magic&&S.magic!=='none'&&S.magic!=='adept') (S.powers||[]).forEach(p=>{if(p&&p.name&&BYID['spell:'+p.name]) add('spell:'+p.name,1,p.cost?'Force '+p.cost:'');});
+  if(S.cbody&&S.cbody.limbs){const P=S.cbody; CB.SIDES.forEach(([sd,lab])=>{const L=P.limbs[sd]; if(!L) return; if(L.full) add(L.gyro?'body:Cyberarm Gyromount':'body:Cyberarm or Cyberleg',1,lab); if(!L.full&&L.fore) add('body:Cyber Forearm or Lower Leg',1,lab); if(!L.full&&L.hand) add('body:Cyberhand or Cyberfoot',1,lab); (L.acc||[]).forEach(id=>{if(BYID[id]) add(id,1,'in the '+lab.toLowerCase());});}); if(P.torso&&P.torso.on) add('body:Cybertorso',1,''); if(P.skull&&P.skull.on) add('body:Cyberskull',1,'');}
   if(S.optEF) (S.ef||[]).forEach(x=>{if(x&&BYID['ef:'+x.n]) add('ef:'+x.n,1,'');});
   return m;}
 let OWN={}, OWNC=null;
@@ -897,6 +1097,25 @@ function refreshOwned(){OWNC=linkedChar(); OWN=ownedMap(OWNC);}
 function ownBadge(i){const o=OWN[i.id]; return o?`<span class="own" title="Already on ${esc(OWNC.label)}">✓ ${o.n>1?'×'+o.n+' ':''}owned</span>`:'';}
 function ownNote(i){const o=OWN[i.id]; if(!o) return ''; return `<p class="ownnote"><b>${esc(shortName(OWNC))} already has ${o.n>1?o.n+' of these':'this'}</b>${o.notes.filter(Boolean).length?': '+esc(o.notes.filter(Boolean).join('; ')):''}.</p>`;}
 function shortName(C){return C?String(C.label).replace(/ · .*$/,'').replace(/ \(pasted\)$/,''):'';}
+// ---------- Cyber body planner (Gear Locker) ----------
+const CB_PAGES=new Set(['body:Cyberarm or Cyberleg','body:Cyberhand or Cyberfoot','body:Cyber Forearm or Lower Leg','body:Cyberarm Gyromount','body:Cybertorso','body:Cyberskull','body:Cyber Limb','body:Cyberlimb Strength Enhancement','body:Cyberlimb Quickness Enhancement','body:Cyberlimb Body Enhancement','body:Cyber Body Plating, soft','body:Cyber Body Plating, hard','body:Magnetic Cyberlimb System']);
+const CBENV={item:k=>{const i=BYID[k]; if(!i) return null; return {n:i.n,pg:pageRef(i),cost:i.cost!=null?i.cost:(i.costs?(i.costs[1]??Object.values(i.costs)[0]):0),e:i.e!=null?i.e:(i.ess?(i.ess[1]??Object.values(i.ess)[0]):0),desc:i.desc||''};}};
+const RMOD={Dwarf:{body:1,str:2},Elf:{quick:1},Ork:{body:3,str:2},Troll:{body:5,quick:-1,str:4}};
+let CB_DROP=[];
+function cbState(){st.cbody=st.cbody||{P:CB.defPlan(),C:{troll:false,body:3,str:3,quick:3}}; return st.cbody;}
+function cbFix(){const S=cbState(); const c=CB.clamp(S.P,S.C,CBENV); S.P=c.P; if(c.dropped.length) CB_DROP=c.dropped; return S;}
+function cbFromChar(){const C=OWNC&&OWNC.S; if(!C) return null; const rb=String(C.race||'Human').replace(/ \(.*$/,''); const base=RMOD[rb]?rb:(Object.keys(RMOD).find(k=>rb.includes(k))||'Human'); const m=RMOD[base]||{};
+  const g=k=>Math.max(1,(+((C.attrs||{})[k])||1)+(m[k]||0)); const mr=(C.gear||[]).filter(x=>x.key==='body:Muscle Replacement').reduce((a,x)=>Math.max(a,+x.r||0),0);
+  return {troll:base==='Troll',body:g('body'),str:g('str')+mr,quick:g('quick')+mr,label:shortName(OWNC)};}
+function cbHTML(i){ if(!CB_PAGES.has(i.id)) return '';
+  const S=cbFix(); const fc=cbFromChar();
+  const inp=(f,lab)=>`<label class="cb-f"><span>${lab}</span><select data-cbc="${f}">${Array.from({length:15},(_,k)=>k+1).map(v=>`<option ${v===+S.C[f]?'selected':''}>${v}</option>`).join('')}</select></label>`;
+  const intro=`<p class="note">Plan every cyberlimb at once: limbs work in pairs and share averages, so the rules need the whole body (Cybertechnology p. 30–37, 49–52). Only legal choices are offered.</p>
+   <div class="cb-grid">${inp('body','Natural Body')}${inp('str','Natural Strength (incl. muscle replacement)')}${inp('quick','Natural Quickness')}</div>
+   <div class="cb-chks"><label class="cb-c"><input type="checkbox" data-cbc="troll" ${S.C.troll?'checked':''}> Troll (cyberlimbs start at Strength 8)</label>${fc?`<button class="btn ghost" id="cbUseChar" type="button">Use ${esc(fc.label)}’s attributes</button>`:''}</div>`;
+  const R=CB.calc(S.P,S.C,CBENV); const html=CBUI.view(S.P,S.C,CBENV,{intro,dropped:CB_DROP}); CB_DROP=[];
+  return `<section class="build" aria-label="Cyber body build-out"><h3>Build it out: cyber body</h3>${html}
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn" id="addCB" ${R.rows.length?'':'disabled'}>Add to shopping list</button><button class="btn ghost" data-send="cbody" ${R.rows.length?'':'disabled'}>Send to a character</button><button class="btn ghost" id="clrCB">Start over</button></div></section>`;}
 function renderCharBar(){const L=charList(), C=OWNC;
   const opts=L.map(c=>`<option value="${esc(c.id)}" ${C&&C.id===c.id?'selected':''}>${esc(c.label)}${c.current?' (open in builder)':''}</option>`).join('');
   const f=(location.pathname.split('/').pop()||'').toLowerCase(); const bh=location.protocol==='file:'&&/sr2_gear_locker/.test(f)?'SR2_Runner_Builder.html':(/^https?:$/.test(location.protocol)&&/gear-locker\.html$/.test(f)?'builder.html':'');
@@ -1448,10 +1667,11 @@ function renderTag(){
    ${deckHTML(i)}
    ${vehHTML(i)}
    ${hostHTML(i)}
+   ${cbHTML(i)}
    ${gradeTable(i,r)}
    ${spellTable(i)}
    ${rulesFor(i)}
-   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">${i.sp||i.ef||i.mt||i.cat==='power'||canBuild(i)||isDeck(i)||isVeh(i)||HB.isHost(i.id)?'':'<button class="btn" id="addKit">Add to shopping list</button><button class="btn ghost" data-send="item">Send to a character</button>'}${i.m1?'<span class="note">Matrix 1.0 item: VR2 replaces it if your table uses VR2.</span>':''}</div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">${i.sp||i.ef||i.mt||i.cat==='power'||canBuild(i)||isDeck(i)||isVeh(i)||HB.isHost(i.id)||CB_PAGES.has(i.id)?'':'<button class="btn" id="addKit">Add to shopping list</button><button class="btn ghost" data-send="item">Send to a character</button>'}${i.m1?'<span class="note">Matrix 1.0 item: VR2 replaces it if your table uses VR2.</span>':''}</div>
    ${G.length?`<h3>Goes with</h3><div class="links">${G.map(g=>`<div class="lgrp"><h4>${esc(g.title)}</h4>${g.note?`<p>${esc(g.note)}</p>`:''}${g.text?`<p>${esc(g.text)}</p>`:`<div class="pills">${g.list.map(x=>`<button class="pill ${visible(x)?'':'off'}" data-id="${esc(x.id)}" title="${esc(BOOK[x.src][0]+' '+pageRef(x))}">${srcTag(x.src)}${esc(x.n)}<span class="pp">${priceLabel(x)}</span></button>`).join('')}</div>`}</div>`).join('')}</div>`:''}`;
 }
 function kitChip(){const el=$('kitchip'); if(!el) return; let c=0; st.kit.forEach(k=>{const i=BYID[k.id]||{cost:k.cost}; c+=costAt(i,k.r)||0;}); el.textContent=st.kit.length?`Shopping list: ${st.kit.length} · ${fmt(c)}¥`:'Shopping list: empty';}
@@ -1483,7 +1703,7 @@ function sendGear(p){p.v=1; p.at=Date.now(); p.from='Gear Locker';
   let copied=false; try{navigator.clipboard.writeText(code).then(()=>{const m=$('sendCopied'); if(m) m.textContent='Code copied.';},()=>{});}catch(e){}
   const n=p.items.length;
   $('sendDlg').innerHTML=`<div class="sd-card" role="dialog" aria-label="Send to a character"><div class="sd-h"><b>Sent: ${esc(p.label)}</b><button class="x" id="sendClose" aria-label="Close">×</button></div>
-    <p>${n} item${n>1?'s':''}${p.vr2deck?' plus the custom deck design':''}, with ${n>1?'their':'its'} build-out, ready for the Runner Builder.</p>
+    <p>${p.cbody?'A cyber body plan (limbs, enhancements and accessories)':`${n} item${n>1?'s':''}${p.vr2deck?' plus the custom deck design':''}`}, with ${n>1?'their':'its'} build-out, ready for the Runner Builder.</p>
     ${(()=>{const d=p.items.filter(x=>x.key&&OWN[x.key]).map(x=>BYID[x.key].n); return d.length&&OWNC?`<p class="ownnote"><b>Heads up:</b> ${esc(shortName(OWNC))} already has ${esc([...new Set(d)].join(', '))}. Adding it again gives them a second one.</p>`:'';})()}
     <p><b>Builder on the same website</b> (like your GitHub Pages link): open it and it will ask before adding ${n>1?'them':'it'} to your current character.</p>
     <p><b>Anywhere else</b> (another site, another device, or a saved file): copy this code and paste it into the builder’s <i>Paste a character code</i> box, then press <i>Load pasted character</i>. It adds the gear instead of replacing the character. <span class="note" id="sendCopied"></span></p>
@@ -1513,6 +1733,7 @@ document.addEventListener('click',e=>{
   if(e.target.id==='ftog'){const sh=document.querySelector('.shelf'); const o=sh.classList.toggle('fopen'); e.target.setAttribute('aria-expanded',o); return;}
   if(e.target.id==='dir'){st.dir=-st.dir; renderSortFilter(); renderList(); return;}
   const it=e.target.closest('[data-id]'); if(it){select(it.dataset.id,true); return;}
+  if(e.target.dataset&&e.target.dataset.send==='cbody'){const S=cbFix(); sendGear({items:[],cbody:JSON.parse(JSON.stringify(S.P)),label:'Cyber body'}); return;}
   if(e.target.dataset&&e.target.dataset.send){ if(e.target.dataset.send==='kit'){ if(st.kit.length) sendGear(xferKit()); } else {const i=BYID[st.sel]; if(i) sendGear(xferItem(i));} return;}
   if(e.target.id==='sendClose'||e.target.id==='sendClose2'||e.target.id==='sendDlg'){$('sendDlg').hidden=true; return;}
   if(e.target.id==='sendCopy'){const t=$('sendCode'); t.select(); let ok=false; try{navigator.clipboard.writeText(t.value).then(()=>{e.target.textContent='Copied';},()=>{try{document.execCommand('copy');e.target.textContent='Copied';}catch(_){}});}catch(_){try{document.execCommand('copy');e.target.textContent='Copied';}catch(__){}} return;}
@@ -1526,6 +1747,11 @@ document.addEventListener('click',e=>{
   if(e.target.dataset&&e.target.dataset.vbdel!=null){const i=BYID[st.sel]; const B=vstate(i); B.mods.splice(+e.target.dataset.vbdel,1); save(); renderTag(); return;}
   if(e.target.dataset&&e.target.dataset.hbadd){const i=BYID[st.sel]; const S=hbFix(i); const x=HB.addable(i.id,S,HBENV).yes.find(y=>y.id===e.target.dataset.hbadd); if(x) S.opts.push({id:x.id,r:x.r}); st.hguide=true; save(); renderTag(); return;}
   if(e.target.dataset&&e.target.dataset.hbdel!=null){const i=BYID[st.sel]; const S=hstate(i); S.opts.splice(+e.target.dataset.hbdel,1); hbFix(i); save(); renderTag(); return;}
+  if(e.target.dataset&&e.target.dataset.cbdel){const [sd,ix]=e.target.dataset.cbdel.split('|'); const S=cbState(); S.P.limbs[sd].acc.splice(+ix,1); cbFix(); save(); renderTag(); return;}
+  if(e.target.id==='cbUseChar'){const f=cbFromChar(); if(f){const S=cbState(); S.C={troll:f.troll,body:f.body,str:f.str,quick:f.quick}; cbFix(); save(); renderTag();} return;}
+  if(e.target.id==='clrCB'){delete st.cbody; save(); renderTag(); return;}
+  if(e.target.id==='addCB'){const S=cbFix(); const R=CB.calc(S.P,S.C,CBENV); const parts=CB.SIDES.filter(([sd])=>CB.any(S.P.limbs[sd])).map(([sd,lab])=>lab+': '+CB.word(sd,S.P.limbs[sd])).concat(S.P.torso.on?['cybertorso']:[],S.P.skull.on?['cyberskull']:[]);
+    st.kit.push({n:'Cyber body ('+parts.join('; ')+')',cost:R.cost,src:'ct'}); save(); renderKit(); e.target.textContent='Added'; setTimeout(()=>{const b=$('addCB'); if(b) b.textContent='Add to shopping list';},1200); return;}
   if(e.target.id==='clrHost'){const i=BYID[st.sel]; delete st.hbuild[i.id]; save(); renderTag(); return;}
   if(e.target.id==='addHost'){const i=BYID[st.sel]; const S=hbFix(i); const C=HB.calc(i.id,S,HBENV); st.kit.push(C.rows.length||S.single?{n:`${i.n}${S.single?' (single eye)':''}${C.rows.filter(x=>!x.fixed).length?' + '+C.rows.filter(x=>!x.fixed).map(x=>x.n).join(', '):''}${C.rows.some(x=>x.fixed)?' with helmet':''}`,cost:C.total,src:i.src}:{id:i.id,r:0}); save(); renderKit(); e.target.textContent='Added'; setTimeout(()=>{const b=$('addHost'); if(b) b.textContent='Add to shopping list';},1200); return;}
   if(e.target.id==='clrVeh'){const i=BYID[st.sel]; delete st.vbuild[i.id]; save(); renderTag(); return;}
@@ -1547,6 +1773,9 @@ document.addEventListener('click',e=>{
 document.addEventListener('toggle',e=>{if(e.target.classList&&e.target.classList.contains('pguide')){if(e.target.closest('[aria-label="Vehicle build-out"]')) st.vguide=e.target.open; else if(e.target.closest('[aria-label="Options build-out"]')) st.hguide=e.target.open; else st.pguide=e.target.open;}},true);
 document.addEventListener('change',e=>{
   const t=e.target, g=BYID[st.sel]; if(!g) return;
+  if(t.dataset.cb){const S=cbState(); CBUI.apply(S.P,t.dataset.cb,t.type==='checkbox'?t.checked:t.value); cbFix(); save(); renderTag(); return;}
+  if(t.dataset.cbadd!==undefined&&t.value){const S=cbState(); S.P.limbs[t.dataset.cbadd].acc.push(t.value); cbFix(); save(); renderTag(); return;}
+  if(t.dataset.cbc){const S=cbState(); S.C[t.dataset.cbc]=t.type==='checkbox'?t.checked:+t.value; cbFix(); save(); renderTag(); return;}
   if(t.dataset.hb){const S=hstate(g); S[t.dataset.hb]=t.checked; hbFix(g); save(); renderTag(); return;}
   if(t.dataset.hbr!==undefined){const S=hstate(g); const o=S.opts[+t.dataset.hbr]; if(o) o.r=+t.value; hbFix(g); save(); renderTag(); return;}
   if(t.dataset.vb){const B=vstate(g); const f=t.dataset.vb; B[f]=t.type==='checkbox'?t.checked:t.value; vbFix(g); save(); renderTag(); const el=$(t.id); if(el) el.focus(); return;}
@@ -1582,6 +1811,7 @@ document.addEventListener('click',e=>{if(e.target.id!=='charLoad') return; const
   catch(err){$('charMsg').textContent=err.message==='gear'?'That’s a gear code. Paste a character code from the Runner Builder instead.':'That code didn’t load. Copy the whole character code and try again.';}});
 window.addEventListener('storage',e=>{if([BKEY,BRKEY,CKEY].includes(e.key)) ownRefresh();});
 window.addEventListener('focus',ownRefresh); document.addEventListener('visibilitychange',()=>{if(!document.hidden) ownRefresh();});
+{const st2=document.createElement('style'); st2.textContent=CBUI.CSS; document.head.appendChild(st2);}
 refreshOwned(); renderCharBar();
 all();
 if(location.hash) fromHash(); else select('guns:Ares Predator');

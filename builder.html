@@ -263,6 +263,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         <div class="note" id="gPreview" style="margin:-0.25rem 0 0.625rem"></div>
         <div class="tbl"><table><thead><tr><th>Item</th><th class="n">Rating</th><th class="n">Qty</th><th class="n">Cost each (¥)</th><th class="n">Essence</th><th class="n">Total</th><th></th></tr></thead><tbody id="gearBody"></tbody></table></div>
         <div id="hostBuild"></div>
+        <div id="cbBuild"></div>
         <div class="row"><button id="addGear" class="ghost">Add your own item</button><span class="note">Gear sorts itself by category. Prices are list prices. Each item shows its book and printed page. Turn books on or off under Rules.</span></div>
         <div class="budget" id="resBudget"></div>
         <div class="row">
@@ -380,7 +381,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1794459233239","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwd2p1v9"}};</script>
+<script>window.__SR2_EMBED={"stamp":"1794461514143","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwd41xtu"}};</script>
 <script id="appJs">
 /*@shared:decks*/
 // ---------- Cyberdeck rules shared by both tools (core p. 172–176; VR2 p. 16, 85–89) ----------
@@ -778,10 +779,11 @@ function deckEnforce(){
  else if(!cust&&stored>dk.sm){let over=stored-dk.sm; for(let k=S.gear.length-1;k>=0&&over>0;k--){const g=S.gear[k]; if(!isUtil(g)) continue; while(+g.r>1&&over>0){const a=sz(g); g.r--; over-=a-sz(g);}}}
 }
 const KEYFIX={'elec:BattleTac Master Unit':'elec:Tacticom Master Unit','elec:BattleTac Portable Master Unit':'elec:Tacticom Portable Master Unit','elec:BattleTac Personal Comm Unit':'elec:Tacticom Personal Comm Unit'}; // FoF p. 58 units are the Phillips Tacticom, not BattleTac
-function syncGear(){S.gear.forEach(g=>{if(g&&KEYFIX[g.key]) g.key=KEYFIX[g.key];}); deckEnforce(); S.gear.forEach(g=>{const it=g.key&&GEARDB[g.key]; if(!it) return; if(WSTAT[g.key]) migrateAcc(g); const r=it.r?Math.min(it.r[1],Math.max(it.r[0],+g.r||it.r[0])):0; g.r=it.r?r:undefined; g.cat=it.cat; g.name=it.n+(it.r?` (${it.r[2]} ${r})`:''); g.cost=gv(it.c,r); g.ess=+gv(it.e,r)||0;
+function syncGear(){S.gear.forEach(g=>{if(g&&KEYFIX[g.key]) g.key=KEYFIX[g.key];}); if(typeof cbSync==='function') cbSync(); deckEnforce(); S.gear.forEach(g=>{const it=g.key&&GEARDB[g.key]; if(!it) return; if(WSTAT[g.key]) migrateAcc(g); const r=it.r?Math.min(it.r[1],Math.max(it.r[0],+g.r||it.r[0])):0; g.r=it.r?r:undefined; g.cat=it.cat; g.name=it.n+(it.r?` (${it.r[2]} ${r})`:''); g.cost=gv(it.c,r); g.ess=+gv(it.e,r)||0;
   if(it.bi!=null){g.bi=+gv(it.bi,r)||0; if(g.cultured&&!it.neural){g.bi=Math.round(g.bi*.75*1000)/1000; g.cost*=4;} g.ess=0;}
   else if(g.grade&&g.grade!=='std'&&CYBER_GRADES[g.grade]&&gradeable(it)){const G=CYBER_GRADES[g.grade]; g.cost=g.cost*G[2]; if(g.ess>0) g.ess=Math.max(.05,Math.ceil(g.ess*G[1]*100-1e-9)/100); g.name+=' · '+G[0];}
   else if(g.grade) g.grade='std';
+  if(g.key===CBKEY){cbRowFix(g); return;}
   if(typeof HB!=='undefined'&&HB.isHost(g.key)&&g.hb){const C=hbFixG(g); const n=C.rows.filter(x=>!x.fixed); if(n.length||g.hb.single||C.rows.some(x=>x.fixed)){g.cost=C.total; g.ess=C.ess; g.addons=C.total-C.hostCost; g.name=it.n+(g.hb.single?' (single eye)':'')+(C.rows.some(x=>x.fixed)?' with helmet':'')+(n.length?' + '+n.map(x=>x.n).join(', '):'');}}
   if(typeof R2OBJ!=='undefined'&&R2OBJ[g.key]&&g.vb&&g.vb.mods&&g.vb.mods.length){const v=vbFixG(g); const r=VB.calc(v,g.vb); g.addons=r.cost; if(g.addons){g.cost+=g.addons; g.name+=' + mods';}}
   if(WSTAT[g.key]&&g.build&&typeof GB!=='undefined'){const r=gunCalc(g); g.addons=r?r.C.cost-r.o.cost:0; if(g.addons){g.cost+=g.addons; g.name+=' + add-ons';}}});}
@@ -925,7 +927,8 @@ function armorTotals(){
   const q=augAttr('quick');
   const poolPenalty=Math.max(heavyB?Math.max(0,heavyB-q):0, milB?Math.max(0,Math.floor((milB-q)/2)):0); // military armor: −1 per 2 points over Quickness (FoF p. 54)
   const mystic=S.magic==='adept'?S.powers.filter(p=>p.type==='mysticArmor').reduce((m,p)=>m+(+p.n||0),0):0; // GR p. 34: adds to worn impact armor
-  return {b:b+hb,i:i+hi+mystic,derm,poolPenalty,worn,mystic};
+  const cbA=(typeof cbOn==='function'&&cbOn())?(cbCalc()||{}).plateArmor||0:0; // cyber body plating stacks with worn armor (CT p. 37)
+  return {b:b+hb+cbA,i:i+hi+mystic+cbA,derm,poolPenalty,worn,mystic,cbA};
 }
 function hasLinedCoat(){return S.gear.some(g=>g.key==='armor:Lined Coat'&&!g.off);}
 const PROG_NOTE={"prog:Armor": "No rules text in the core book; it only appears in the price table. It looks like a leftover from SR1. Matrix 2.0 has a real Armor utility (VR2 p. 99) that cuts the Power of damage to your icon by its rating; ask your GM before using that version with core rules.", "prog:Restore": "No rules text in the core book; it only appears in the price table. It looks like a leftover from SR1. Matrix 2.0 has a real Restore utility (VR2 p. 100) that repairs damaged icon attributes, 1 point per 2 successes; ask your GM before using that version with core rules.", "prog:Sift": "No rules text in the core book; it only appears in the price table. It looks like a leftover from SR1, and VR2 dropped it. The closest core programs for digging through data are Browse and Evaluate (p. 176); ask your GM what Sift does at your table."};
@@ -1165,6 +1168,7 @@ function buildEditor(g,i){const r=gunCalc(g); if(!r) return ''; const {o,C}=r;
 // ---------- render extras ----------
 function renderExtras(){
   syncGear();
+  cbCard();
   {const L=S.gear.map((g,i)=>[g,i]).filter(([g])=>g.key&&HB.isHost(g.key)); const el=$('hostBuild'); if(el) el.innerHTML=L.length?`<h3 style="margin:1rem 0 0.25rem">Options <span class="pg">core p. 247 · SSC p. 70–71 · CT p. 45</span></h3>`+L.map(([g,i])=>hbEditor(g,i)).join(''):'';}
   // racial traits note
   // weapons
@@ -1669,6 +1673,223 @@ function hbEditor(g,ix){const C=hbFixG(g); if(!C) return ''; const S=g.hb, k=C.k
     <p class="note">${esc(HB.INTRO[k])} Only options that fit are offered. <span class="pg">${esc(HB.PAGES[k])}</span></p>${head}
     ${dr?`<p class="wbw">No longer fit, so removed: ${esc(dr.join(', '))}.</p>`:''}${rows?`<ul class="ulist">${rows}</ul>`:''}${guide}${no}
     ${C.notes.map(n=>`<p class="gstat">${esc(n)}</p>`).join('')}</details>`;}
+/*@shared:cyberbody*/
+// ---------- Cyber body: cyberlimbs, torso and skull (Cybertechnology p. 30–37, 49–52) ----------
+// Shared by both tools. Each page defines CBENV: item(key) → {n,pg,cost,e,desc}.
+// Plan: {limbs:{la,ra,ll,rl:{full,gyro,fore,hand,str,hstr,fstr,qui,plate,hard,cover,mag,acc:[ids]}}, bodyArms, bodyLegs, torso:{on,plate,hard}, skull:{on,plate,hard}, cap4}
+// Character: {troll, body, str, quick} (natural, unaugmented; str includes muscle replacement for natural limbs).
+const CB=(()=>{
+const SIDES=[['la','Left arm','arm'],['ra','Right arm','arm'],['ll','Left leg','leg'],['rl','Right leg','leg']];
+const PAIR={arm:['la','ra'],leg:['ll','rl']};
+const r2=x=>Math.round(x*1000)/1000;
+// accessories that fit in a limb: where (hand/arm/leg/foot), Essence when built into the limb (CT p. 49 compatibility), page note
+const ACC={
+ 'body:Hand Razors':{at:'hand',e:0,why:'Spurs and razors cost no Essence in a cyberlimb (CT p. 49)'},
+ 'body:Retractable Hand Razors':{at:'hand',e:0,why:'Spurs and razors cost no Essence in a cyberlimb (CT p. 49)'},
+ 'body:Improved Hand Razor Blades':{at:'hand',e:0,needs:['body:Hand Razors','body:Retractable Hand Razors'],why:'Upgrade for hand razors'},
+ 'body:Spur':{at:'fore',e:0,why:'Spurs and razors cost no Essence in a cyberlimb (CT p. 49)'},
+ 'body:Retractable Spur':{at:'fore',e:0,why:'Spurs and razors cost no Essence in a cyberlimb (CT p. 49)'},
+ 'body:Cyberarm Hand Blade':{at:'hand',e:0,why:'Essence applies only in a natural hand (CT p. 36)'},
+ 'body:Cyberarm Hand Blade, retractable':{at:'hand',e:0,why:'Essence applies only in a natural hand (CT p. 36)'},
+ 'body:Shock Hand':{at:'hand'},'body:Cyberarm Taser':{at:'fore'},'body:CyberSquirt':{at:'fore'},
+ 'body:Fingertip Compartment':{at:'hand',e:0,why:'No Essence in a cyberlimb (CT p. 49)'},'body:Fingertip ExpertPicks':{at:'hand'},'body:Fingertip Needle':{at:'hand'},
+ 'body:Replacement Hand':{at:'fore',why:'Detachable hand: swap tool or weapon hands (Complex Action); built-in weapons +1 TN'},
+ 'body:Smartlink':{at:'hand',e:.25,why:'Smartgun links cost .25 Essence in a cyberlimb (CT p. 49)'},
+ 'body:Smartlink II':{at:'hand',e:.25,why:'Smartgun links cost .25 Essence in a cyberlimb (CT p. 49)'},
+ 'body:Cybergun: Hold-Out Pistol':{at:'fore',gun:1,e:0,why:'Cyberguns in a cyberlimb cost no Essence (CT p. 51)'},
+ 'body:Cybergun: Light Pistol':{at:'fore',gun:1,e:0,why:'Cyberguns in a cyberlimb cost no Essence (CT p. 51)'},
+ 'body:Cybergun: Machine Pistol':{at:'fore',gun:1,e:0,why:'Cyberguns in a cyberlimb cost no Essence (CT p. 51)'},
+ 'body:Cybergun: SMG':{at:'fore',gun:1,e:0,why:'Cyberguns in a cyberlimb cost no Essence (CT p. 51)'},
+ 'body:Cybergun: Heavy Pistol':{at:'fore',gun:1,e:0,why:'Cyberguns in a cyberlimb cost no Essence (CT p. 51)'},
+ 'body:Cybergun: Shotgun':{at:'fore',gun:1,e:0,why:'Cyberguns in a cyberlimb cost no Essence (CT p. 51)'},
+ 'body:Direct Neural Interface':{at:'arm',why:'Cybernetic control of a device in the limb not built for it; the device costs 50% more (CT p. 33)'},
+ 'head:Tactical Computer':{at:'full',lvl:1,emul:.75,why:'In a cyberarm: Essence −25%, round down (CT p. 49)'},
+ 'head:Orientation System':{at:'full',e:.25,why:'Orientation system costs .25 Essence in a cyberlimb (CT p. 49)'},
+ 'body:Foot Anchor':{at:'foot',why:'Foot spur: (Str−1)M, or anchors you (+50 kg hold per foot) (CT p. 34)'},
+};
+const ACC_ARM=Object.keys(ACC).filter(k=>ACC[k].at!=='foot'), ACC_LEG=['body:Foot Anchor'];
+function defLimb(){return {full:false,gyro:false,fore:false,hand:false,str:0,hstr:0,fstr:0,qui:0,plate:0,hard:false,cover:false,mag:false,acc:[]};}
+function defPlan(){return {limbs:{la:defLimb(),ra:defLimb(),ll:defLimb(),rl:defLimb()},bodyArms:0,bodyLegs:0,torso:{on:false,plate:0,hard:false},skull:{on:false,plate:0,hard:false},cap4:true};}
+const kind=s=>SIDES.find(x=>x[0]===s)[2];
+const hasHand=L=>L.full||L.hand, hasFore=L=>L.full||L.fore;
+const any=L=>L.full||L.fore||L.hand;
+function word(s,L){const k=kind(s); if(L.full) return L.gyro?'gyromount cyberarm':k==='arm'?'cyberarm':'cyberleg'; const p=[]; if(L.fore) p.push(k==='arm'?'cyber forearm':'cyber lower leg'); if(L.hand) p.push(k==='arm'?'cyberhand':'cyberfoot'); return p.join(' + ')||'natural';}
+function calc(P,C,E){
+ P=P||defPlan(); C=C||{troll:false,body:3,str:3,quick:3}; const bad=[],warn=[],rows=[]; let cost=0,ess=0;
+ const add=(where,n,c,e,pg,note)=>{rows.push({where,n,cost:Math.round(c),ess:r2(e),pg:pg||'',note:note||''}); cost+=c; ess+=e;};
+ const torso=!!(P.torso&&P.torso.on); const base=C.troll?8:3;
+ const limbStr={},limbQui={};
+ SIDES.forEach(([s,label,k])=>{const L=Object.assign(defLimb(),P.limbs[s]||{});
+   if(L.full&&(L.fore||L.hand)) bad.push(`${label}: a full ${k==='arm'?'cyberarm':'cyberleg'} already includes the ${k==='arm'?'forearm and hand':'lower leg and foot'}`);
+   if(L.gyro&&(!L.full||k!=='arm')) bad.push(`${label}: the gyromount is a full cyberarm`);
+   if(L.full){ if(L.gyro) add(label,'Gyromount cyberarm (recoil comp 3, up to LMGs)',260000,1.5,'CT p. 33'); else add(label,k==='arm'?'Cyberarm':'Cyberleg',100000,1,'CT p. 30'); }
+   else { if(L.fore) add(label,k==='arm'?'Cyber forearm':'Cyber lower leg',70000,.65,'CT p. 30'); if(L.hand) add(label,k==='arm'?'Cyberhand':'Cyberfoot',45000,.35,'CT p. 30'); }
+   const limbPrice=(L.full?(L.gyro?260000:100000):0)+(L.fore?70000:0)+(L.hand?45000:0);
+   if(L.cover){ if(!any(L)) bad.push(`${label}: covering needs a cyberlimb`); else add(label,'Semi-natural covering (+3 TN to spot it)',limbPrice*.1,0,'CT p. 30'); }
+   if(L.mag){ if(!any(L)) bad.push(`${label}: the magnetic system needs a cyberlimb`); else add(label,'Magnetic system (holds 25 kg of ferrous metal)',2800,0,'CT p. 32'); }
+   // enhancements
+   const types=[]; if(L.full&&+L.str) types.push('str'); if(L.full&&+L.qui) types.push('qui'); const pairBody=k==='arm'?+P.bodyArms||0:+P.bodyLegs||0; if(L.full&&pairBody) types.push('bod');
+   const surcharge=t=>types.indexOf(t)>0?1.1:1;
+   if(+L.str){ if(!L.full) bad.push(`${label}: Strength enhancement for a whole limb needs a full cyberlimb (use hand or forearm strength for partial limbs)`); else {
+     const n=+L.str; let c=0,e=0; for(let i=1;i<=n;i++){ c+=i<=3?150000:175000; if(C.troll||i>3) e+=.4; }
+     if(torso) e=Math.ceil(e/2*100)/100;
+     add(label,`Strength enhancement +${n}${surcharge('str')>1?' (+10%, second enhancement)':''}`,c*surcharge('str'),e,'CT p. 31, 50–51',(C.troll?'Troll: every point costs .4 Essence (CT p. 51)':(n>3?'.4 Essence each point past 3':''))+(torso&&e?' · halved by the cybertorso':''));}}
+   if(+L.qui){ if(!L.full) bad.push(`${label}: Quickness enhancement needs a full cyberlimb`); else {
+     const n=+L.qui; let c=0,e=0; for(let i=1;i<=n;i++){ c+=i<=3?90000:110000; if(i>3) e+=.3; } if(torso) e=Math.ceil(e/2*100)/100;
+     add(label,`Quickness enhancement +${n}${surcharge('qui')>1?' (+10%, additional enhancement)':''}`,c*surcharge('qui'),e,'CT p. 31, 51');}}
+   if(L.full&&pairBody){ add(label,`Body enhancement +${pairBody}${surcharge('bod')>1?' (+10%, additional enhancement)':''}`,75000*pairBody*surcharge('bod'),0,'CT p. 31, 51'); }
+   if(+L.hstr){ if(L.full||!L.hand) bad.push(`${label}: hand/foot strength is for a partial cyberhand or cyberfoot`); else if(+L.hstr>3) bad.push(`${label}: hand/foot strength tops out at +3`); else add(label,`${k==='arm'?'Hand':'Foot'} strength +${L.hstr} (grip only)`,65000*L.hstr,0,'CT p. 51'); }
+   if(+L.fstr){ if(L.full||!L.fore) bad.push(`${label}: forearm/lower leg strength is for a partial limb`); else if(+L.fstr>3) bad.push(`${label}: forearm/lower leg strength tops out at +3`); else add(label,`${k==='arm'?'Forearm':'Lower leg'} strength +${L.fstr} (grip only)`,(+L.hstr?60000:120000)*L.fstr,0,'CT p. 51',+L.hstr?'60,000¥ a point: the hand is already enhanced':''); }
+   if(+L.plate){ if(!L.full) bad.push(`${label}: body plating goes on a full cyberlimb`); else add(label,`${L.hard?'Hard':'Soft'} body plating ${L.plate}`,(L.hard?25000:10000)*L.plate,0,'CT p. 37'); }
+   // accessories
+   const seen=new Set(); let guns=0;
+   (L.acc||[]).forEach(id=>{const a=ACC[id], it=E.item(id); if(!a||!it){bad.push(`${label}: unknown accessory`);return;} if(seen.has(id)) bad.push(`${label}: ${it.n} is listed twice`); seen.add(id);
+     const okAt=a.at==='hand'?hasHand(L)&&k==='arm':a.at==='fore'?hasFore(L)&&k==='arm':a.at==='arm'?any(L)&&k==='arm':a.at==='full'?L.full&&k==='arm':a.at==='foot'?hasHand(L)&&k==='leg':false;
+     if(!okAt) bad.push(`${label}: ${it.n} needs ${({hand:'a cyberhand',fore:'a cyber forearm or full cyberarm',arm:'a cyberarm part',full:'a full cyberarm',foot:'a cyberfoot'})[a.at]}`);
+     if(a.needs&&!a.needs.some(x=>(L.acc||[]).includes(x))) bad.push(`${label}: ${it.n} needs hand razors in the same hand`);
+     if(a.gun) guns++;
+     const base=it.cost||0, be=+it.e||0; const e=a.emul!=null?Math.floor(be*a.emul*10)/10:(a.e!=null?a.e:be);
+     add(label,it.n,base,e,it.pg,a.why||'');});
+   if(guns>1) bad.push(`${label}: one cybergun per limb`);
+   // strength / quickness of this limb
+   limbStr[s]=L.full?base+(+L.str||0):C.str; limbQui[s]=L.full?C.quick+(+L.qui||0):C.quick;
+ });
+ // pairs
+ const full=s=>!!(P.limbs[s]&&P.limbs[s].full);
+ ['arm','leg'].forEach(k=>{const v=k==='arm'?+P.bodyArms||0:+P.bodyLegs||0, [a,b]=PAIR[k];
+   if(v&&!(full(a)&&full(b))) bad.push(`Body enhancement needs a pair of full cyber${k}s (CT p. 51)`); if(v>3) bad.push(`Body enhancement tops out at +3 per pair (CT p. 51)`);
+   if(full(a)&&full(b)){const qa=+(P.limbs[a].qui||0),qb=+(P.limbs[b].qui||0); if(qa!==qb) warn.push(`Cyber${k}s have Quickness +${qa} and +${qb}: +${Math.abs(qa-qb)} TN on all movement and coordination tests until they match (CT p. 51)`);}});
+ // torso and skull
+ [['torso','Cybertorso',120000,1.5],['skull','Cyberskull',75000,.75]].forEach(([k,n,c,e])=>{const T=P[k]||{}; if(T.on){add(n,n+' (+1 Body)',c,e,'CT p. 37'); if(+T.plate) add(n,`${T.hard?'Hard':'Soft'} body plating ${T.plate}`,(T.hard?25000:10000)*T.plate,0,'CT p. 37');} else if(+T.plate) bad.push(`${n}: plating needs the ${n.toLowerCase()}`);});
+ // averages and limits (CT p. 50–51)
+ const avg=o=>Math.floor(SIDES.reduce((a,[s])=>a+o[s],0)/4);
+ const avgStr=avg(limbStr), avgQui=avg(limbQui);
+ const strCap=Math.min(2*C.body,C.body+4), quiCap=Math.min(2*C.quick,C.quick+4);
+ const anyFull=SIDES.some(([s])=>full(s));
+ // the caps limit what enhancements add; a plain cyberlimb (Strength 3, or 8 for trolls) is never illegal on its own
+ const plainStr=avg(Object.fromEntries(SIDES.map(([s])=>[s,full(s)?base:C.str]))), plainQui=C.quick;
+ const strLim=Math.max(strCap,plainStr), quiLim=Math.max(quiCap,plainQui);
+ if(anyFull&&avgStr>strLim) bad.push(`Average Strength ${avgStr} is over the limit of ${strLim} (twice Body or Body + 4, the lower; CT p. 51)`);
+ if(anyFull&&avgQui>quiLim) bad.push(`Average Quickness ${avgQui} is over the limit of ${quiLim} (twice Quickness or Quickness + 4, the lower; CT p. 51)`);
+ const highStr=Math.max(...SIDES.map(([s])=>limbStr[s]));
+ if(anyFull&&highStr!==avgStr) warn.push(`Leading with the strongest limb (Strength ${highStr}) is +${highStr-avgStr} TN on melee tests; or fight at the average Strength ${avgStr} (CT p. 50)`);
+ // body, power, armor, detection
+ const pairs=(full('la')&&full('ra')?1:0)+(full('ll')&&full('rl')?1:0);
+ const bodyBonus=pairs+(full('la')&&full('ra')?+P.bodyArms||0:0)+(full('ll')&&full('rl')?+P.bodyLegs||0:0)+(P.torso&&P.torso.on?1:0)+(P.skull&&P.skull.on?1:0);
+ const hands=SIDES.filter(([s])=>P.limbs[s]&&hasHand(P.limbs[s])).length; const power=Math.min(2,hands);
+ const cap=v=>P.cap4?Math.min(4,v):v, pl=s=>full(s)?+(P.limbs[s].plate||0):0;
+ const loc=[Math.min(pl('la'),pl('ra')),Math.min(pl('ll'),pl('rl')),P.skull&&P.skull.on?+P.skull.plate||0:0,P.torso&&P.torso.on?+P.torso.plate||0:0,P.torso&&P.torso.on?+P.torso.plate||0:0].map(cap);
+ const plateArmor=Math.floor(loc.reduce((a,b)=>a+b,0)/5);
+ const hardAll=['la','ra','ll','rl'].filter(full).every(s=>!+P.limbs[s].plate||P.limbs[s].hard)&&(!(P.torso&&+P.torso.plate)||P.torso.hard)&&(!(P.skull&&+P.skull.plate)||P.skull.hard);
+ const bodyEnhPts=(+P.bodyArms||0)+(+P.bodyLegs||0), covered=SIDES.some(([s])=>P.limbs[s]&&P.limbs[s].cover);
+ return {rows,cost:Math.round(cost),ess:r2(ess),bad,warn,ok:!bad.length,limbStr,limbQui,avgStr,avgQui,strCap:strLim,quiCap:quiLim,highStr,bodyBonus,power,plateArmor,plateHard:plateArmor>0&&hardAll,loc,hands,
+   detectTN:4+(covered?3:0)-bodyEnhPts,recoil:full('la')&&P.limbs.la.gyro||full('ra')&&P.limbs.ra.gyro?3:0,anyCyber:SIDES.some(([s])=>P.limbs[s]&&any(P.limbs[s]))||!!(P.torso&&P.torso.on)||!!(P.skull&&P.skull.on)};}
+const clone=P=>JSON.parse(JSON.stringify(P));
+// make any plan legal: whole numbers, ranges, then drop or lower whatever still breaks a rule
+function clamp(P,C,E){P=Object.assign(defPlan(),clone(P||{})); const dropped=[];
+ SIDES.forEach(([s,,k])=>{const L=P.limbs[s]=Object.assign(defLimb(),P.limbs[s]||{});
+  ['full','gyro','fore','hand','hard','cover','mag'].forEach(f=>L[f]=!!L[f]); if(L.full){L.fore=false;L.hand=false;} if(k!=='arm'||!L.full) L.gyro=false;
+  const I=(f,hi)=>{L[f]=Math.max(0,Math.min(hi,Math.floor(+L[f]||0)));}; I('str',12); I('qui',12); I('hstr',3); I('fstr',3); I('plate',6);
+  if(!L.full){L.str=0;L.qui=0;L.plate=0;} if(L.full||!L.hand) L.hstr=0; if(L.full||!L.fore) L.fstr=0; if(!(L.full||L.fore||L.hand)){L.cover=false;L.mag=false;}
+  L.acc=[...new Set((Array.isArray(L.acc)?L.acc:[]).filter(id=>ACC[id]&&E.item(id)))]; let g1=false; L.acc=L.acc.filter(id=>{if(!ACC[id].gun) return true; if(g1) return false; g1=true; return true;});});
+ P.bodyArms=Math.max(0,Math.min(3,Math.floor(+P.bodyArms||0))); P.bodyLegs=Math.max(0,Math.min(3,Math.floor(+P.bodyLegs||0)));
+ if(!(P.limbs.la.full&&P.limbs.ra.full)) P.bodyArms=0; if(!(P.limbs.ll.full&&P.limbs.rl.full)) P.bodyLegs=0;
+ ['torso','skull'].forEach(k=>{const T=P[k]=Object.assign({on:false,plate:0,hard:false},P[k]||{}); T.on=!!T.on; T.hard=!!T.hard; T.plate=T.on?Math.max(0,Math.min(6,Math.floor(+T.plate||0))):0;});
+ P.cap4=P.cap4!==false;
+ // accessories that don't fit come off
+ for(let g=0;g<60;g++){const r=calc(P,C,E); if(r.ok) break; let fixed=false;
+  for(const [s,label] of SIDES){const L=P.limbs[s]; for(let i=L.acc.length-1;i>=0;i--){const t={...clone(P)}; t.limbs[s].acc.splice(i,1); const b1=calc(P,C,E).bad.filter(x=>x.startsWith(label+':')).length, b2=calc(t,C,E).bad.filter(x=>x.startsWith(label+':')).length; if(b2<b1){dropped.push(E.item(L.acc[i]).n); L.acc.splice(i,1); fixed=true; break;}} if(fixed) break;}
+  if(fixed) continue;
+  // over the average caps: lower the highest enhancement one point at a time
+  if(r.avgStr>r.strCap){const s=SIDES.map(x=>x[0]).filter(x=>P.limbs[x].str>0).sort((a,b)=>P.limbs[b].str-P.limbs[a].str)[0]; if(s){P.limbs[s].str--; continue;}}
+  if(r.avgQui>r.quiCap){const s=SIDES.map(x=>x[0]).filter(x=>P.limbs[x].qui>0).sort((a,b)=>P.limbs[b].qui-P.limbs[a].qui)[0]; if(s){P.limbs[s].qui--; continue;}}
+  break;}
+ return {P,dropped};}
+// legal values for a numeric field (keeps everything else as is)
+function options(P,C,E,path,lo,hi){const out=[]; for(let v=lo;v<=hi;v++){const t=clone(P); let o=t; for(let i=0;i<path.length-1;i++) o=o[path[i]]; o[path[path.length-1]]=v; if(calc(t,C,E).ok) out.push(v);} return out;}
+function accFor(P,C,E,s){const k=kind(s), L=P.limbs[s], pool=k==='arm'?ACC_ARM:ACC_LEG, yes=[], no=[];
+ pool.forEach(id=>{const it=E.item(id); if(!it||L.acc.includes(id)) return; const t=clone(P); t.limbs[s].acc.push(id); const r=calc(t,C,E); if(r.ok) yes.push({id,it,row:r.rows.filter(x=>x.n===it.n).pop()}); else no.push({id,it,why:r.bad[r.bad.length-1].replace(/^[^:]+: /,'')});}); return {yes,no};}
+return {SIDES,ACC,defPlan,defLimb,calc,clamp,options,accFor,word,hasHand,hasFore,any};
+})();
+/*@end:cyberbody*/
+/*@shared:cyberbody_ui*/
+// ---------- Cyber body planner view (shared by both tools) ----------
+// cbView(P,C,E,opts) returns HTML. Controls carry data-cb="path.to.field" (select/checkbox), data-cbadd="side" (select), data-cbdel="side|index" (button).
+const CBUI=(()=>{
+const h=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const yen=n=>Math.round(n).toLocaleString('en-US')+'¥';
+const PARTS={arm:[['none','Natural arm'],['full','Cyberarm'],['gyro','Gyromount cyberarm'],['fore','Cyber forearm'],['hand','Cyberhand'],['forehand','Cyber forearm + hand']],
+             leg:[['none','Natural leg'],['full','Cyberleg'],['fore','Cyber lower leg'],['hand','Cyberfoot'],['forehand','Cyber lower leg + foot']]};
+function partOf(L){return L.full?(L.gyro?'gyro':'full'):L.fore&&L.hand?'forehand':L.fore?'fore':L.hand?'hand':'none';}
+function sel(path,lab,opts,cur,fmt){return `<label class="cb-f"><span>${h(lab)}</span><select data-cb="${path}">${opts.map(v=>{const [val,t]=Array.isArray(v)?v:[v,fmt?fmt(v):v];return `<option value="${h(val)}" ${String(val)===String(cur)?'selected':''}>${h(t)}</option>`;}).join('')}</select></label>`;}
+function chk(path,lab,cur){return `<label class="cb-c"><input type="checkbox" data-cb="${path}" ${cur?'checked':''}> ${h(lab)}</label>`;}
+function view(P,C,E,o){o=o||{}; const R=CB.calc(P,C,E);
+ const card=([s,label,k])=>{const L=P.limbs[s], part=partOf(L);
+  const opt=(f,hi,fmt)=>CB.options(P,C,E,['limbs',s,f],0,hi);
+  let body=sel(`limbs.${s}.part`,'Part',PARTS[k],part);
+  if(L.full){ const so=opt('str',12), qo=opt('qui',12);
+    body+=sel(`limbs.${s}.str`,`Strength enhancement (limb ${R.limbStr[s]})`,so,L.str,v=>v?`+${v}`:'None')+sel(`limbs.${s}.qui`,`Quickness enhancement (limb ${R.limbQui[s]})`,qo,L.qui,v=>v?`+${v}`:'None')
+      +sel(`limbs.${s}.plate`,'Body plating',[0,1,2,3,4,5,6],L.plate,v=>v?`Level ${v}`:'None')+(+L.plate?sel(`limbs.${s}.hard`,'Plating type',[['false','Soft (10,000¥/level)'],['true','Hard, hardened (25,000¥/level)']],String(!!L.hard)):'');}
+  if(!L.full&&L.hand) body+=sel(`limbs.${s}.hstr`,k==='arm'?'Hand strength (grip only)':'Foot strength (grip only)',[0,1,2,3],L.hstr,v=>v?`+${v}`:'None');
+  if(!L.full&&L.fore) body+=sel(`limbs.${s}.fstr`,k==='arm'?'Forearm strength (grip only)':'Lower leg strength (grip only)',[0,1,2,3],L.fstr,v=>v?`+${v}`:'None');
+  let extra='';
+  if(CB.any(L)){ extra+=`<div class="cb-chks">${chk(`limbs.${s}.cover`,'Semi-natural covering (+10%)',L.cover)}${chk(`limbs.${s}.mag`,'Magnetic system (2,800¥)',L.mag)}</div>`;
+   const A=CB.accFor(P,C,E,s);
+   extra+=(L.acc.length?`<ul class="cb-acc">${L.acc.map((id,i)=>{const it=E.item(id), a=CB.ACC[id]; const row=R.rows.filter(x=>x.where===label&&x.n===it.n).pop()||{};
+      return `<li><div><b>${h(it.n)}</b> <span class="cb-n">${yen(row.cost||0)}${row.ess?` · ${row.ess} Ess`:' · no Essence'} · ${h(it.pg||'')}</span>${a.why?`<span class="cb-w">${h(a.why)}</span>`:''}</div><button type="button" class="cb-x" data-cbdel="${s}|${i}" aria-label="Remove ${h(it.n)}">×</button></li>`;}).join('')}</ul>`:'')
+     +(A.yes.length?`<label class="cb-f"><span>Add to this ${k}</span><select data-cbadd="${s}"><option value="">Choose…</option>${A.yes.map(y=>`<option value="${h(y.id)}">${h(y.it.n)} · ${yen(y.row?y.row.cost:0)}${y.row&&y.row.ess?` · ${y.row.ess} Ess`:''}</option>`).join('')}</select></label>`:'');}
+  return `<article class="cb-card${CB.any(L)?' on':''}"><header><b>${h(label)}</b><span class="cb-n">${h(CB.word(s,L))}</span></header><div class="cb-grid">${body}</div>${extra}</article>`;};
+ const arms=CB.SIDES.filter(x=>x[2]==='arm').map(card).join(''), legs=CB.SIDES.filter(x=>x[2]==='leg').map(card).join('');
+ const pairSel=(k,f,lab)=>{const [a,b]=k==='arm'?['la','ra']:['ll','rl']; if(!(P.limbs[a].full&&P.limbs[b].full)) return `<p class="cb-note">${h(lab)}: needs a full cyber${k} on both sides (CT p. 51).</p>`; return `<div class="cb-grid">${sel(f,lab+' (per pair, both limbs)',CB.options(P,C,E,[f],0,3),P[f],v=>v?`+${v} Body`:'None')}</div>`;};
+ const ts=(k,n,p)=>{const T=P[k]; return `<article class="cb-card${T.on?' on':''}"><header><b>${n}</b><span class="cb-n">${p}</span></header><div class="cb-chks">${chk(`${k}.on`,`${n} (+1 Body)`,T.on)}</div>${T.on?`<div class="cb-grid">${sel(`${k}.plate`,'Body plating',[0,1,2,3,4,5,6],T.plate,v=>v?`Level ${v}`:'None')}${+T.plate?sel(`${k}.hard`,'Plating type',[['false','Soft'],['true','Hard (hardened)']],String(!!T.hard)):''}</div>`:''}</article>`;};
+ const stat=(k,v,sub,on)=>`<div class="cb-t${on?' chg':''}"><span>${h(k)}</span><b>${v}</b>${sub?`<em>${sub}</em>`:''}</div>`;
+ const tiles=[stat('Strength (average)',R.avgStr,`natural ${C.str}${R.highStr!==R.avgStr?` · best limb ${R.highStr}`:''} · cap ${R.strCap}`,R.avgStr!==C.str),
+   stat('Quickness (average)',R.avgQui,`natural ${C.quick} · cap ${R.quiCap}`,R.avgQui!==C.quick),stat('Body',`+${R.bodyBonus}`,'pairs, enhancements, torso, skull',R.bodyBonus>0),
+   stat('Armor from plating',R.plateArmor?`${R.plateArmor} / ${R.plateArmor}`:'—',R.plateArmor?(R.plateHard?'hardened · stacks with worn armor':'stacks with worn armor'):'',R.plateArmor>0),
+   stat('Unarmed Power',R.power?`+${R.power}`:'—','+1 per cyberhand or foot, max +2',R.power>0),stat('Spotting the limbs',R.anyCyber?`TN ${R.detectTN}`:'—','base 4 for a short meeting (CT p. 49)',false),
+   stat('Cost',yen(R.cost),'',false),stat('Essence',R.ess,'',R.ess>0)].join('');
+ return `<div class="cb">${o.intro||''}
+  <div class="cb-tiles">${tiles}</div>
+  ${R.warn.map(w=>`<p class="cb-warn">${h(w)}</p>`).join('')}${R.bad.map(w=>`<p class="cb-bad">${h(w)}</p>`).join('')}${(o.dropped||[]).length?`<p class="cb-warn">No longer fit, so removed: ${h(o.dropped.join(', '))}.</p>`:''}
+  <h4 class="cb-h">Arms</h4><div class="cb-cards">${arms}</div>${pairSel('arm','bodyArms','Body enhancement for the arms')}
+  <h4 class="cb-h">Legs</h4><div class="cb-cards">${legs}</div>${pairSel('leg','bodyLegs','Body enhancement for the legs')}
+  <h4 class="cb-h">Torso and skull</h4><div class="cb-cards">${ts('torso','Cybertorso','CT p. 37 · halves extra Essence for enhancements')}${ts('skull','Cyberskull','CT p. 37')}</div>
+  <div class="cb-chks">${chk('cap4','Count at most 4 plating points per hit location (GM option, CT p. 49)',P.cap4)}</div>
+  ${R.rows.length?`<details class="cb-det"><summary>Price and Essence breakdown (${R.rows.length})</summary><table><thead><tr><th>Where</th><th>Item</th><th>¥</th><th>Essence</th></tr></thead><tbody>${R.rows.map(x=>`<tr><td>${h(x.where)}</td><td>${h(x.n)}${x.note?`<div class="cb-w">${h(x.note)}</div>`:''}</td><td>${yen(x.cost)}</td><td>${x.ess||'—'}</td></tr>`).join('')}</tbody></table></details>`:''}
+  <p class="cb-note">Rules: CT p. 30–37 (prices), p. 49–52 (Cyberware Rules). Cyberlimbs start at Strength 3 (8 for trolls). Strength and Quickness for melee and Reaction use the average of all four limbs. Enhancement past +3 on a limb costs Essence; a second enhancement type on the same limb costs 10% more. Pairs of full cyberarms or cyberlegs each add +1 Body.</p>
+ </div>`;}
+// apply a control change to the plan
+function apply(P,path,val){const parts=path.split('.'); if(parts[2]==='part'){const L=P.limbs[parts[1]]; L.full=val==='full'||val==='gyro'; L.gyro=val==='gyro'; L.fore=val==='fore'||val==='forehand'; L.hand=val==='hand'||val==='forehand'; return;}
+ let o=P; for(let i=0;i<parts.length-1;i++) o=o[parts[i]]; const f=parts[parts.length-1]; o[f]=typeof val==='boolean'?val:(val==='true'?true:val==='false'?false:+val);}
+const CSS=`.cb-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:6px;margin:8px 0}.cb-t{border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-width:0}.cb-t span{display:block;font-size:.6875rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}.cb-t b{font-size:1.05rem;font-variant-numeric:tabular-nums}.cb-t em{display:block;font-style:normal;font-size:.72rem;color:var(--muted);line-height:1.3}.cb-t.chg{border-color:var(--accent)}.cb-t.chg b{color:var(--accent)}
+.cb-h{margin:14px 0 6px;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.cb-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:8px}
+.cb-card{border:1px solid var(--line);border-radius:8px;padding:9px 11px;min-width:0}.cb-card.on{border-left:3px solid var(--accent)}.cb-card header{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:6px}.cb-n{font-size:.78rem;color:var(--muted)}
+.cb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:6px 8px}.cb-f{display:flex;flex-direction:column;gap:2px;font-size:.72rem;color:var(--muted);min-width:0;text-transform:none;letter-spacing:0}.cb-f select{font:inherit;font-size:.85rem;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:transparent;color:inherit;max-width:100%}
+.cb-chks{display:flex;flex-wrap:wrap;gap:4px 14px;margin:6px 0;font-size:.82rem}.cb-c{display:inline-flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-size:.82rem;flex-direction:row}
+.cb-acc{list-style:none;margin:6px 0;padding:0;display:grid;gap:4px}.cb-acc li{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;border-top:1px solid var(--line);padding-top:4px;font-size:.85rem}.cb-w{display:block;font-size:.72rem;color:var(--muted)}.cb-x{border:0;background:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:0 4px}
+.cb-warn,.cb-bad{margin:6px 0;padding:6px 10px;border-left:3px solid var(--accent);font-size:.85rem;border-radius:3px}.cb-bad{border-color:#c0392b}.cb-note{font-size:.78rem;color:var(--muted);margin:8px 0}
+.cb-det{margin-top:10px;font-size:.85rem}.cb-det summary{cursor:pointer;font-weight:600}.cb-det table{width:100%;border-collapse:collapse;margin-top:6px;font-size:.8rem}.cb-det td,.cb-det th{text-align:left;padding:3px 6px;border-top:1px solid var(--line);vertical-align:top}`;
+return {view,apply,CSS,partOf};
+})();
+/*@end:cyberbody_ui*/
+// ---------- Cyber body in the builder (Cybertechnology p. 30–37, 49–52) ----------
+const CBKEY='body:Cyber body (build-out)';
+GEARDB[CBKEY]={n:'Cyber body',c:0,cat:'body',src:'ct',pg:'CT p. 30–37',managed:true};
+const CBENV={item:k=>{const it=GEARDB[k]; if(!it||it.managed) return null; const r=it.r?it.r[0]:0; return {n:it.n,pg:(it.src&&it.src!=='core'?'':'')+(it.pg||''),cost:gv(it.c,r),e:+gv(it.e,r)||0,desc:DESC[k]?DESC[k][0]:''};}};
+let CB_DROP=[];
+function cbChar(){const mr=gearLevel('body:Muscle Replacement'); return {troll:baseRace()==='Troll',body:attrNow('body'),str:attrNow('str')+mr,quick:attrNow('quick')+mr};}
+function cbOn(){return !!(S.cbody&&S.cbody.limbs);}
+function cbCalc(){if(!cbOn()) return null; const C=cbChar(); const c=CB.clamp(S.cbody,C,CBENV); S.cbody=c.P; if(c.dropped.length) CB_DROP=c.dropped; return CB.calc(S.cbody,C,CBENV);}
+function cbSync(){ // one managed gear row carries the whole cyber body's price and Essence
+  const R=cbCalc(); const ix=S.gear.findIndex(g=>g.key===CBKEY);
+  if(!R||!R.rows.length){ if(ix>=0) S.gear.splice(ix,1); return; }
+  if(ix<0) S.gear.push({key:CBKEY,qty:1});}
+function cbRowFix(g){const R=cbCalc(); if(!R) return; g.qty=1; g.cost=R.cost; g.ess=R.ess; g.cat='body'; const parts=CB.SIDES.filter(([sd])=>CB.any(S.cbody.limbs[sd])).map(([sd,lab])=>lab.toLowerCase()+' '+CB.word(sd,S.cbody.limbs[sd]).replace(/^cyber(arm|leg)$/,'cyber$1')).concat(S.cbody.torso.on?['cybertorso']:[],S.cbody.skull.on?['cyberskull']:[]); g.name='Cyber body: '+parts.join(', ');}
+function cbCard(){const el=$('cbBuild'); if(!el) return; const show=cbOn()||booksOn().ct; if(!show){el.innerHTML='';return;}
+  if(!cbOn()){el.innerHTML=`<div class="vbuild"><p class="note" style="margin:0 0 0.5rem"><b>Cyberlimbs, cybertorso and cyberskull</b> (Cybertechnology p. 30–37, 49–52) are planned as a whole body: pairs, Strength and Quickness averages, Body bonuses and plating armor.</p><button type="button" id="cbStart">Plan a cyber body</button></div>`; return;}
+  const html=CBUI.view(S.cbody,cbChar(),CBENV,{dropped:CB_DROP}); CB_DROP=[];
+  el.innerHTML=`<details class="wb vbuild" id="cbDet" ${CB_OPEN?'open':''}><summary>Cyber body: ${fmt(cbCalc().cost)}¥ · ${cbCalc().ess} Essence</summary><p class="note">Uses this character’s natural Body ${cbChar().body}, Strength ${cbChar().str} and Quickness ${cbChar().quick}${cbChar().troll?' (troll: cyberlimbs start at Strength 8)':''}. The averages below replace Strength and Quickness on the sheet; Body bonus and plating armor are added.</p>${html}<button type="button" class="ghost" id="cbClear">Remove the cyber body plan</button></details>`;}
+let CB_OPEN=false;
 // ---------- Vehicle build-out (Runner Builder rigger card) ----------
 const R2OBJ=(()=>{const o={}; R2VEH.forEach(([n,c,pg,ref,H,Sp,Ac,B,A,Si,Au,P,Se,C,L])=>{o['r2veh:'+n]={n,c,pg:'R2 p. '+pg,r:{H,Sp,Ac,B,A,Si,Au,P,Se,C,L}};}); return o;})();
 const VB_OPEN=new Set(), VB_GUIDE=new Set(); const VB_DROP=new WeakMap();
@@ -2141,7 +2362,9 @@ function essenceCredit(){const has=k=>S.gear.some(g=>g.key===k);let c=0;
   return c;}
 function essenceUsed(){syncGear();const bioE=S.magic!=='none'?bodyIndexUsed():0;return Math.max(0,S.gear.reduce((a,g)=>a+(+g.ess||0)*(+g.qty||1),0)-essenceCredit()+bioE);} // Awakened pay bioware Body Cost in Essence too (ST p. 5)
 function gearLevel(k){return S.gear.filter(g=>g.key===k).reduce((m,g)=>Math.max(m,+g.r||0),0);}
-function augAttr(k){return attrEff(k)+(k==='str'||k==='quick'?gearLevel('body:Muscle Replacement'):0)+(k==='body'?gearLevel('body:Dermal Plating'):0);}
+function augAttr(k){const base=attrEff(k)+(k==='str'||k==='quick'?gearLevel('body:Muscle Replacement'):0)+(k==='body'?gearLevel('body:Dermal Plating'):0);
+  if(typeof cbOn==='function'&&cbOn()){const R=cbCalc(); if(R&&R.anyCyber){ if(k==='body') return base+R.bodyBonus; const anyFull=CB.SIDES.some(([sd])=>S.cbody.limbs[sd].full); if(anyFull&&k==='str') return R.avgStr+boost('str'); if(anyFull&&k==='quick') return R.avgQui+boost('quick'); }}
+  return base;}
 const CONTACT_COST={'Contact':5000,'Buddy':10000,'Gang/Tribe':50000,'Followers':200000};
 function contactCost(){let free=2;return S.contacts.reduce((a,c)=>{const cost=CONTACT_COST[c.level]??5000;if(free>0){free--;return a+Math.max(0,cost-5000);}return a+cost;},0);}
 function deckMPCP(){return S.gear.reduce((m,g)=>{const it=g.key&&GEARDB[g.key];return it&&it.mpcp?Math.max(m,it.mpcp):m;},0);}
@@ -2430,13 +2653,16 @@ function summary(magicRating,rSpent,rBudget){
 // events
 document.addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
+  if(b.id==='cbStart'){S.cbody=CB.defPlan(); CB_OPEN=true; render(); return;}
+  if(b.id==='cbClear'){S.cbody=null; render(); return;}
+  if(b.dataset.cbdel!==undefined&&cbOn()){const [sd,ix]=b.dataset.cbdel.split('|'); S.cbody.limbs[sd].acc.splice(+ix,1); CB_OPEN=true; render(); return;}
   if(b.dataset.hbadd!==undefined){const ix=+b.dataset.hbadd,g=S.gear[ix]; hbFixG(g); const x=HB.addable(g.key,g.hb,HBENV).yes.find(y=>y.id===b.dataset.id); if(x) g.hb.opts.push({id:x.id,r:x.r}); HB_OPEN.add(ix); HB_GUIDE.add(ix); render(); return;}
   if(b.dataset.hbdel!==undefined){const ix=+b.dataset.hbdel,g=S.gear[ix]; if(g.hb) g.hb.opts.splice(+b.dataset.j,1); hbFixG(g); HB_OPEN.add(ix); render(); return;}
   if(b.dataset.vbadd!==undefined){const ix=+b.dataset.vbadd,g=S.gear[ix]; const v=vbFixG(g); const x=VB.addable(v,g.vb).yes.find(y=>y.d.id===b.dataset.id); if(x) g.vb.mods.push({id:x.d.id,lv:x.lv,opt:x.opt}); VB_OPEN.add(ix); VB_GUIDE.add(ix); render(); return;}
   if(b.dataset.vbdel!==undefined){const ix=+b.dataset.vbdel,g=S.gear[ix]; if(g.vb) g.vb.mods.splice(+b.dataset.j,1); vbFixG(g); VB_OPEN.add(ix); render(); return;}
   if(b.dataset.mode){S.mode=b.dataset.mode;render();return;}
   if(b.dataset.cat){const c=b.dataset.cat,L=b.dataset.l; for(const [k] of CATS){ if(k!==c&&S.prio[k]===L) S.prio[k]=''; } S.prio[c]=S.prio[c]===L?'':L; render(); return;}
-  if(b.dataset.del){(S[b.dataset.del]||[]).splice(+b.dataset.i,1);render();return;}
+  if(b.dataset.del){const arr=S[b.dataset.del]||[]; if(b.dataset.del==='gear'&&arr[+b.dataset.i]&&arr[+b.dataset.i].key===CBKEY) S.cbody=null; arr.splice(+b.dataset.i,1);render();return;}
   if(b.dataset.trk){const k=b.dataset.trk,v=+b.dataset.v;S[k]=S[k]===v?v-1:v;render();return;}
 });
 document.addEventListener('input',e=>{
@@ -2480,6 +2706,8 @@ document.addEventListener('change',e=>{
   if(t.dataset.book){S.books=Object.assign({},booksOn(),{[t.dataset.book]:t.checked});fillGearCats();if($('spCat').options.length)fillSpells();render();return;}
   if(t.id==='optRecoil'){S.optRecoil=t.checked;render();return;}
   if(t.dataset.v2){S.vr2deck=Object.assign(vr2Default(),S.vr2deck||{});const f=t.dataset.v2;S.vr2deck[f]=t.type==='checkbox'?t.checked:(t.tagName==='SELECT'&&['asist'].includes(f)?t.value:+t.value);render();return;}
+  if(t.dataset.cb&&cbOn()){CBUI.apply(S.cbody,t.dataset.cb,t.type==='checkbox'?t.checked:t.value); CB_OPEN=true; render(); return;}
+  if(t.dataset.cbadd!==undefined&&t.value&&cbOn()){S.cbody.limbs[t.dataset.cbadd].acc.push(t.value); CB_OPEN=true; render(); return;}
   if(t.dataset.hbf!==undefined){const ix=+t.dataset.hbf,g=S.gear[ix]; hbFixG(g); g.hb[t.dataset.f]=t.checked; hbFixG(g); HB_OPEN.add(ix); render(); return;}
   if(t.dataset.hbr!==undefined){const ix=+t.dataset.hbr,g=S.gear[ix]; const o=g.hb&&g.hb.opts[+t.dataset.j]; if(o) o.r=+t.value; hbFixG(g); HB_OPEN.add(ix); render(); return;}
   if(t.dataset.vbf!==undefined){const ix=+t.dataset.vbf,g=S.gear[ix]; vbVeh(g); g.vb[t.dataset.f]=t.type==='checkbox'?t.checked:t.value; vbFixG(g); VB_OPEN.add(ix); render(); return;}
@@ -2493,7 +2721,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.ct!==undefined&&t.dataset.f==='level'){S.contacts[+t.dataset.ct].level=t.value;save();}
 });
 document.addEventListener('toggle',e=>{const d=e.target; if(d.dataset&&d.dataset.wbd!==undefined){const i=+d.dataset.wbd; if(d.open) WB_OPEN.add(i); else WB_OPEN.delete(i);}},true);
-document.addEventListener('toggle',e=>{const d=e.target; if(!d.dataset) return; if(d.dataset.hbd!==undefined){const i=+d.dataset.hbd; if(d.open) HB_OPEN.add(i); else HB_OPEN.delete(i);} if(d.dataset.hbgd!==undefined){const i=+d.dataset.hbgd; if(d.open) HB_GUIDE.add(i); else HB_GUIDE.delete(i);} if(d.dataset.vbd!==undefined){const i=+d.dataset.vbd; if(d.open) VB_OPEN.add(i); else VB_OPEN.delete(i);} if(d.dataset.vbgd!==undefined){const i=+d.dataset.vbgd; if(d.open) VB_GUIDE.add(i); else VB_GUIDE.delete(i);}},true);
+document.addEventListener('toggle',e=>{const d=e.target; if(d.id==='cbDet') CB_OPEN=d.open; if(!d.dataset) return; if(d.dataset.hbd!==undefined){const i=+d.dataset.hbd; if(d.open) HB_OPEN.add(i); else HB_OPEN.delete(i);} if(d.dataset.hbgd!==undefined){const i=+d.dataset.hbgd; if(d.open) HB_GUIDE.add(i); else HB_GUIDE.delete(i);} if(d.dataset.vbd!==undefined){const i=+d.dataset.vbd; if(d.open) VB_OPEN.add(i); else VB_OPEN.delete(i);} if(d.dataset.vbgd!==undefined){const i=+d.dataset.vbgd; if(d.open) VB_GUIDE.add(i); else VB_GUIDE.delete(i);}},true);
 let timer=null;
 function rerenderSoon(t){clearTimeout(timer);timer=setTimeout(()=>{const id=t&&t.id;const pos=t&&t.selectionStart;render();if(id){const el=$(id);if(el){el.focus();try{if(pos!=null&&el.setSelectionRange)el.setSelectionRange(pos,pos);}catch(_){}}}},350);}
 $('addSkill').onclick=()=>{S.skills.push({name:'',rating:1,narrow:'none',conc:'',spec:''});render();$('s_ns_'+(S.skills.length-1)).focus();};
@@ -2620,11 +2848,12 @@ function sheetFile(){
   skills+=`<div class="skg"><h3>Languages</h3><div class="skr"><span class="skn">Native language <span class="pg">p. 45</span></span><span class="skv"><span class="sk gen">Creation Intelligence + 2 <b>${nativeLang()}</b></span></span></div>${(S.langs||[]).map(L=>`<div class="skr"><span class="skn">${esc(L.name||'Language')}</span><span class="skv"><span class="sk gen">Language <b>${L.rating}</b></span></span></div>`).join('')}</div>`;
   // ---- weapons ----
   const str=augAttr('str'),recStr=booksOn().fof&&S.optRecoil?strRecoil(str):0;
-  const unarmed=(()=>{const sk=S.skills.find(x=>x.name==='Unarmed Combat'); const kh=adeptOn()?S.powers.find(p=>p.type==='killing'):null; if(!sk&&!kh) return '';
+  const unarmed=(()=>{const sk=S.skills.find(x=>x.name==='Unarmed Combat'); const kh=adeptOn()?S.powers.find(p=>p.type==='killing'):null; const cbHas=(typeof cbOn==='function'&&cbOn())&&((cbCalc()||{}).power>0); if(!sk&&!kh&&!cbHas) return '';
     const parts=sk?skillParts(sk):[]; const best=parts.reduce((m,p)=>p.r>m.r?p:m,{r:0,label:'—'}); const ia=adeptOn()?S.powers.filter(p=>p.type==='improvedAbility'&&p.skill==='Unarmed Combat').reduce((a,p)=>a+(+p.n||0),0):0;
     const reach=baseRace()==='Troll'?1:0;
+    const cbp=(typeof cbOn==='function'&&cbOn())?(cbCalc()||{}).power||0:0;
     return `<article class="wcard"><header><b>Unarmed${kh?' · Killing Hands':''}</b><span class="ts">Unarmed Combat${best.label!=='Unarmed Combat'&&best.r?' · '+esc(best.label):''} · p. 98${kh?' · p. 126':''}</span></header>
-      <div class="wstats">${kh?tile('Killing Hands',`${str}${esc(kh.level||'M')}`,'Physical, or Stun if you choose'):''}${tile('Normal blow',`${str}M Stun`,'')}${tile('Reach',reach,reach?'troll +1':'')}${tile('Skill dice',`${best.r||'—'}${ia?'+'+ia:''}`,best.r?esc(parts.map(p=>p.label+' '+p.r).join(' · ')):'')}</div>
+      <div class="wstats">${kh?tile('Killing Hands',`${str+cbp}${esc(kh.level||'M')}`,'Physical, or Stun if you choose'+(cbp?` · +${cbp} cyberhands`:'')):''}${tile('Normal blow',`${str+cbp}M Stun`,cbp?`+${cbp} from cyberhands or feet`:'')}${tile('Reach',reach,reach?'troll +1':'')}${tile('Skill dice',`${best.r||'—'}${ia?'+'+ia:''}`,best.r?esc(parts.map(p=>p.label+' '+p.r).join(' · ')):'')}</div>
       ${kh?`<p class="ts">Killing Hands also affects Immunity to Normal Weapons and manifested spirits (p. 126, 142).</p>`:''}</article>`;})();
   const weap=unarmed+S.gear.filter(g=>WSTAT[g.key]||MSTAT[g.key]).map(g=>{const it=GEARDB[g.key];
     if(MSTAT[g.key]){const [cc,reach,dmg,conc,msk]=MSTAT[g.key];const sd=skillDiceFor(msk||'Armed Combat',conc,it.n);
@@ -2657,6 +2886,14 @@ function sheetFile(){
       return o.length?`<p class="ts"><b>Options:</b> ${esc(o.join(' · '))}${dk.ri||(dk.vr2&&+dk.vr2.d.ri)?` · Matrix Reaction ${T.mx?T.mx.react:''}`:''}</p>`:'';})()}
     ${dk.utils.length?`<table><thead><tr><th>Utility</th><th class="n">Rating</th><th class="n">Size</th><th>Status</th></tr></thead><tbody>${dk.utils.slice().sort((a,b)=>(b.g.loaded?1:0)-(a.g.loaded?1:0)).map(u=>`<tr class="${u.g.loaded?'on':''}"><td><b>${esc(GEARDB[u.g.key].n)}</b></td><td class="n">${u.g.r}</td><td class="n">${u.size} Mp</td><td>${u.g.loaded?'Loaded':'In storage'}</td></tr>`).join('')}</tbody></table>`:''}
     <p class="ts">Hacking Pool ${mx.pool}${mx.poolHow?` (${esc(mx.poolHow)})`:''}. Pool dice added to a test can’t exceed the program’s rating. <span class="pg">${dk.vr2?'VR2 p. 16–18':'p. 85, 172–176'}</span></p>`;}
+  // ---- cyber body ----
+  let cyber='';
+  if(typeof cbOn==='function'&&cbOn()){const R=cbCalc(); if(R&&R.rows.length){const P=S.cbody;
+    const limbs=CB.SIDES.filter(([sd])=>CB.any(P.limbs[sd])).map(([sd,lab])=>{const L=P.limbs[sd]; const bits=[]; if(L.full){if(+L.str) bits.push('Str +'+L.str); if(+L.qui) bits.push('Qui +'+L.qui); if(+L.plate) bits.push((L.hard?'hard':'soft')+' plating '+L.plate);} if(+L.hstr) bits.push('grip +'+L.hstr); if(+L.fstr) bits.push('forearm grip +'+L.fstr); if(L.cover) bits.push('covered'); if(L.mag) bits.push('magnetic'); (L.acc||[]).forEach(id=>{const it=GEARDB[id]; if(it) bits.push(it.n);});
+      return `<li><b>${esc(lab)}:</b> ${esc(CB.word(sd,L))}${bits.length?` · ${esc(bits.join(', '))}`:''} <span class="ts">Strength ${R.limbStr[sd]}, Quickness ${R.limbQui[sd]}</span></li>`;}).join('');
+    cyber=`<div class="tiles sm">${tile('Strength',R.avgStr,'average of four limbs'+(R.highStr!==R.avgStr?` · best ${R.highStr} at +${R.highStr-R.avgStr} TN`:''))}${tile('Quickness',R.avgQui,'average of four limbs')}${tile('Body bonus','+'+R.bodyBonus,'')}${tile('Plating armor',R.plateArmor?`${R.plateArmor}/${R.plateArmor}`:'—',R.plateHard?'hardened':'')}${tile('Unarmed Power',R.power?'+'+R.power:'—','')}${R.recoil?tile('Gyromount',`${R.recoil} recoil comp`,'up to LMGs'):''}${tile('Spot it',`TN ${R.detectTN}`,'')}</div>
+     <ul class="ct">${limbs}${P.torso.on?`<li><b>Cybertorso</b>${+P.torso.plate?` · ${P.torso.hard?'hard':'soft'} plating ${P.torso.plate}`:''}</li>`:''}${P.skull.on?`<li><b>Cyberskull</b>${+P.skull.plate?` · ${P.skull.hard?'hard':'soft'} plating ${P.skull.plate}`:''}</li>`:''}</ul>
+     ${R.warn.map(w=>`<p class="ts">${esc(w)}</p>`).join('')}`;}}
   // ---- rigging ----
   const vehs=S.gear.filter(g=>VSTAT[g.key]); let rig='';
   if(vcr||vehs.length){
@@ -2742,6 +2979,7 @@ ${sec('skills','Skills','p. 68–75',skills)}
 ${weap?sec('weap','Weapons','TN by range: 4 / 5 / 6 / 9',`<div class="wgrid">${weap}</div>`):''}
 ${armor?sec('armor','Armor','p. 243',armor):''}
 ${magic?sec('magic',S.magic==='adept'?'Adept powers':'Spells and foci','',magic):''}
+${cyber?sec('cyber','Cyber body','CT p. 30–37, 49–52',cyber):''}
 ${deck?sec('deck','Cyberdeck','',deck):''}
 ${rig?sec('rig','Rigging','',`<div class="wgrid">${rig.replace(/^(<p>.*?<\/p>)/,'</div>$1<div class="wgrid">')}</div>`):''}
 ${softHtml?sec('soft','Skillsofts','',softHtml):''}
@@ -2776,6 +3014,7 @@ function gearImport(p){const added=[],skipped=[]; const books=Object.assign({},b
       if(x.loaded) row.loaded=true;
       if(had.has(x.key)) dup.push(it.n); S.gear.push(row); if(it.src&&it.src!=='core') books[it.src]=true; added.push(it.n);}
     else if(x&&x.name){S.gear.push({name:String(x.name).slice(0,140),cat:'other',qty:1,cost:Math.max(0,+x.cost||0),ess:0}); added.push(String(x.name));}});
+  if(p.cbody&&typeof p.cbody==='object'&&p.cbody.limbs){S.cbody=JSON.parse(JSON.stringify(p.cbody)); books.ct=true; added.push('Cyber body plan');}
   if(p.vr2deck&&typeof p.vr2deck==='object'){S.vr2deck=Object.assign(vr2Default(),p.vr2deck); books.vr2=true;}
   S.books=books; if(typeof fillGearCats==='function') fillGearCats(); render(); return {added,skipped,dup};}
 function xferCheck(){const p=xferRead(), bar=$('xferBar'); if(!bar) return; if(!p||p.at<=xferSeen()){bar.hidden=true; return;}
@@ -2792,8 +3031,9 @@ window.addEventListener('storage',e=>{if(e.key===XFER_KEY) xferCheck();});
 window.addEventListener('focus',xferCheck); document.addEventListener('visibilitychange',()=>{if(!document.hidden) xferCheck();});
 $('skillList').innerHTML=SKILLS.map(s=>`<option value="${s}">`).join('');
 render();
+{const st2=document.createElement('style'); st2.textContent=CBUI.CSS; document.head.appendChild(st2);}
 xferCheck(); {const h=lockerHref(), a=$('lockerTop'); if(h&&a){a.href=h; a.hidden=false;}}
-window.__sr2={get S(){return S;},HB,HBENV,hbFixG,essenceUsed,armorTotals,gearImport,xferCheck,VB,R2OBJ,vbFixG,VTYPE,deckEnforce,deckRowMax,deckPickOk,vr2Clamp,syncGear,DESC,EDGES,FLAWS,RACES,EF_DESC,CAT,GCATS,GEARDB,WSTAT,VSTAT,MSTAT,ASTAT,DSTAT,RANGES,RT_SKILL,vr2DeckCost,vr2Default,itemVisible,render,sheetFile,deckInfo,matrixInfo,builderFile,SPELLS,POWERS,XPOWERS,IA_COST};
+window.__sr2={get S(){return S;},CB,CBENV,cbCalc,cbChar,augAttr,HB,HBENV,hbFixG,essenceUsed,armorTotals,gearImport,xferCheck,VB,R2OBJ,vbFixG,VTYPE,deckEnforce,deckRowMax,deckPickOk,vr2Clamp,syncGear,DESC,EDGES,FLAWS,RACES,EF_DESC,CAT,GCATS,GEARDB,WSTAT,VSTAT,MSTAT,ASTAT,DSTAT,RANGES,RT_SKILL,vr2DeckCost,vr2Default,itemVisible,render,sheetFile,deckInfo,matrixInfo,builderFile,SPELLS,POWERS,XPOWERS,IA_COST};
 })();
 </script>
 </body></html>
