@@ -377,7 +377,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1794454999498","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwd06b3k"}};</script>
+<script>window.__SR2_EMBED={"stamp":"1794456419346","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwd10qnr"}};</script>
 <script id="appJs">
 (function(){
 const PRISTINE=document.getElementById('appRoot').outerHTML;
@@ -2430,77 +2430,195 @@ function builderFile(){
   const embed={stamp:String(Date.now()),char:S};
   return docShell('SR2 Runner Builder'+(S.name?' · '+S.name:''),css,`${PRISTINE}\n<script>window.__SR2_EMBED=${safeJSON(embed)};<\/script>\n<script id="appJs">${js}<\/script>`);
 }
+function sheetStats(){
+  const magicRating=S.magic==='none'?0:Math.max(0,Math.floor(6-essenceUsed()));
+  const q=attrEff('quick'),i=attrNow('int'),w=attrNow('wil');
+  const ad=adeptOn(); const incR=ad?S.powers.filter(p=>p.type==='incReaction').reduce((a,p)=>a+(+p.n||0),0):0;
+  const dice=1+[0,1,1,2][gearLevel('body:Boosted Reflexes')]+(S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0))+(ad?S.powers.filter(p=>p.type==='incReflexes').reduce((a,p)=>a+(+p.level||1),0):0);
+  const cs=ad?S.powers.filter(p=>p.type==='combatSense').reduce((a,p)=>a+(+p.level||1),0):0;
+  const wired=S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0);
+  const boosted=gearLevel('body:Boosted Reflexes');
+  const reaction=Math.floor((q+i)/2)+incR+2*wired+[0,0,1,2][boosted];
+  const ess=6-essenceUsed();
+  const comp=bestRating(/^computer$/i);
+  const baseReact=Math.floor((attrNow('quick')+attrNow('int'))/2); const ri=[1,2,3].reduce((m,L)=>S.gear.some(g=>g.key==='deck:Response Increase '+L)?L:m,0);
+  const qAug=augAttr('quick');
+  const sorc=bestRating(/^sorcery/i)+powerFoci(); const wmod=woundMods(); const ar=armorTotals();
+  const pool=(baseRace()==='Human'||S.mode!=='standard')?1:2;
+  const rows=[
+    ['Reaction',reaction],['Initiative',`${reaction-wmod.m} + ${dice}D6${wmod.m?` (wounded −${wmod.m})`:''}`],['Combat Pool',Math.max(0,Math.floor((qAug+i+w)/2)+cs-ar.poolPenalty)],['Armor',`${ar.b} / ${ar.i}`],
+    ['Essence',ess.toFixed(2).replace(/\.?0+$/,'')],
+    ...(bodyIndexUsed()?[['Body Index',`${+bodyIndexUsed().toFixed(3)} of ${bodyIndexMax()}`]]:[]),
+  ];
+  if(S.magic!=='none') rows.push(['Magic',magicRating]);
+  if(isMagician()) rows.push(['Magic Pool',sorc]);
+  {const vcr=gearLevel('body:Vehicle Control Rig'); if(vcr) rows.push(['Control Pool',baseReact+2*vcr]);}
+  if(wmod.m) rows.push(['Wound modifier',`+${wmod.m} TN`]);
+  const mx=matrixInfo();
+  if(mx&&(mx.vr2||mx.hasDeck||comp)) rows.push([mx.vr2||mx.hasDeck?'Hacking Pool':'Hacking Pool (with a deck)',mx.pool]);
+  if(mx&&(mx.lv||mx.vr2)) rows.push(['Matrix Initiative',`${mx.react} + ${mx.dice}D6`]);
+  rows.push(['Native language',attrNow('int')+2]);
+  rows.push(['Karma Pool',pool+(+S.kPoolBonus||0)],['Good Karma',`${(+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog()} available`]);
+  return {rows,reaction,dice,wmod,ar,mx,cpool:Math.max(0,Math.floor((qAug+i+w)/2)+cs-ar.poolPenalty),kpool:pool+(+S.kPoolBonus||0),bi:bodyIndexUsed()};
+}
+function spellFind(n){if(!n) return null; if(SPELLDB[n]) return SPELLDB[n]; const k=String(n).toLowerCase().replace(/[^a-z0-9]/g,''); const hit=Object.keys(SPELLDB).find(x=>x.toLowerCase().replace(/[^a-z0-9]/g,'')===k); return hit?SPELLDB[hit]:null;}
 function sheetFile(){
   syncGear();
-  const race=S.race, magicLbl=(MAGIC_TYPES.find(m=>m[0]===S.magic)||[,''])[1];
-  const ess=6-essenceUsed();
-  const attrRows=ATTRS.map(([k,l])=>{const au=augAttr(k),now=attrNow(k);return `<tr><td>${l}</td><td class="n">${now}${au!==now?` <span class="mut">(${au})</span>`:''}</td><td class="n mut">${attrMax(k)}</td></tr>`;}).join('');
-  const stats=$('sumStats').innerHTML;
-  const skills=(S.skills.filter(x=>x.name).map(x=>`<tr><td>${esc(x.name)}</td><td class="mono">${esc(skillRatings(x))}</td></tr>`).join('')+Object.entries(advSkills()).map(([n,r])=>`<tr><td>${esc(n)}</td><td class="mono">${esc(n)} ${r}</td></tr>`).join('')+`<tr><td>Native language</td><td class="mono">${attrNow('int')+2}</td></tr>`+(S.langs||[]).map(L=>`<tr><td>${esc(L.name||'Language')} (language)</td><td class="mono">${L.rating}</td></tr>`).join(''));
-  let magic='';
-  if(S.magic==='adept'&&S.powers.length){magic=`<h2>Adept powers</h2><table><thead><tr><th>Power</th><th>Effect</th><th class="n">PP</th></tr></thead><tbody>${S.powers.map(p=>{const c=powerCost(p);const t=p.type||'custom';const nm=t==='custom'?p.name:POWERS[t].label+({combatSense:` ${p.level||1}`,incReflexes:` +${p.level||1}`,killing:` (Str)${p.level||'M'}`,improvedAbility:` (${p.skill||'?'} +${p.n||1})`,improvedAttr:` (${({body:'Body',quick:'Quickness',str:'Strength'})[p.attr||'body']} +${p.n||1})`,incReaction:` +${p.n||1}`,pain:` ${p.n||1}`,senses:` ×${p.n||1}`}[t]||'');return `<tr><td>${esc(nm)}</td><td class="mut">${esc(c.desc||'')}</td><td class="n">${c.cost}</td></tr>`;}).join('')}</tbody></table>`;}
-  else if(isMagician()){const T=TOTEMS[S.totem];
-    magic=`<h2>Spells</h2>${S.magic==='shamanic'&&T?`<p class="sm"><b>${esc(S.totem)} totem:</b> ${Object.entries(T.b).map(([c,v])=>`${v>0?'+':''}${v} dice ${c} spells`).join(', ')||'no spell modifiers'}; conjuring ${esc(T.c)}.</p>`:''}<table><thead><tr><th>Spell</th><th>Type</th><th class="n">Force</th><th>Drain</th><th>Notes</th></tr></thead><tbody>${S.powers.map(p=>{const sp=SPELLDB[p.name];const tb=sp&&S.magic==='shamanic'&&T?(T.b[sp.cat]||0):0;return `<tr><td>${esc(p.name)}</td><td class="mut">${sp?sp.cat+(sp.ty?' · '+(sp.ty==='M'?'mana':'physical'):''):''}</td><td class="n">${p.cost||0}</td><td class="mono">${sp?drainText(sp,+p.cost||1):''}</td><td class="mut">${tb?`totem ${tb>0?'+':''}${tb} dice. `:''}${esc(p.note)}</td></tr>`;}).join('')||'<tr><td colspan="5" class="mut">None</td></tr>'}</tbody></table>`;
-    const foci=S.gear.filter(g=>BOND[g.key]); if(foci.length) magic+=`<h2>Foci</h2><table><tbody>${foci.map(g=>`<tr><td>${esc(g.name)}${g.note?` <span class="mut">· ${esc(g.note)}</span>`:''}</td><td class="n mut">bonded ${BOND[g.key](+g.r||1)} Karma</td></tr>`).join('')}</tbody></table><p class="sm mut">Up to ${attrNow('int')} foci active at once.</p>`;}
-  const gear=GCATS.map(([c,l])=>{const rows=S.gear.filter(g=>(GCATNAME[g.cat]?g.cat:'other')===c).sort((a,b)=>String(a.name).localeCompare(String(b.name)));if(!rows.length)return '';
-    return `<tr class="cat"><td colspan="4">${l}</td></tr>`+rows.map(g=>{const it=g.key&&GEARDB[g.key];return `<tr><td>${esc(g.name)}${it&&it.s?`<div class="mut sm">${esc(it.s)}</div>`:''}</td><td class="n">${(+g.qty||1)>1?'×'+g.qty:''}</td><td class="n">${g.ess?+(+g.ess*(+g.qty||1)).toFixed(2):''}</td><td class="n">${fmt((+g.cost||0)*(+g.qty||1))}¥</td></tr>`;}).join('');}).join('')||'<tr><td colspan="4" class="mut">None</td></tr>';
+  const T=sheetStats(), magicLbl=(MAGIC_TYPES.find(m=>m[0]===S.magic)||[,''])[1];
+  const ess=6-essenceUsed(), magicRating=S.magic==='none'?0:Math.max(0,Math.floor(ess));
+  const tile=(k,v,sub,cls)=>`<div class="tile${cls?' '+cls:''}"><span class="tk">${k}</span><b class="tv">${v}</b>${sub?`<span class="ts">${sub}</span>`:''}</div>`;
+  const sec=(id,title,pg,inner,cls)=>inner?`<section class="sec${cls?' '+cls:''}" id="${id}"><h2>${title}${pg?` <span class="pg">${pg}</span>`:''}</h2>${inner}</section>`:'';
+  // ---- at the table ----
+  const ar=T.ar, bodyR=augAttr('body')+hasDerm();
+  const vcr=gearLevel('body:Vehicle Control Rig'), baseR=Math.floor((attrNow('quick')+attrNow('int'))/2);
+  const sorc=bestRating(/^sorcery/i)+powerFoci();
+  const quick=[
+    tile('Initiative',`${T.reaction-T.wmod.m} + ${T.dice}D6`,`Reaction ${T.reaction}${T.wmod.m?` · wounded −${T.wmod.m}`:''}`,'hero'),
+    tile('Combat Pool',T.cpool,'p. 84'+(ar.poolPenalty?` · armor −${ar.poolPenalty}`:''),'hero'),
+    tile('Armor',`${ar.b} / ${ar.i}`,'Ballistic / Impact'),
+    tile('Damage resistance',`Body ${bodyR}`,'+ Combat Pool dice'),
+    tile('Karma Pool',T.kpool,'Rerolls and more, p. 191'),
+    tile('Essence',+ess.toFixed(2),T.bi?`Body Index ${+T.bi.toFixed(3)} of ${bodyIndexMax()}`:''),
+    ...(S.magic!=='none'?[tile('Magic',magicRating,'')]:[]),
+    ...(isMagician()?[tile('Magic Pool',sorc,'Sorcery + power foci')]:[]),
+    ...(T.mx&&(T.mx.vr2||T.mx.hasDeck)?[tile('Hacking Pool',T.mx.pool,T.mx.vr2?'VR2 p. 18':'p. 85'),tile('Matrix Initiative',`${T.mx.react} + ${T.mx.dice}D6`,'')]:[]),
+    ...(vcr?[tile('Control Pool',baseR+2*vcr,`VCR ${vcr}`),tile('Rigged Initiative',`${baseR+2*vcr} + ${1+vcr}D6`,'')]:[]),
+  ].join('');
+  // ---- attributes ----
+  const attrs=ATTRS.map(([k,l])=>{const au=augAttr(k),now=attrNow(k);
+    return `<div class="attr"><span class="tk">${l}</span><b class="tv">${au}</b><span class="ts">${au!==now?`natural ${now} · `:''}max ${attrMax(k)}</span></div>`;}).join('')
+    +`<div class="attr"><span class="tk">Reaction</span><b class="tv">${T.reaction}</b><span class="ts">(Quickness + Intelligence) ÷ 2${T.reaction!==baseR?' + boosts':''}</span></div>`;
+  const traits=raceTraitList();
+  const ef=S.optEF&&(S.ef||[]).length?`<ul class="chips">${S.ef.map(x=>{const d=typeof EFDB!=='undefined'&&EFDB[x.n];return `<li class="${x.v>0?'flaw':'edge'}"><b>${esc(x.n)}</b> ${x.v>0?'+':''}${x.v}${x.note?` · ${esc(x.note)}`:''}${d&&d.dpg?` <span class="pg">${esc(d.dpg)}</span>`:''}</li>`;}).join('')}</ul>`:'';
+  // ---- skills, grouped ----
+  const groups={}; S.skills.filter(x=>x.name).forEach(x=>{const c=(SKILLDB[x.name]&&SKILLDB[x.name].cat)||'Other'; (groups[c]=groups[c]||[]).push(x);});
+  const chip=(p)=>`<span class="sk ${p.part}"><i>${esc(p.part==='gen'?'General':p.part==='conc'?'Concentration':'Specialization')}</i>${esc(p.label)} <b>${p.r}</b></span>`;
+  let skills=Object.entries(groups).map(([c,L])=>`<div class="skg"><h3>${esc(c)}</h3>${L.map(x=>`<div class="skr"><span class="skn">${esc(x.name)}</span><span class="skv">${skillParts(x).map(chip).join('')}</span></div>`).join('')}</div>`).join('');
+  const nsk=Object.entries(advSkills()); if(nsk.length) skills+=`<div class="skg"><h3>Learned with Karma</h3>${nsk.map(([n,r])=>`<div class="skr"><span class="skn">${esc(n)}</span><span class="skv"><span class="sk gen">${esc(n)} <b>${r}</b></span></span></div>`).join('')}</div>`;
+  skills+=`<div class="skg"><h3>Languages</h3><div class="skr"><span class="skn">Native language <span class="pg">p. 45</span></span><span class="skv"><span class="sk gen">Intelligence + 2 <b>${attrNow('int')+2}</b></span></span></div>${(S.langs||[]).map(L=>`<div class="skr"><span class="skn">${esc(L.name||'Language')}</span><span class="skv"><span class="sk gen">Language <b>${L.rating}</b></span></span></div>`).join('')}</div>`;
+  // ---- weapons ----
   const str=augAttr('str'),recStr=booksOn().fof&&S.optRecoil?strRecoil(str):0;
   const weap=S.gear.filter(g=>WSTAT[g.key]||MSTAT[g.key]).map(g=>{const it=GEARDB[g.key];
-    if(MSTAT[g.key]){const [cc,reach,dmg,conc,msk]=MSTAT[g.key];const sd=skillDiceFor(msk||'Armed Combat',conc,it.n);return `<tr><td><b>${esc(it.n)}</b><div class="mut sm">${esc(msk||'Armed Combat')} · ${esc(conc)}</div></td><td class="n">${cc??'—'}</td><td>Reach ${reach+(baseRace()==='Troll'?1:0)}</td><td class="mono">${esc(strDmg(dmg,str))}</td><td class="mono">${sd.dice??'—'}${sd.ia?'+'+sd.ia:''}</td><td class="mono">melee</td><td></td></tr>`;}
-    const [rt,cc,ammo,mode,dmg]=WSTAT[g.key];const [sk,conc]=RT_SKILL[rt];const sd=skillDiceFor(sk,conc,it.n);let mod=0,n=[]; const gc=gunCalc(g); let cfin=cc;
-    if(gc){const C=gc.C; mod=C.aim; if(C.chosen.length) n.push(C.chosen.map(p=>p.n).join(', ')); if(C.rc) n.push('RC '+C.rc); if(C.gyro) n.push('gyro '+C.gyro); if(C.mag) n.push('mag '+C.mag); if(C.notice) n.push('notice +'+C.notice); cfin=C.conc==='Not concealable'?null:+C.conc;} if(recStr&&['Firearms','Gunnery'].includes(sk))n.push('Str recoil −'+recStr);
+    if(MSTAT[g.key]){const [cc,reach,dmg,conc,msk]=MSTAT[g.key];const sd=skillDiceFor(msk||'Armed Combat',conc,it.n);
+      return `<article class="wcard"><header><b>${esc(it.n)}</b><span class="ts">${esc(msk||'Armed Combat')} · ${esc(conc)} · ${esc(it.pg||'')}</span></header>
+      <div class="wstats">${tile('Damage',esc(strDmg(dmg,str)),'')}${tile('Reach',reach+(baseRace()==='Troll'?1:0),'')}${tile('Skill dice',`${sd.dice??'—'}${sd.ia?'+'+sd.ia:''}`,'')}${tile('Conceal',cc??'—','')}</div></article>`;}
+    const [rt,cc,ammo,mode,dmg]=WSTAT[g.key];const [sk,conc]=RT_SKILL[rt];const sd=skillDiceFor(sk,conc,it.n);let n=[],aim=0; const gc=gunCalc(g); let cfin=cc, rc=0;
+    if(gc){const C=gc.C; aim=C.aim; rc=C.rc||0; cfin=C.conc==='Not concealable'?null:+C.conc; if(C.gyro) n.push('Gyro '+C.gyro); if(C.mag) n.push('Magnification '+C.mag); if(C.notice) n.push('Notice +'+C.notice);}
+    if(recStr&&['Firearms','Gunnery'].includes(sk)) n.push('Strength recoil −'+recStr);
     let bands=RANGES[rt]; if(['bow','lxbow','mxbow','hxbow','knife','shuriken'].includes(rt)){const base=rt==='bow'?(+g.r||str):str;bands=bands.map((m,j)=>(j?`${base*m}`:`0-${base*m}`));} if(rt==='grenade') bands=[`0-${str*3}`,`${str*5}`,`${str*10}`,`${str*20}`];
-    return `<tr><td><b>${esc(it.n)}</b><div class="mut sm">${esc(sk)} · ${esc(conc)}</div></td><td class="n">${cfin==null?(gc?'—':'?'):cfin+(hasLinedCoat()&&cfin>0?2:0)}</td><td class="sm">${esc(ammo)} ${esc(mode)}</td><td class="mono">${esc(rt==='bow'?strDmg(dmg,+g.r||str):strDmg(dmg,str))}</td><td class="mono">${sd.dice??'—'}${sd.ia?'+'+sd.ia:''}</td><td class="mono sm">${bands.join(' / ')}</td><td class="mono sm">${mod?String(mod).replace('-','−'):''} ${esc(n.join(', '))}</td></tr>`;}).join('');
-  const ar=armorTotals();
-  const armor=ar.worn.length?`<p><b>Worn:</b> ${ar.worn.map(g=>esc(GEARDB[g.key].n)).join(', ')} · <b>Ballistic ${ar.b} / Impact ${ar.i}</b> · Body for resistance ${augAttr('body')+hasDerm()}${ar.poolPenalty?` · Combat Pool −${ar.poolPenalty}`:''}</p>`:'';
-  const traits=raceTraitList();
+    const adds=gc?gc.C.chosen.map(p=>p.n):[];
+    const conceal=cfin==null?(gc?'—':'?'):cfin+(hasLinedCoat()&&cfin>0?2:0);
+    return `<article class="wcard"><header><b>${esc(it.n)}</b><span class="ts">${esc(sk)} · ${esc(conc)} · ${esc(it.pg||'')}</span></header>
+      <div class="wstats">${tile('Damage',esc(rt==='bow'?strDmg(dmg,+g.r||str):strDmg(dmg,str)),'')}${tile('Mode',esc(mode)||'—','')}${tile('Ammo',esc(ammo)||'—','')}${tile('Skill dice',`${sd.dice??'—'}${sd.ia?'+'+sd.ia:''}`,sd.how&&sd.how!==sk?esc(sd.how):'')}${tile('Conceal',conceal,hasLinedCoat()&&cfin>0?'with lined coat':'')}${tile('Recoil comp',rc||'—','')}${aim?tile('TN modifier',(aim>0?'+':'−')+Math.abs(aim),esc((gc.C.aimTxt||[]).filter(x=>!/pick the shooter/.test(x)).join(', ')||'from add-ons')):''}</div>
+      <table class="rng"><thead><tr><th>Short</th><th>Medium</th><th>Long</th><th>Extreme</th></tr></thead><tbody><tr>${bands.map(b=>`<td>${esc(b)} m</td>`).join('')}</tr><tr class="tn">${['TN 4','TN 5','TN 6','TN 9'].map((t)=>`<td>${t}</td>`).join('')}</tr></tbody></table>
+      ${adds.length||n.length?`<p class="ts">${adds.length?`<b>Add-ons:</b> ${esc(adds.join(', '))}`:''}${adds.length&&n.length?' · ':''}${esc(n.join(' · '))}</p>`:''}</article>`;}).join('');
+  const armor=ar.worn.length?`<p><b>Worn:</b> ${ar.worn.map(g=>esc(GEARDB[g.key].n)).join(', ')} · <b>Ballistic ${ar.b} / Impact ${ar.i}</b> · resist damage with Body ${bodyR}${ar.poolPenalty?` · heavy armor costs ${ar.poolPenalty} Combat Pool`:''}</p>`:'';
+  // ---- magic ----
+  let magic='';
+  if(S.magic==='adept'&&S.powers.length){magic=`<table><thead><tr><th>Power</th><th>Effect</th><th class="n">PP</th></tr></thead><tbody>${S.powers.map(p=>{const c=powerCost(p);const t=p.type||'custom';const nm=t==='custom'?p.name:POWERS[t].label+({combatSense:` ${p.level||1}`,incReflexes:` +${p.level||1}`,killing:` (Str)${p.level||'M'}`,improvedAbility:` (${p.skill||'?'} +${p.n||1})`,improvedAttr:` (${({body:'Body',quick:'Quickness',str:'Strength'})[p.attr||'body']} +${p.n||1})`,incReaction:` +${p.n||1}`,pain:` ${p.n||1}`,senses:` ×${p.n||1}`}[t]||'');return `<tr><td><b>${esc(nm)}</b></td><td>${esc(c.desc||'')}</td><td class="n">${c.cost}</td></tr>`;}).join('')}</tbody></table>`;}
+  else if(isMagician()){const TT=TOTEMS[S.totem];
+    magic=`${S.magic==='shamanic'&&TT?`<p><b>${esc(S.totem)} totem</b> (${esc(TT.env)} totem): ${Object.entries(TT.b).map(([c,v])=>`${v>0?'+':''}${v} dice ${c} spells`).join(', ')||'no spell modifiers'}; ${TT.c&&TT.c!=='none'?'+2 dice conjuring '+esc(TT.c):'no conjuring bonus'}. <span class="pg">p. 119–122</span></p>`:''}
+    <table><thead><tr><th>Spell</th><th>Type</th><th class="n">Force</th><th>Drain</th><th>Notes</th></tr></thead><tbody>${S.powers.map(p=>{const sp=spellFind(p.name);const tb=sp&&S.magic==='shamanic'&&TT?(TT.b[sp.cat]||0):0;return `<tr><td><b>${esc(p.name)}</b>${sp&&sp.pg?` <span class="pg">${esc(sp.pg)}</span>`:''}</td><td>${sp?esc(sp.cat+(sp.ty?' · '+(sp.ty==='M'?'mana':'physical'):'')):''}</td><td class="n">${p.cost||0}</td><td class="mono">${sp?drainText(sp,+p.cost||1):''}</td><td>${tb?`totem ${tb>0?'+':''}${tb} dice. `:''}${esc(p.note||'')}</td></tr>`;}).join('')||'<tr><td colspan="5" class="mut">No spells</td></tr>'}</tbody></table>`;
+    const foci=S.gear.filter(g=>BOND[g.key]); if(foci.length) magic+=`<h3>Foci</h3><table><tbody>${foci.map(g=>`<tr><td>${esc(g.name)}${g.note?` · ${esc(g.note)}`:''}</td><td class="n">bonded for ${BOND[g.key](+g.r||1)} Karma</td></tr>`).join('')}</tbody></table><p class="ts">Up to ${attrNow('int')} foci active at once (Intelligence). <span class="pg">p. 137</span></p>`;}
+  // ---- cyberdeck ----
   const dk=deckInfo(); let deck='';
-  if(dk){const mx=matrixInfo()||{pool:0,react:0,dice:1};
-    deck=`<h2>Cyberdeck</h2><div class="grid"><div>${[['Deck',dk.name],['MPCP / Hardening',`${dk.mpcp} / ${dk.h}`],['Active / Storage',`${dk.am} / ${dk.sm} Mp`],dk.vr2?['I/O speed',`${dk.io} MePS`]:['Load / I/O',`${dk.ls} / ${dk.io} Mp per turn`]].map(([k,v])=>`<div class="stat"><span class="k">${k}</span><span class="v">${esc(v)}</span></div>`).join('')}</div>
-    <div>${[['Bod / Evasion',`${dk.persona.Bod} / ${dk.persona.Evasion}`],['Masking / Sensors',`${dk.persona.Masking} / ${dk.persona.Sensors}`],['Hacking Pool',mx.pool],['Matrix Initiative',`${mx.react} + ${mx.dice}D6`],...(booksOn().vr2?[['Detection Factor',detectionFactor(dk)]]:[])].map(([k,v])=>`<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}</div></div>
-    <table><thead><tr><th>Utility</th><th class="n">Rating</th><th class="n">Size</th><th>Loaded</th></tr></thead><tbody>${dk.utils.map(u=>`<tr><td>${esc(GEARDB[u.g.key].n)}</td><td class="n">${u.g.r}</td><td class="n">${u.size} Mp</td><td>${u.g.loaded?'✓':''}</td></tr>`).join('')}</tbody></table><p class="sm mut">Loaded ${dk.used} of ${dk.am} Mp. Hacking Pool dice per test can't exceed the program's rating.</p>`;}
-  const vcr=gearLevel('body:Vehicle Control Rig'),vehs=S.gear.filter(g=>VSTAT[g.key]); let rig='';
-  if(vcr||vehs.length){const baseR=Math.floor((attrNow('quick')+attrNow('int'))/2);
-    rig=`<h2>Rigging</h2>${vcr?`<p>VCR ${vcr} · <b>Control Pool ${baseR+2*vcr}</b> · Rigged Initiative ${baseR+2*vcr} + ${1+vcr}D6</p>`:''}${vehs.length?`<table><thead><tr><th>Vehicle</th><th>Hand.</th><th>Speed</th><th>Body</th><th>Armor</th><th>Sig.</th><th>Pilot</th></tr></thead><tbody>${vehs.map(g=>{const d=VSTAT[g.key],o=g.vs||{}; if(R2OBJ[g.key]&&g.vb&&g.vb.mods&&g.vb.mods.length){const v=vbFixG(g),r=VB.calc(v,g.vb),st=r.s; const vals=[st.Hoff!=null?st.H+'/'+st.Hoff:st.H,st.Sp.join('/'),v.B,st.A,st.Si,st.P||(st.Au?'Auto '+st.Au:'—')];
-      return `<tr><td>${esc(GEARDB[g.key].n)}</td>${vals.map(x=>`<td>${esc(x)}</td>`).join('')}</tr><tr><td colspan="7" class="sm mut">Mods: ${esc(r.rows.map(x=>x.d.n+(x.d.kind==='flag'?'':' '+x.l)).join(', '))} · Sensor ${st.Se} · Cargo ${r.cf}/${r.Cmax} CF · Load ${r.load}/${r.Lmax} kg</td></tr>`;}
-      return `<tr><td>${esc(GEARDB[g.key].n)}</td>${d.map((v,j)=>`<td>${esc(o[j]!==undefined&&o[j]!==''?o[j]:(v??'?'))}</td>`).join('')}</tr>`;}).join('')}</tbody></table>`:''}`;}
+  if(dk){const mx=T.mx||{pool:0,react:0,dice:1};
+    deck=`<p class="ts"><b>${esc(dk.name)}</b></p><div class="tiles sm">${tile('MPCP',dk.mpcp,'')}${tile('Hardening',dk.h,'')}${tile('Bod / Evasion',`${dk.persona.Bod} / ${dk.persona.Evasion}`,'')}${tile('Masking / Sensors',`${dk.persona.Masking} / ${dk.persona.Sensors}`,'')}${tile('Active memory',`${dk.used} / ${dk.am} Mp`,'loaded')}${tile('Storage',`${dk.stored} / ${dk.sm} Mp`,'')}${dk.vr2?tile('I/O speed',`${dk.io} MePS`,''):tile('Load / I/O',`${dk.ls} / ${dk.io}`,'Mp per turn')}${booksOn().vr2?tile('Detection Factor',detectionFactor(dk),'VR2 p. 17'):''}</div>
+    ${dk.utils.length?`<table><thead><tr><th>Utility</th><th class="n">Rating</th><th class="n">Size</th><th>Status</th></tr></thead><tbody>${dk.utils.slice().sort((a,b)=>(b.g.loaded?1:0)-(a.g.loaded?1:0)).map(u=>`<tr class="${u.g.loaded?'on':''}"><td><b>${esc(GEARDB[u.g.key].n)}</b></td><td class="n">${u.g.r}</td><td class="n">${u.size} Mp</td><td>${u.g.loaded?'Loaded':'In storage'}</td></tr>`).join('')}</tbody></table>`:''}
+    <p class="ts">Hacking Pool ${mx.pool}${mx.poolHow?` (${esc(mx.poolHow)})`:''}. Pool dice added to a test can’t exceed the program’s rating. <span class="pg">${dk.vr2?'VR2 p. 16–18':'p. 85, 172–176'}</span></p>`;}
+  // ---- rigging ----
+  const vehs=S.gear.filter(g=>VSTAT[g.key]); let rig='';
+  if(vcr||vehs.length){
+    rig=(vcr?`<p>Vehicle Control Rig ${vcr}: <b>Control Pool ${baseR+2*vcr}</b> · rigged Reaction ${baseR+2*vcr}, Initiative ${baseR+2*vcr} + ${1+vcr}D6 <span class="pg">p. 85</span></p>`:'')+vehs.map(g=>{const d=VSTAT[g.key],o=g.vs||{};
+      if(R2OBJ[g.key]){const v=vbFixG(g),r=VB.calc(v,g.vb),s2=r.s;
+        return `<article class="wcard"><header><b>${esc(GEARDB[g.key].n)}</b><span class="ts">${esc(v.pg)}${r.rows.length?` · ${r.rows.length} mod${r.rows.length>1?'s':''}`:''}</span></header>
+        <div class="wstats">${VB.statLine(v,s2).map(([k,a,b])=>tile(k,b,String(a)!==String(b)?`was ${a}`:'',String(a)!==String(b)?'chg':'')).join('')}${tile('Body',v.B,'')}${tile('Cargo',`${r.cf} / ${r.Cmax} CF`,'')}${tile('Load',`${r.load} / ${r.Lmax} kg`,'')}</div>
+        ${r.rows.length?`<p class="ts"><b>Mods:</b> ${esc(r.rows.map(x=>x.d.n+(x.d.kind==='flag'?'':' '+x.l)).join(', '))}</p>`:''}</article>`;}
+      const lab=['Handling','Speed','Body','Armor','Signature','Pilot'];
+      return `<article class="wcard"><header><b>${esc(GEARDB[g.key].n)}</b><span class="ts">${esc(GEARDB[g.key].pg||'')}</span></header><div class="wstats">${d.map((x,j)=>tile(lab[j],esc(o[j]!==undefined&&o[j]!==''?o[j]:(x??'?')),'')).join('')}</div></article>`;}).join('');}
+  // ---- skillsofts ----
   const softs=S.gear.filter(g=>g.key&&GEARDB[g.key]&&GEARDB[g.key].soft); const sw=gearLevel('body:Skillwires');
-  const softHtml=softs.length?`<h2>Skillsofts</h2><table><tbody>${softs.map(g=>`<tr><td>${esc(GEARDB[g.key].n)} ${esc(g.note||'')}</td><td class="n">${g.r}</td><td class="n mut">${GEARDB[g.key].mp(+g.r)} Mp</td></tr>`).join('')}</tbody></table><p class="sm mut">Skillwires ${sw||'none'}: ActiveSofts running at once can total rating ${sw||0}.</p>`:'';
-  const advHtml=(S.adv||[]).length?`<h2>Karma spent</h2><table><tbody>${S.adv.map(a=>`<tr><td>${esc(a.desc||a.label)}</td><td class="n">${a.cost}</td></tr>`).join('')}</tbody></table>`:'';
-  const contacts=S.contacts.filter(c=>c.name||c.role).map(c=>`<li><b>${esc(c.name||'—')}</b> · ${esc(c.role)} <span class="mut">(${esc(c.level)})</span></li>`).join('')||'<li class="mut">None</li>';
-  const boxes=(n,lbls)=>`<div class="mon">${Array.from({length:10},(_,i)=>`<span class="${i<n?'on':''}">${lbls[i]||''}</span>`).join('')}</div>`;
+  const softHtml=softs.length?`<table><tbody>${softs.map(g=>`<tr><td><b>${esc(GEARDB[g.key].n)}</b> ${esc(g.note||'')}</td><td class="n">${g.r}</td><td class="n">${GEARDB[g.key].mp(+g.r)} Mp</td></tr>`).join('')}</tbody></table><p class="ts">Skillwires ${sw||'none'}: ActiveSofts running at once can total rating ${sw||0}. <span class="pg">p. 248</span></p>`:'';
+  // ---- gear (programs and deck options are shown with the deck) ----
+  const shownWithDeck=g=>dk&&g.key&&(/^prog2?:/.test(g.key)||/^deck:(Response Increase|Extra (Active|Storage)|Hitcher|Off-line|Vidscreen)/.test(g.key));
+  let gTot=0,eTot=0;
+  const gear=GCATS.map(([c,l])=>{const rows=S.gear.filter(g=>(g.name||+g.cost)&&(GCATNAME[g.cat]?g.cat:'other')===c&&!shownWithDeck(g)).sort((a,b)=>String(a.name).localeCompare(String(b.name)));if(!rows.length)return '';
+    return `<div class="gg"><h3>${l}</h3><ul>${rows.map(g=>{const q=+g.qty||1, c=(+g.cost||0)*q, e=+(+g.ess||0)*q; gTot+=c; eTot+=e; return `<li><span>${esc(g.name)}${q>1?` <i>×${q}</i>`:''}${g.note?` <i>· ${esc(g.note)}</i>`:''}</span><span class="gm">${e?`${+e.toFixed(2)} Ess · `:''}${fmt(c)}¥</span></li>`;}).join('')}</ul></div>`;}).join('');
+  const deckCost=dk?S.gear.filter(shownWithDeck).reduce((a,g)=>a+(+g.cost||0)*(+g.qty||1),0):0;
+  // ---- condition monitor ----
   const ML=['L','','M','','','S','','','','D'];
-  const css=`:root{--ink:#16181d;--mut:#5d6470;--line:#d6dae1;--soft:#eef0f4;--acc:#0d6b74}
-*{box-sizing:border-box}body{margin:0;background:#fff;color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
-.page{max-width:900px;margin:0 auto;padding:28px 20px}
-h1{font-size:28px;margin:0}h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin:22px 0 6px;border-bottom:2px solid var(--acc);padding-bottom:3px}
-.sub{color:var(--mut)}.mut{color:var(--mut)}.sm{font-size:12px}.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
-table{width:100%;border-collapse:collapse}td,th{padding:4px 6px;border-bottom:1px solid var(--soft);text-align:left;vertical-align:top}th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}.n{text-align:right;font-variant-numeric:tabular-nums}
-tr.cat td{background:var(--soft);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}@media (max-width:640px){.grid{grid-template-columns:1fr}}
-.stat{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--soft)}.stat .k{color:var(--mut)}.stat .v{font-weight:600;font-variant-numeric:tabular-nums}.stat .v.big{font-size:14px}
-.mon{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin:4px 0 10px}.mon span{border:1.5px solid var(--ink);height:26px;font-size:10px;display:flex;align-items:flex-end;justify-content:center;color:var(--mut)}.mon span.on{background:#c43d3d}
-ul{margin:4px 0;padding-left:18px}.notes{white-space:pre-wrap}
-.bar{display:flex;gap:8px;justify-content:flex-end}.bar button{font:inherit;padding:6px 12px;border:1px solid var(--line);border-radius:6px;background:#fff;cursor:pointer}
-@media print{.bar{display:none}.page{padding:0}h2{break-after:avoid}tr{break-inside:avoid}}`;
-  const body=`<div class="page"><div class="bar"><button onclick="window.print()">Print or save as PDF</button></div>
-<h1>${esc(S.name||'Unnamed runner')}${S.handle?` <span class="sub">“${esc(S.handle)}”</span>`:''}</h1>
-<div class="sub">${esc(race)} · ${esc(magicLbl)}${S.tradition?' · '+esc(S.tradition):''}${S.concept?' · '+esc(S.concept):''}</div>
-<div class="grid"><div><h2>Attributes</h2><table><thead><tr><th>Attribute</th><th class="n">Rating</th><th class="n">Racial max</th></tr></thead><tbody>${attrRows}
-<tr><td>Essence</td><td class="n">${+ess.toFixed(2)}</td><td></td></tr></tbody></table></div>
-<div><h2>Derived</h2>${stats}</div></div>
-${traits.length?`<p class="sm"><b>${esc(S.race)} traits:</b> ${traits.map(esc).join(' · ')}</p>`:''}
-${S.optEF&&(S.ef||[]).length?`<p class="sm"><b>Edges and Flaws (SRC p. 35):</b> ${S.ef.map(x=>esc(x.n)+' '+(x.v>0?'+':'')+x.v+(x.note?' ('+esc(x.note)+')':'')).join(' · ')}</p>`:''}
-<h2>Skills</h2><table><thead><tr><th>Skill</th><th>Ratings</th></tr></thead><tbody>${skills}</tbody></table>
-${weap?`<h2>Weapons</h2><table><thead><tr><th>Weapon</th><th class="n">Conc.</th><th>Ammo</th><th>Damage</th><th>Dice</th><th>Ranges (TN 4/5/6/9)</th><th>Mods</th></tr></thead><tbody>${weap}</tbody></table>`:''}
-${armor?`<h2>Armor</h2>${armor}`:''}
-${magic}${deck}${rig}${softHtml}
-<h2>Gear and cyberware</h2><table><thead><tr><th>Item</th><th class="n">Qty</th><th class="n">Essence</th><th class="n">Cost</th></tr></thead><tbody>${gear}</tbody></table>
-<div class="grid"><div><h2>Condition monitor</h2><div class="sm mut">Physical</div>${boxes(S.phys,ML)}<div class="sm mut">Stun</div>${boxes(S.stun,ML)}<div class="sm mut">Light +1 TN/−1 Init · Moderate +2/−2 · Serious +3/−3. Stun and Physical add together.</div></div>
-<div><h2>Karma and nuyen</h2><div class="stat"><span class="k">Karma earned</span><span class="v">${S.kEarned||0}</span></div><div class="stat"><span class="k">Karma spent</span><span class="v">${(+S.kSpent||0)+karmaSpentLog()}</span></div><div class="stat"><span class="k">Good Karma left</span><span class="v">${(+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog()}</span></div><div class="stat"><span class="k">Nuyen on hand</span><span class="v">${S.nuyenNow!==''&&S.nuyenNow!=null?fmt(+S.nuyenNow)+'¥':'—'}</span></div></div></div>
-${advHtml}<h2>Contacts</h2><ul>${contacts}</ul>
-${S.notes?`<h2>Notes</h2><div class="notes">${esc(S.notes)}</div>`:''}
-<p class="mut sm" style="margin-top:1.5rem">Shadowrun 2nd Edition. Made with SR2 Runner Builder.</p></div>`;
+  const track=(lab,n)=>`<div class="mon"><span class="ml">${lab}</span><div class="mb">${Array.from({length:10},(_,i)=>`<span class="${i<n?'on':''}">${ML[i]}</span>`).join('')}</div></div>`;
+  const monitor=`${track('Physical',S.phys)}${track('Stun',S.stun)}
+    <p class="ts">Light +1 TN, −1 Initiative · Moderate +2 / −2 · Serious +3 / −3 · Deadly: unconscious. Stun and Physical modifiers add together. Stun past 10 boxes rolls into Physical. More than Body (${augAttr('body')}) boxes past the Physical track is death. <span class="pg">p. 111–112</span></p>`;
+  const contacts=S.contacts.filter(c=>c.name||c.role).map(c=>`<li><b>${esc(c.name||'Unnamed')}</b> · ${esc(c.role||'')} <span class="ts">${esc(c.level||'')}</span></li>`).join('');
+  const karma=[['Karma earned',S.kEarned||0],['Karma spent',(+S.kSpent||0)+karmaSpentLog()],['Good Karma left',(+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog()],['Nuyen on hand',S.nuyenNow!==''&&S.nuyenNow!=null?fmt(+S.nuyenNow)+'¥':'—']].map(([k,v])=>`<div class="kv"><span>${k}</span><b>${v}</b></div>`).join('');
+  const advHtml=(S.adv||[]).length?`<table><tbody>${S.adv.map(a=>`<tr><td>${esc(a.desc||a.label)}</td><td class="n">${a.cost} Karma</td></tr>`).join('')}</tbody></table>`:'';
+  const css=`@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{--bg:#e9ecf0;--paper:#fff;--panel2:#f4f6f8;--ink:#141922;--muted:#566070;--line:#d3d8e0;--accent:#2453c7;--hit:#b4322d;--flaw:#a1275e;
+ --display:"Chakra Petch","Arial Narrow",sans-serif;--body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1319;--paper:#171c24;--panel2:#1d2430;--ink:#e7ebf1;--muted:#9aa5b5;--line:#2c3543;--accent:#7aa2ff;--hit:#ff7a72;--flaw:#f07aa8;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 var(--body)}
+.page{max-width:980px;margin:0 auto;padding:20px 16px 40px}
+.top{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-end;margin-bottom:14px}
+h1{font:700 1.9rem/1.05 var(--display);letter-spacing:.02em;margin:0}h1 .hd{color:var(--accent)}
+.sub{color:var(--muted);margin-top:4px}.bar{display:flex;gap:8px}.bar button{font:600 .875rem var(--body);padding:8px 14px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);cursor:pointer}.bar button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sec{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:0 0 12px}
+h2{font:700 .8125rem/1 var(--display);letter-spacing:.1em;text-transform:uppercase;margin:0 0 10px;color:var(--ink);display:flex;align-items:baseline;gap:8px}
+h2::before{content:"";width:4px;height:12px;background:var(--accent);border-radius:2px;align-self:center}
+h3{font:600 .6875rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 0 4px}
+.pg{font:500 .6875rem var(--mono);color:var(--muted);letter-spacing:0;text-transform:none}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}.cols>.sec{margin-bottom:12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}.tiles.sm{grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}
+.tile,.attr{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--panel2);min-width:0}
+.tk{display:block;font:600 .625rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tv{display:block;font:600 1.15rem/1.2 var(--mono);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.ts{display:block;font-size:.75rem;color:var(--muted);line-height:1.35}
+.tile.hero{background:var(--accent);border-color:var(--accent);color:#fff}.tile.hero .tk,.tile.hero .ts{color:rgba(255,255,255,.85)}.tile.hero .tv{font-size:1.5rem}
+.tile.chg{border-color:var(--accent)}.tile.chg .tv{color:var(--accent)}
+.attrs{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}.attr .tv{font-size:1.5rem}
+.chips{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-wrap:wrap;gap:6px}.chips li{border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:.8125rem}.chips li.flaw{border-color:var(--flaw)}.chips li.edge{border-color:var(--accent)}
+p{margin:6px 0}p.trait{font-size:.8125rem}
+.skg h3:first-child{margin-top:0}.skr{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;padding:5px 0;border-top:1px solid var(--line)}.skn{font-weight:600}
+.skv{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.sk{font-size:.8125rem;border:1px solid var(--line);border-radius:6px;padding:1px 8px;background:var(--panel2);white-space:nowrap}.sk i{display:none}.sk b{font-family:var(--mono)}.sk.conc{border-color:var(--accent)}.sk.spec{border-color:var(--accent);background:transparent;border-style:dashed}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.wcard{border:1px solid var(--line);border-radius:8px;padding:10px;break-inside:avoid}.wcard header{margin-bottom:8px}.wcard header b{font-size:1rem}
+.wstats{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px}.wstats .tile{padding:5px 8px}.wstats .tv{font-size:1rem}
+table{width:100%;border-collapse:collapse;font-size:.8125rem}td,th{padding:5px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}th{font:600 .625rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-top:0}
+.n{text-align:right;font-variant-numeric:tabular-nums}.mono{font-family:var(--mono)}.mut{color:var(--muted)}tr.on td:first-child{box-shadow:inset 3px 0 var(--accent)}
+.rng{margin-top:8px;table-layout:fixed}.rng th,.rng td{text-align:center;padding:4px 2px;font-family:var(--mono);font-size:.75rem}.rng tr.tn td{color:var(--muted);border-top:0;padding-top:0}
+.mon{display:flex;align-items:center;gap:10px;margin:6px 0}.ml{width:62px;font-weight:600;font-size:.8125rem}.mb{flex:1;display:grid;grid-template-columns:repeat(10,1fr);gap:3px}
+.mb span{height:30px;border:1.5px solid var(--ink);border-radius:3px;display:flex;align-items:flex-end;justify-content:center;font:600 .625rem var(--mono);color:var(--muted);padding-bottom:2px}.mb span.on{background:var(--hit);border-color:var(--hit);color:#fff}
+.mb span:nth-child(1),.mb span:nth-child(3),.mb span:nth-child(6),.mb span:nth-child(10){border-width:2.5px}
+.kv{display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid var(--line)}.kv:first-child{border-top:0}.kv b{font-family:var(--mono)}
+.gg ul{list-style:none;margin:0;padding:0}.gg li{display:flex;justify-content:space-between;gap:12px;padding:4px 0;border-top:1px solid var(--line);font-size:.8125rem}.gg li i{color:var(--muted);font-style:normal}.gm{white-space:nowrap;font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.gcols{columns:2 300px;column-gap:20px}.gg{break-inside:avoid}
+ul.ct{margin:0;padding-left:18px}.notes{white-space:pre-wrap}
+.foot{color:var(--muted);font-size:.75rem;margin-top:8px;break-before:avoid}
+@media (max-width:640px){.cols{grid-template-columns:1fr}h1{font-size:1.6rem}.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.tile.hero .tv{font-size:1.25rem}.wgrid{grid-template-columns:1fr}.attrs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media print{:root{--bg:#fff;--paper:#fff;--panel2:#f6f7f9;--ink:#000;--muted:#444;--line:#bbb;--accent:#1d3f99;color-scheme:light}
+ @page{margin:12mm}body{font-size:11px}.page{padding:0;max-width:none}.bar{display:none}.sec{border-color:#bbb;padding:8px 10px;margin-bottom:8px}
+ .tile.hero{background:#fff;color:#000;border:2px solid #000}.tile.hero .tk,.tile.hero .ts{color:#444}.mb span.on{background:#777;border-color:#000;color:#fff}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}h2,h3{break-after:avoid}.wcard,.gg,tr,.tiles,.attrs,.mon,.skr,.kv{break-inside:avoid}.cols{grid-template-columns:1fr 1fr}.sec{break-inside:auto}
+ .sec h2+*{break-before:avoid}body{font-size:10px}.tiles{grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}.attrs{grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+ .tile,.attr{padding:4px 6px}.tv{font-size:.95rem}.attr .tv{font-size:1.15rem}.tile.hero .tv{font-size:1.15rem}.ts{font-size:.65rem}
+ .wgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.wcard{padding:6px}.wstats{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}.wstats .tk{letter-spacing:.02em}.wstats .tile{padding:3px 5px}.wstats .tv{font-size:.8rem}
+ .mb span{height:22px}.skr{padding:3px 0}.gg li{padding:2px 0}.kv{padding:3px 0}.foot{margin-top:4px}}`;
+  const body=`<div class="page"><div class="top"><div><h1>${esc(S.name||'Unnamed runner')}${S.handle?` <span class="hd">“${esc(S.handle)}”</span>`:''}</h1>
+<div class="sub">${[S.race,magicLbl,S.tradition,S.concept].filter(Boolean).map(esc).join(' · ')}</div></div><div class="bar"><button onclick="window.print()">Print or save as PDF</button></div></div>
+${sec('quick','At the table','',`<div class="tiles">${quick}</div>${T.wmod.m?`<p class="ts">Current wounds: +${T.wmod.m} to target numbers, −${T.wmod.m} Initiative.</p>`:''}`)}
+<div class="cols">${sec('mon','Condition monitor','',monitor)}${sec('karma','Karma and nuyen','',karma)}</div>
+${sec('attrs','Attributes','p. 42–43',`<div class="attrs">${attrs}</div>${traits.length?`<p class="trait"><b>${esc(S.race)}:</b> ${traits.map(esc).join(' · ')}</p>`:''}${ef?`<h3>Edges and Flaws <span class="pg">SRC p. 22</span></h3>${ef}`:''}`)}
+${sec('skills','Skills','p. 68–75',skills)}
+${weap?sec('weap','Weapons','TN by range: 4 / 5 / 6 / 9',`<div class="wgrid">${weap}</div>`):''}
+${armor?sec('armor','Armor','p. 243',armor):''}
+${magic?sec('magic',S.magic==='adept'?'Adept powers':'Spells and foci','',magic):''}
+${deck?sec('deck','Cyberdeck','',deck):''}
+${rig?sec('rig','Rigging','',`<div class="wgrid">${rig.replace(/^(<p>.*?<\/p>)/,'</div>$1<div class="wgrid">')}</div>`):''}
+${softHtml?sec('soft','Skillsofts','',softHtml):''}
+${advHtml?sec('adv','Karma spent','',advHtml):''}
+${contacts?sec('contacts','Contacts','p. 201',`<ul class="ct">${contacts}</ul>`):''}
+${sec('gear','Gear and cyberware','',`<div class="gcols">${gear||'<p class="mut">None</p>'}</div><p class="ts">Total ${fmt(gTot+deckCost)}¥${deckCost?` (deck options and programs ${fmt(deckCost)}¥ are listed with the cyberdeck)`:''}${eTot?` · ${+eTot.toFixed(2)} Essence in implants`:''}.</p>`)}
+${S.notes?sec('notes','Notes','',`<div class="notes">${esc(S.notes)}</div>`):''}
+<p class="foot">Shadowrun 2nd Edition character sheet · made with the SR2 Runner Builder. Page numbers are the core rulebook unless marked.</p></div>`;
   return docShell((S.name||'Runner')+' · SR2 character sheet',css,body);
 }
 $('expSheet').onclick=()=>offer(slug()+'-sheet.html',sheetFile(),'text/html');
