@@ -157,6 +157,10 @@ tr.on td{background:color-mix(in srgb,var(--accent) 14%,transparent)}
 .sd-card{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;max-width:520px;width:100%;padding:16px 18px;box-shadow:0 10px 40px rgba(0,0,0,.3);max-height:90vh;overflow:auto}
 .sd-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}.sd-card p{margin:6px 0;font-size:.9rem;line-height:1.45}
 .sd-card textarea{width:100%;font-family:var(--mono);font-size:.75rem;border:1px solid var(--line);border-radius:6px;padding:6px;background:var(--panel2);color:var(--ink);resize:vertical}.sd-a{display:flex;gap:8px;margin-top:8px}
+.charbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:.8125rem;min-width:0;max-width:100%}.charbar select{font:inherit;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--ink);max-width:16rem;min-width:0;flex:1 1 9rem}.cb-l{color:var(--muted)}.cb-b{font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap;margin-right:6px}.cb-n{color:var(--good);font-weight:600;white-space:nowrap}
+.own{display:inline-block;margin-left:6px;font:600 .6875rem var(--body);color:var(--good);border:1px solid currentColor;border-radius:999px;padding:0 6px;vertical-align:1px;white-space:nowrap}
+.ownnote{margin:6px 0 8px;padding:6px 10px;border-left:3px solid var(--good);background:var(--panel2);border-radius:4px;font-size:.875rem}
+.sd-card textarea#charCode{font-family:var(--mono)}
 </style>
 
 <div class="wrap">
@@ -166,6 +170,7 @@ tr.on td{background:color-mix(in srgb,var(--accent) 14%,transparent)}
     <input id="q" type="search" placeholder="Search gear, e.g. smartlink, Predator, drone" aria-label="Search gear" autocomplete="off">
     <div class="books" id="books" role="group" aria-label="Books"></div>
     <a class="kitchip" id="kitchip" href="#kit">Shopping list: 0</a>
+    <div class="charbar" id="charbar"></div>
   </div>
 </header>
 <select id="catSel" aria-label="Category"></select>
@@ -189,6 +194,7 @@ const DATA={"cats":[["melee","Melee weapons"],["ranged","Bows and throwing weapo
 const BOOK={core:['Core rulebook','Core','--b-core'],ssc:['Street Samurai Catalog','SSC','--b-ssc'],r2:['Rigger 2','R2','--b-r2'],vr2:['Virtual Realities 2.0','VR2','--b-vr2'],fof:['Fields of Fire','FoF','--b-fof'],st:['Shadowtech','ST','--b-st'],ct:['Cybertechnology','CT','--b-ct'],csh:['Corporate Security Handbook','CSH','--b-csh'],gr:['The Grimoire','GR','--b-gr'],aw:['Awakenings','AW','--b-aw'],co:['Shadowrun Companion','SRC','--b-co']};
 const CATN=Object.fromEntries(DATA.cats);
 const ITEMS=DATA.items; const BYID=Object.fromEntries(ITEMS.map(i=>[i.id,i]));
+/*@shared:vehicles*/
 // ---------- Vehicle build-out: Rigger 2 vehicle customization (R2 p. 118–146) ----------
 // Shared by the Gear Locker and the Runner Builder. Every limit is checked by calc(); the UI only offers changes that keep calc() clean.
 const VB=(()=>{
@@ -420,6 +426,7 @@ function statLine(v,s){const sp=a=>a.join('/'); const H=s.Hoff!=null?`${s.H}/${s
   return [['Handling',H0,H],['Speed',sp(v.Sp),sp(s.Sp)],['Accel',v.Ac,s.Ac],['Armor',v.A,s.A],['Signature',v.Si,s.Si],['Autonav',v.Au||'—',s.Au||'—'],['Pilot',v.P||'—',s.P||'—'],['Sensor',v.Se,s.Se]];}
 return {TYPES,typeName,veh,M,BY,GROUPS,calc,clamp,levels,optChoices,addable,optsOf,ctxOf,statLine,minLv,fmtN,AIR,GROUND};
 })();
+/*@end:vehicles*/
 
 const VTYPE={"Aerodesign Systems Condor Series (LDSD-41)": ["lta", 1], "Aerodesign Systems Condor Series (LDSD-23)": ["lta", 1], "Aeroquip \"Redball Express\" Long-Range Resupply Drone": ["rotor", 1], "Agusta-Cierva Plutocrat (Standard)": ["rotor", 0], "Agusta-Cierva Plutocrat (Armed)": ["rotor", 0], "Airship Industries Skyswimmer": ["lta", 0], "Ares Arms Sentry II": ["tracked", 1], "Ares Citymaster": ["car", 0], "Ares Dragon": ["rotor", 0], "Ares Guardian Drone": ["rotor", 1], "Ares Mobmaster": ["car", 0], "Ares Roadmaster": ["car", 0], "Ares Sentinel \"P\" Series Drone": ["car", 1], "Ares TR-55C Cargoliner": ["rotor", 0], "Ares TR-55E \"President's Edition\" Executive": ["rotor", 0], "Ares TR-55T Traveller": ["rotor", 0], "Artemis Industries Nightglider": ["plane", 0], "Aztech GCR-23C Crawler": ["tracked", 1], "Aztech Nightrunner (Standard)": ["boat", 0], "Aztech Nightrunner (Electric)": ["boat", 0], "Aztechnology Aguilar-EX": ["rotor", 0], "Aztechnology Halcón Ground-Attack Aircraft": ["plane", 0], "Aztechnology Hedgehog Signal Interceptor": ["tracked", 1], "Aztechnology Liebre Surveillance/Pursuit RPV": ["plane", 1], "Aztechnology Lobo Medium Scout LAV": ["rotor", 0], "Aztechnology Tiburón Patrol Boat": ["boat", 0], "Aztechnology Tiburón Patrol Boat (Interdiction Variant)": ["boat", 0], "BAC-Dassault-MBB EFA Variants": ["plane", 0], "Blohm & Voss River Commander": ["boat", 0], "BMW Blitzen 2050": ["bike", 0], "CAS Wandjina RPV": ["plane", 1], "CASA J-239 Raven": ["plane", 0], "Cessna C750 (Standard)": ["plane", 0], "Cessna C750 (Pass.)": ["plane", 0], "Chrysler-Nissan G12A (Pass.)": ["hover", 0], "Chrysler-Nissan G12A (Cargo)": ["hover", 0], "Chrysler-Nissan Jackrabbit (Elec.)": ["car", 0], "Chrysler-Nissan Jackrabbit (Meth.)": ["car", 0], "Chrysler-Nissan Patrol-1": ["car", 0], "Citroën Brouillard Smoke Generator": ["tracked", 1], "Colorado Craft Cigarette Hydrofoil": ["boat", 0], "Conestoga Trailblazer": ["car", 0], "Cyberspace Designs Dalmatian": ["rotor", 1], "Cyberspace Systems Wolfhound Advanced Reconnaissance Aircraft": ["rotor", 1], "Doc Wagon Citymaster Variant": ["car", 0], "Doc Wagon CRT Ambulance": ["car", 0], "Doc Wagon CRT Air Unit": ["rotor", 0], "Doc Wagon Osprey II": ["rotor", 0], "Doc Wagon SRT Ambulance": ["car", 0], "Doc Wagon SRT Helicopter": ["rotor", 0], "Doc Wagon WK-2 Stallion Variant": ["rotor", 0], "Dodge Scoot": ["bike", 0], "Embraer-Dassault Mistral": ["plane", 0], "Entertainment Systems Papoose": ["bike", 0], "Eurocar Westwind 2000 (Standard)": ["car", 0], "Eurocar Westwind 2000 (Turbo)": ["car", 0], "Federated Boeing Commuter": ["rotor", 0], "Federated Boeing Eagle": ["plane", 0], "Ferrari Appaloosa Light Scout": ["car", 0], "Ferret RPD-VI Perimeter Drone": ["car", 1], "Fiat-Fokker Cloud Nine": ["plane", 0], "FMC-Stonebrooke TADS Firebird": ["plane", 1], "FMC-Stonebrooke TADS Salamander": ["plane", 1], "Ford Americar": ["car", 0], "Ford-Canada Bison": ["car", 0], "Gaz-Niki GNRD-71 BIS Snooper": ["car", 1], "Gaz-Niki White Eagle": ["car", 0], "Gaz-Willys Nomad": ["car", 0], "General Products COP": ["car", 0], "Generic Surveillance Drone": ["rotor", 1], "GM-Nissan Doberman": ["car", 1], "GM-Nissan Spotter": ["plane", 1], "GMC 4201": ["car", 0], "GMC Banshee": ["rotor", 0], "GMC Beachcraft Patroller": ["hover", 0], "GMC Beachcraft Vacationer": ["hover", 0], "GMC Bulldog Step-Van (Standard)": ["car", 0], "GMC Bulldog Step-Van (BC Var.)": ["car", 0], "GMC \"Harpy Scout\" LAV": ["rotor", 0], "GMC MPUV": ["car", 0], "GMC Riverine": ["boat", 0], "GMC Riverine (Police Model)": ["boat", 0], "GMC Riverine (Security Model)": ["boat", 0], "GMC-Nissan Hovertruck": ["hover", 0], "Goodyear Commuter-47": ["lta", 0], "GTE-Ford Retrans Unit": ["plane", 1], "Harland & Wolff Classique": ["boat", 0], "Harley Electroglide-1000": ["bike", 0], "Harley-Davidson Scorpion": ["bike", 0], "Hawker-Ridley HS-895 Skytruck": ["plane", 0], "Honda-GM 3220 ZX (Standard)": ["car", 0], "Honda-GM 3220 ZX (Turbo)": ["car", 0], "Honda Viking": ["bike", 0], "Hughes Aerospace Airstar 2050": ["rotor", 0], "Hughes WK-2 Stallion": ["rotor", 0], "Hyundai Offroader": ["car", 0], "Integrated Weapon System DLK Mk 6 Utility Machine": ["tracked", 1], "Integrated Weapon System DLK Mk 6 Utility Machine (Armed Variant)": ["tracked", 1], "Landrover Model 2046 (SW)": ["car", 0], "Landrover Model 2046 (LW)": ["car", 0], "LAV-93 Devil Rat": ["car", 0], "LAV-103 Striker Light Tank": ["car", 0], "Lear-Cessna Platinum I": ["plane", 0], "Lear-Cessna Platinum II": ["plane", 0], "Leyland-Rover Transport/Electric (Open Tray)": ["car", 0], "Leyland-Rover Transport/Electric (Encl. Box)": ["car", 0], "Leyland-Rover Transport/Electric (Minibus)": ["car", 0], "Leyland-Rover Transport/Gasoline (Open Tray)": ["car", 0], "Leyland-Rover Transport/Gasoline (Encl. Box)": ["car", 0], "Leyland-Rover Transport/Gasoline (Minibus)": ["car", 0], "Leyland-Zil Tsarina (Elec.)": ["car", 0], "Leyland-Zil Tsarina (Meth.)": ["car", 0], "Lockheed C-260 Transport": ["plane", 0], "Lone Star \"Black Mariah\" USPTV": ["car", 0], "Lone Star Modified Ford Americar": ["car", 0], "Lone Star Modified Honda 3220ZX Turbo": ["car", 0], "Lone Star Strato-9 Surveillance Drone": ["rotor", 1], "Lone Star SWAT Hovertruck": ["hover", 0], "Luftschiffbau Zeppelin LZ-2049": ["lta", 0], "Luftschiffbau Zeppelin LZ-2051-C": ["lta", 0], "Marine Technologies Dolphin II": ["boat", 0], "MCT-Nissan Roto-Drone": ["rotor", 1], "Mesametric Kodiak Roadway Clearance System": ["tracked", 1], "Mitsubishi Nightsky": ["car", 0], "Mitsubishi Runabout": ["car", 0], "Moonlight Aerospace Avenger": ["plane", 0], "Mostrans KVP-14T (Standard)": ["hover", 0], "Mostrans KVP-14T (Pass.)": ["hover", 0], "Nissan-Holden Brumby": ["car", 0], "Nordkapp-Conestoga Bergen (Tractor)": ["car", 0], "Nordkapp-Conestoga Bergen (Trailer)": ["car", 0], "Northrup Wasp (PRC-42B Variant)": ["rotor", 0], "Northrup Wasp (PRC-42F Variant)": ["rotor", 0], "Northrup Yellowjacket (PRC-44B Variant)": ["rotor", 0], "Northrup Yellowjacket (PRC-44F Variant)": ["rotor", 0], "Pratt & Whitney Sundowner Aerial Sprayer": ["plane", 1], "Renault-Fiat Eurovan (Open Tray)": ["car", 0], "Renault-Fiat Eurovan (Encl. Cargo)": ["car", 0], "Renault-Fiat Eurovan (Camper)": ["car", 0], "Renraku Arachnoid Mini-Drone": ["walker", 1], "Rolls-Royce Phaeton": ["car", 0], "Rolls-Royce Prairie Cat": ["car", 0], "Saab Dynamit 778 TI": ["car", 0], "Saab-Thyssen Bloodhound": ["car", 1], "Samuvani Criscraft Otter": ["boat", 0], "Sendanko Marlin": ["boat", 0], "Shiawase Kanmushi Mechanical Crawler": ["walker", 1], "Sikorsky-Bell Microskimmer": ["hover", 1], "Sikorsky-Bell Microskimmer II": ["hover", 1], "Sikorsky-Bell Red Ranger": ["hover", 0], "Steel Lynx Ground Combat Drone": ["car", 1], "Surfstar Marine Seacop": ["boat", 0], "Suzuki Aurora": ["bike", 0], "Suzuki Watersport (Elec.)": ["boat", 0], "Suzuki Watersport (Gas)": ["boat", 0], "Toyota Elite": ["car", 0], "Toyota MK-Guyver Search and Rescue Robot": ["walker", 1], "Toyotacorp Gopher": ["car", 0], "Thundercloud Pinto": ["car", 0], "Volkswagen Elektro": ["car", 0], "Volkswagen Superkombi III (Flatbed)": ["car", 0], "Volkswagen Superkombi III (Pickup)": ["car", 0], "Volkswagen Superkombi III (Encl. Van)": ["car", 0], "Volkswagen Superkombi III (Commuter)": ["car", 0], "Volkswagen Superkombi III (RV)": ["car", 0], "Yamaha Rapier": ["bike", 0], "Zemlya-Poltava Swordsman (Standard)": ["boat", 0], "Zemlya-Poltava Swordsman (Outboard)": ["boat", 0], "Zemlya-Poltava Swordsman (Elec.)": ["boat", 0]};
 // ---------- Vehicle build-out UI (Gear Locker) ----------
@@ -482,8 +489,8 @@ const fmt=n=>n==null||isNaN(n)?'—':Math.round(n).toLocaleString('en-US');
 const slug=id=>id.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const BYSLUG=Object.fromEntries(ITEMS.map(i=>[slug(i.id),i]));
 let st={books:{core:1,ssc:1,r2:1,vr2:1,fof:1,st:1,ct:1,csh:1,gr:1,aw:1,co:1},cat:'all',q:'',sort:'book',dir:1,f:{},sel:null,rate:{},kit:[]};
-try{const s=JSON.parse(localStorage.getItem('sr2gear')||'null'); if(s){st.books=Object.assign(st.books,s.books||{}); st.kit=Array.isArray(s.kit)?s.kit.filter(k=>BYID[k.id]||k.n):[]; if(s.build&&typeof s.build==='object') st.build=s.build; if(s.dbuild&&typeof s.dbuild==='object') st.dbuild=s.dbuild; if(s.vbuild&&typeof s.vbuild==='object') st.vbuild=s.vbuild;}}catch(e){}
-const save=()=>{try{localStorage.setItem('sr2gear',JSON.stringify({books:st.books,kit:st.kit,build:st.build||{},dbuild:st.dbuild||{},vbuild:st.vbuild||{}}));}catch(e){}};
+try{const s=JSON.parse(localStorage.getItem('sr2gear')||'null'); if(s){st.books=Object.assign(st.books,s.books||{}); st.kit=Array.isArray(s.kit)?s.kit.filter(k=>BYID[k.id]||k.n):[]; if(s.build&&typeof s.build==='object') st.build=s.build; if(s.dbuild&&typeof s.dbuild==='object') st.dbuild=s.dbuild; if(s.vbuild&&typeof s.vbuild==='object') st.vbuild=s.vbuild; if(typeof s.charId==='string') st.charId=s.charId;}}catch(e){}
+const save=()=>{try{localStorage.setItem('sr2gear',JSON.stringify({books:st.books,kit:st.kit,build:st.build||{},dbuild:st.dbuild||{},vbuild:st.vbuild||{},charId:st.charId||''}));}catch(e){}};
 const srcTag=s=>`<span class="src" style="--bc:var(${BOOK[s][2]})">${BOOK[s][1]}</span>`;
 function pageRef(i){const p=i.pg||'';return /^(SSC|R2|VR2|FoF|ST|CT|CSH|GR|AW|SRC)\b/.test(p)?p:(p?'Core '+p:'');}
 function costAt(i,r){ if(i.cost!=null) return i.cost; if(i.costs) return i.costs[r]; if(i.mult!=null) return i.mult*r; return null;}
@@ -770,9 +777,46 @@ function activeFilters(){return Object.entries(st.f).filter(([k,v])=>v!==''&&v!=
 
 // ---------- rendering ----------
 function visible(i){return !!st.books[i.src]}
+
+// ---------- Link to a Runner Builder character (what they already own) ----------
+// Same website: read the builder's saved characters. Anywhere else: a pasted character code, kept in this browser.
+const BKEY='sr2-builder-v1', BRKEY='sr2-builder-roster', CKEY='sr2gear-char';
+function charList(){const out=[];
+  try{const r=JSON.parse(localStorage.getItem(BRKEY)||'[]'); (Array.isArray(r)?r:[]).forEach(c=>{if(c&&c.data&&Array.isArray(c.data.gear)) out.push({id:'b:'+c.id,label:c.label||c.data.handle||c.data.name||'Unnamed runner',S:c.data});});}catch(e){}
+  try{const cur=JSON.parse(localStorage.getItem(BKEY)||'null'); if(cur&&Array.isArray(cur.gear)){const id='b:'+(cur.id||'current'); const ex=out.find(x=>x.id===id); const label=(cur.handle||cur.name||'Unnamed runner')+(cur.concept?' · '+cur.concept:'');
+    if(ex){ex.S=cur; ex.label=label; ex.current=true;} else out.unshift({id,label,S:cur,current:true});}}catch(e){}
+  try{const p=JSON.parse(localStorage.getItem(CKEY)||'null'); if(p&&p.S&&Array.isArray(p.S.gear)) out.push({id:'p:pasted',label:(p.S.handle||p.S.name||'Pasted character')+' (pasted)',S:p.S});}catch(e){}
+  return out;}
+function linkedChar(){if(st.charId==='none') return null; const L=charList(); return L.find(c=>c.id===st.charId)||L.find(c=>c.current)||null;}
+const CUSTOM_DECK='deck:Custom cyberdeck (VR2 à la carte)';
+// key → {n: count, notes: [...]}
+function ownedMap(C){const m={}; if(!C) return m; const S=C.S, add=(k,q,note)=>{const o=m[k]=m[k]||{n:0,notes:[]}; o.n+=q; if(note) o.notes.push(note);};
+  (S.gear||[]).forEach(g=>{if(!g||!g.key) return; const q=Math.max(1,+g.qty||1), it=BYID[g.key]; let note='';
+    if(g.r!=null&&it&&it.r) note=`${it.r[2]} ${g.r}`;
+    if(g.build){const n=Object.entries(g.build).filter(([k,v])=>v&&!['link','ammo'].includes(k)).map(([k,v])=>accName(v)); if(n.length) note=(note?note+' · ':'')+n.join(', ');}
+    if(g.vb&&g.vb.mods&&g.vb.mods.length) note=(note?note+' · ':'')+g.vb.mods.length+' mod'+(g.vb.mods.length>1?'s':'');
+    if(g.loaded) note=(note?note+' · ':'')+'loaded';
+    add(g.key,q,note);});
+  if((S.gear||[]).some(g=>g&&g.key===CUSTOM_DECK)&&S.vr2deck&&m[CUSTOM_DECK]) m[CUSTOM_DECK].notes.push('MPCP '+(S.vr2deck.mpcp||'?'));
+  if(S.magic&&S.magic!=='none'&&S.magic!=='adept') (S.powers||[]).forEach(p=>{if(p&&p.name&&BYID['spell:'+p.name]) add('spell:'+p.name,1,p.cost?'Force '+p.cost:'');});
+  if(S.optEF) (S.ef||[]).forEach(x=>{if(x&&BYID['ef:'+x.n]) add('ef:'+x.n,1,'');});
+  return m;}
+let OWN={}, OWNC=null;
+function refreshOwned(){OWNC=linkedChar(); OWN=ownedMap(OWNC);}
+function ownBadge(i){const o=OWN[i.id]; return o?`<span class="own" title="Already on ${esc(OWNC.label)}">✓ ${o.n>1?'×'+o.n+' ':''}owned</span>`:'';}
+function ownNote(i){const o=OWN[i.id]; if(!o) return ''; return `<p class="ownnote"><b>${esc(shortName(OWNC))} already has ${o.n>1?o.n+' of these':'this'}</b>${o.notes.filter(Boolean).length?': '+esc(o.notes.filter(Boolean).join('; ')):''}.</p>`;}
+function shortName(C){return C?String(C.label).replace(/ · .*$/,'').replace(/ \(pasted\)$/,''):'';}
+function renderCharBar(){const L=charList(), C=OWNC;
+  const opts=L.map(c=>`<option value="${esc(c.id)}" ${C&&C.id===c.id?'selected':''}>${esc(c.label)}${c.current?' (open in builder)':''}</option>`).join('');
+  const f=(location.pathname.split('/').pop()||'').toLowerCase(); const bh=location.protocol==='file:'&&/sr2_gear_locker/.test(f)?'SR2_Runner_Builder.html':(/^https?:$/.test(location.protocol)&&/gear-locker\.html$/.test(f)?'builder.html':'');
+  $('charbar').innerHTML=(bh?`<a class="cb-b" href="${bh}" target="_blank" rel="noopener">Runner Builder ↗</a>`:'')+`<label class="cb-l" for="charSel">Character</label><select id="charSel" aria-label="Character to compare with"><option value="none" ${!C?'selected':''}>None</option>${opts}<option value="paste">Paste a character code…</option></select>${C?`<span class="cb-n">${Object.keys(OWN).length} owned</span>`:''}`;}
+function openPaste(){ $('sendDlg').innerHTML=`<div class="sd-card" role="dialog" aria-label="Compare with a character"><div class="sd-h"><b>Compare with a character</b><button class="x" id="sendClose" aria-label="Close">×</button></div>
+  <p>In the Runner Builder, press <i>Copy character code</i> (at the bottom), then paste it here. The Gear Locker will mark what that character already owns. Nothing is changed in the builder.</p>
+  <textarea rows="4" id="charCode" placeholder="Paste the character code"></textarea><p class="note" id="charMsg"></p><div class="sd-a"><button class="btn" id="charLoad">Compare</button><button class="btn ghost" id="sendClose2">Cancel</button></div></div>`; $('sendDlg').hidden=false; $('charCode').focus();}
+
 function baseList(){
   const q=norm(st.q.trim()); const words=q?q.split(/\s+/):[];
-  return ITEMS.filter(i=>visible(i)&&(st.cat==='all'||i.cat===st.cat)&&(!words.length||words.every(w=>norm(i.n+' '+i.s+' '+(i.efd||'')+' '+(i.desc||'')+' '+(CATN[i.cat]||'')+' '+i.pg+' '+BOOK[i.src][1]+' '+(i._.sub||'')).includes(w))));
+  return ITEMS.filter(i=>(st.cat==='owned'?!!OWN[i.id]:visible(i)&&(st.cat==='all'||i.cat===st.cat))&&(!words.length||words.every(w=>norm(i.n+' '+i.s+' '+(i.efd||'')+' '+(i.desc||'')+' '+(CATN[i.cat]||'')+' '+i.pg+' '+BOOK[i.src][1]+' '+(i._.sub||'')).includes(w))));
 }
 function filtered(){
   let L=baseList();
@@ -796,7 +840,8 @@ function renderBooks(){
 function renderCats(){
   const counts={}; ITEMS.forEach(i=>{if(visible(i)) counts[i.cat]=(counts[i.cat]||0)+1;});
   const total=Object.values(counts).reduce((a,b)=>a+b,0);
-  const rows=[['all','All gear',total],...DATA.cats.filter(([c])=>counts[c]).map(([c,l])=>[c,l,counts[c]])];
+  if(st.cat==='owned'&&!OWNC) st.cat='all';
+  const rows=[['all','All gear',total],...(OWNC?[['owned','Owned by '+shortName(OWNC),Object.keys(OWN).filter(k=>BYID[k]).length]]:[]),...DATA.cats.filter(([c])=>counts[c]).map(([c,l])=>[c,l,counts[c]])];
   $('cats').innerHTML=rows.map(([c,l,n])=>`<button data-cat="${c}" aria-current="${st.cat===c}"><span>${esc(l)}</span><span class="n">${n}</span></button>`).join('');
   $('catSel').innerHTML=rows.map(([c,l,n])=>`<option value="${c}" ${st.cat===c?'selected':''}>${esc(l)} (${n})</option>`).join('');
 }
@@ -825,13 +870,13 @@ function renderSortFilter(){
 }
 function renderList(){
   const L=filtered(); const tot=baseList().length;
-  $('catName').textContent=st.cat==='all'?'All gear':CATN[st.cat];
+  $('catName').textContent=st.cat==='all'?'All gear':st.cat==='owned'?'Owned by '+shortName(OWNC):CATN[st.cat];
   $('count').textContent=L.length===tot?L.length+' items':L.length+' of '+tot;
   const s=sortsFor(st.cat).find(x=>x.k===st.sort); let last=null; const out=[];
   for(const i of L){
     if(s&&s.group){const g=s.g(i)||'Other'; if(g!==last){out.push(`<div class="grp">${esc(g)}</div>`);last=g;}}
     const sv=statFor(i);
-    out.push(`<button class="item" role="option" data-id="${esc(i.id)}" aria-selected="${st.sel===i.id}"><span class="nm">${esc(i.n)}</span><span class="pr">${priceLabel(i)}</span><span class="sub">${srcTag(i.src)}${sv?`<span class="stat">${esc(sv)}</span>`:''}<span class="t">${esc(st.cat==='all'?CATN[i.cat]+' · ':'')}${esc(i.s||pageRef(i))}</span></span></button>`);
+    out.push(`<button class="item" role="option" data-id="${esc(i.id)}" aria-selected="${st.sel===i.id}"><span class="nm">${esc(i.n)}${ownBadge(i)}</span><span class="pr">${priceLabel(i)}</span><span class="sub">${srcTag(i.src)}${sv?`<span class="stat">${esc(sv)}</span>`:''}<span class="t">${esc(st.cat==='all'||st.cat==='owned'?CATN[i.cat]+' · ':'')}${esc(i.s||pageRef(i))}</span></span></button>`);
   }
   $('list').innerHTML=L.length?out.join(''):`<p class="empty">Nothing matches. Clear a filter, try fewer words, or switch more books on.</p>`;
 }
@@ -900,6 +945,11 @@ const modes=g=>g.w?g.w[3]:'';
 const autoCap=g=>/BF|FA/.test(modes(g));
 const SLOTS=[['top','Top mount'],['barrel','Barrel mount'],['under','Under-barrel mount'],['stock','Stock'],['harness','Harness or mount'],['holster','Holster'],['internal','Internal'],['other','Other add-ons']];
 // slot list, Concealability change, recoil comp (rc), gyro rating, aim modifier (tn), magnification (mag), notice modifier (notice), smart level (smart), no-smartlink (noSmart), test ok(g) → reason it can't fit or null, effect text and page.
+const GBENV={item:k=>BYID[k],visible:it=>visible(it),book:s=>!!st.books[s],price:it=>it.cost||0,state:g=>bstate(g)};
+function bstate(g){st.build=st.build||{};return st.build[g.id]=st.build[g.id]||{link:'none',ammo:'ammo:Regular Ammo (10 rounds)'};}
+/*@shared:guns*/
+// ---------- Gun build-out rules shared by both tools (core p. 238–241, SSC, FoF p. 57, 84–85) ----------
+// Each page defines GBENV: item(key), visible(item), book(src), price(item), state(gun).
 const ACC={
  'ammo:Bipod':{slot:['under'],conc:0,rc:2,ok:g=>PISTOL.has(wtype(g))?'Needs an under-barrel mount':null,fx:'A two-legged brace for firing sitting or lying down. 2 points of recoil compensation and no Concealability change.',pg:'core p. 240'},
  'ammo:Tripod':{slot:['under'],nocon:1,rc:6,ok:g=>HEAVYW.has(wtype(g))?null:'Heavy weapons only',fx:'A heavy, stable mount for heavy weapons. 6 points of recoil compensation. Not concealable.',pg:'core p. 241'},
@@ -1009,20 +1059,19 @@ function gunSlots(g){const t=wtype(g),F=GUNFIT[g.id]||{};let s;
   else s=[];
   return s.filter(x=>!(F.no||[]).includes(x));}
 function canBuild(g){return g&&g.cat==='guns'&&g.w&&!NOACC.has(wtype(g));}
-function accName(k){return ACC[k]&&ACC[k].n||(BYID[k]&&BYID[k].n)||k;}
+function accName(k){const it=GBENV.item(k); return ACC[k]&&ACC[k].n||(it&&it.n)||k;}
 function integral(g){return ((GUNFIT[g.id]||{}).int||[]).map(([slot,k,x])=>{const a=ACC[k]||{};return Object.assign({},a,{slot,n:ACC[k]?accName(k):k,id:ACC[k]?k:null,conc:0,nocon:0,cost:0,integral:1,fx:a.fx},x||{});});}
-function accVisible(k){const it=BYID[k]; if(it) return visible(it); return !!st.books[ACC[k].src||'core'];}
+function accVisible(k){const it=GBENV.item(k); if(it) return GBENV.visible(it); if(/^ammo:|^guns:/.test(k)) return false; return GBENV.book(ACC[k].src||'core');}
 function accFor(g,slot){const out=[],no=[];Object.entries(ACC).forEach(([k,a])=>{if(!a.slot.includes(slot)||!accVisible(k))return;const why=a.ok?a.ok(g):null;(why?no:out).push({k,why});});return {out,no};}
-function bstate(g){st.build=st.build||{};return st.build[g.id]=st.build[g.id]||{link:'none',ammo:'ammo:Regular Ammo (10 rounds)'};}
 function parseCode(d){const m=/^(\d+)([LMSD])(.*)$/.exec(d||'');return m?{p:+m[1],l:m[2],rest:m[3]}:null;}
 const LVL='LMSD';
 function buildCalc(g){
-  const B=bstate(g), ints=integral(g), slots=gunSlots(g);
+  const B=GBENV.state(g), ints=integral(g), slots=gunSlots(g);
   const chosen=slots.map(s=>B[s]&&ACC[B[s]]&&!ints.some(x=>x.slot===s)?Object.assign({slot:s,id:B[s],n:accName(B[s])},ACC[B[s]]):null).filter(Boolean);
   const parts=ints.concat(chosen), gunCost=g.cost||0, warn=[];
   let conc=g.w[1], nocon=false, rc=0, gyro=0, smart=0, laser=0, mag=0, notice=0, cost=gunCost, noSmart=[], range=0, halfVis=0, armor=0, halfPool=0, gl=0;
   parts.forEach(p=>{ if(p.nocon) nocon=true; if(!p.integral&&p.conc) conc=conc==null?null:conc+p.conc; rc+=p.rc||0; gyro=Math.max(gyro,p.gyro||0); smart=Math.max(smart,p.smart||0); if(p.laser) laser=1; mag=Math.max(mag,p.mag||0); notice=Math.max(notice,p.notice||0); if(p.noSmart&&!p.laser) noSmart.push(p.n); if(p.range) range=1; if(p.halfVis) halfVis=1; armor=Math.max(armor,p.armor||0); if(p.halfPool) halfPool=1; if(p.gl) gl=1;
-    if(!p.integral){ const it=BYID[p.id]; cost+=p.costMult!=null?Math.round(gunCost*p.costMult):(it&&it.cost||0); cost+=p.extra||0; }});
+    if(!p.integral){ const it=GBENV.item(p.id); cost+=p.costMult!=null?Math.round(gunCost*p.costMult):(it?GBENV.price(it):0); cost+=p.extra||0; }});
   // smartlink and the shooter's receptor
   const link=B.link||'none', userLv=link==='smartlink2'||link==='goggles2'?2:link==='none'?0:1, goggles=/goggles/.test(link);
   let aim=0, aimTxt=[];
@@ -1064,6 +1113,8 @@ function buildCalc(g){
   if(halfVis) ext.push('Ultrasound: halves darkness and invisibility modifiers');
   return {parts,ints,chosen,slots,conc:concTxt,rc,gyro,aim,aimTxt,ext,mag,notice,cost,warn,rows,heavy,extraR,dmg,dmgNote,armor,halfVis,smart,userLv};
 }
+/*@end:guns*/
+
 function buildHTML(g){
   if(!canBuild(g)) return '';
   const B=bstate(g), C=buildCalc(g), F=GUNFIT[g.id]||{};
@@ -1108,25 +1159,54 @@ function fxHTML(i){ if(i.desc&&!i.efd) return `<div class="fx"><b>What it does</
 // ---------- Cyberdeck build-out ----------
 // Matrix 1.0 decks: core p. 172–175 (persona total ≤ 3 × MPCP, Response Increase ≤ MPCP ÷ 4, active memory ≤ MPCP × 50,
 // Hacking Pool = Computer + Reaction, +2 Reaction per Response level). VR2 custom deck: VR2 p. 16, 18, 85–89.
-const VR2PF=r=>r<=3?100:r<=6?200:r<=9?500:1000;
-function vr2Default(){return {mpcp:6,bod:4,eva:4,mask:4,sens:4,hard:0,am:100,sm:500,io:60,ri:1,asist:'hot',iccm:false,sat:false,casing:0,hitch:0,vid:false,off:0,pkg:true,filter:false,dni:false};}
-function vr2DeckCost(d){
- const M=Math.max(1,+d.mpcp||1),pf=VR2PF(M),L=[]; const add=(k,v)=>L.push({k,v:Math.round(v)});
- add('MPCP '+M,M*M*(8*pf+195));
- [['Bod','bod',3,95],['Evasion','eva',3,95],['Masking','mask',2,75],['Sensor','sens',2,75]].forEach(([n,k,a,b])=>{const r=+d[k]||0; if(r>0) add(n+' '+r,r*r*(a*VR2PF(r)+b));});
- if(+d.am) add(`Active memory ${d.am} Mp`,d.am*7.5); if(+d.sm) add(`Storage memory ${d.sm} Mp`,d.sm*6);
- if(d.asist==='hot') add('ASIST interface (hot)',M*M*(pf*2+40)+M*50); else if(d.asist==='cool') add('ASIST interface (cool)',M*M*(pf+20)+M*25);
- if(+d.hard) add('Hardening '+d.hard,d.hard*d.hard*(pf*8+160)+d.hard*70);
- if(d.iccm) add('ICCM biofeedback filter',M*M*(pf*4+115)+5000);
- if(+d.io) add(`I/O speed ${d.io} MePS`,d.io*30);
- if(+d.ri) add('Response Increase '+d.ri,(M*M*d.ri)*(pf+80)+d.ri*105);
- if(d.sat) add('Satlink interface',M*M*(pf*2+40)+M*35);
- const sub=L.reduce((a,x)=>a+x.v,0), complete=d.asist!=='none'&&+d.bod>0&&+d.eva>0&&+d.mask>0&&+d.sens>0, disc=d.pkg&&complete?Math.round(sub*.1):0;
- const ex=[]; if(+d.casing) ex.push({k:'Casing, Level '+d.casing,v:[0,500,2000,5000][d.casing]}); if(+d.hitch) ex.push({k:`Hitcher jacks × ${d.hitch}`,v:250*d.hitch}); if(+d.off) ex.push({k:`Off-line storage ${d.off} Mp`,v:Math.round(50+.5*d.off)}); if(d.vid) ex.push({k:'Vidscreen',v:100});
- return {lines:L.concat(ex),sub,disc,complete,total:sub-disc+ex.reduce((a,x)=>a+x.v,0),M,pf};}
-const PERS=[['Bod','bod'],['Evasion','eva'],['Masking','mask'],['Sensors','sens']];
+/*@shared:decks*/
+// ---------- Cyberdeck rules shared by both tools (core p. 172–176; VR2 p. 16, 85–89) ----------
+const VR2PF=r=>r<=3?100:r<=6?200:r<=9?500:1000; // Program Factors Table, VR2 p. 89
+const DECK={MPCP_MAX:20,HARD_MAX:20,
+  riMax:M=>Math.min(3,Math.floor(M/4)), amMax:M=>M*50, hitchMax:M=>M, personaTotal:M=>3*M, ioMax:(sens,M)=>sens*M*10};
+function vr2Default(){return {mpcp:6,bod:4,eva:4,mask:4,sens:4,hard:0,am:100,sm:500,io:60,ri:1,asist:'hot',iccm:false,sat:false,casing:0,hitch:0,vid:false,off:0,pkg:true,filter:false,dni:false,printedCool:false};}
 // Lower the highest persona rating one point at a time until the total fits (keeps the persona balanced).
 function trimPersona(o,keys,max){keys.forEach(k=>o[k]=+o[k]||0); let tot=keys.reduce((a,k)=>a+o[k],0); while(tot>max){const k=keys.reduce((a,b)=>o[b]>o[a]?b:a); o[k]--; tot--;}}
+// Make a VR2 deck design legal for its MPCP: whole numbers, chips ≤ MPCP and ≤ 3 × MPCP in total, Response Increase ≤ MPCP ÷ 4 (max 3),
+// I/O in tens up to Sensor × MPCP × 10, hitcher jacks ≤ MPCP, pure DNI only on a hot ASIST.
+function vr2Clamp(d){
+ const I=(k,lo,hi)=>{d[k]=Math.min(hi,Math.max(lo,Math.floor(+d[k]||0)));};
+ I('mpcp',1,DECK.MPCP_MAX); const M=d.mpcp, P=['bod','eva','mask','sens'];
+ P.forEach(k=>I(k,0,M)); trimPersona(d,P,DECK.personaTotal(M));
+ I('hard',0,DECK.HARD_MAX); I('ri',0,DECK.riMax(M)); I('am',0,1e7); I('sm',0,1e7); I('off',0,1e7);
+ I('io',0,DECK.ioMax(d.sens,M)); d.io-=d.io%10; I('hitch',0,DECK.hitchMax(M)); I('casing',0,3);
+ if(!['hot','cool','none'].includes(d.asist)) d.asist='hot';
+ ['iccm','sat','vid','pkg','filter','dni','printedCool'].forEach(k=>d[k]=!!d[k]); if(d.asist!=='hot') d.dni=false;
+ return d;}
+// Price a VR2 deck from the Deck Component Prices Table (VR2 p. 89).
+function vr2Price(d){
+ const M=Math.max(1,+d.mpcp||1),pf=VR2PF(M),L=[];
+ const add=(k,v,how,kind)=>L.push({k,v:Math.round(v),how,kind:kind||'formula'});
+ add('MPCP '+M,M*M*(8*pf+195),`${M}² × (8 × ${pf} + 195)`);
+ [['Bod','bod',3,95],['Evasion','eva',3,95],['Masking','mask',2,75],['Sensor','sens',2,75]].forEach(([n,k,a,b])=>{const r=+d[k]||0; if(r>0) add(n+' '+r,r*r*(a*VR2PF(r)+b),`${r}² × (${a} × ${VR2PF(r)} + ${b})`);});
+ if(+d.am) add(`Active memory ${d.am} Mp`,d.am*7.5,`${d.am} Mp × 7.5`);
+ if(+d.sm) add(`Storage memory ${d.sm} Mp`,d.sm*6,`${d.sm} Mp × 6`);
+ if(d.asist==='hot') add('ASIST interface (hot)',M*M*(pf*2+40)+M*50,`${M}² × (${pf} × 2 + 40) + ${M} × 50`);
+ else if(d.asist==='cool') add('ASIST interface (cool)',d.printedCool?M*M*(pf*20)+M*25:M*M*(pf+20)+M*25,d.printedCool?`${M}² × (${pf} × 20) + ${M} × 25 (as printed)`:`${M}² × (${pf} + 20) + ${M} × 25`);
+ if(+d.hard) add('Hardening '+d.hard,d.hard*d.hard*(pf*8+160)+d.hard*70,`${d.hard}² × (${pf} × 8 + 160) + ${d.hard} × 70`);
+ if(d.iccm) add('ICCM biofeedback filter',M*M*(pf*4+115)+5000,`${M}² × (${pf} × 4 + 115) + 5,000`);
+ if(+d.io) add(`I/O speed ${d.io} MePS`,d.io*30,`${d.io} MePS × 30`);
+ if(+d.ri) add('Response Increase '+d.ri,(M*M*d.ri)*(pf+80)+d.ri*105,`(${M}² × ${d.ri}) × (${pf} + 80) + ${d.ri} × 105`);
+ if(d.sat) add('Satlink interface',M*M*(pf*2+40)+M*35,`${M}² × (${pf} × 2 + 40) + ${M} × 35`);
+ const sub=L.reduce((a,x)=>a+x.v,0);
+ const complete=d.asist!=='none'&&+d.bod>0&&+d.eva>0&&+d.mask>0&&+d.sens>0;
+ const disc=d.pkg&&complete?Math.round(sub*0.10):0;
+ const extras=[];
+ if(+d.casing) extras.push({k:`Casing, Level ${d.casing}`,v:[0,500,2000,5000][d.casing],how:['','Impact 2, Ballistic 1','Impact 3, Ballistic 2','Impact 4, Ballistic 3'][d.casing],kind:'part'});
+ if(+d.hitch) extras.push({k:`Hitcher jacks × ${d.hitch}`,v:250*d.hitch,how:'250¥ each',kind:'part'});
+ if(+d.off) extras.push({k:`Off-line storage (${d.off} Mp)`,v:Math.round(50+0.5*d.off),how:'50¥ + .5¥ per Mp',kind:'part'});
+ if(d.vid) extras.push({k:'Vidscreen',v:100,how:'',kind:'part'});
+ const ext=extras.reduce((a,x)=>a+x.v,0);
+ return {lines:L,extras,sub,disc,complete,total:sub-disc+ext,d,M,pf};
+}
+/*@end:decks*/
+function vr2DeckCost(d){const r=vr2Price(d); return {...r,lines:r.lines.concat(r.extras)};}
+const PERS=[['Bod','bod'],['Evasion','eva'],['Masking','mask'],['Sensors','sens']];
 function isDeck(i){return !!(i&&i.cat==='deck'&&(i.d||i.vr2deck));}
 function dstate(i){st.dbuild=st.dbuild||{}; if(!st.dbuild[i.id]) st.dbuild[i.id]=i.vr2deck?{v:vr2Default(),utils:[],comp:0,react:0,int:0}:{ri:0,am:0,sm:0,hitch:0,vid:0,off:0,per:{Bod:0,Evasion:0,Masking:0,Sensors:0},utils:[],comp:0,react:0}; return st.dbuild[i.id];}
 const rng=(a,b,s=1)=>{const o=[];for(let x=a;x<=b;x+=s)o.push(x);return o;};
@@ -1134,13 +1214,12 @@ function progList(vr2){return ITEMS.filter(x=>x.cat===(vr2?'prog2':'prog')&&!/^P
 function deckCalc(i){
   const B=dstate(i), vr2=!!i.vr2deck, no=[], warn=[], unloaded=[]; let floorNote=false;
   const int0=(o,k)=>{o[k]=Math.max(0,Math.floor(+o[k]||0));};
-  if(vr2){['mpcp','bod','eva','mask','sens','hard','am','sm','io','ri','casing','hitch','off'].forEach(k=>int0(B.v,k)); B.v.mpcp=Math.min(14,Math.max(1,B.v.mpcp)); B.v.hard=Math.min(10,B.v.hard); B.v.casing=Math.min(3,B.v.casing); if(!['hot','cool','none'].includes(B.v.asist)) B.v.asist='hot'; if(B.v.asist==='none') B.v.dni=false;}
+  if(vr2){B.v=vr2Clamp(Object.assign(vr2Default(),B.v));}
   else {['ri','am','sm','hitch','off'].forEach(k=>int0(B,k)); B.vid=!!B.vid; PERS.forEach(([n])=>{B.per[n]=Math.min(12,Math.max(0,Math.floor(+B.per[n]||0)));});}
   let M,am,sm,ls,io,hard,cost,parts=[],per;
   if(vr2){ const d=B.v; M=Math.max(1,+d.mpcp||1);
     // keep every setting legal for this MPCP
-    PERS.forEach(([,k])=>{d[k]=Math.min(+d[k]||0,M);}); trimPersona(d,PERS.map(([,k])=>k),3*M);
-    d.ri=Math.min(+d.ri||0,Math.min(3,Math.floor(M/4))); d.io=Math.min(+d.io||0,(+d.sens||0)*M*10); d.io-=d.io%10; if(d.asist!=='hot') d.dni=false; d.hitch=Math.min(+d.hitch||0,M); // hitcher jacks ≤ MPCP (core p. 173)
+    // vr2Clamp (shared) has already made every setting legal for this MPCP
     const v=vr2DeckCost(d); cost=v.total; parts=v.lines.map(x=>({n:x.k,c:x.v})); if(v.disc) parts.push({n:'Package discount 10%',c:-v.disc});
     am=+d.am||0; sm=+d.sm||0; io=+d.io||0; ls=null; hard=+d.hard||0; per={Bod:d.bod,Evasion:d.eva,Masking:d.mask,Sensors:d.sens};
     if(!v.complete&&d.pkg) warn.push('The 10% package discount needs MPCP, all four persona chips and an ASIST interface (VR2 p. 89).');
@@ -1149,8 +1228,8 @@ function deckCalc(i){
     if(!(+d.sens)) no.push(['I/O speed','needs a Sensor chip; I/O can be at most Sensor × MPCP × 10 (VR2 p. 87)']);
   } else {
     M=i.mpcp; [hard,am,sm,ls,io]=i.d; cost=i.cost; parts=[{n:i.n,c:i.cost}];
-    const riMax=Math.min(3,Math.floor(M/4)); B.ri=Math.min(+B.ri||0,riMax); if(!riMax) no.push(['Response Increase',`needs MPCP 4 or more; this deck is MPCP ${M} (core p. 173)`]);
-    const amRoom=Math.max(0,M*50-am); B.am=Math.min(+B.am||0,amRoom); if(!amRoom) no.push(['Extra active memory',`already at the MPCP × 50 = ${M*50} Mp limit (core p. 172)`]);
+    const riMax=DECK.riMax(M); B.ri=Math.min(+B.ri||0,riMax); if(!riMax) no.push(['Response Increase',`needs MPCP 4 or more; this deck is MPCP ${M} (core p. 173)`]);
+    const amRoom=Math.max(0,DECK.amMax(M)-am); B.am=Math.min(+B.am||0,amRoom); if(!amRoom) no.push(['Extra active memory',`already at the MPCP × 50 = ${M*50} Mp limit (core p. 172)`]);
     B.hitch=Math.min(+B.hitch||0,M);
     if(B.ri){const it=BYID['deck:Response Increase '+B.ri]; const c=it.costs[M]; cost+=c; parts.push({n:'Response Increase '+B.ri,c});}
     if(B.am){cost+=B.am*5; parts.push({n:`Extra active memory ${B.am} Mp`,c:B.am*5});}
@@ -1160,7 +1239,7 @@ function deckCalc(i){
     if(B.off){cost+=B.off; parts.push({n:`Off-line storage ${B.off} Mp`,c:B.off});}
     am+=B.am; sm+=B.sm;
     // persona chips: total ≤ 3 × MPCP; chips use no memory (core p. 174)
-    trimPersona(B.per,PERS.map(([n])=>n),3*M);
+    trimPersona(B.per,PERS.map(([n])=>n),DECK.personaTotal(M));
     per=B.per; PERS.forEach(([n])=>{const r=+per[n]||0; if(r){const c=BYID['prog:Persona: '+n].costs[r]; cost+=c; parts.push({n:`${n} ${r}`,c});}});
     if(PERS.some(([n])=>!(+per[n]))) warn.push('Every deck needs all four persona programs (Bod, Evasion, Masking, Sensors) to run (core p. 174).');
   }
@@ -1200,10 +1279,10 @@ function deckHTML(i){
   let ctl='';
   if(C.vr2){ const d=B.v, others=k=>PERS.reduce((a,[,x])=>a+(x===k?0:+d[x]||0),0);
     ctl=`<h4 class="bh">Deck components <span class="note">VR2 p. 86–89</span></h4><div class="bgrid">
-      ${sel('v.mpcp','MPCP',rng(1,14),d.mpcp)}
+      ${sel('v.mpcp','MPCP',rng(1,DECK.MPCP_MAX),d.mpcp)}
       ${PERS.map(([n,k])=>sel('v.'+k,n+' chip',rng(0,Math.min(M,3*M-others(k))),d[k],v=>v||'None')).join('')}
-      ${sel('v.hard','Hardening',rng(0,10),d.hard,v=>v||'None')}
-      ${Math.floor(M/4)>=1?sel('v.ri','Response Increase',rng(0,Math.min(3,Math.floor(M/4))),d.ri,v=>v?'Level '+v:'None'):''}
+      ${sel('v.hard','Hardening',rng(0,DECK.HARD_MAX),d.hard,v=>v||'None')}
+      ${Math.floor(M/4)>=1?sel('v.ri','Response Increase',rng(0,DECK.riMax(M)),d.ri,v=>v?'Level '+v:'None'):''}
       ${sel('v.asist','ASIST interface',['hot','cool','none'],d.asist,v=>({hot:'Hot',cool:'Cool',none:'None (tortoise)'})[v])}
       ${num('v.am','Active memory (Mp)',d.am,null,10)}${num('v.sm','Storage memory (Mp)',d.sm,null,10)}
       ${+d.sens?sel('v.io','I/O speed (MePS)',rng(0,(+d.sens)*M*10,10),d.io,v=>v||'None'):''}
@@ -1211,7 +1290,7 @@ function deckHTML(i){
       ${sel('v.hitch',`Hitcher jacks (up to ${M})`,rng(0,M),d.hitch,v=>v||'None')}${num('v.off','Off-line storage (Mp)',d.off,null,10)}
     </div><div class="bchks">${chk('v.iccm','ICCM biofeedback filter',d.iccm)}${chk('v.sat','Satlink interface',d.sat)}${chk('v.vid','Vidscreen',d.vid)}${chk('v.filter','Reality filter (+1 Response level)',d.filter)}${d.asist==='hot'?chk('v.dni','Pure DNI, running hot (+1 Response level)',d.dni):''}${chk('v.pkg','10% package discount',d.pkg)}</div>`;
   } else {
-    const riMax=Math.min(3,Math.floor(M/4)), amRoom=Math.max(0,M*50-i.d[1]), others=n=>PERS.reduce((a,[x])=>a+(x===n?0:+B.per[x]||0),0);
+    const riMax=DECK.riMax(M), amRoom=Math.max(0,DECK.amMax(M)-i.d[1]), others=n=>PERS.reduce((a,[x])=>a+(x===n?0:+B.per[x]||0),0);
     ctl=`<h4 class="bh">Persona chips <span class="note">total up to ${3*M} (3 × MPCP), core p. 174</span></h4><div class="bgrid">
       ${PERS.map(([n])=>{const it=BYID['prog:Persona: '+n];return sel('per.'+n,n,rng(0,Math.min(12,3*M-others(n))),B.per[n],v=>v?`${v} · ${fmt(it.costs[v])}¥`:'None');}).join('')}</div>
       <h4 class="bh">Options</h4><div class="bgrid">
@@ -1267,6 +1346,7 @@ function renderTag(){
   $('tag').innerHTML=`<a class="back" href="#list" id="backList">↑ Back to the list</a><div class="kicker">${srcTag(i.src)}<span>${esc(BOOK[i.src][0])}</span><span>·</span><span>${esc(pageRef(i))}</span><span>·</span><span>${esc(CATN[i.cat])}</span></div>
    <h2>${esc(i.n)}</h2>
    <div class="price">${i.sp||i.ef||i.mt||i.cat==='power'||i.mult!=null?esc(priceLabel(i)):fmt(price)+'¥'}${i.r&&i.mult==null?` <span class="note">at ${esc(i.r[2].toLowerCase())} ${r}</span>`:''}</div>
+   ${ownNote(i)}
    ${i.s?`<p class="desc">${esc(i.s)}</p>`:''}
    ${fxHTML(i)}
    ${ratingCtl}
@@ -1311,6 +1391,7 @@ function sendGear(p){p.v=1; p.at=Date.now(); p.from='Gear Locker';
   const n=p.items.length;
   $('sendDlg').innerHTML=`<div class="sd-card" role="dialog" aria-label="Send to a character"><div class="sd-h"><b>Sent: ${esc(p.label)}</b><button class="x" id="sendClose" aria-label="Close">×</button></div>
     <p>${n} item${n>1?'s':''}${p.vr2deck?' plus the custom deck design':''}, with ${n>1?'their':'its'} build-out, ready for the Runner Builder.</p>
+    ${(()=>{const d=p.items.filter(x=>x.key&&OWN[x.key]).map(x=>BYID[x.key].n); return d.length&&OWNC?`<p class="ownnote"><b>Heads up:</b> ${esc(shortName(OWNC))} already has ${esc([...new Set(d)].join(', '))}. Adding it again gives them a second one.</p>`:'';})()}
     <p><b>Builder on the same website</b> (like your GitHub Pages link): open it and it will ask before adding ${n>1?'them':'it'} to your current character.</p>
     <p><b>Anywhere else</b> (another site, another device, or a saved file): copy this code and paste it into the builder’s <i>Paste a character code</i> box, then press <i>Load pasted character</i>. It adds the gear instead of replacing the character. <span class="note" id="sendCopied"></span></p>
     <textarea readonly rows="3" id="sendCode">${esc(code)}</textarea><div class="sd-a"><button class="btn" id="sendCopy">Copy code</button><button class="btn ghost" id="sendClose2">Done</button></div></div>`;
@@ -1324,7 +1405,7 @@ function renderKit(){ kitChip();
 function select(id,scroll){
   st.sel=id; const i=BYID[id];
   if(i&&!visible(i)){st.books[i.src]=1; renderBooks(); renderCats(); save();}
-  if(i&&st.cat!=='all'&&i.cat!==st.cat){st.cat=i.cat; st.f={}; renderCats(); renderSortFilter();}
+  if(i&&st.cat!=='all'&&!(st.cat==='owned'&&OWN[i.id])&&i.cat!==st.cat){st.cat=i.cat; st.f={}; renderCats(); renderSortFilter();}
   renderList(); renderTag();
   try{history.replaceState(null,'','#'+slug(id));}catch(e){}
   const el=$('list').querySelector(`[data-id="${CSS.escape(id)}"]`); if(el) el.scrollIntoView({block:'nearest'});
@@ -1394,6 +1475,15 @@ $('list').addEventListener('keydown',e=>{
 });
 function fromHash(){const h=location.hash.slice(1); const i=BYSLUG[h]; if(i) select(i.id); }
 window.addEventListener('hashchange',fromHash);
+function ownRefresh(){const before=JSON.stringify(OWN)+(OWNC&&OWNC.id); refreshOwned(); renderCharBar(); if(JSON.stringify(OWN)+(OWNC&&OWNC.id)!==before){renderCats(); renderList(); if(st.sel) renderTag();}}
+document.addEventListener('change',e=>{if(e.target.id!=='charSel') return; const v=e.target.value; if(v==='paste'){renderCharBar(); openPaste(); return;} st.charId=v; save(); refreshOwned(); renderCharBar(); renderCats(); renderSortFilter(); renderList(); if(st.sel) renderTag();});
+document.addEventListener('click',e=>{if(e.target.id!=='charLoad') return; const raw=($('charCode').value||'').trim();
+  try{if(/^SR2GEAR:/.test(raw)) throw new Error('gear'); const S=JSON.parse(decodeURIComponent(escape(atob(raw)))); if(!S||!Array.isArray(S.gear)) throw new Error('bad');
+    localStorage.setItem(CKEY,JSON.stringify({S,at:Date.now()})); st.charId='p:pasted'; save(); $('sendDlg').hidden=true; refreshOwned(); renderCharBar(); renderCats(); renderList(); if(st.sel) renderTag();}
+  catch(err){$('charMsg').textContent=err.message==='gear'?'That’s a gear code. Paste a character code from the Runner Builder instead.':'That code didn’t load. Copy the whole character code and try again.';}});
+window.addEventListener('storage',e=>{if([BKEY,BRKEY,CKEY].includes(e.key)) ownRefresh();});
+window.addEventListener('focus',ownRefresh); document.addEventListener('visibilitychange',()=>{if(!document.hidden) ownRefresh();});
+refreshOwned(); renderCharBar();
 all();
 if(location.hash) fromHash(); else select('guns:Ares Predator');
 </script>
