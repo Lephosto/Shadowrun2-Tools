@@ -262,6 +262,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         </div>
         <div class="note" id="gPreview" style="margin:-0.25rem 0 0.625rem"></div>
         <div class="tbl"><table><thead><tr><th>Item</th><th class="n">Rating</th><th class="n">Qty</th><th class="n">Cost each (¥)</th><th class="n">Essence</th><th class="n">Total</th><th></th></tr></thead><tbody id="gearBody"></tbody></table></div>
+        <div id="hostBuild"></div>
         <div class="row"><button id="addGear" class="ghost">Add your own item</button><span class="note">Gear sorts itself by category. Prices are list prices. Each item shows its book and printed page. Turn books on or off under Rules.</span></div>
         <div class="budget" id="resBudget"></div>
         <div class="row">
@@ -379,7 +380,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1794457338073","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwd1kfk0"}};</script>
+<script>window.__SR2_EMBED={"stamp":"1794458413767","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwd27hk9"}};</script>
 <script id="appJs">
 /*@shared:decks*/
 // ---------- Cyberdeck rules shared by both tools (core p. 172–176; VR2 p. 16, 85–89) ----------
@@ -780,6 +781,7 @@ function syncGear(){deckEnforce(); S.gear.forEach(g=>{const it=g.key&&GEARDB[g.k
   if(it.bi!=null){g.bi=+gv(it.bi,r)||0; if(g.cultured&&!it.neural){g.bi=Math.round(g.bi*.75*1000)/1000; g.cost*=4;} g.ess=0;}
   else if(g.grade&&g.grade!=='std'&&CYBER_GRADES[g.grade]&&gradeable(it)){const G=CYBER_GRADES[g.grade]; g.cost=g.cost*G[2]; if(g.ess>0) g.ess=Math.max(.05,Math.ceil(g.ess*G[1]*100-1e-9)/100); g.name+=' · '+G[0];}
   else if(g.grade) g.grade='std';
+  if(typeof HB!=='undefined'&&HB.isHost(g.key)&&g.hb){const C=hbFixG(g); const n=C.rows.filter(x=>!x.fixed); if(n.length||g.hb.single||C.rows.some(x=>x.fixed)){g.cost=C.total; g.ess=C.ess; g.addons=C.total-C.hostCost; g.name=it.n+(g.hb.single?' (single eye)':'')+(C.rows.some(x=>x.fixed)?' with helmet':'')+(n.length?' + '+n.map(x=>x.n).join(', '):'');}}
   if(typeof R2OBJ!=='undefined'&&R2OBJ[g.key]&&g.vb&&g.vb.mods&&g.vb.mods.length){const v=vbFixG(g); const r=VB.calc(v,g.vb); g.addons=r.cost; if(g.addons){g.cost+=g.addons; g.name+=' + mods';}}
   if(WSTAT[g.key]&&g.build&&typeof GB!=='undefined'){const r=gunCalc(g); g.addons=r?r.C.cost-r.o.cost:0; if(g.addons){g.cost+=g.addons; g.name+=' + add-ons';}}});}
 function gradeable(it){return (it.cat==='head'||it.cat==='body')&&it.e!=null;}
@@ -917,7 +919,7 @@ function woundMods(){const pain=adeptOn()?S.powers.filter(p=>p.type==='pain').re
 function armorTotals(){
   let b=0,i=0,hb=0,hi=0,heavyB=0; const worn=S.gear.filter(g=>ASTAT[g.key]&&!g.off);
   let milB=0;
-  worn.forEach(g=>{const [bb,ii,k]=ASTAT[g.key]; if(k==='helmet'){hb=Math.max(hb,bb);hi=Math.max(hi,ii);} else {b=Math.max(b,bb);i=Math.max(i,ii); if(k==='heavy') heavyB=Math.max(heavyB,bb); if(k==='mil') milB=Math.max(milB,bb);}});
+  worn.forEach(g=>{if(g.hb&&g.hb.helmet&&HB.kind(g.key)==='secarmor'){hb=Math.max(hb,1);hi=Math.max(hi,2);} const [bb,ii,k]=ASTAT[g.key]; if(k==='helmet'){hb=Math.max(hb,bb);hi=Math.max(hi,ii);} else {b=Math.max(b,bb);i=Math.max(i,ii); if(k==='heavy') heavyB=Math.max(heavyB,bb); if(k==='mil') milB=Math.max(milB,bb);}});
   const derm=gearLevel('body:Dermal Plating')+hasDerm();
   const q=augAttr('quick');
   const poolPenalty=Math.max(heavyB?Math.max(0,heavyB-q):0, milB?Math.max(0,Math.floor((milB-q)/2)):0); // military armor: −1 per 2 points over Quickness (FoF p. 54)
@@ -1162,6 +1164,7 @@ function buildEditor(g,i){const r=gunCalc(g); if(!r) return ''; const {o,C}=r;
 // ---------- render extras ----------
 function renderExtras(){
   syncGear();
+  {const L=S.gear.map((g,i)=>[g,i]).filter(([g])=>g.key&&HB.isHost(g.key)); const el=$('hostBuild'); if(el) el.innerHTML=L.length?`<h3 style="margin:1rem 0 0.25rem">Options <span class="pg">core p. 247 · SSC p. 70–71 · CT p. 45</span></h3>`+L.map(([g,i])=>hbEditor(g,i)).join(''):'';}
   // racial traits note
   // weapons
   const str=augAttr('str'); const recStr=booksOn().fof&&S.optRecoil?strRecoil(str):0;
@@ -1574,6 +1577,97 @@ return {TYPES,typeName,veh,M,BY,GROUPS,calc,clamp,levels,optChoices,addable,opts
 /*@end:vehicles*/
 
 const VTYPE={"Aerodesign Systems Condor Series (LDSD-41)": ["lta", 1], "Aerodesign Systems Condor Series (LDSD-23)": ["lta", 1], "Aeroquip \"Redball Express\" Long-Range Resupply Drone": ["rotor", 1], "Agusta-Cierva Plutocrat (Standard)": ["rotor", 0], "Agusta-Cierva Plutocrat (Armed)": ["rotor", 0], "Airship Industries Skyswimmer": ["lta", 0], "Ares Arms Sentry II": ["tracked", 1], "Ares Citymaster": ["car", 0], "Ares Dragon": ["rotor", 0], "Ares Guardian Drone": ["rotor", 1], "Ares Mobmaster": ["car", 0], "Ares Roadmaster": ["car", 0], "Ares Sentinel \"P\" Series Drone": ["car", 1], "Ares TR-55C Cargoliner": ["rotor", 0], "Ares TR-55E \"President's Edition\" Executive": ["rotor", 0], "Ares TR-55T Traveller": ["rotor", 0], "Artemis Industries Nightglider": ["plane", 0], "Aztech GCR-23C Crawler": ["tracked", 1], "Aztech Nightrunner (Standard)": ["boat", 0], "Aztech Nightrunner (Electric)": ["boat", 0], "Aztechnology Aguilar-EX": ["rotor", 0], "Aztechnology Halcón Ground-Attack Aircraft": ["plane", 0], "Aztechnology Hedgehog Signal Interceptor": ["tracked", 1], "Aztechnology Liebre Surveillance/Pursuit RPV": ["plane", 1], "Aztechnology Lobo Medium Scout LAV": ["rotor", 0], "Aztechnology Tiburón Patrol Boat": ["boat", 0], "Aztechnology Tiburón Patrol Boat (Interdiction Variant)": ["boat", 0], "BAC-Dassault-MBB EFA Variants": ["plane", 0], "Blohm & Voss River Commander": ["boat", 0], "BMW Blitzen 2050": ["bike", 0], "CAS Wandjina RPV": ["plane", 1], "CASA J-239 Raven": ["plane", 0], "Cessna C750 (Standard)": ["plane", 0], "Cessna C750 (Pass.)": ["plane", 0], "Chrysler-Nissan G12A (Pass.)": ["hover", 0], "Chrysler-Nissan G12A (Cargo)": ["hover", 0], "Chrysler-Nissan Jackrabbit (Elec.)": ["car", 0], "Chrysler-Nissan Jackrabbit (Meth.)": ["car", 0], "Chrysler-Nissan Patrol-1": ["car", 0], "Citroën Brouillard Smoke Generator": ["tracked", 1], "Colorado Craft Cigarette Hydrofoil": ["boat", 0], "Conestoga Trailblazer": ["car", 0], "Cyberspace Designs Dalmatian": ["rotor", 1], "Cyberspace Systems Wolfhound Advanced Reconnaissance Aircraft": ["rotor", 1], "Doc Wagon Citymaster Variant": ["car", 0], "Doc Wagon CRT Ambulance": ["car", 0], "Doc Wagon CRT Air Unit": ["rotor", 0], "Doc Wagon Osprey II": ["rotor", 0], "Doc Wagon SRT Ambulance": ["car", 0], "Doc Wagon SRT Helicopter": ["rotor", 0], "Doc Wagon WK-2 Stallion Variant": ["rotor", 0], "Dodge Scoot": ["bike", 0], "Embraer-Dassault Mistral": ["plane", 0], "Entertainment Systems Papoose": ["bike", 0], "Eurocar Westwind 2000 (Standard)": ["car", 0], "Eurocar Westwind 2000 (Turbo)": ["car", 0], "Federated Boeing Commuter": ["rotor", 0], "Federated Boeing Eagle": ["plane", 0], "Ferrari Appaloosa Light Scout": ["car", 0], "Ferret RPD-VI Perimeter Drone": ["car", 1], "Fiat-Fokker Cloud Nine": ["plane", 0], "FMC-Stonebrooke TADS Firebird": ["plane", 1], "FMC-Stonebrooke TADS Salamander": ["plane", 1], "Ford Americar": ["car", 0], "Ford-Canada Bison": ["car", 0], "Gaz-Niki GNRD-71 BIS Snooper": ["car", 1], "Gaz-Niki White Eagle": ["car", 0], "Gaz-Willys Nomad": ["car", 0], "General Products COP": ["car", 0], "Generic Surveillance Drone": ["rotor", 1], "GM-Nissan Doberman": ["car", 1], "GM-Nissan Spotter": ["plane", 1], "GMC 4201": ["car", 0], "GMC Banshee": ["rotor", 0], "GMC Beachcraft Patroller": ["hover", 0], "GMC Beachcraft Vacationer": ["hover", 0], "GMC Bulldog Step-Van (Standard)": ["car", 0], "GMC Bulldog Step-Van (BC Var.)": ["car", 0], "GMC \"Harpy Scout\" LAV": ["rotor", 0], "GMC MPUV": ["car", 0], "GMC Riverine": ["boat", 0], "GMC Riverine (Police Model)": ["boat", 0], "GMC Riverine (Security Model)": ["boat", 0], "GMC-Nissan Hovertruck": ["hover", 0], "Goodyear Commuter-47": ["lta", 0], "GTE-Ford Retrans Unit": ["plane", 1], "Harland & Wolff Classique": ["boat", 0], "Harley Electroglide-1000": ["bike", 0], "Harley-Davidson Scorpion": ["bike", 0], "Hawker-Ridley HS-895 Skytruck": ["plane", 0], "Honda-GM 3220 ZX (Standard)": ["car", 0], "Honda-GM 3220 ZX (Turbo)": ["car", 0], "Honda Viking": ["bike", 0], "Hughes Aerospace Airstar 2050": ["rotor", 0], "Hughes WK-2 Stallion": ["rotor", 0], "Hyundai Offroader": ["car", 0], "Integrated Weapon System DLK Mk 6 Utility Machine": ["tracked", 1], "Integrated Weapon System DLK Mk 6 Utility Machine (Armed Variant)": ["tracked", 1], "Landrover Model 2046 (SW)": ["car", 0], "Landrover Model 2046 (LW)": ["car", 0], "LAV-93 Devil Rat": ["car", 0], "LAV-103 Striker Light Tank": ["car", 0], "Lear-Cessna Platinum I": ["plane", 0], "Lear-Cessna Platinum II": ["plane", 0], "Leyland-Rover Transport/Electric (Open Tray)": ["car", 0], "Leyland-Rover Transport/Electric (Encl. Box)": ["car", 0], "Leyland-Rover Transport/Electric (Minibus)": ["car", 0], "Leyland-Rover Transport/Gasoline (Open Tray)": ["car", 0], "Leyland-Rover Transport/Gasoline (Encl. Box)": ["car", 0], "Leyland-Rover Transport/Gasoline (Minibus)": ["car", 0], "Leyland-Zil Tsarina (Elec.)": ["car", 0], "Leyland-Zil Tsarina (Meth.)": ["car", 0], "Lockheed C-260 Transport": ["plane", 0], "Lone Star \"Black Mariah\" USPTV": ["car", 0], "Lone Star Modified Ford Americar": ["car", 0], "Lone Star Modified Honda 3220ZX Turbo": ["car", 0], "Lone Star Strato-9 Surveillance Drone": ["rotor", 1], "Lone Star SWAT Hovertruck": ["hover", 0], "Luftschiffbau Zeppelin LZ-2049": ["lta", 0], "Luftschiffbau Zeppelin LZ-2051-C": ["lta", 0], "Marine Technologies Dolphin II": ["boat", 0], "MCT-Nissan Roto-Drone": ["rotor", 1], "Mesametric Kodiak Roadway Clearance System": ["tracked", 1], "Mitsubishi Nightsky": ["car", 0], "Mitsubishi Runabout": ["car", 0], "Moonlight Aerospace Avenger": ["plane", 0], "Mostrans KVP-14T (Standard)": ["hover", 0], "Mostrans KVP-14T (Pass.)": ["hover", 0], "Nissan-Holden Brumby": ["car", 0], "Nordkapp-Conestoga Bergen (Tractor)": ["car", 0], "Nordkapp-Conestoga Bergen (Trailer)": ["car", 0], "Northrup Wasp (PRC-42B Variant)": ["rotor", 0], "Northrup Wasp (PRC-42F Variant)": ["rotor", 0], "Northrup Yellowjacket (PRC-44B Variant)": ["rotor", 0], "Northrup Yellowjacket (PRC-44F Variant)": ["rotor", 0], "Pratt & Whitney Sundowner Aerial Sprayer": ["plane", 1], "Renault-Fiat Eurovan (Open Tray)": ["car", 0], "Renault-Fiat Eurovan (Encl. Cargo)": ["car", 0], "Renault-Fiat Eurovan (Camper)": ["car", 0], "Renraku Arachnoid Mini-Drone": ["walker", 1], "Rolls-Royce Phaeton": ["car", 0], "Rolls-Royce Prairie Cat": ["car", 0], "Saab Dynamit 778 TI": ["car", 0], "Saab-Thyssen Bloodhound": ["car", 1], "Samuvani Criscraft Otter": ["boat", 0], "Sendanko Marlin": ["boat", 0], "Shiawase Kanmushi Mechanical Crawler": ["walker", 1], "Sikorsky-Bell Microskimmer": ["hover", 1], "Sikorsky-Bell Microskimmer II": ["hover", 1], "Sikorsky-Bell Red Ranger": ["hover", 0], "Steel Lynx Ground Combat Drone": ["car", 1], "Surfstar Marine Seacop": ["boat", 0], "Suzuki Aurora": ["bike", 0], "Suzuki Watersport (Elec.)": ["boat", 0], "Suzuki Watersport (Gas)": ["boat", 0], "Toyota Elite": ["car", 0], "Toyota MK-Guyver Search and Rescue Robot": ["walker", 1], "Toyotacorp Gopher": ["car", 0], "Thundercloud Pinto": ["car", 0], "Volkswagen Elektro": ["car", 0], "Volkswagen Superkombi III (Flatbed)": ["car", 0], "Volkswagen Superkombi III (Pickup)": ["car", 0], "Volkswagen Superkombi III (Encl. Van)": ["car", 0], "Volkswagen Superkombi III (Commuter)": ["car", 0], "Volkswagen Superkombi III (RV)": ["car", 0], "Yamaha Rapier": ["bike", 0], "Zemlya-Poltava Swordsman (Standard)": ["boat", 0], "Zemlya-Poltava Swordsman (Outboard)": ["boat", 0], "Zemlya-Poltava Swordsman (Elec.)": ["boat", 0]};
+/*@shared:hosts*/
+// ---------- Gear with options: cybereyes, cyberears, Kelmar security armor and helmet ----------
+// Shared by both tools. Each page defines HBENV: item(key), all() (every gear item), bookOn(src).
+// State: {single:bool (eyes only), ct:bool (Cybertechnology eye limits), helmet:bool (armor only), opts:[{id, r}]}.
+const HB=(()=>{
+const r2=x=>Math.round(x*1000)/1000;
+const ess=(it,r)=>it?(it.ess?(+it.ess[r]||0):(+it.e||0)):0;
+const cost=(it,r)=>it?(it.costs?(+it.costs[r]||0):(+it.cost||0)):0;
+const EYE_WEAPON=new Set(['head:Eye Dart','head:Eye Gun']), TOOL_LASER='head:Eye Tool Laser', CAM='head:Eye Camera';
+const MAGS=[['head:Optical Magnification 1','head:Optical Magnification 2','head:Optical Magnification 3'],['head:Electronic Magnification 1','head:Electronic Magnification 2','head:Electronic Magnification 3']];
+const SEC_ARMOR=['armor:Light Security Armor','armor:Medium Security Armor','armor:Heavy Security Armor'];
+const HELMET_ONLY=new Set(['armor:Helmet option: Magnification ×10','armor:Helmet option: Low-Light','armor:Helmet option: Thermographic','armor:Helmet option: Ultrasound','armor:Helmet option: Smartgun Display','armor:Helmet option: Transceiver','armor:Helmet option: Heads-Up Data Display (100 Mp)','armor:Helmet option: Respirator','armor:Helmet option: Chemical Seal']);
+const SEC_OPTS=[...HELMET_ONLY,'armor:Wrist Transceiver','armor:Security Tracking Signal','armor:Security Signal Locator'];
+const NEEDS={'armor:Helmet option: Ultrasound':'Works with an Ultrasound Sight on the weapon (SSC p. 71).','armor:Helmet option: Smartgun Display':'Needs a smartgun connection: a smart weapon and a link (SSC p. 71).','head:BrightLight Addition':''};
+function kind(key){ if(key==='head:Cybereyes') return 'eyes'; if(key==='head:Cyberears') return 'ears'; if(SEC_ARMOR.includes(key)) return 'secarmor'; if(key==='armor:Security Helmet') return 'helmet'; return null;}
+function isHost(key){return !!kind(key);}
+function defaults(key){const k=kind(key); return k==='secarmor'?{helmet:true,opts:[]}:k==='eyes'?{single:false,ct:true,opts:[]}:{opts:[]};}
+// candidate options for a host
+function pool(key,E){const k=kind(key);
+  if(k==='eyes') return E.all().filter(i=>i.eye&&E.bookOn(i.src)).map(i=>i.id);
+  if(k==='ears') return E.all().filter(i=>i.ear&&E.bookOn(i.src)).map(i=>i.id);
+  if(k==='secarmor') return SEC_OPTS.filter(id=>E.item(id)&&E.bookOn(E.item(id).src));
+  if(k==='helmet') return [...HELMET_ONLY].filter(id=>E.item(id)&&E.bookOn(E.item(id).src));
+  return [];}
+function rFor(it,r){if(!it||!it.r) return undefined; const lo=it.r[0],hi=it.r[1]; let v=Math.floor(+r||lo); return Math.min(hi,Math.max(lo,v));}
+// Full evaluation. Returns rows, totals and every rule broken (bad).
+function calc(key,st,E){const k=kind(key), host=E.item(key), bad=[], notes=[]; const S=Object.assign(defaults(key),st||{}); const ids=new Set();
+  const rows=(S.opts||[]).map(o=>{const it=E.item(o.id); const r=rFor(it,o.r); if(!it){bad.push('Unknown option'); return null;} if(ids.has(o.id)) bad.push(it.n+' is listed twice'); ids.add(o.id);
+    if(!pool(key,E).includes(o.id)) bad.push(it.n+' doesn’t fit a '+host.n);
+    return {id:o.id,it,r,n:it.n+(it.r?' '+r:''),cost:cost(it,r),ess:ess(it,r),pg:it.pg||'',d:it.desc||it.s||''};}).filter(Boolean);
+  let hostCost=cost(host), hostEss=ess(host), free=0, cap=null, accEss=0, disc=0, sub=0, total=0, essTotal=0;
+  if(k==='eyes'){ if(S.single){hostCost=Math.round(hostCost*.6); hostEss=.1;} free=S.single?.25:.5; cap=S.ct?(S.single?.6:1.2):null;
+    accEss=r2(rows.reduce((a,x)=>a+x.ess,0)); if(cap!=null&&accEss>cap+1e-9) bad.push(`Accessories total ${accEss} Essence; ${S.single?'a single eye':'a pair'} holds ${cap} (CT p. 45)`);
+    const eyes=S.single?1:2, wpn=rows.filter(x=>EYE_WEAPON.has(x.id)).length, tool=rows.some(x=>x.id===TOOL_LASER)?1:0, cam=rows.some(x=>x.id===CAM)?1:0;
+    if(S.ct&&wpn+tool+cam>eyes) bad.push(`Only one weapon, tool laser or camera per eye: ${eyes===1?'this eye':'two eyes'} can’t hold ${wpn+tool+cam} (CT p. 45)`);
+    MAGS.forEach(g=>{if(rows.filter(x=>g.includes(x.id)).length>1) bad.push('Only one level of '+(g[0].includes('Optical')?'optical':'electronic')+' magnification');});
+    if(rows.some(x=>x.id==='head:BrightLight Addition')&&!rows.some(x=>x.id==='head:Eye Light System')) bad.push('BrightLight needs the Eye Light System (CT p. 21)');
+    essTotal=r2(hostEss+Math.max(0,accEss-free));
+  } else if(k==='ears'){ accEss=r2(rows.reduce((a,x)=>a+x.ess,0)); free=rows.filter(x=>x.ess<=.2).reduce((m,x)=>Math.max(m,x.ess),0); essTotal=r2(hostEss+accEss-free);
+  } else if(k==='secarmor'||k==='helmet'){ const helmet=k==='helmet'||!!S.helmet; const hel=E.item('armor:Security Helmet');
+    rows.forEach(x=>{if(HELMET_ONLY.has(x.id)&&!helmet) bad.push(x.it.n+' needs the security helmet');});
+    if(k==='secarmor'&&helmet) rows.unshift({id:'armor:Security Helmet',it:hel,n:'Security Helmet',cost:cost(hel),ess:0,pg:hel.pg,d:hel.desc||'',fixed:true});
+    const nopt=rows.filter(x=>!x.fixed).length; sub=hostCost+rows.reduce((a,x)=>a+x.cost,0);
+    if(k==='secarmor'){const pct=nopt>=4?30:nopt>=2?15:0; disc=Math.round(sub*pct/100); if(pct) notes.push(`${pct}% package discount for ${nopt} options (SSC p. 70)`);}
+  }
+  rows.forEach(x=>{if(NEEDS[x.id]) notes.push(NEEDS[x.id]);});
+  if(!sub) sub=hostCost+rows.filter(x=>!x.fixed).reduce((a,x)=>a+x.cost,0);
+  total=sub-disc; if(k!=='eyes'&&k!=='ears') essTotal=0;
+  return {k,host,S,rows,hostCost,hostEss,free,cap,accEss,ess:essTotal,sub,disc,total,bad,notes:notes.filter(Boolean),ok:!bad.length};}
+// options that can be added now (lowest rating), and those that can't with the reason
+function addable(key,st,E){const S=Object.assign(defaults(key),st||{}); const yes=[],no=[]; const have=new Set((S.opts||[]).map(o=>o.id));
+  pool(key,E).forEach(id=>{if(have.has(id)) return; const it=E.item(id); const r=it.r?it.r[0]:undefined; const t={...S,opts:(S.opts||[]).concat([{id,r}])}; const c=calc(key,t,E);
+    if(c.ok) yes.push({id,it,r,row:c.rows.find(x=>x.id===id)}); else no.push({id,it,why:c.bad[c.bad.length-1]});}); return {yes,no};}
+function levels(key,st,E,ix){const S=Object.assign(defaults(key),st||{}); const o=S.opts[ix], it=o&&E.item(o.id); if(!it||!it.r) return []; const out=[];
+  for(let r=it.r[0];r<=it.r[1];r++){const t={...S,opts:S.opts.map((q,j)=>j===ix?{...q,r}:q)}; if(calc(key,t,E).ok) out.push(r);} return out;}
+// keep only what is legal, in the order chosen
+function clamp(key,st,E){const S=Object.assign(defaults(key),st||{}); const out={...S,opts:[]}, dropped=[];
+  (S.opts||[]).forEach(o=>{const it=E.item(o.id); if(!it||out.opts.some(q=>q.id===o.id)) return; const r=rFor(it,o.r); out.opts.push({id:o.id,r}); if(!calc(key,out,E).ok){out.opts.pop(); dropped.push(it.n);}});
+  return {st:out,dropped};}
+const PAGES={eyes:'core p. 247, 260; CT p. 45',ears:'core p. 247, 260',secarmor:'SSC p. 70–71',helmet:'SSC p. 70–71'};
+const INTRO={eyes:'Cybereye accessories: the first .5 Essence of them is free (.25 for a single eye). With Cybertechnology limits on, a pair holds 1.2 Essence of accessories (a single eye .6) and each eye one weapon, tool laser or camera.',
+  ears:'Cyberear accessories: one feature of .2 Essence or less is free.',
+  secarmor:'Kelmar security armor and its options. Two or more options take 15% off the package, four or more 30%. Vision, comms and environmental options for the head need the helmet.',
+  helmet:'The security helmet and its options.'};
+return {kind,isHost,defaults,pool,calc,addable,levels,clamp,PAGES,INTRO,SEC_ARMOR};
+})();
+/*@end:hosts*/
+// ---------- Option build-outs in the builder: cybereyes, cyberears, security armor and helmet ----------
+const HBCACHE={};
+function hbItem(k){ if(HBCACHE[k]!==undefined) return HBCACHE[k]; const it=GEARDB[k]; if(!it){HBCACHE[k]=null; return null;}
+  const o={id:k,n:it.n,pg:it.pg||'',s:it.s||'',src:it.src||'core',eye:it.eye,ear:it.ear,desc:DESC[k]?DESC[k][0]:''};
+  if(it.r){o.r=it.r.slice(0,3); o.costs={}; o.ess={}; for(let x=it.r[0];x<=it.r[1];x++){o.costs[x]=gv(it.c,x); o.ess[x]=+gv(it.e,x)||0;}} else {o.cost=gv(it.c,0); o.e=+gv(it.e,0)||0;}
+  return HBCACHE[k]=o;}
+const HBENV={item:hbItem,all:()=>Object.keys(GEARDB).map(hbItem).filter(Boolean),bookOn:s=>bookOn(s)};
+const HB_OPEN=new Set(), HB_GUIDE=new Set(); const HB_DROP=new WeakMap();
+function hbFixG(g){if(!HB.isHost(g.key)) return null; if(!g.hb||typeof g.hb!=='object') g.hb=HB.defaults(g.key); const c=HB.clamp(g.key,g.hb,HBENV); g.hb=c.st; if(c.dropped.length) HB_DROP.set(g,c.dropped); return HB.calc(g.key,g.hb,HBENV);}
+function hbEditor(g,ix){const C=hbFixG(g); if(!C) return ''; const S=g.hb, k=C.k, lab='style="flex-direction:row;align-items:center;gap:0.375rem;text-transform:none;letter-spacing:0;font-size:0.8125rem"';
+  const chk=(f,l)=>`<label ${lab}><input type="checkbox" data-hbf="${ix}" data-f="${f}" ${S[f]?'checked':''}> ${l}</label>`;
+  const head=k==='eyes'?`<div class="row" style="gap:0.75rem;flex-wrap:wrap">${chk('single','Single eye (60% price, .1 Essence, .25 free)')}${chk('ct','Cybertechnology limits (CT p. 45)')}</div>`:k==='secarmor'?`<div class="row">${chk('helmet','Security helmet (+1/+2, 250¥)')}</div>`:'';
+  const rows=C.rows.filter(x=>!x.fixed).map(x=>{const j=S.opts.findIndex(o=>o.id===x.id); const lv=x.it.r?HB.levels(g.key,S,HBENV,j):[];
+    return `<li class="ucard"><div class="uc-h"><b>${esc(x.it.n)}</b><span class="pg">${esc(x.pg)}</span><button type="button" class="x vbx" data-hbdel="${ix}" data-j="${j}" aria-label="Remove ${esc(x.it.n)}">×</button></div><p class="uc-d">${esc(x.d)}</p>
+      <div class="uc-c">${x.it.r?`<label class="uc-r">${esc(x.it.r[2])}<select data-hbr="${ix}" data-j="${j}">${lv.map(r=>`<option value="${r}" ${r===x.r?'selected':''}>${r}</option>`).join('')}</select></label>`:''}<span class="uc-n">${fmt(x.cost)}¥${x.ess?` · ${x.ess} Essence`:''}</span></div></li>`;}).join('');
+  const A=HB.addable(g.key,S,HBENV);
+  const guide=A.yes.length?`<details class="pguide" data-hbgd="${ix}" ${HB_GUIDE.has(ix)?'open':''}><summary>Add an option <span class="gstat">${A.yes.length} fit</span></summary><ul class="plist">${A.yes.map(({id,it,row})=>`<li><div class="pl-h"><div><b>${esc(it.n)}</b> <span class="gstat">${fmt(row.cost)}¥${row.ess?` · ${row.ess} Essence`:''} · ${esc(it.pg)}</span></div><button type="button" class="padd" data-hbadd="${ix}" data-id="${esc(id)}" aria-label="Add ${esc(it.n)}">Add</button></div><p class="pl-d">${esc(it.desc||it.s||'')}</p></li>`).join('')}</ul></details>`:'';
+  const no=A.no.length?`<details class="pguide"><summary>Not available <span class="gstat">${A.no.length}</span></summary><ul class="vno">${A.no.map(x=>`<li><b>${esc(x.it.n)}</b>: ${esc(x.why.replace(x.it.n+' ',''))}</li>`).join('')}</ul></details>`:'';
+  const dr=HB_DROP.get(g); HB_DROP.delete(g);
+  const sum=[`${fmt(C.total)}¥`,...(C.disc?[`package discount −${fmt(C.disc)}¥`]:[]),...(k==='eyes'||k==='ears'?[`${C.ess} Essence`]:[]),...(k==='eyes'&&S.ct&&C.cap?[`accessories ${C.accEss} / ${C.cap} Essence`]:[])].join(' · ');
+  return `<details class="wb vbuild" data-hbd="${ix}" ${HB_OPEN.has(ix)?'open':''}><summary>${esc(GEARDB[g.key].n)}: ${C.rows.filter(x=>!x.fixed).length?`${C.rows.filter(x=>!x.fixed).length} option${C.rows.filter(x=>!x.fixed).length>1?'s':''} · `:''}${sum}</summary>
+    <p class="note">${esc(HB.INTRO[k])} Only options that fit are offered. <span class="pg">${esc(HB.PAGES[k])}</span></p>${head}
+    ${dr?`<p class="wbw">No longer fit, so removed: ${esc(dr.join(', '))}.</p>`:''}${rows?`<ul class="ulist">${rows}</ul>`:''}${guide}${no}
+    ${C.notes.map(n=>`<p class="gstat">${esc(n)}</p>`).join('')}</details>`;}
 // ---------- Vehicle build-out (Runner Builder rigger card) ----------
 const R2OBJ=(()=>{const o={}; R2VEH.forEach(([n,c,pg,ref,H,Sp,Ac,B,A,Si,Au,P,Se,C,L])=>{o['r2veh:'+n]={n,c,pg:'R2 p. '+pg,r:{H,Sp,Ac,B,A,Si,Au,P,Se,C,L}};}); return o;})();
 const VB_OPEN=new Set(), VB_GUIDE=new Set(); const VB_DROP=new WeakMap();
@@ -2039,8 +2133,10 @@ function magicAllowed(type){
 }
 function isMagician(){return S.magic==='hermetic'||S.magic==='shamanic';}
 function essenceCredit(){const has=k=>S.gear.some(g=>g.key===k);let c=0;
-  if(has('head:Cybereyes')) c+=Math.min(.5,S.gear.filter(g=>g.key&&GEARDB[g.key]&&GEARDB[g.key].eye).reduce((a,g)=>a+(+g.ess||0)*(+g.qty||1),0));
-  if(has('head:Cyberears')) c+=S.gear.filter(g=>g.key&&GEARDB[g.key]&&GEARDB[g.key].ear&&(+g.ess||0)<=.2).reduce((m,g)=>Math.max(m,+g.ess||0),0);
+  const hbEye=S.gear.find(g=>g.key==='head:Cybereyes'&&g.hb&&g.hb.opts&&g.hb.opts.length), hbEar=S.gear.find(g=>g.key==='head:Cyberears'&&g.hb&&g.hb.opts&&g.hb.opts.length);
+  const eyeUsed=hbEye?Math.min(hbFixG(hbEye).free,hbFixG(hbEye).accEss):0;
+  if(has('head:Cybereyes')) c+=Math.min(Math.max(0,.5-eyeUsed),S.gear.filter(g=>g.key&&GEARDB[g.key]&&GEARDB[g.key].eye).reduce((a,g)=>a+(+g.ess||0)*(+g.qty||1),0));
+  if(has('head:Cyberears')&&!(hbEar&&hbFixG(hbEar).free)) c+=S.gear.filter(g=>g.key&&GEARDB[g.key]&&GEARDB[g.key].ear&&(+g.ess||0)<=.2).reduce((m,g)=>Math.max(m,+g.ess||0),0);
   return c;}
 function essenceUsed(){syncGear();const bioE=S.magic!=='none'?bodyIndexUsed():0;return Math.max(0,S.gear.reduce((a,g)=>a+(+g.ess||0)*(+g.qty||1),0)-essenceCredit()+bioE);} // Awakened pay bioware Body Cost in Essence too (ST p. 5)
 function gearLevel(k){return S.gear.filter(g=>g.key===k).reduce((m,g)=>Math.max(m,+g.r||0),0);}
@@ -2332,6 +2428,8 @@ function summary(magicRating,rSpent,rBudget){
 // events
 document.addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.hbadd!==undefined){const ix=+b.dataset.hbadd,g=S.gear[ix]; hbFixG(g); const x=HB.addable(g.key,g.hb,HBENV).yes.find(y=>y.id===b.dataset.id); if(x) g.hb.opts.push({id:x.id,r:x.r}); HB_OPEN.add(ix); HB_GUIDE.add(ix); render(); return;}
+  if(b.dataset.hbdel!==undefined){const ix=+b.dataset.hbdel,g=S.gear[ix]; if(g.hb) g.hb.opts.splice(+b.dataset.j,1); hbFixG(g); HB_OPEN.add(ix); render(); return;}
   if(b.dataset.vbadd!==undefined){const ix=+b.dataset.vbadd,g=S.gear[ix]; const v=vbFixG(g); const x=VB.addable(v,g.vb).yes.find(y=>y.d.id===b.dataset.id); if(x) g.vb.mods.push({id:x.d.id,lv:x.lv,opt:x.opt}); VB_OPEN.add(ix); VB_GUIDE.add(ix); render(); return;}
   if(b.dataset.vbdel!==undefined){const ix=+b.dataset.vbdel,g=S.gear[ix]; if(g.vb) g.vb.mods.splice(+b.dataset.j,1); vbFixG(g); VB_OPEN.add(ix); render(); return;}
   if(b.dataset.mode){S.mode=b.dataset.mode;render();return;}
@@ -2380,6 +2478,8 @@ document.addEventListener('change',e=>{
   if(t.dataset.book){S.books=Object.assign({},booksOn(),{[t.dataset.book]:t.checked});fillGearCats();if($('spCat').options.length)fillSpells();render();return;}
   if(t.id==='optRecoil'){S.optRecoil=t.checked;render();return;}
   if(t.dataset.v2){S.vr2deck=Object.assign(vr2Default(),S.vr2deck||{});const f=t.dataset.v2;S.vr2deck[f]=t.type==='checkbox'?t.checked:(t.tagName==='SELECT'&&['asist'].includes(f)?t.value:+t.value);render();return;}
+  if(t.dataset.hbf!==undefined){const ix=+t.dataset.hbf,g=S.gear[ix]; hbFixG(g); g.hb[t.dataset.f]=t.checked; hbFixG(g); HB_OPEN.add(ix); render(); return;}
+  if(t.dataset.hbr!==undefined){const ix=+t.dataset.hbr,g=S.gear[ix]; const o=g.hb&&g.hb.opts[+t.dataset.j]; if(o) o.r=+t.value; hbFixG(g); HB_OPEN.add(ix); render(); return;}
   if(t.dataset.vbf!==undefined){const ix=+t.dataset.vbf,g=S.gear[ix]; vbVeh(g); g.vb[t.dataset.f]=t.type==='checkbox'?t.checked:t.value; vbFixG(g); VB_OPEN.add(ix); render(); return;}
   if(t.dataset.vbl!==undefined){const ix=+t.dataset.vbl,g=S.gear[ix]; const m=g.vb&&g.vb.mods[+t.dataset.j]; if(m) m.lv=+t.value; vbFixG(g); VB_OPEN.add(ix); render(); return;}
   if(t.dataset.vbo!==undefined){const ix=+t.dataset.vbo,g=S.gear[ix]; const m=g.vb&&g.vb.mods[+t.dataset.j]; if(m) m.opt=t.value; vbFixG(g); VB_OPEN.add(ix); render(); return;}
@@ -2391,7 +2491,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.ct!==undefined&&t.dataset.f==='level'){S.contacts[+t.dataset.ct].level=t.value;save();}
 });
 document.addEventListener('toggle',e=>{const d=e.target; if(d.dataset&&d.dataset.wbd!==undefined){const i=+d.dataset.wbd; if(d.open) WB_OPEN.add(i); else WB_OPEN.delete(i);}},true);
-document.addEventListener('toggle',e=>{const d=e.target; if(!d.dataset) return; if(d.dataset.vbd!==undefined){const i=+d.dataset.vbd; if(d.open) VB_OPEN.add(i); else VB_OPEN.delete(i);} if(d.dataset.vbgd!==undefined){const i=+d.dataset.vbgd; if(d.open) VB_GUIDE.add(i); else VB_GUIDE.delete(i);}},true);
+document.addEventListener('toggle',e=>{const d=e.target; if(!d.dataset) return; if(d.dataset.hbd!==undefined){const i=+d.dataset.hbd; if(d.open) HB_OPEN.add(i); else HB_OPEN.delete(i);} if(d.dataset.hbgd!==undefined){const i=+d.dataset.hbgd; if(d.open) HB_GUIDE.add(i); else HB_GUIDE.delete(i);} if(d.dataset.vbd!==undefined){const i=+d.dataset.vbd; if(d.open) VB_OPEN.add(i); else VB_OPEN.delete(i);} if(d.dataset.vbgd!==undefined){const i=+d.dataset.vbgd; if(d.open) VB_GUIDE.add(i); else VB_GUIDE.delete(i);}},true);
 let timer=null;
 function rerenderSoon(t){clearTimeout(timer);timer=setTimeout(()=>{const id=t&&t.id;const pos=t&&t.selectionStart;render();if(id){const el=$(id);if(el){el.focus();try{if(pos!=null&&el.setSelectionRange)el.setSelectionRange(pos,pos);}catch(_){}}}},350);}
 $('addSkill').onclick=()=>{S.skills.push({name:'',rating:1,narrow:'none',conc:'',spec:''});render();$('s_ns_'+(S.skills.length-1)).focus();};
@@ -2663,6 +2763,7 @@ function gearImport(p){const added=[],skipped=[]; const books=Object.assign({},b
       const row={key:x.key,qty:Math.max(1,Math.min(9999,Math.floor(+x.qty||1)))}; if(x.r!=null&&isFinite(+x.r)) row.r=+x.r;
       if(x.build&&typeof x.build==='object') row.build=JSON.parse(JSON.stringify(x.build));
       if(x.vb&&typeof x.vb==='object') row.vb=JSON.parse(JSON.stringify(x.vb));
+      if(x.hb&&typeof x.hb==='object') row.hb=JSON.parse(JSON.stringify(x.hb));
       if(x.loaded) row.loaded=true;
       if(had.has(x.key)) dup.push(it.n); S.gear.push(row); if(it.src&&it.src!=='core') books[it.src]=true; added.push(it.n);}
     else if(x&&x.name){S.gear.push({name:String(x.name).slice(0,140),cat:'other',qty:1,cost:Math.max(0,+x.cost||0),ess:0}); added.push(String(x.name));}});
@@ -2683,7 +2784,7 @@ window.addEventListener('focus',xferCheck); document.addEventListener('visibilit
 $('skillList').innerHTML=SKILLS.map(s=>`<option value="${s}">`).join('');
 render();
 xferCheck(); {const h=lockerHref(), a=$('lockerTop'); if(h&&a){a.href=h; a.hidden=false;}}
-window.__sr2={get S(){return S;},gearImport,xferCheck,VB,R2OBJ,vbFixG,VTYPE,deckEnforce,deckRowMax,deckPickOk,vr2Clamp,syncGear,DESC,EDGES,FLAWS,RACES,EF_DESC,CAT,GCATS,GEARDB,WSTAT,VSTAT,MSTAT,ASTAT,DSTAT,RANGES,RT_SKILL,vr2DeckCost,vr2Default,itemVisible,render,sheetFile,deckInfo,matrixInfo,builderFile,SPELLS,POWERS,XPOWERS,IA_COST};
+window.__sr2={get S(){return S;},HB,HBENV,hbFixG,essenceUsed,armorTotals,gearImport,xferCheck,VB,R2OBJ,vbFixG,VTYPE,deckEnforce,deckRowMax,deckPickOk,vr2Clamp,syncGear,DESC,EDGES,FLAWS,RACES,EF_DESC,CAT,GCATS,GEARDB,WSTAT,VSTAT,MSTAT,ASTAT,DSTAT,RANGES,RT_SKILL,vr2DeckCost,vr2Default,itemVisible,render,sheetFile,deckInfo,matrixInfo,builderFile,SPELLS,POWERS,XPOWERS,IA_COST};
 })();
 </script>
 </body></html>
