@@ -424,10 +424,14 @@ function vtype(i){return VTYPE[i.n]||['car',0];}
 function vstate(i){st.vbuild=st.vbuild||{}; if(!st.vbuild[i.id]) st.vbuild[i.id]={type:vtype(i)[0],mil:false,facRC:false,facRig:false,mods:[]}; return st.vbuild[i.id];}
 function vehOf(i,B){return VB.veh(i.n,i.cost,i.pg,i.r2,(B&&B.type)||vtype(i)[0],vtype(i)[1]);}
 function vbFix(i){const B=vstate(i); const v=vehOf(i,B); const cl=VB.clamp(v,B); B.mods=cl.b.mods; if(cl.dropped.length) VB_DROPPED=cl.dropped; return {B,v};}
-function r2Twin(i){const nm=s=>s.toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(w=>w.length>2&&!/^(the|and)$/.test(w));const k=nm(i.n);
+const R2ALIAS={'Chrysler-Nissan G12a Hovercraft':['Chrysler-Nissan G12A (Pass.)','Chrysler-Nissan G12A (Cargo)'],'Samuvani Chriscraft Otter':['Samuvani Criscraft Otter'],'Spotter Drone':['GM-Nissan Spotter'],
+ 'Artemis Night Glider':['Artemis Industries Nightglider'],'LAV-98 Devil Rat APC':['LAV-93 Devil Rat'],'Ares Guardian Drone (CSH)':['Ares Guardian Drone'],'Ares TR-55T Traveler VTOL (CSH)':['Ares TR-55T Traveller'],
+ 'Ares TR-55E Executive VTOL (CSH)':['Ares TR-55E "President\'s Edition" Executive'],'Ares TR-55C Cargo VTOL (CSH)':['Ares TR-55C Cargoliner'],'Wasp F-Series Upgrade':['Northrup Wasp (PRC-42F Variant)'],'Yellowjacket F-Series Upgrade':['Northrup Yellowjacket (PRC-44F Variant)']};
+function r2Twin(i){if(R2ALIAS[i.n]) return R2ALIAS[i.n].map(n=>BYID['r2veh:'+n]).filter(Boolean); const nm=s=>s.toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(w=>w.length>2&&!/^(the|and)$/.test(w));const k=nm(i.n);
   return ITEMS.filter(x=>x.cat==='r2veh'&&k.length&&k.every(w=>nm(x.n).some(y=>y.startsWith(w.slice(0,5))))).slice(0,4);}
 function vehHTML(i){
-  if(i&&i.cat==='veh'){const tw=r2Twin(i); return tw.length?`<section class="build" aria-label="Vehicle build-out"><h3>Build it out</h3><p class="note">Customization uses the Rigger 2 stats (cargo space and load). Open the Rigger 2 version to build it out:</p><div class="pills">${tw.map(x=>`<button class="pill ${visible(x)?'':'off'}" data-id="${esc(x.id)}">${srcTag(x.src)}${esc(x.n)}</button>`).join('')}</div></section>`:'';}
+  if(i&&i.cat==='veh'){const tw=r2Twin(i); const rig=/Upgrade|Smoke Generator|Ablative|Control Gear|Weapons Pod|Storage System/.test(i.n); if(rig) return '';
+    return `<section class="build" aria-label="Vehicle build-out"><h3>Build it out</h3>${tw.length?`<p class="note">Customization needs cargo space and load, which only the Rigger 2 list gives. Open the Rigger 2 version to build it out:</p><div class="pills">${tw.map(x=>`<button class="pill ${visible(x)?'':'off'}" data-id="${esc(x.id)}">${srcTag(x.src)}${esc(x.n)}</button>`).join('')}</div>`:'<p class="note">Rigger 2 doesn’t restate this one, so it has no cargo space or load to customize against (R2 p. 118). Ask your GM for its Cargo and Load, or pick a similar Rigger 2 model.</p>'}</section>`;}
   if(!isVeh(i)) return '';
   const {B,v}=vbFix(i); const R=VB.calc(v,B), c=R.c, s=R.s;
   const sel=(f,lab,opts,cur)=>`<label class="bslot" for="vb_${f}"><span class="bl">${lab}</span><select id="vb_${f}" data-vb="${f}">${opts.map(([k,l])=>`<option value="${esc(k)}" ${String(cur)===String(k)?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
