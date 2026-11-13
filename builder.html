@@ -82,6 +82,8 @@ ul.issues{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;
 ul.issues li{font-size:0.8125rem;padding:0.375rem 0.5rem;border-radius:0.25rem;border-left:3px solid var(--warn);background:var(--warn-soft)}
 ul.issues li.bad{border-left-color:var(--bad);background:var(--bad-soft)}
 ul.issues li.ok{border-left-color:var(--ok);background:var(--ok-soft)}
+ul.issues li.info{border-left-color:var(--accent);background:var(--accent-soft)}
+.estab{display:flex;flex-direction:row;gap:0.5rem;align-items:flex-start;text-transform:none;letter-spacing:0;font-size:0.8125rem;line-height:1.4;margin:0.25rem 0 0.75rem;padding:0.5rem 0.625rem;border:1px solid var(--line);border-radius:0.375rem;background:var(--soft);color:var(--ink);cursor:pointer}.estab input{margin-top:0.2rem;flex:none;width:1rem;height:1rem}
 .track{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:0.25rem}
 .track button{aspect-ratio:1;padding:0;font-family:var(--f-mono);font-size:0.6875rem;font-weight:500;background:var(--bg);max-width:100%}
 .track button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
@@ -167,6 +169,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
       <button id="btnDup" class="ghost">Duplicate</button>
       <button id="btnDel" class="ghost">Delete</button>
       <button id="btnExample" class="ghost">Load example</button>
+      <label for="skinSel" style="flex-direction:row;align-items:center;gap:0.375rem">Colors<select id="skinSel" style="max-width:11rem"><option value="system" selected="">Match my device</option><option value="light">Light</option><option value="dark">Dark</option><option value="matrix">Matrix (green screen)</option><option value="neon">Neon (Seattle at night)</option><option value="amber">Amber terminal</option><option value="paper">Paper (printed sheet)</option><option value="contrast">High contrast</option></select></label>
     </div>
   </header>
   <div id="xferBar" class="xfer" hidden="" role="status"></div>
@@ -183,6 +186,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
           <button data-mode="house">Any race, any priority<small>Table house rule: race can be E</small></button>
         </div>
         <p class="note" id="modeNote"></p>
+        <label class="bk estab" for="established"><input type="checkbox" id="established"> <span><b>Established runner</b> (not a new character). Turns off creation-only checks: priorities, point totals, Resources budget, the rating 6 and Force 6 caps and the starting-skill max. Rules that always apply (Essence, racial maximums, deck and gear limits) stay on.</span></label>
         <div class="books" id="bookRow"></div>
         <div class="books"><span class="k">Shadowrun Companion options</span><label class="bk"><input type="checkbox" id="optMeta"> Metavariants <span class="pg">SRC p. 37–44</span></label><label class="bk"><input type="checkbox" id="optEF"> Edges and Flaws <span class="pg">SRC p. 21–35</span></label></div>
         <p class="note">Books in play decide which gear, spells and adept powers you can pick. The Companion options are off unless your table uses them.</p>
@@ -381,8 +385,43 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1794461514143","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwd41xtu"}};</script>
+<script>window.__SR2_EMBED={"stamp":"1794538549807","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwedx2xc"}};</script>
 <script id="appJs">
+const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--paper',panel2:'--soft',ink:'--ink',muted:'--muted',line:'--line',accent:'--accent',accentInk:'--accent-ink',accentSoft:'--accent-soft',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
+/*@shared:skins*/
+// ---------- Color modes, shared by both tools ----------
+// Each page defines SKINENV = {map:{paletteKey:'--its-token'}, sel:'id of the <select>'}. The choice is saved under 'sr2-skin',
+// so both tools on the same site open in the same colors. System/Light/Dark use the page's own tokens; the skins set every token inline.
+const SKIN=(()=>{
+const KEY='sr2-skin';
+const P={
+  matrix:{label:'Matrix (green screen)',base:'dark',mono:true,bg:'#020a04',panel:'#06140b',panel2:'#0b2013',ink:'#c2ffd2',muted:'#6cbc86',line:'#1d4a2c',accent:'#3dff7f',accentInk:'#021006',accentSoft:'#0e3a1d',ok:'#3dff7f',okSoft:'#0e3a1d',warn:'#e8ff66',warnSoft:'#2b3410',bad:'#ff6a5f',badSoft:'#3a1411',price:'#9dffbc'},
+  neon:{label:'Neon (Seattle at night)',base:'dark',bg:'#0d0718',panel:'#160d26',panel2:'#211339',ink:'#f4ebff',muted:'#b19dd0',line:'#3b2662',accent:'#ff4fae',accentInk:'#1a0310',accentSoft:'#3f1337',ok:'#33f0d2',okSoft:'#0e3535',warn:'#ffd447',warnSoft:'#3a2e10',bad:'#ff6682',badSoft:'#401425',price:'#33f0d2'},
+  amber:{label:'Amber terminal',base:'dark',mono:true,bg:'#110b02',panel:'#1b1306',panel2:'#271b09',ink:'#ffdcaa',muted:'#c9a066',line:'#4c3615',accent:'#ffb31a',accentInk:'#1a1000',accentSoft:'#3e2b07',ok:'#cbe26e',okSoft:'#2a3110',warn:'#ffd166',warnSoft:'#3d2c0a',bad:'#ff7f59',badSoft:'#3e1b0e',price:'#ffcb52'},
+  paper:{label:'Paper (printed sheet)',base:'light',bg:'#ebe3d2',panel:'#fbf7ee',panel2:'#f2eadb',ink:'#2a2016',muted:'#6a5a44',line:'#d5c6ab',accent:'#8c2a10',accentInk:'#ffffff',accentSoft:'#f3ddd0',ok:'#3b6a1d',okSoft:'#e3ebd1',warn:'#875700',warnSoft:'#f3e2c0',bad:'#a3221a',badSoft:'#f4d7d1',price:'#8c2a10'},
+  contrast:{label:'High contrast',base:'dark',bg:'#000000',panel:'#000000',panel2:'#141414',ink:'#ffffff',muted:'#dadada',line:'#9a9a9a',accent:'#ffe600',accentInk:'#000000',accentSoft:'#332e00',ok:'#66ff94',okSoft:'#0a2a12',warn:'#ffbe57',warnSoft:'#332000',bad:'#ff7a7a',badSoft:'#3a0d0d',price:'#8adcff'}
+};
+const LIST=[['system','Match my device'],['light','Light'],['dark','Dark'],...Object.entries(P).map(([k,v])=>[k,v.label])];
+let set=[];
+const env=()=>(typeof SKINENV!=='undefined'?SKINENV:{map:{}});
+function get(){try{const v=localStorage.getItem(KEY); return LIST.some(x=>x[0]===v)?v:'system';}catch(e){return 'system';}}
+function apply(id,save){const R=document.documentElement, E=env();
+  set.forEach(t=>R.style.removeProperty(t)); set=[]; R.style.removeProperty('color-scheme'); R.removeAttribute('data-skin');
+  if(id==='light'||id==='dark') R.setAttribute('data-theme',id); else R.removeAttribute('data-theme');
+  const p=P[id];
+  if(p){R.setAttribute('data-theme',p.base); R.setAttribute('data-skin',id); R.style.setProperty('color-scheme',p.base);
+    Object.entries(E.map).forEach(([k,tok])=>{const v=k==='font'?(p.mono?E.mono:null):p[k]; if(v){R.style.setProperty(tok,v); set.push(tok);}});}
+  if(save){try{localStorage.setItem(KEY,id);}catch(e){}}
+  const s=E.sel&&document.getElementById(E.sel); if(s&&s.value!==id) s.value=id;}
+function options(cur){return LIST.map(([k,l])=>`<option value="${k}"${k===cur?' selected':''}>${l}</option>`).join('');}
+function init(){const E=env(); const s=E.sel&&document.getElementById(E.sel); const cur=get();
+  if(s){s.innerHTML=options(cur); s.addEventListener('change',()=>apply(s.value,true));}
+  apply(cur,false);
+  window.addEventListener('storage',e=>{if(e.key===KEY) apply(get(),false);});}
+return {P,LIST,get,apply,init};
+})();
+/*@end:skins*/
+try{SKIN.init();}catch(e){}
 /*@shared:decks*/
 // ---------- Cyberdeck rules shared by both tools (core p. 172–176; VR2 p. 16, 85–89) ----------
 const VR2PF=r=>r<=3?100:r<=6?200:r<=9?500:1000; // Program Factors Table, VR2 p. 89
@@ -2529,7 +2568,7 @@ function render(){
   const cCost=contactCost(); rSpent+=cCost; $('contactCost').textContent=cCost?`Extra contacts cost ${fmt(cCost)}¥ from Resources.`:'';
   gearPreview();
   $('resBudget').innerHTML=budgetHTML('Resources',rSpent,rBudget,true);
-  $('lifestyleOff').checked=!!S.lifestyleOff;
+  $('lifestyleOff').checked=!!S.lifestyleOff; $('established').checked=!!S.established;
   const left=Math.max(0,rBudget-rSpent); const fromLeft=Math.floor(left/10);
   $('cashFromLeft').textContent=fmt(fromLeft)+'¥';
   $('cashRoll').textContent=S.cashRoll?`${S.cashRoll.dice.join(' + ')} = ${fmt(S.cashRoll.total)}¥`:'not rolled';
@@ -2587,10 +2626,11 @@ function summary(magicRating,rSpent,rBudget){
   rows.push(['Karma Pool',pool+(+S.kPoolBonus||0)],['Good Karma',`${(+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog()} available`]);
   $('sumStats').innerHTML=rows.map(([k,v])=>`<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
   // issues
-  const iss=[];
+  const iss=[]; const nb=!S.established;
+  if(!nb) iss.push(['info','Established runner: creation-only limits (priorities, point totals, Resources, rating 6 and Force 6 caps, starting skills) aren’t checked.']);
   const missing=CATS.filter(([c])=>!S.prio[c]).map(([,l])=>l);
-  if(missing.length) iss.push(['warn',`Pick a priority for ${missing.join(', ')}.`]);
-  if(S.optEF&&(S.ef||[]).length&&efNet()!==0) iss.push(['bad',`Edges and Flaws add up to ${efNet()>0?'+':''}${efNet()}; with priorities they must net to zero (SRC p. 22).`]);
+  if(nb&&missing.length) iss.push(['warn',`Pick a priority for ${missing.join(', ')}.`]);
+  if(nb&&S.optEF&&(S.ef||[]).length&&efNet()!==0) iss.push(['bad',`Edges and Flaws add up to ${efNet()>0?'+':''}${efNet()}; with priorities they must net to zero (SRC p. 22).`]);
   if(S.optEF){const names=(S.ef||[]).map(x=>x.n);EF_EXCLUSIVE.forEach(([a,b])=>{if(names.includes(a)&&names.includes(b)) iss.push(['warn',`${a} and ${b} overlap; take only one (SRC p. 22).`]);});
     {const boosted=S.magic==='adept'||S.gear.some(g=>/Wired Reflexes|Boosted Reflexes|Synaptic Accelerator|Move-by-Wire|Reaction Enhancer|Reflex Trigger/.test(g.name||''));
      if(names.includes('Adrenaline Surge')&&boosted) iss.push(['bad','Adrenaline Surge isn’t for characters whose Reaction or Initiative is boosted by cyberware, bioware or magic, physical adepts included (SRC p. 24).']);}
@@ -2604,29 +2644,29 @@ function summary(magicRating,rSpent,rBudget){
    if(S.gear.some(g=>g._migrated)) iss.push(['warn','Your old weapon accessory ticks were turned into add-ons and now count toward Resources. Check the Weapons section.']);}
   if(!S.optEF&&(S.ef||[]).length) iss.push(['warn','Edges and Flaws are switched off, so the ones picked are ignored.']);
   if(R().base&&!S.optMeta) iss.push(['warn',`${S.race} is a Companion metavariant, but metavariants are switched off.`]);
-  if(!raceAllowed(S.race)) iss.push(['bad',`${S.race} isn't allowed at Race ${S.prio.race||'(none)'} under these rules.`]);
-  if(!magicAllowed(S.magic)) iss.push(['bad',`${MAGIC_TYPES.find(m=>m[0]===S.magic)[1]} needs a different Magic priority.`]);
-  if(S.magic==='none'&&S.prio.magic&&['A','B'].includes(S.prio.magic)) iss.push(['warn',`Magic ${S.prio.magic} is assigned but the character is mundane. That priority is wasted.`]);
+  if(nb&&!raceAllowed(S.race)) iss.push(['bad',`${S.race} isn't allowed at Race ${S.prio.race||'(none)'} under these rules.`]);
+  if(nb&&!magicAllowed(S.magic)) iss.push(['bad',`${MAGIC_TYPES.find(m=>m[0]===S.magic)[1]} needs a different Magic priority.`]);
+  if(nb&&S.magic==='none'&&S.prio.magic&&['A','B'].includes(S.prio.magic)) iss.push(['warn',`Magic ${S.prio.magic} is assigned but the character is mundane. That priority is wasted.`]);
   const aBudget=S.prio.attr?ATTR_PTS[S.prio.attr]:0; const aSpent=ATTRS.reduce((a,[k])=>a+(+S.attrs[k]||0),0);
-  if(aBudget&&aSpent!==aBudget) iss.push([aSpent>aBudget?'bad':'warn',`Attribute points: ${aSpent} of ${aBudget} spent.`]);
+  if(nb&&aBudget&&aSpent!==aBudget) iss.push([aSpent>aBudget?'bad':'warn',`Attribute points: ${aSpent} of ${aBudget} spent.`]);
   ATTRS.forEach(([k,l])=>{const f=attrFinal(k);if(f>attrMax(k)) iss.push(['bad',`${l} ${f} is over the racial maximum of ${attrMax(k)}.`]); if(f<1||(+S.attrs[k]||0)<1) iss.push(['bad',`${l} must be at least 1.`]);});
   const sBudget=S.prio.skills?SKILL_PTS[S.prio.skills]:0; const sSpent=S.skills.reduce((a,s)=>a+(+s.rating||0),0)+(S.langs||[]).reduce((a,L)=>a+(+L.rating||0),0);
-  if(sBudget&&sSpent!==sBudget) iss.push([sSpent>sBudget?'bad':'warn',`Skill points: ${sSpent} of ${sBudget} spent.`]);
-  S.skills.forEach(s=>{ if((+s.rating||0)>6) iss.push(['bad',`${s.name||'A skill'} is above 6, the creation maximum.`]); if(s.narrow!=='none'&&!s.conc) iss.push(['warn',`${s.name||'A skill'} needs a concentration name.`]); if(s.narrow==='spec'&&!s.spec) iss.push(['warn',`${s.name||'A skill'} needs a specialization name.`]);});
-  if(rBudget&&rSpent>rBudget) iss.push([S.mode==='house'&&rSpent-rBudget<=15?'warn':'bad',S.mode==='house'&&rSpent-rBudget<=15?`Resources over by ${fmt(rSpent-rBudget)}¥, inside the 15¥ house allowance.`:`Resources overspent by ${fmt(rSpent-rBudget)}¥.`]);
+  if(nb&&sBudget&&sSpent!==sBudget) iss.push([sSpent>sBudget?'bad':'warn',`Skill points: ${sSpent} of ${sBudget} spent.`]);
+  S.skills.forEach(s=>{ if(nb&&(+s.rating||0)>6) iss.push(['bad',`${s.name||'A skill'} is above 6, the creation maximum.`]); if(s.narrow!=='none'&&!s.conc) iss.push(['warn',`${s.name||'A skill'} needs a concentration name.`]); if(s.narrow==='spec'&&!s.spec) iss.push(['warn',`${s.name||'A skill'} needs a specialization name.`]);});
+  if(nb&&rBudget&&rSpent>rBudget) iss.push([S.mode==='house'&&rSpent-rBudget<=15?'warn':'bad',S.mode==='house'&&rSpent-rBudget<=15?`Resources over by ${fmt(rSpent-rBudget)}¥, inside the 15¥ house allowance.`:`Resources overspent by ${fmt(rSpent-rBudget)}¥.`]);
   if(S.magic==='none'&&S.skills.some(x=>/^(sorcery|conjuring)$/i.test(x.name||''))) iss.push(['bad','Only magically active characters can take Sorcery or Conjuring (p. 45).']);
-  if(isMagician()) S.powers.forEach(p=>{if((+p.cost||0)>6&&!/focus|foci/i.test((p.name||'')+(p.note||''))) iss.push(['warn',`${p.name||'A spell'}: starting spells can be Force 6 at most (p. 46).`]);});
+  if(nb&&isMagician()) S.powers.forEach(p=>{if((+p.cost||0)>6&&!/focus|foci/i.test((p.name||'')+(p.note||''))) iss.push(['warn',`${p.name||'A spell'}: starting spells can be Force 6 at most (p. 46).`]);});
   if(S.powers.some(p=>p.type==='incReflexes')&&gearLevel('body:Wired Reflexes')) iss.push(['warn','Wired Reflexes and Increased Reflexes are both counted. The core book is silent on stacking; most GMs rule they don’t.']);
   {const m=deckMPCP(); if(m){const per=S.gear.filter(g=>/^prog:Persona: /.test(g.key||'')).reduce((a,g)=>a+(+g.r||0),0); if(per>3*m) iss.push(['bad',`Persona programs total ${per}; the deck's MPCP ${m} allows ${3*m} (p. 174).`]);
     if(ri>Math.floor(m/4)) iss.push(['bad',`Response Increase ${ri} needs MPCP ${ri*4}+; this deck allows level ${Math.floor(m/4)} (p. 173).`]);
     S.gear.filter(g=>/^deck:(Response Increase|Hitcher)/.test(g.key||'')&&+g.r!==m).forEach(g=>iss.push(['warn',`${g.name}: priced for MPCP ${g.r}, but the deck is MPCP ${m}.`]));
     const hj=S.gear.filter(g=>g.key==='deck:Hitcher Jack').reduce((a,g)=>a+(+g.qty||1),0); if(hj>m) iss.push(['bad',`${hj} hitcher jacks; MPCP ${m} allows ${m}.`]);
-    if(m>6) iss.push(['warn',`Deck MPCP ${m} is above 6. Check with your GM, since gear is capped at rating 6 at creation (p. 46).`]);}
+    if(nb&&m>6) iss.push(['warn',`Deck MPCP ${m} is above 6. Check with your GM, since gear is capped at rating 6 at creation (p. 46).`]);}
   else if(ri) iss.push(['warn','Response Increase needs a cyberdeck.']);}
   if(ess<0) iss.push(['bad','Essence is below 0. The character dies.']);
-  if(S.magic!=='none'){ const pSpent=+S.powers.reduce((a,p)=>a+(S.magic==='adept'?powerCost(p).cost:(+p.cost||0)),0).toFixed(2); const pB=S.magic==='adept'?magicRating:(S.prio.res?FORCE[S.prio.res]:0); if(pSpent>pB) iss.push(['bad',`${S.magic==='adept'?'Power':'Force'} points overspent: ${pSpent} of ${pB}.`]); }
-  if(!S.lifestyleOff) iss.push(['warn','Remember to buy a lifestyle from Resources.']);
-  if(S.gear.some(g=>{const it=g.key&&GEARDB[g.key];return it&&it.r&&it.r[2]==='Rating'&&+g.r>6;})) iss.push(['bad','Some gear is above rating 6, the creation maximum (p. 46).']);
+  if(S.magic!=='none'){ const pSpent=+S.powers.reduce((a,p)=>a+(S.magic==='adept'?powerCost(p).cost:(+p.cost||0)),0).toFixed(2); const pB=S.magic==='adept'?magicRating:(S.prio.res?FORCE[S.prio.res]:0); if(pSpent>pB&&(nb||S.magic==='adept')) iss.push(['bad',`${S.magic==='adept'?'Power':'Force'} points overspent: ${pSpent} of ${pB}.`]); }
+  if(nb&&!S.lifestyleOff) iss.push(['warn','Remember to buy a lifestyle from Resources.']);
+  if(nb&&S.gear.some(g=>{const it=g.key&&GEARDB[g.key];return it&&it.r&&it.r[2]==='Rating'&&+g.r>6;})) iss.push(['bad','Some gear is above rating 6, the creation maximum (p. 46).']);
   if(gearLevel('body:Boosted Reflexes')&&(gearLevel('body:Wired Reflexes')||gearLevel('body:Vehicle Control Rig'))) iss.push(['bad','Boosted Reflexes can never be combined with Wired Reflexes or a Vehicle Control Rig (SSC p. 87).']);
   if(S.magic==='shamanic'&&!S.totem) iss.push(['warn','Pick a totem for the shaman (p. 119).']);
   if(isMagician()&&S.gear.filter(g=>BOND[g.key]).length>attrNow('int')) iss.push(['warn',`More foci than Intelligence ${attrNow('int')}; only that many can be active at once (p. 137).`]);
@@ -2645,9 +2685,9 @@ function summary(magicRating,rSpent,rBudget){
   if(booksOn().vr2){const old=S.gear.filter(g=>{const it=g.key&&GEARDB[g.key];return it&&it.m1;}); if(old.length) iss.push(['warn',`Virtual Realities 2.0 replaces Matrix 1.0 decks and programs. Rebuild these with the VR2 deck and programs: ${old.slice(0,4).map(g=>GEARDB[g.key].n).join(', ')}${old.length>4?'…':''}.`]);}
   if(S.gear.some(g=>g.key==='body:VCR Reflex Trigger')&&!gearLevel('body:Vehicle Control Rig')) iss.push(['bad','A reflex trigger is part of a Vehicle Control Rig; buy the VCR too (R2 p. 17).']);
   if(booksOn().r2&&gearLevel('body:Vehicle Control Rig')&&deckInfo()) iss.push(['warn',`Rigger decking: +1 to all Matrix target numbers and Hacking Pool −${gearLevel('body:Vehicle Control Rig')} (R2 p. 16).`]);
-  if(!iss.some(x=>x[0]!=='ok')) iss.unshift(['ok','Everything adds up.']);
+  if(!iss.some(x=>x[0]!=='ok'&&x[0]!=='info')) iss.unshift(['ok','Everything adds up.']);
   $('issues').innerHTML=iss.map(([t,m])=>`<li class="${t==='warn'?'':t}">${esc(m)}</li>`).join('');
-  {const todo=iss.filter(x=>x[0]!=='ok'), bad=iss.filter(x=>x[0]==='bad').length, mb=$('mbar'); if(mb){mb.className='mbar '+(bad?'bad':todo.length?'warn':'ok'); mb.innerHTML=todo.length?`<b>${todo.length} to check</b><span>${esc(todo[0][1])}</span>`:'<b>✓ Everything adds up</b>';}}
+  {const todo=iss.filter(x=>x[0]!=='ok'&&x[0]!=='info'), bad=iss.filter(x=>x[0]==='bad').length, mb=$('mbar'); if(mb){mb.className='mbar '+(bad?'bad':todo.length?'warn':'ok'); mb.innerHTML=todo.length?`<b>${todo.length} to check</b><span>${esc(todo[0][1])}</span>`:'<b>✓ Everything adds up</b>';}}
 }
 
 // events
@@ -2690,6 +2730,7 @@ document.addEventListener('change',e=>{
   if(t.id==='optEF'){S.optEF=t.checked;render();return;}
   if(t.id==='fMagic'){S.magic=t.value;render();return;}
   if(t.id==='lifestyleOff'){S.lifestyleOff=t.checked;render();return;}
+  if(t.id==='established'){S.established=t.checked;render();return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='cat'){S.gear[+t.dataset.gr].cat=t.value;render();return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='grade'){S.gear[+t.dataset.gr].grade=t.value;render();return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='cultured'){S.gear[+t.dataset.gr].cultured=t.checked;render();return;}
