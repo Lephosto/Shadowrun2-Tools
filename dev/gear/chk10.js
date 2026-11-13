@@ -1,0 +1,21 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1400,height:1000}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/gear/sr2-gear-locker.html#deck-fuchi-cyber-6');await p.waitForTimeout(300);
+const pick=async q=>{await p.fill('#q',q);await p.waitForTimeout(150);await p.click('#list .item >> nth=0');await p.waitForTimeout(150);};
+const T=async()=>(await p.textContent('.build')).replace(/\s+/g,' ');
+await pick('Allegiance Alpha');console.log('ALPHA',(await T()).slice(0,900));
+await pick('Fuchi Cyber-6');
+for(const [n,v] of [['per.Bod','6'],['per.Evasion','6'],['per.Masking','6'],['per.Sensors','6']]){await p.selectOption(`#dk_${n.replace('.','\\.')}`,v);await p.waitForTimeout(80);}
+console.log('sens opts after 3 at 6:',await p.$$eval('#dk_per\\.Sensors option',o=>o.map(x=>x.value).join(',')));
+await p.selectOption('#dk_ri','2');await p.waitForTimeout(80);
+await p.selectOption('#dk_add','prog:Attack');await p.waitForTimeout(80);
+await p.selectOption('#dk_add','prog:Shield');await p.waitForTimeout(80);
+await p.selectOption('[data-dku="0"][data-uf="r"]','6');await p.waitForTimeout(80);
+await p.check('[data-dku="0"][data-uf="loaded"]');await p.waitForTimeout(80);
+await p.selectOption('#dk_comp','6');await p.selectOption('#dk_react','5');await p.waitForTimeout(80);
+console.log('CY6',(await T()).slice(0,2200));
+await p.click('#addDeck');await p.waitForTimeout(100);console.log('KIT',(await p.textContent('#kit')).replace(/\s+/g,' ').slice(0,500));
+await pick('Custom cyberdeck');await p.selectOption('#dk_v\\.mpcp','3');await p.waitForTimeout(100);
+console.log('VR2 M3',(await T()).slice(0,1500));
+await p.screenshot({path:'gear/s_deck.png',fullPage:false});
+console.log(errs);await b.close();})();
