@@ -118,6 +118,12 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
   .tbl table td:first-child{grid-column:1/-1}
   .tbl table tr.gcat{display:block}.tbl table tr.gcat td{display:block}
   .prio tr{grid-template-columns:repeat(3,minmax(0,1fr))!important}.prio th.cat{grid-column:1/-1}
+  #attrBody tr{grid-template-columns:repeat(4,minmax(0,1fr))}
+  #attrBody td:nth-child(2)::before{content:"Points";display:block;color:var(--muted);font-size:0.6875rem}
+  #attrBody td:nth-child(3)::before{content:"Race";display:block;color:var(--muted);font-size:0.6875rem}
+  #attrBody td:nth-child(4)::before{content:"Rating";display:block;color:var(--muted);font-size:0.6875rem}
+  #attrBody td:nth-child(5)::before{content:"Max";display:block;color:var(--muted);font-size:0.6875rem}
+  #attrBody input{max-width:4rem}
   #skillBody td:nth-child(2)::before{content:"Bought ";color:var(--muted);font-size:0.6875rem}
   #gearBody td:nth-child(2)::before{content:"Rating ";color:var(--muted);font-size:0.6875rem}
   #gearBody td:nth-child(3)::before{content:"Qty ";color:var(--muted);font-size:0.6875rem}
@@ -385,7 +391,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1794538549807","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwedx2xc"}};</script>
+<script>window.__SR2_EMBED={"stamp":"1794539190185","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmweeat1r"}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--paper',panel2:'--soft',ink:'--ink',muted:'--muted',line:'--line',accent:'--accent',accentInk:'--accent-ink',accentSoft:'--accent-soft',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skins*/
@@ -2497,8 +2503,8 @@ function render(){
   const aBudget=S.prio.attr?ATTR_PTS[S.prio.attr]:0;
   let aSpent=0;
   $('attrBody').innerHTML=ATTRS.map(([k,l])=>{const p=+S.attrs[k]||0;aSpent+=p;const m=R().mod[k]||0;const f=attrFinal(k),mx=attrMax(k);const bad=f>mx||f<1||p<1;
-    return `<tr><td>${l}</td><td class="n"><input type="number" min="1" max="9" id="a_${k}" data-attr="${k}" value="${p}" aria-label="${l} points"></td><td class="n">${m?(m>0?'+':'')+m:''}</td><td class="n big ${bad?'bad-text':''}">${f}${augAttr(k)!==f?` <span class="note">(${augAttr(k)})</span>`:''}</td><td class="n">${mx}</td></tr>`;}).join('');
-  $('attrBudget').innerHTML=budgetHTML('Attribute points',aSpent,aBudget,false);
+    return `<tr><td>${l}</td><td class="n"><input type="number" min="1" max="9" id="a_${k}" data-attr="${k}" value="${p}" aria-label="${l} points"></td><td class="n">${m?(m>0?'+':'')+m:'<span class="note">—</span>'}</td><td class="n big ${bad?'bad-text':''}">${f}${augAttr(k)!==f?` <span class="note">(${augAttr(k)})</span>`:''}</td><td class="n">${mx}</td></tr>`;}).join('');
+  $('attrBudget').innerHTML=budgetHTML('Attribute points',aSpent,aBudget,false,!!S.established);
   // skills
   const sBudget=S.prio.skills?SKILL_PTS[S.prio.skills]:0; let sSpent=(S.langs||[]).reduce((a,L)=>a+(+L.rating||0),0);
   $('skillBody').innerHTML=S.skills.map((s,i)=>{sSpent+=(+s.rating||0);const over=(+s.rating||0)>6;
@@ -2521,7 +2527,7 @@ function render(){
     <td><select id="s_n_${i}" data-sk="${i}" data-f="narrow"><option value="none" ${s.narrow==='none'?'selected':''}>General</option><option value="conc" ${s.narrow==='conc'?'selected':''}>Concentration</option><option value="spec" ${s.narrow==='spec'?'selected':''}>Specialization</option></select></td>
     <td>${concField}</td><td>${specField}</td>
     <td class="mono small">${esc(skillRatings(s))}</td><td><button class="x" data-del="skills" data-i="${i}" aria-label="Remove skill">×</button></td></tr>`;}).join('') || `<tr><td colspan="7" class="note">No skills yet. Add one to start spending points.</td></tr>`;
-  $('skillBudget').innerHTML=budgetHTML('Skill points',sSpent,sBudget,false);
+  $('skillBudget').innerHTML=budgetHTML('Skill points',sSpent,sBudget,false,!!S.established);
   // magic
   const card=$('magicCard'); card.hidden=S.magic==='none';
   const magicRating=S.magic==='none'?0:Math.max(0,Math.floor(6-essenceUsed()));
@@ -2542,7 +2548,7 @@ function render(){
   $('irErrata').checked=!!S.irErrata;
   if(isMagician()) pSpent+=fociBond();
   const pBudget=S.magic==='adept'?magicRating:(S.prio.res?FORCE[S.prio.res]:0);
-  $('powerBudget').innerHTML=budgetHTML(S.magic==='adept'?'Power points':'Force points',pSpent,pBudget,false);
+  $('powerBudget').innerHTML=budgetHTML(S.magic==='adept'?'Power points':'Force points',pSpent,pBudget,false,!!S.established&&S.magic!=='adept');
   // gear
   $('bookRow').innerHTML=`<span class="k">Books in play</span><label class="bk"><input type="checkbox" checked disabled> Core rulebook</label>`+BOOKS.map(([k,l])=>`<label class="bk"><input type="checkbox" data-book="${k}" ${booksOn()[k]?'checked':''}> ${l}</label>`).join('');
   $('optRecoilRow').hidden=!booksOn().fof; $('optRecoil').checked=!!S.optRecoil;
@@ -2567,7 +2573,7 @@ function render(){
         <td><button class="x" data-del="gear" data-i="${i}" aria-label="Remove item">×</button></td></tr>`;}).join('');}).join('') || `<tr><td colspan="7" class="note">No gear yet. Pick a category and an item above.</td></tr>`;
   const cCost=contactCost(); rSpent+=cCost; $('contactCost').textContent=cCost?`Extra contacts cost ${fmt(cCost)}¥ from Resources.`:'';
   gearPreview();
-  $('resBudget').innerHTML=budgetHTML('Resources',rSpent,rBudget,true);
+  $('resBudget').innerHTML=budgetHTML('Resources',rSpent,rBudget,true,!!S.established);
   $('lifestyleOff').checked=!!S.lifestyleOff; $('established').checked=!!S.established;
   const left=Math.max(0,rBudget-rSpent); const fromLeft=Math.floor(left/10);
   $('cashFromLeft').textContent=fmt(fromLeft)+'¥';
@@ -2586,8 +2592,8 @@ function render(){
   $('exportBox').value=btoa(unescape(encodeURIComponent(JSON.stringify(S))));
   save();
 }
-function budgetHTML(label,spent,budget,money){
-  const pct=budget?Math.min(100,spent/budget*100):0; const over=spent>budget; const full=budget&&spent===budget;
+function budgetHTML(label,spent,budget,money,soft){
+  const pct=budget?Math.min(100,spent/budget*100):0; const over=!soft&&spent>budget; const full=!soft&&budget&&spent===budget; if(soft) label+=' (creation, not checked)';
   const u=money?'¥':'';
   return `<div class="row" style="justify-content:space-between"><span class="small"><b>${label}</b></span><span class="pill ${!budget?'':over?'bad':full?'ok':''}">${fmt(spent)}${u} / ${budget?fmt(budget)+u:'pick a priority'}</span></div><div class="bar ${over?'over':full?'full':''}"><i style="width:${pct}%"></i></div>`;
 }
@@ -2599,11 +2605,11 @@ function summary(magicRating,rSpent,rBudget){
   $('sumRace').textContent=[S.race,MAGIC_TYPES.find(m=>m[0]===S.magic)[1],S.concept].filter(Boolean).join(' · ');
   const q=attrEff('quick'),i=attrNow('int'),w=attrNow('wil');
   const ad=adeptOn(); const incR=ad?S.powers.filter(p=>p.type==='incReaction').reduce((a,p)=>a+(+p.n||0),0):0;
-  const dice=1+[0,1,1,2][gearLevel('body:Boosted Reflexes')]+(S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0))+(ad?S.powers.filter(p=>p.type==='incReflexes').reduce((a,p)=>a+(+p.level||1),0):0);
+  const dice=1+gearLevel('bio:Synaptic Accelerator')+[0,1,1,2][gearLevel('body:Boosted Reflexes')]+(S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0))+(ad?S.powers.filter(p=>p.type==='incReflexes').reduce((a,p)=>a+(+p.level||1),0):0);
   const cs=ad?S.powers.filter(p=>p.type==='combatSense').reduce((a,p)=>a+(+p.level||1),0):0;
   const wired=S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0);
   const boosted=gearLevel('body:Boosted Reflexes');
-  const reaction=Math.floor((q+i)/2)+incR+2*wired+[0,0,1,2][boosted];
+  const reaction=Math.floor((q+i)/2)+incR+2*wired+[0,0,1,2][boosted]+gearLevel('body:Reaction Enhancer')+(S.gear.some(g=>g.key==='bio:Enhanced Articulation')?1:0);
   const ess=6-essenceUsed();
   const comp=bestRating(/^computer$/i);
   const baseReact=Math.floor((attrNow('quick')+attrNow('int'))/2); const ri=[1,2,3].reduce((m,L)=>S.gear.some(g=>g.key==='deck:Response Increase '+L)?L:m,0);
@@ -2825,11 +2831,11 @@ function sheetStats(){
   const magicRating=S.magic==='none'?0:Math.max(0,Math.floor(6-essenceUsed()));
   const q=attrEff('quick'),i=attrNow('int'),w=attrNow('wil');
   const ad=adeptOn(); const incR=ad?S.powers.filter(p=>p.type==='incReaction').reduce((a,p)=>a+(+p.n||0),0):0;
-  const dice=1+[0,1,1,2][gearLevel('body:Boosted Reflexes')]+(S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0))+(ad?S.powers.filter(p=>p.type==='incReflexes').reduce((a,p)=>a+(+p.level||1),0):0);
+  const dice=1+gearLevel('bio:Synaptic Accelerator')+[0,1,1,2][gearLevel('body:Boosted Reflexes')]+(S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0))+(ad?S.powers.filter(p=>p.type==='incReflexes').reduce((a,p)=>a+(+p.level||1),0):0);
   const cs=ad?S.powers.filter(p=>p.type==='combatSense').reduce((a,p)=>a+(+p.level||1),0):0;
   const wired=S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0);
   const boosted=gearLevel('body:Boosted Reflexes');
-  const reaction=Math.floor((q+i)/2)+incR+2*wired+[0,0,1,2][boosted];
+  const reaction=Math.floor((q+i)/2)+incR+2*wired+[0,0,1,2][boosted]+gearLevel('body:Reaction Enhancer')+(S.gear.some(g=>g.key==='bio:Enhanced Articulation')?1:0);
   const ess=6-essenceUsed();
   const comp=bestRating(/^computer$/i);
   const baseReact=Math.floor((attrNow('quick')+attrNow('int'))/2); const ri=[1,2,3].reduce((m,L)=>S.gear.some(g=>g.key==='deck:Response Increase '+L)?L:m,0);
