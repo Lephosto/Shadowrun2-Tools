@@ -411,7 +411,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1794540829905","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwef9y9u","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794540829895}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1794543285474","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwegqkzu","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794543285456}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--paper',panel2:'--soft',ink:'--ink',muted:'--muted',line:'--line',accent:'--accent',accentInk:'--accent-ink',accentSoft:'--accent-soft',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skins*/
@@ -477,7 +477,7 @@ function vr2Price(d){
  if(+d.sm) add(`Storage memory ${d.sm} Mp`,d.sm*6,`${d.sm} Mp × 6`);
  if(d.asist==='hot') add('ASIST interface (hot)',M*M*(pf*2+40)+M*50,`${M}² × (${pf} × 2 + 40) + ${M} × 50`);
  else if(d.asist==='cool') add('ASIST interface (cool)',d.printedCool?M*M*(pf*20)+M*25:M*M*(pf+20)+M*25,d.printedCool?`${M}² × (${pf} × 20) + ${M} × 25 (as printed)`:`${M}² × (${pf} + 20) + ${M} × 25`);
- if(+d.hard) add('Hardening '+d.hard,d.hard*d.hard*(pf*8+160)+d.hard*70,`${d.hard}² × (${pf} × 8 + 160) + ${d.hard} × 70`);
+ if(+d.hard){const hp=VR2PF(+d.hard); add('Hardening '+d.hard,d.hard*d.hard*(hp*8+160)+d.hard*70,`${d.hard}² × (${hp} × 8 + 160) + ${d.hard} × 70 (PF from Hardening, VR2 p. 158)`);}
  if(d.iccm) add('ICCM biofeedback filter',M*M*(pf*4+115)+5000,`${M}² × (${pf} × 4 + 115) + 5,000`);
  if(+d.io) add(`I/O speed ${d.io} MePS`,d.io*30,`${d.io} MePS × 30`);
  if(+d.ri) add('Response Increase '+d.ri,(M*M*d.ri)*(pf+80)+d.ri*105,`(${M}² × ${d.ri}) × (${pf} + 80) + ${d.ri} × 105`);
@@ -639,7 +639,10 @@ const EF_DESC={
  'Police Record':['Contacts must be street level, corp security and Lone Star have your face and file, Lone Star harasses you on sight, you can never get a legal SIN, and you report to a parole officer who can kick in your door.',34]
 };
 const EFDB={};EDGES.forEach(e=>EFDB[e[0]]={n:e[0],g:e[1],min:e[2],max:e[3],note:e[4]||'',steps:e[5]||null,pg:e[6]||'SRC p. 35',desc:(EF_DESC[e[0]]||[''])[0],dpg:EF_DESC[e[0]]?'SRC p. '+EF_DESC[e[0]][1]:'',edge:1});FLAWS.forEach(e=>EFDB[e[0]]={n:e[0],g:e[1],min:e[2],max:e[3],note:e[4]||'',steps:e[5]||null,pg:e[6]||'SRC p. 35',desc:(EF_DESC[e[0]]||[''])[0],dpg:EF_DESC[e[0]]?'SRC p. '+EF_DESC[e[0]][1]:'',edge:0});
-function efNet(){return (S.ef||[]).reduce((a,x)=>a+(+x.v||0),0);}
+// Bio-Rejection, Blind and Sensitive System are worth only −2 for magically active characters (SRC p. 25–27, table p. 35)
+const EF_MAGIC2=new Set(['Bio-Rejection','Blind','Sensitive System']);
+function efVal(x){return EF_MAGIC2.has(x.n)&&S.magic!=='none'?-2:(+x.v||0);}
+function efNet(){return (S.ef||[]).reduce((a,x)=>a+efVal(x),0);}
 const EF_EXCLUSIVE=[['Pacifist','Total Pacifist'],['Paraplegic','Quadriplegic'],['Illiterate','Uneducated'],['High School Education','College Education'],['High Pain Tolerance','Low Pain Tolerance']];
 const MAGIC_TYPES=[['none','Mundane'],['hermetic','Hermetic magician'],['shamanic','Shamanic magician'],['adept','Physical adept']];
 const SW='A specific weapon, e.g. Ares Predator', SV='A specific vehicle model';
@@ -707,7 +710,7 @@ const XPOWERS={
  suspended:{label:'Suspended State',pg:'GR p. 34',src:'gr',fixed:1,desc:'Meditative trance like the Hibernate spell.'},
  blindFighting:{label:'Blind Fighting',pg:'AW p. 115',src:'aw',fixed:.5,desc:'Blind fire and full darkness penalty drops to +4.'},
  counterstrike:{label:'Counterstrike',pg:'AW p. 115',src:'aw',per:.5,max:6,desc:'+1 die per level for melee counterattack tests.'},
- delayDamage:{label:'Delay Damage',pg:'AW p. 115',src:'aw',fixed:2.5,desc:'Unarmed damage takes effect up to 24 hours later.'},
+ delayDamage:{label:'Delay Damage',pg:'AW p. 115',src:'aw',fixed:2.5,desc:'Unarmed damage takes effect up to 24 hours later. Book conflict: the power text says 2.5, the power table on AW p. 156 says 1; GM picks.'},
  distanceStrike:{label:'Distance Strike',pg:'AW p. 116',src:'aw',fixed:2,desc:'Unarmed attack at range up to Magic in meters. Costs double if you also have Killing Hands (whichever is bought second).'},
  empathicSense:{label:'Empathic Sense',pg:'AW p. 116',src:'aw',fixed:.5,desc:'Sense the emotions of people in line of sight.'},
  enhCoord:{label:'Enhanced Coordination',pg:'AW p. 116',src:'aw',per:.25,max:6,desc:'Each level counts as a level of Ambidexterity; needs that skill.'},
@@ -715,14 +718,14 @@ const XPOWERS={
  freefall:{label:'Freefall',pg:'AW p. 116',src:'aw',per:.25,max:10,desc:'Fall 2 m per level without damage.'},
  ironWill:{label:'Iron Will',pg:'AW p. 117',src:'aw',per:.5,max:6,desc:'+1 die per level to resist mind control.'},
  magicResistance:{label:'Magic Resistance',pg:'AW p. 117',src:'aw',per:1,max:6,desc:'+1 die per level to resist spells; also blocks spells cast on you by friends.'},
- magicSense:{label:'Magic Sense',pg:'AW p. 117',src:'aw',fixed:1,desc:'Sense magic within Magic × 5 m; you are astrally active while it is on.'},
+ magicSense:{label:'Magic Sense',pg:'AW p. 117',src:'aw',fixed:1,desc:'Sense magic within Magic × 5 m; you are astrally active while it is on. Book conflict: the power text says 1, the table on AW p. 156 says .5; GM picks.'},
  missileMastery:{label:'Missile Mastery',pg:'AW p. 117',src:'aw',fixed:1,desc:'Throw everyday objects as weapons; +2 Power with real throwing weapons.'},
  nerveStrike:{label:'Nerve Strike',pg:'AW p. 117',src:'aw',fixed:1,desc:'Unarmed hits drain Quickness instead of doing damage.'},
- quickDraw:{label:'Quick Draw',pg:'AW p. 117',src:'aw',fixed:3,desc:'Draw and attack in one action. Buy separately for guns and melee. GM may raise the cost.'},
+ quickDraw:{label:'Quick Draw',pg:'AW p. 117',src:'aw',fixed:3,desc:'Draw and attack in one action. Buy separately for guns and melee. GM may raise the cost. Book conflict: the power text says 3, the table on AW p. 156 says .5.'},
  quickStrike:{label:'Quick Strike',pg:'AW p. 118',src:'aw',per:.25,max:6,desc:'+1 die per level on Reaction tests for surprise.'},
  rapidHealing:{label:'Rapid Healing',pg:'AW p. 118',src:'aw',per:.5,max:6,desc:'+1 Body die per level for healing tests.'},
  rooting:{label:'Rooting',pg:'AW p. 118',src:'aw',per:.25,max:6,desc:'+1 die per level to resist being moved; can’t move while rooted.'},
- sixthSense:{label:'Sixth Sense',pg:'AW p. 118',src:'aw',fixed:3,desc:'Can’t be surprised by threats you sense. GM may raise the cost.'},
+ sixthSense:{label:'Sixth Sense',pg:'AW p. 118',src:'aw',fixed:3,desc:'Can’t be surprised by threats you sense. GM may raise the cost. Book conflict: the power text says 3, the table on AW p. 156 says .5.'},
  smashingBlow:{label:'Smashing Blow',pg:'AW p. 118',src:'aw',fixed:1,desc:'Unarmed strikes break barriers.'},
  spellShroud:{label:'Spell Shroud',pg:'AW p. 119',src:'aw',per:.25,max:6,desc:'+1 die per level against detection spells.'},
  tempTolerance:{label:'Temperature Tolerance',pg:'AW p. 119',src:'aw',per:.25,max:6,desc:'+1 die per level against extreme heat and cold.'},
@@ -854,7 +857,7 @@ function syncGear(){S.gear.forEach(g=>{if(g&&KEYFIX[g.key]) g.key=KEYFIX[g.key];
   if(WSTAT[g.key]&&g.build&&typeof GB!=='undefined'){const r=gunCalc(g); g.addons=r?r.C.cost-r.o.cost:0; if(g.addons){g.cost+=g.addons; g.name+=' + add-ons';}}});}
 function gradeable(it){return (it.cat==='head'||it.cat==='body')&&it.e!=null;}
 function bodyIndexUsed(){return S.gear.reduce((a,g)=>a+(+g.bi||0)*(+g.qty||1),0);}
-function bodyIndexMax(){return attrFinal('body')+(adeptOn()?boost('body'):0);}
+function bodyIndexMax(){return attrNow('body')+(adeptOn()?boost('body'):0);} // unaugmented Body, modified only by race and Karma; adepts may count magical boosts (ST p. 5)
 
 // ================= EXTRAS: combat, magic, matrix, rigging, softs, karma, roster, dice =================
 // Weapon range bands (p. 88). Short/Medium/Long/Extreme = TN 4/5/6/9.
@@ -936,11 +939,11 @@ const BOND={'magic:Specific Spell Focus':r=>r,'magic:Spell Type Focus':r=>3*r,'m
 // racial traits for the sheet
 const TRAITS={Human:[],Elf:['Low-light vision'],Dwarf:['Thermographic vision','+2 Body against disease'],Ork:['Low-light vision'],Troll:['Thermographic vision','+1 Reach in melee','Dermal armor: +1 Body for damage resistance']};
 // skill memory table (Mp) p. 248, rating 1–10
-const SOFT_MP={general:[10,20,30,200,250,300,700,800,900,2000],conc:[6,12,18,120,150,180,420,480,540,1200],spec:[4,8,12,80,100,120,280,320,360,800]};
+const SOFT_MP={general:[10,20,30,200,250,300,700,800,900,2000],conc:[6,12,18,120,150,180,420,480,540,1200],spec:[4,8,12,80,100,120,280,320,360,800],lang:[3,6,9,24,30,36,70,80,90,300]};
 [['ActiveSoft','general',100],['ActiveSoft','conc',100],['ActiveSoft','spec',100],['KnowSoft','general',150],['KnowSoft','conc',150],['KnowSoft','spec',150]].forEach(([t,k,per])=>{
   const lab={general:'general skill',conc:'concentration',spec:'specialization'}[k];
   CAT.soft.push({n:`${t} (${lab})`,c:r=>SOFT_MP[k][r-1]*per,r:[1,10,'Rating'],s:`Mp × ${per}¥. Name the skill in the note.`,pg:'p. 248',soft:t,mp:r=>SOFT_MP[k][r-1]});});
-CAT.soft.push({n:'LinguaSoft',c:r=>r*10*50,r:[1,10,'Rating'],s:'Mp × 50¥. Mp size is an estimate (10 per rating); check p. 248.',pg:'p. 248',soft:'LinguaSoft',mp:r=>r*10});
+CAT.soft.push({n:'LinguaSoft',c:r=>SOFT_MP.lang[r-1]*50,r:[1,10,'Rating'],s:'Mp × 50¥ (Skillsoft Costs table, p. 248; the gear table on p. 260 says ×100¥). Size from the Skill Memory Table.',pg:'p. 248',soft:'LinguaSoft',mp:r=>SOFT_MP.lang[r-1]});
 CAT.deck.push({n:'Remote Control Deck',c:RX(5000),r:[1,6,'Rating'],s:'2 × rating slave ports',pg:'p. 265'});
 CAT.soft.forEach(it=>{it.cat='soft';GEARDB['soft:'+it.n]=it;}); GEARDB['deck:Remote Control Deck']=CAT.deck[CAT.deck.length-1]; CAT.deck[CAT.deck.length-1].cat='deck';
 
@@ -993,7 +996,11 @@ function armorTotals(){
   const poolPenalty=Math.max(heavyB?Math.max(0,heavyB-q):0, milB?Math.max(0,Math.floor((milB-q)/2)):0); // military armor: −1 per 2 points over Quickness (FoF p. 54)
   const mystic=S.magic==='adept'?S.powers.filter(p=>p.type==='mysticArmor').reduce((m,p)=>m+(+p.n||0),0):0; // GR p. 34: adds to worn impact armor
   const cbA=(typeof cbOn==='function'&&cbOn())?(cbCalc()||{}).plateArmor||0:0; // cyber body plating stacks with worn armor (CT p. 37)
-  return {b:b+hb+cbA,i:i+hi+mystic+cbA,derm,poolPenalty,worn,mystic,cbA};
+  // implant armor, cumulative with worn armor: bone lacing (ST p. 42), orthoskin (ST p. 17), dermal sheath impact = half level rounded up (CT p. 28)
+  let ib=0,ii=0; if(has('body:Bone Lacing, Titanium')){ib+=1;ii+=1;} else if(has('body:Bone Lacing, Aluminum')) ii+=1;
+  const os=gearLevel('bio:Orthoskin'); if(os){ii+=[0,1,1,2][os]; ib+=[0,0,1,1][os];}
+  const dsh=gearLevel('body:Dermal Sheath'); if(dsh) ii+=Math.ceil(dsh/2);
+  return {b:b+hb+cbA+ib,i:i+hi+mystic+cbA+ii,derm,poolPenalty,worn,mystic,cbA,implant:{b:ib,i:ii}};
 }
 function hasLinedCoat(){return S.gear.some(g=>g.key==='armor:Lined Coat'&&!g.off);}
 const PROG_NOTE={"prog:Armor": "No rules text in the core book; it only appears in the price table. It looks like a leftover from SR1. Matrix 2.0 has a real Armor utility (VR2 p. 99) that cuts the Power of damage to your icon by its rating; ask your GM before using that version with core rules.", "prog:Restore": "No rules text in the core book; it only appears in the price table. It looks like a leftover from SR1. Matrix 2.0 has a real Restore utility (VR2 p. 100) that repairs damaged icon attributes, 1 point per 2 successes; ask your GM before using that version with core rules.", "prog:Sift": "No rules text in the core book; it only appears in the price table. It looks like a leftover from SR1, and VR2 dropped it. The closest core programs for digging through data are Browse and Evaluate (p. 176); ask your GM what Sift does at your table."};
@@ -2125,13 +2132,13 @@ function vbEditor(g,ix){const v=vbFixG(g); if(!v) return ''; const B=g.vb, R=VB.
   {n:'Platelet Factory',c:30000,bi:.4,s:'Better at handling damage; needs regular anticoagulant',pg:'ST p. 14'},
   {n:'Symbiotes',c:lv([0,15000,35000,60000]),bi:lv([0,.4,.7,1]),r:[1,3,'Level'],s:'Tailored microorganisms that aid the body',pg:'ST p. 15'},
   {n:'Synthacardium',c:lv([0,6000,15000]),bi:lv([0,.2,.3]),r:[1,2,'Level'],s:'+1 die per level to Athletics tests',pg:'ST p. 16'},
-  {n:'Orthoskin',c:lv([0,25000,60000,100000]),bi:lv([0,.5,1,1.5]),r:[1,3,'Level'],s:'Engineered skin; see the page for its protection',pg:'ST p. 17'},
+  {n:'Orthoskin',c:lv([0,25000,60000,100000]),bi:lv([0,.5,1,1.5]),r:[1,3,'Level'],s:'Armor under the skin, adds to worn armor: level 1 +1 Impact; 2 +1 Impact +1 Ballistic; 3 +2 Impact +1 Ballistic. Not with dermal plating',pg:'ST p. 17'},
   {n:'Tailored Pheromones',c:lv([0,20000,45000]),bi:lv([0,.4,.6]),r:[1,2,'Level'],s:'+1 per level to Charisma and social skill tests nearby',pg:'ST p. 18'},
   {n:'Adrenal Pump',c:lv([0,60000,100000]),bi:lv([0,1.25,2.5]),r:[1,2,'Level'],s:'When triggered: Quickness, Strength, Willpower and Reaction up; Body test afterwards',pg:'ST p. 19'},
-  {n:'Suprathyroid Gland',c:50000,bi:1.4,s:'Boosts physical attributes; runs hot, so easier to spot on thermographic',pg:'ST p. 20'},
+  {n:'Suprathyroid Gland',c:50000,bi:1.4,s:'+1 Body, Quickness, Strength and Reaction (not for rigging or decking); eat twice as much; −1 TN to spot on thermographic',pg:'ST p. 20'},
   {n:'Toxin Extractor',c:r=>24000*r,bi:r=>.2*r,r:[1,10,'Level'],s:'Lowers the Power of blood toxins by its level. Max level = unaugmented Body',pg:'ST p. 21'},
   {n:'Pathogenic Defense',c:r=>24000*r,bi:r=>.2*r,r:[1,10,'Level'],s:'Lowers the Power of diseases by its level. Max level = unaugmented Body',pg:'ST p. 22'},
-  {n:'Cerebral Booster',c:lv([0,50000,110000]),bi:lv([0,.4,.8]),r:[1,2,'Level'],neural:1,s:'+1 or +2 Intelligence; level 2 adds a Task Pool',pg:'ST p. 23'},
+  {n:'Cerebral Booster',c:lv([0,50000,110000]),bi:lv([0,.4,.8]),r:[1,2,'Level'],neural:1,s:'+1 or +2 Intelligence (raises Reaction too); level 2 adds a Task Pool of 1',pg:'ST p. 23'},
   {n:'Damage Compensator',c:r=>r*(r<=2?25000:r<=5?50000:100000),bi:r=>.2*r,r:[1,9,'Level'],neural:1,s:'No wound penalties while damage stays at or below its level',pg:'ST p. 24'},
   {n:'Mnemonic Enhancer',c:r=>15000*r,bi:r=>.2*r,r:[1,10,'Level'],neural:1,s:'Helps learning and recall. Max level = unaugmented Body',pg:'ST p. 25'},
   {n:'Pain Editor',c:60000,bi:.6,neural:1,s:'Ignore penalties from mental damage',pg:'ST p. 26'},
@@ -2144,7 +2151,7 @@ function vbEditor(g,ix){const v=vbFixG(g); if(!v) return ''; const B=g.vb, R=VB.
   {n:'Toxin Exhaler',c:30000,bi:.6,s:'Breathe out a toxin; price is before the toxin',pg:'ST p. 32'},
   {n:'Tracheal Filter',c:r=>30000*r,bi:r=>.2*r,r:[1,10,'Level'],s:'Lowers the Power of inhaled toxins by its level',pg:'ST p. 33'},
   {n:'Enhanced Articulation',c:40000,bi:.6,s:'+1 die to physical skills and +1 Reaction (not for rigging or decking)',pg:'ST p. 34'},
-  {n:'Muscle Augmentation',c:r=>45000*r,bi:r=>.8*r,r:[1,4,'Level'],s:'Raises Strength and Quickness. Max level 4',pg:'ST p. 35'}]);
+  {n:'Muscle Augmentation',c:r=>45000*r,bi:r=>.8*r,r:[1,4,'Level'],s:'+1 Strength and +1 Quickness per level; this Quickness does raise Reaction. Max level 4',pg:'ST p. 35'}]);
  // Cyberware described in Shadowtech
  add('head',[
   {n:'Datajack (Shadowtech levels)',c:lv([0,500,1000,2000,4000]),e:lv([0,.1,.15,.2,.25]),r:[1,4,'Level'],s:'Higher levels move data faster',pg:'ST p. 45'},
@@ -2433,7 +2440,17 @@ function jumpLinks(){const box=$('jumpLinks'); if(!box) return; const ses=docume
 function sessionSet(on,save){document.body.classList.toggle('session',on); const b=$('sesBtn'); if(b){b.setAttribute('aria-pressed',on?'true':'false'); b.textContent=on?'Full builder':'Game night view';}
   if(save){try{localStorage.setItem('sr2-builder-session',on?'1':'');}catch(e){}} jumpLinks();}
 function gearLevel(k){return S.gear.filter(g=>g.key===k).reduce((m,g)=>Math.max(m,+g.r||0),0);}
-function augAttr(k){const base=attrEff(k)+(k==='str'||k==='quick'?gearLevel('body:Muscle Replacement'):0)+(k==='body'?gearLevel('body:Dermal Plating'):0);
+// Implants that raise attributes (Shadowtech / Cybertechnology), checked against the books:
+// bone lacing +1/+1/+2 Body (ST p. 42); dermal sheath Body + level + 1 (CT p. 28); muscle augmentation +level Strength and Quickness (ST p. 35);
+// cerebral booster +level Intelligence (ST p. 23); suprathyroid gland +1 Body, Quickness, Strength and Reaction (ST p. 19).
+function has(k){return S.gear.some(g=>g.key===k);}
+function bioAug(k){let n=0;
+  if(k==='body'){n+=Math.max(has('body:Bone Lacing, Titanium')?2:0,has('body:Bone Lacing, Aluminum')||has('body:Bone Lacing, Plastic')?1:0); const ds=gearLevel('body:Dermal Sheath'); if(ds) n+=ds+1;}
+  if(k==='str'||k==='quick') n+=gearLevel('bio:Muscle Augmentation');
+  if(k==='int') n+=gearLevel('bio:Cerebral Booster');
+  if(['body','str','quick'].includes(k)&&has('bio:Suprathyroid Gland')) n+=1;
+  return n;}
+function augAttr(k){const base=attrEff(k)+bioAug(k)+(k==='str'||k==='quick'?gearLevel('body:Muscle Replacement'):0)+(k==='body'?gearLevel('body:Dermal Plating'):0);
   if(typeof cbOn==='function'&&cbOn()){const R=cbCalc(); if(R&&R.anyCyber){ if(k==='body') return base+R.bodyBonus; const anyFull=CB.SIDES.some(([sd])=>S.cbody.limbs[sd].full); if(anyFull&&k==='str') return R.avgStr+boost('str'); if(anyFull&&k==='quick') return R.avgQui+boost('quick'); }}
   return base;}
 const CONTACT_COST={'Contact':5000,'Buddy':10000,'Gang/Tribe':50000,'Followers':200000};
@@ -2521,8 +2538,8 @@ function render(){
   if(S.optEF){const grp=(arr,lab)=>`<optgroup label="${lab}">${arr.map(e=>`<option value="${esc(e[0])}" title="${esc((EF_DESC[e[0]]||[''])[0])}">${esc(e[0])} (${e[2]===e[3]?(e[2]>0?'+':'')+e[2]:(e[2]>0?'+'+e[2]+' to +'+e[3]:e[3]+' to '+e[2])})</option>`).join('')}</optgroup>`;
     const cur=$('efPick').value; $('efPick').innerHTML=grp(EDGES,'Edges')+grp(FLAWS,'Flaws'); if(cur) $('efPick').value=cur;
     $('efBody').innerHTML=(S.ef||[]).map((x,i)=>{const d=EFDB[x.n]||{g:'',min:x.v,max:x.v,note:'',edge:x.v>0};const fixed=d.min===d.max;
-      return `<tr><td><b>${esc(x.n)}</b> <span class="pg">${esc(d.dpg||'')}</span><div class="mut sm">${esc(d.g)}</div>${d.desc?`<div class="gstat" style="max-width:36rem">${esc(d.desc)}</div>`:''}</td><td>${d.edge?'Edge':'Flaw'}</td><td class="n">${fixed?(x.v>0?'+':'')+x.v:d.steps?`<select id="ef_v_${i}" data-ef="${i}" aria-label="${esc(x.n)} value">${d.steps.map(v=>`<option value="${v}" ${+x.v===v?'selected':''}>${v>0?'+':''}${v}</option>`).join('')}</select>`:`<input type="number" id="ef_v_${i}" data-ef="${i}" min="${Math.min(d.min,d.max)}" max="${Math.max(d.min,d.max)}" value="${x.v}" aria-label="${esc(x.n)} value">`}</td><td><input id="ef_t_${i}" data-ef="${i}" data-f="note" value="${esc(x.note||'')}" placeholder="${esc(d.note||'Details (which attribute, skill, allergen…)')}"></td><td><button class="del" data-efdel="${i}" aria-label="Remove ${esc(x.n)}">×</button></td></tr>`;}).join('')||'<tr><td colspan="5" class="note">None picked.</td></tr>';
-    const ed=(S.ef||[]).filter(x=>x.v>0).reduce((a,x)=>a+x.v,0), fl=(S.ef||[]).filter(x=>x.v<0).reduce((a,x)=>a+x.v,0), net=ed+fl;
+      return `<tr><td><b>${esc(x.n)}</b> <span class="pg">${esc(d.dpg||'')}</span><div class="mut sm">${esc(d.g)}</div>${d.desc?`<div class="gstat" style="max-width:36rem">${esc(d.desc)}</div>`:''}</td><td>${d.edge?'Edge':'Flaw'}</td><td class="n">${fixed?(efVal(x)>0?'+':'')+efVal(x)+(efVal(x)!==+x.v?' <span class="note">(magically active)</span>':''):d.steps?`<select id="ef_v_${i}" data-ef="${i}" aria-label="${esc(x.n)} value">${d.steps.map(v=>`<option value="${v}" ${+x.v===v?'selected':''}>${v>0?'+':''}${v}</option>`).join('')}</select>`:`<input type="number" id="ef_v_${i}" data-ef="${i}" min="${Math.min(d.min,d.max)}" max="${Math.max(d.min,d.max)}" value="${x.v}" aria-label="${esc(x.n)} value">`}</td><td><input id="ef_t_${i}" data-ef="${i}" data-f="note" value="${esc(x.note||'')}" placeholder="${esc(d.note||'Details (which attribute, skill, allergen…)')}"></td><td><button class="del" data-efdel="${i}" aria-label="Remove ${esc(x.n)}">×</button></td></tr>`;}).join('')||'<tr><td colspan="5" class="note">None picked.</td></tr>';
+    const ed=(S.ef||[]).filter(x=>efVal(x)>0).reduce((a,x)=>a+efVal(x),0), fl=(S.ef||[]).filter(x=>efVal(x)<0).reduce((a,x)=>a+efVal(x),0), net=ed+fl;
     $('efBudget').innerHTML=`<span>Edges <b>+${ed}</b> · Flaws <b>${fl}</b> · <span class="${net?'bad-text':''}">Net <b>${net>0?'+':''}${net}</b> ${net?'(must be 0)':'✓'}</span></span>`;
     efPreview();}
   // attributes
@@ -2632,13 +2649,13 @@ function track(id,val,key){
 function summary(magicRating,rSpent,rBudget){
   $('sumName').textContent=S.handle||S.name||'New runner';
   $('sumRace').textContent=[S.race,MAGIC_TYPES.find(m=>m[0]===S.magic)[1],S.concept].filter(Boolean).join(' · ');
-  const q=attrEff('quick'),i=attrNow('int'),w=attrNow('wil');
+  const q=attrEff('quick')+bioAug('quick'),i=attrNow('int')+bioAug('int'),w=attrNow('wil');
   const ad=adeptOn(); const incR=ad?S.powers.filter(p=>p.type==='incReaction').reduce((a,p)=>a+(+p.n||0),0):0;
   const dice=1+gearLevel('bio:Synaptic Accelerator')+[0,1,1,2][gearLevel('body:Boosted Reflexes')]+(S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0))+(ad?S.powers.filter(p=>p.type==='incReflexes').reduce((a,p)=>a+(+p.level||1),0):0);
   const cs=ad?S.powers.filter(p=>p.type==='combatSense').reduce((a,p)=>a+(+p.level||1),0):0;
   const wired=S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0);
   const boosted=gearLevel('body:Boosted Reflexes');
-  const reaction=Math.floor((q+i)/2)+incR+2*wired+[0,0,1,2][boosted]+gearLevel('body:Reaction Enhancer')+(S.gear.some(g=>g.key==='bio:Enhanced Articulation')?1:0);
+  const reaction=Math.floor((q+i)/2)+(has('bio:Suprathyroid Gland')?1:0)+incR+2*wired+[0,0,1,2][boosted]+gearLevel('body:Reaction Enhancer')+(S.gear.some(g=>g.key==='bio:Enhanced Articulation')?1:0);
   const ess=6-essenceUsed();
   const comp=bestRating(/^computer$/i);
   const baseReact=Math.floor((attrNow('quick')+attrNow('int'))/2); const ri=[1,2,3].reduce((m,L)=>S.gear.some(g=>g.key==='deck:Response Increase '+L)?L:m,0);
@@ -2714,8 +2731,11 @@ function summary(magicRating,rSpent,rBudget){
   if(S.magic==='adept'){const ma=S.powers.filter(p=>p.type==='mysticArmor').reduce((m,p)=>m+(+p.n||0),0); const mg=Math.max(0,Math.floor(6-essenceUsed())); if(ma>mg) iss.push(['bad',`Mystic Armor ${ma} is above your Magic ${mg} (GR p. 34).`]);}
   {const bi=bodyIndexUsed(),mx=bodyIndexMax(); if(bi>mx) iss.push(['bad',`Body Index ${+bi.toFixed(3)} is over the limit of ${mx} (unaugmented Body). In system shock: +${Math.ceil(bi-mx-1e-9)} to Body tests (ST p. 7).`]);
    if(bi&&S.magic!=='none') iss.push(['warn',`Awakened characters pay bioware’s Body Cost in Essence too: ${+bi.toFixed(3)} Essence included (ST p. 5).`]);
+   if(gearLevel('bio:Orthoskin')&&(gearLevel('body:Dermal Plating')||hasDerm())) iss.push(['bad','Orthoskin isn’t compatible with dermal armor (ST p. 17).']);
+   if(['body:Bone Lacing, Plastic','body:Bone Lacing, Aluminum','body:Bone Lacing, Titanium'].filter(has).length>1) iss.push(['bad','Only one kind of bone lacing: they replace each other (ST p. 42).']);
    if(gearLevel('bio:Muscle Augmentation')&&gearLevel('body:Muscle Replacement')) iss.push(['bad','Muscle augmentation and muscle replacement don’t stack; pick one (ST p. 35).']);
-   if(gearLevel('bio:Synaptic Accelerator')&&(gearLevel('body:Wired Reflexes')||gearLevel('body:Boosted Reflexes')||(adeptOn()&&S.powers.some(p=>p.type==='incReflexes')))) iss.push(['bad','Synaptic accelerator doesn’t stack with other Initiative boosters (ST p. 28).']);
+   if(gearLevel('bio:Synaptic Accelerator')&&(gearLevel('body:Wired Reflexes')||gearLevel('body:Boosted Reflexes'))) iss.push(['bad','A synaptic accelerator can’t be combined with boosted or wired reflexes (ST p. 28).']);
+   if(gearLevel('bio:Synaptic Accelerator')&&adeptOn()&&S.powers.some(p=>p.type==='incReflexes')) iss.push(['warn','Synaptic accelerator plus Increased Reflexes: Shadowtech only bars boosted and wired reflexes (p. 28). Most GMs treat it like wired reflexes and don’t stack them.']);
    if(S.gear.some(g=>g.grade==='delta')) iss.push(['warn','Deltaware needs a delta clinic; the GM decides if you can get it at all (CT p. 44).']);}
   {const off=S.gear.filter(g=>{const it=g.key&&GEARDB[g.key];return it&&!bookOn(it.src);}); if(off.length) iss.push(['warn',`${off.length} item${off.length>1?'s are':' is'} from a book that’s switched off: ${off.slice(0,4).map(g=>GEARDB[g.key].n).join(', ')}${off.length>4?'…':''}.`]);}
   if(booksOn().vr2){const old=S.gear.filter(g=>{const it=g.key&&GEARDB[g.key];return it&&it.m1;}); if(old.length) iss.push(['warn',`Virtual Realities 2.0 replaces Matrix 1.0 decks and programs. Rebuild these with the VR2 deck and programs: ${old.slice(0,4).map(g=>GEARDB[g.key].n).join(', ')}${old.length>4?'…':''}.`]);}
@@ -2865,13 +2885,13 @@ function builderFile(){
 }
 function sheetStats(){
   const magicRating=S.magic==='none'?0:Math.max(0,Math.floor(6-essenceUsed()));
-  const q=attrEff('quick'),i=attrNow('int'),w=attrNow('wil');
+  const q=attrEff('quick')+bioAug('quick'),i=attrNow('int')+bioAug('int'),w=attrNow('wil');
   const ad=adeptOn(); const incR=ad?S.powers.filter(p=>p.type==='incReaction').reduce((a,p)=>a+(+p.n||0),0):0;
   const dice=1+gearLevel('bio:Synaptic Accelerator')+[0,1,1,2][gearLevel('body:Boosted Reflexes')]+(S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0))+(ad?S.powers.filter(p=>p.type==='incReflexes').reduce((a,p)=>a+(+p.level||1),0):0);
   const cs=ad?S.powers.filter(p=>p.type==='combatSense').reduce((a,p)=>a+(+p.level||1),0):0;
   const wired=S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0);
   const boosted=gearLevel('body:Boosted Reflexes');
-  const reaction=Math.floor((q+i)/2)+incR+2*wired+[0,0,1,2][boosted]+gearLevel('body:Reaction Enhancer')+(S.gear.some(g=>g.key==='bio:Enhanced Articulation')?1:0);
+  const reaction=Math.floor((q+i)/2)+(has('bio:Suprathyroid Gland')?1:0)+incR+2*wired+[0,0,1,2][boosted]+gearLevel('body:Reaction Enhancer')+(S.gear.some(g=>g.key==='bio:Enhanced Articulation')?1:0);
   const ess=6-essenceUsed();
   const comp=bestRating(/^computer$/i);
   const baseReact=Math.floor((attrNow('quick')+attrNow('int'))/2); const ri=[1,2,3].reduce((m,L)=>S.gear.some(g=>g.key==='deck:Response Increase '+L)?L:m,0);
