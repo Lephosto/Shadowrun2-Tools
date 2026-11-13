@@ -27,7 +27,7 @@ for f in ['sr2-builder.html','gear/template.html','gear/sr2-gear-locker.html','S
         for m in re.finditer(r'/\*@shared:'+name+r'\*/\n(.*?)\n/\*@end:'+name+r'\*/',s,re.S):
             if m.group(1)!=body: bad.append((f,name))
 if bad: print('MISMATCH',bad); sys.exit(1)
-site=os.environ.get('SR2_SITE','/home/claude/shadowrun2-tools')
+site='/home/claude/shadowrun2-tools'
 if os.path.isdir(site):
     shutil.copy('SR2_Runner_Builder.html',site+'/builder.html'); shutil.copy('SR2_Gear_Locker.html',site+'/gear-locker.html')
 print(f'built: shared blocks builder {nb}, locker {nl}; {len(SH)} shared modules; all blocks match')

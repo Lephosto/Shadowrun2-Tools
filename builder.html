@@ -99,6 +99,7 @@ body.session .mbar{display:none!important}
 body.session .sesnote{display:block}
 .sesnote{display:none;font-size:0.8125rem;color:var(--muted);margin:-0.25rem 0 0.75rem}
 @media (max-width:56.25em){body.session .rail{order:-1}body.session .layout{display:flex;flex-direction:column}}
+.swbox{margin-top:1rem;border-top:1px solid var(--line);padding-top:0.75rem}.swopts{margin:0.25rem 0 0.5rem 1.25rem;padding:0;font-size:0.875rem}.swopts li{margin:0.375rem 0}.swall summary{cursor:pointer;font-size:0.8125rem;color:var(--accent);margin:0.25rem 0}#swTbl td,#swTbl th{font-size:0.8125rem}
 ul.issues li.info{border-left-color:var(--accent);background:var(--accent-soft)}
 .estab{display:flex;flex-direction:row;gap:0.5rem;align-items:flex-start;text-transform:none;letter-spacing:0;font-size:0.8125rem;line-height:1.4;margin:0.25rem 0 0.75rem;padding:0.5rem 0.625rem;border:1px solid var(--line);border-radius:0.375rem;background:var(--soft);color:var(--ink);cursor:pointer}.estab input{margin-top:0.2rem;flex:none;width:1rem;height:1rem}
 .track{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:0.25rem}
@@ -141,6 +142,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
   #attrBody td:nth-child(4)::before{content:"Rating";display:block;color:var(--muted);font-size:0.6875rem}
   #attrBody td:nth-child(5)::before{content:"Max";display:block;color:var(--muted);font-size:0.6875rem}
   #attrBody input{max-width:4rem}
+  #swTbl tr{grid-template-columns:repeat(3,minmax(0,1fr))}#swTbl td:nth-child(2)::before{content:"Use ";color:var(--muted);font-size:0.6875rem}#swTbl td:nth-child(3)::before{content:"Dice ";color:var(--muted);font-size:0.6875rem}#swTbl td:nth-child(4)::before{content:"TN ";color:var(--muted);font-size:0.6875rem}
   #skillBody td:nth-child(2)::before{content:"Bought ";color:var(--muted);font-size:0.6875rem}
   #gearBody td:nth-child(2)::before{content:"Rating ";color:var(--muted);font-size:0.6875rem}
   #gearBody td:nth-child(3)::before{content:"Qty ";color:var(--muted);font-size:0.6875rem}
@@ -261,6 +263,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         <div class="tbl"><table id="langTbl"><thead><tr><th>Language</th><th class="n">Rating</th><th></th></tr></thead><tbody id="langBody"></tbody></table></div>
         <div class="row"><button id="addLang">Add language</button></div>
         <div class="budget" id="skillBudget"></div>
+        <div id="swBox" class="swbox"></div>
       </section>
 
       <section class="card ses" id="magicCard" data-jump="Magic">
@@ -411,9 +414,83 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1794543285474","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwegqkzu","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794543285456}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1794548898431","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwek2vz3","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794548898410}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--paper',panel2:'--soft',ink:'--ink',muted:'--muted',line:'--line',accent:'--accent',accentInk:'--accent-ink',accentSoft:'--accent-soft',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
+/*@shared:skillweb*/
+// ---------- The Skill Web (core p. 68–69) ----------
+// Read from the printed chart. Every "d:" node is one circle (+2 TN when passed). "j:" nodes are plain line joins (no circle).
+// Lines are two-way except arrows ('>' = one-way, in the arrow's direction). Attributes and skills are end points.
+const SKILLWEB=(()=>{
+const DOT=new Map(); // dot id -> plain-English place, for showing paths
+const E=[]; // [a,b,oneway]
+const L=(a,b)=>E.push([a,b,false]), A=(a,b)=>E.push([a,b,true]);
+const d=(id,where)=>{DOT.set('d:'+id,where); return 'd:'+id;};
+// QUICKNESS and the combat block
+const dA=d('ath','circle on the Athletics line'), dS1=d('st1','first circle on the Stealth line'), dS2=d('st2','second circle on the Stealth line');
+L('QUICKNESS','j:q1'); L('j:q1','j:as'); L('j:as',dA); L(dA,'Athletics'); L('j:as',dS1); L(dS1,dS2); L(dS2,'Stealth');
+const dF0=d('f0','circle where Quickness branches to the ranged-weapon skills'), dF1=d('f1','circle on the Firearms line (Gunnery branches here)'), dP1=d('p1','circle on the Projectile line (Throwing branches here)');
+L('j:q1','j:q2'); L('j:q2',dF0); L(dF0,dF1); L(dF1,'Firearms'); L(dF1,'Gunnery'); L(dF0,dP1); L(dP1,'Projectile Weapons'); L(dP1,'Throwing Weapons');
+const dAC=d('ac','circle on the Armed Combat line'), dUC=d('uc','circle on the Unarmed Combat line');
+L(dAC,'j:au'); L('j:au',dUC); L(dAC,'Armed Combat'); L(dUC,'Unarmed Combat');
+L('j:q2','j:q3'); A('j:q3','j:au'); // Quickness arrow into the Armed/Unarmed line
+const dStr=d('str','circle on the Strength line'); L('STRENGTH',dStr); A(dStr,'j:au');
+const dB1=d('b1','first circle on the Body line'), dB2=d('b2','second circle on the Body line'); L('BODY',dB1); L(dB1,dB2); A(dB2,'j:au');
+[['Firearms'],['Gunnery'],['Projectile Weapons'],['Throwing Weapons'],['Armed Combat']].forEach(([s])=>{const x=d('br-'+s,`circle between ${s} and its B/R`); L(s,x); L(x,s+' (B/R)');});
+// INTELLIGENCE
+const dIt=d('it','circle where the Intelligence line turns down'); L('INTELLIGENCE',dIt); L(dIt,'j:i1');
+const dD1=d('dm1','first circle on the Demolitions line'), dD2=d('dm2','second circle on the Demolitions line'); L('j:i1',dD1); L(dD1,dD2); A(dD2,'Demolitions');
+L('j:i1','j:i2'); A('j:i2','j:br'); // arrow into the science bracket
+const dX1=d('x1','upper bracket circle (between Physical Sciences and Computer Theory)'), dX2=d('x2','lower bracket circle (between Cybertechnology and Biology)');
+L('j:br',dX1); L('j:br',dX2);
+const dPSr=d('psr','circle at the right end of Physical Sciences'), dCTr=d('ctr','circle at the right end of Computer Theory'), dCYr=d('cyr','circle at the right end of Cybertechnology'), dBIr=d('bir','circle at the right end of Biology');
+L(dPSr,dX1); L(dX1,dCTr); L(dCTr,dCYr); L(dCYr,dX2); L(dX2,dBIr);
+L(dPSr,'Physical Sciences'); L(dCTr,'Computer Theory'); L(dCYr,'Cybertechnology'); L(dBIr,'Biology');
+const dPSb=d('psb','circle at the left end of Physical Sciences'), dPSa=d('psa','circle above it, where the long line to the Computer group starts');
+L('Physical Sciences',dPSb); L(dPSb,dPSa); L(dPSa,'j:top'); L('j:top','j:vl');
+const dCP=d('cp','circle on the Computer line (Electronics branches here)'), dBTl=d('btl','circle at the left end of the Biotech line'), dBT2=d('bt2','second circle on the Biotech line');
+L('j:vl',dCP); L(dCP,'Computer'); L(dCP,'Electronics'); L('j:vl',dBTl); L(dBTl,dBT2); L(dBT2,'Biotech');
+const dCTl=d('ctl','circle at the left end of Computer Theory'); L('Computer','j:cp'); L('j:cp',dCTl); L(dCTl,'Computer Theory');
+const dCPbr=d('br-Computer','circle between Computer and its B/R'); L('j:cp',dCPbr); L(dCPbr,'Computer (B/R)');
+const dELbr=d('br-Electronics','circle between Electronics and its B/R'); L('Electronics',dELbr); L(dELbr,'Electronics (B/R)');
+const dBTbr=d('br-Biotech','circle between Biotech and its B/R'), dCB=d('cb','circle left of Cybertechnology/Biology'), dBIl=d('bil','circle at the left end of Biology');
+L('Biotech','j:bt'); L('j:bt',dBTbr); L(dBTbr,'Biotech (B/R)'); L('j:bt',dCB); L(dCB,'j:cb'); L('j:cb','Cybertechnology'); L('j:cb',dBIl); L(dBIl,'Biology');
+// Intelligence and Willpower into the magic/behavior line
+const dI2=d('i2','circle at the bottom of the Intelligence line'), dIx=d('ix','circle before the Intelligence arrow'); L('j:i2',dI2); L(dI2,dIx); A(dIx,'j:m');
+const dW1=d('w1','circle on the Willpower line'); L('WILLPOWER',dW1); A(dW1,'j:m');
+const dPr=d('pr','circle at the top of that line, right of Psychology'), dMb=d('mb','circle at the bottom of that line, right of Magical Theory');
+L(dPr,'j:m'); L('j:m',dMb);
+const dMT2=d('mt2','circle on the right of Magical Theory'), dMT1=d('mt1','circle at the left end of Magical Theory'), dCJ=d('cj','circle on the Conjuring line'), dSO=d('so','circle at the Sorcery corner');
+L(dMb,dMT2); L(dMT2,'Magical Theory'); L('Magical Theory',dMT1); L(dMT1,'j:mag'); L('j:mag',dCJ); L(dCJ,'Conjuring'); L('j:mag',dSO); L(dSO,'Sorcery');
+const dMil=d('mil','circle on the right end of Military Theory'), dMilL=d('mill','circle next to Military Theory'), dPsy=d('psy','circle at the right end of Psychology'), dSoc=d('soc','circle at the right end of Sociology');
+L(dPr,dPsy); L(dMil,dPsy); L(dPsy,dSoc); L(dMil,dMilL); L(dMilL,'Military Theory'); L(dPsy,'Psychology'); L(dSoc,'Sociology');
+const dPl=d('pl','circle left of Psychology (its arrow points up to the Charisma line)'), dSl=d('sl','circle at the left end of Sociology');
+L('Psychology','j:pl'); L('j:pl',dPl); L(dPl,'j:sl'); L('j:sl',dSl); L(dSl,'Sociology'); A(dPl,'j:hc');
+// CHARISMA
+const dC0=d('c0','circle at the top of the Charisma line'), dL=d('ld','circle on the Leadership line'), dIN=d('in','circle where Interrogation and Negotiation split');
+A('CHARISMA','j:hc'); L('j:hc',dC0); L(dC0,dL); L(dL,'Leadership'); L(dL,'j:cb2'); L('j:cb2',dIN); L(dIN,'Interrogation'); L(dIN,'Negotiation'); L('j:cb2','Etiquette');
+// REACTION and vehicles
+const dGB=d('gb','circle where the ground-vehicle group joins'), dGV=d('gv','circle on Ground Vehicles (B/R)'), dBK=d('bk','circle on the Bike line (Hovercraft and Car branch here)');
+L('REACTION','j:r1'); L('j:r1',dGB); L(dGB,dGV); L(dGV,'Ground Vehicles (B/R)'); L(dGB,dBK); L(dBK,'Bike'); L(dBK,'Hovercraft'); L(dBK,'Car');
+const dBS=d('bs','circle where the boat group joins'), dBO=d('bo','circle on Boats (B/R)'), dSB=d('sb','circle on the Sailboat line (Motorboat branches here)');
+L('j:r1','j:r2'); L('j:r2',dBS); L(dBS,dBO); L(dBO,'Boats (B/R)'); L(dBS,dSB); L(dSB,'Sailboat'); L(dSB,'Motorboat');
+const dRT=d('rt','circle low on the Reaction line'), dAR=d('ar','circle where the aircraft group joins'), dAV=d('av','circle on Aircraft (B/R)'), dRO=d('ro','circle on the Rotor line (Winged and Vector Thrust branch here)');
+L('j:r2',dRT); L(dRT,'j:r3'); L('j:r3',dAR); L(dAR,dAV); L(dAV,'Aircraft (B/R)'); L(dAR,dRO); L(dRO,'Rotor'); L(dRO,'Winged'); L(dRO,'Vector Thrust');
+
+const ATTRS=['QUICKNESS','STRENGTH','BODY','INTELLIGENCE','CHARISMA','WILLPOWER','REACTION'];
+const isEnd=n=>!/^[dj]:/.test(n);
+const adj=new Map(); const add=(a,b)=>{if(!adj.has(a)) adj.set(a,[]); adj.get(a).push(b);};
+E.forEach(([a,b,one])=>{add(a,b); if(!one) add(b,a);});
+const SKILLS=[...new Set(E.flat().filter(n=>typeof n==='string'&&isEnd(n)&&!ATTRS.includes(n)))];
+// fewest circles from one end point to another; paths may run through plain joins and circles, through skill lines too, never through an attribute
+function route(from,to){ const best=new Map([[from,0]]), prev=new Map(); const q=[[0,from]];
+  while(q.length){ q.sort((x,y)=>x[0]-y[0]); const [c,n]=q.shift(); if(n===to) break; if(c>best.get(n)) continue; if(n!==from&&ATTRS.includes(n)) continue;
+    for(const m of adj.get(n)||[]){ const nc=c+(DOT.has(m)?1:0); if(!best.has(m)||nc<best.get(m)){best.set(m,nc); prev.set(m,n); q.push([nc,m]);}}}
+  if(!best.has(to)) return null; const path=[to]; while(path[0]!==from) path.unshift(prev.get(path[0]));
+  return {circles:best.get(to),tn:2*best.get(to),path,dots:path.filter(p=>DOT.has(p)).map(p=>DOT.get(p))};}
+return {SKILLS,ATTRS,DOT,EDGES:E,route};
+})();
+/*@end:skillweb*/
 /*@shared:skins*/
 // ---------- Color modes, shared by both tools ----------
 // Each page defines SKINENV = {map:{paletteKey:'--its-token'}, sel:'id of the <select>'}. The choice is saved under 'sr2-skin',
@@ -2439,6 +2516,43 @@ function jumpLinks(){const box=$('jumpLinks'); if(!box) return; const ses=docume
   box.innerHTML=[...document.querySelectorAll('section.card[data-jump]')].filter(x=>!x.hidden&&x.offsetParent!==null).sort((a,b)=>{const r=a.closest('.rail'),q=b.closest('.rail'); if(window.innerWidth>900&&!!r!==!!q) return r?1:-1; return a.getBoundingClientRect().top-b.getBoundingClientRect().top;}).map(x=>`<a href="#${x.id}">${esc(x.dataset.jump)}</a>`).join(''); if(box.dataset.ses!==String(ses)){box.scrollLeft=0; box.dataset.ses=String(ses);}}
 function sessionSet(on,save){document.body.classList.toggle('session',on); const b=$('sesBtn'); if(b){b.setAttribute('aria-pressed',on?'true':'false'); b.textContent=on?'Full builder':'Game night view';}
   if(save){try{localStorage.setItem('sr2-builder-session',on?'1':'');}catch(e){}} jumpLinks();}
+// Reaction with every bonus the builder knows (core p. 44; implants ST/CT/SSC; adept Increased Reaction)
+function reactionVal(){const q=attrEff('quick')+bioAug('quick'),i=attrNow('int')+bioAug('int'); const ad=adeptOn();
+  const incR=ad?S.powers.filter(p=>p.type==='incReaction').reduce((a,p)=>a+(+p.n||0),0):0;
+  const wired=S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0), boosted=gearLevel('body:Boosted Reflexes');
+  return Math.floor((q+i)/2)+(has('bio:Suprathyroid Gland')?1:0)+incR+2*wired+[0,0,1,2][boosted]+gearLevel('body:Reaction Enhancer')+(S.gear.some(g=>g.key==='bio:Enhanced Articulation')?1:0);}
+// ---------- Defaulting on the Skill Web (core p. 66, 68–70; adepts p. 125) ----------
+// Related skill: roll its general rating (never a concentration or specialization), +2 TN per circle passed.
+// Attribute: roll the attribute, +2 TN per circle. Arrows block. Improved Ability dice drop by 1 per circle.
+const SW_TO_B={'Rotor':'Rotor Craft','Winged':'Winged Plane','Vector Thrust':'Vectored Thrust'};
+const SW_BR={'Bike (B/R)':'Ground Vehicles (B/R)','Car (B/R)':'Ground Vehicles (B/R)','Hovercraft (B/R)':'Ground Vehicles (B/R)','Motorboat (B/R)':'Boats (B/R)','Sailboat (B/R)':'Boats (B/R)','Rotor Craft (B/R)':'Aircraft (B/R)','Vectored Thrust (B/R)':'Aircraft (B/R)','Winged Plane (B/R)':'Aircraft (B/R)'};
+const swLabel=n=>SW_TO_B[n]||n;
+function swWebName(b){if(SW_BR[b]) return SW_BR[b]; const e=Object.entries(SW_TO_B).find(([,v])=>v===b); return e?e[0]:b;}
+function swHave(){const m={}; const put=(web,r,ia)=>{if(!SKILLWEB.SKILLS.includes(web)||!(r>0)) return; if(!m[web]||r>m[web].r) m[web]={r,ia:ia||0};};
+  S.skills.forEach(s=>{if(!s.name) return; const g=skillParts(s).find(p=>p.part==='gen'); const ia=adeptOn()?S.powers.filter(p=>p.type==='improvedAbility'&&p.skill===s.name).reduce((a,p)=>a+(+p.n||0),0):0; if(g) put(swWebName(s.name),g.r,ia);});
+  Object.entries(advSkills()).forEach(([n,r])=>put(swWebName(n),r,0)); return m;}
+function swAttrs(){return [['QUICKNESS','Quickness',augAttr('quick')],['STRENGTH','Strength',augAttr('str')],['BODY','Body',augAttr('body')],['INTELLIGENCE','Intelligence',augAttr('int')],['CHARISMA','Charisma',augAttr('cha')],['WILLPOWER','Willpower',augAttr('wil')],['REACTION','Reaction',reactionVal()]];}
+function swP(t){return t<=1?1:t<=6?(7-t)/6:swP(t-6)/6;} // chance one die succeeds; Rule of Six above 6
+function swOptions(target,base){const have=swHave(), out=[];
+  Object.entries(have).forEach(([n,v])=>{if(n===target) return; const r=SKILLWEB.route(n,target); if(!r) return; const ia=Math.max(0,v.ia-r.circles); out.push({kind:'skill',from:swLabel(n),dice:v.r+ia,ia,tn:r.tn,circles:r.circles,dots:r.dots});});
+  swAttrs().forEach(([k,l,v])=>{const r=SKILLWEB.route(k,target); if(r&&v>0) out.push({kind:'attr',from:l,dice:v,ia:0,tn:r.tn,circles:r.circles,dots:r.dots});});
+  out.forEach(o=>o.ev=o.dice*swP(base+o.tn)); out.sort((a,b)=>b.ev-a.ev||b.dice-a.dice); return out;}
+let SWSEL=null, SWBASE=4;
+function swOptText(o){return `${esc(o.from)} ${o.kind==='attr'?'(attribute)':''}: <b>${o.dice} ${o.dice===1?'die':'dice'}</b>${o.ia?` (incl. ${o.ia} Improved Ability)`:''}, target number <b>+${o.tn}</b> <span class="note">(${o.circles} circle${o.circles===1?'':'s'})</span>`;}
+function renderDefaulting(){const box=$('swBox'); if(!box) return; const have=swHave();
+  const all=SKILLWEB.SKILLS.slice(); if(!SWSEL||!all.includes(SWSEL)) SWSEL=all.find(n=>!have[n])||all[0];
+  const magicBlock=n=>(n==='Sorcery'||n==='Conjuring')&&S.magic==='none';
+  const opt=all.map(n=>`<option value="${esc(n)}" ${n===SWSEL?'selected':''}>${esc(swLabel(n))}${have[n]?` (you have ${have[n].r})`:''}</option>`).join('');
+  let detail='';
+  if(magicBlock(SWSEL)) detail='<p class="note">Only magically active characters can use Sorcery or Conjuring at all (p. 45).</p>';
+  else if(have[SWSEL]) detail=`<p>You have ${esc(swLabel(SWSEL))} at <b>${have[SWSEL].r}</b>, so no defaulting needed.</p>`;
+  else{const o=swOptions(SWSEL,SWBASE); detail=o.length?`<ol class="swopts">${o.slice(0,4).map((x,i)=>`<li>${swOptText(x)}<div class="note">Path: ${esc(x.dots.join(' → '))}</div></li>`).join('')}</ol>${o.length>4?`<p class="note">${o.length-4} weaker option${o.length-4>1?'s':''} not shown.</p>`:''}`:'<p><b>Can’t default.</b> No skill you have or attribute connects to it on the Skill Web (arrows block some paths).</p>';}
+  const rows=all.filter(n=>!have[n]&&!magicBlock(n)).map(n=>{const o=swOptions(n,SWBASE)[0]; return `<tr><td>${esc(swLabel(n))}</td>${o?`<td>${esc(o.from)}</td><td class="n mono">${o.dice}</td><td class="n mono">+${o.tn}</td>`:'<td colspan="3" class="note">can’t default</td>'}</tr>`;}).join('');
+  box.innerHTML=`<h3>Defaulting <span class="pg">p. 68–69</span></h3>
+   <p class="note">For a skill you don't have, roll a related skill's general rating or an attribute; each circle passed on the Skill Web adds +2 to the target number, and arrows block paths. Best options are ranked for a base target number you choose.${adeptOn()?' Improved Ability dice drop by one per circle (p. 125).':''}</p>
+   <div class="picker"><label for="swSel" class="grow">Check a skill<select id="swSel">${opt}</select></label><label for="swBase">Base TN<input type="number" id="swBase" min="2" max="12" value="${SWBASE}" style="width:4rem"></label></div>
+   ${detail}
+   <details class="swall"><summary>Best default for every skill you don't have</summary><div class="tbl"><table id="swTbl"><thead><tr><th>Skill</th><th>Use</th><th class="n">Dice</th><th class="n">TN</th></tr></thead><tbody>${rows}</tbody></table></div></details>`;}
 function gearLevel(k){return S.gear.filter(g=>g.key===k).reduce((m,g)=>Math.max(m,+g.r||0),0);}
 // Implants that raise attributes (Shadowtech / Cybertechnology), checked against the books:
 // bone lacing +1/+1/+2 Body (ST p. 42); dermal sheath Body + level + 1 (CT p. 28); muscle augmentation +level Strength and Quickness (ST p. 35);
@@ -2633,6 +2747,7 @@ function render(){
   $('kEarned').value=S.kEarned; $('kSpent').value=S.kSpent; $('kPoolBonus').value=S.kPoolBonus; $('nuyenNow').value=S.nuyenNow; $('fNotes').value=S.notes;
   renderExtras();
   // summary
+  renderDefaulting();
   summary(magicRating,rSpent,rBudget); jumpLinks();
   S._calc={ess:+(6-essenceUsed()).toFixed(3),bi:+bodyIndexUsed().toFixed(3),biMax:bodyIndexMax(),awake:S.magic!=='none',magic:S.magic==='none'?0:magicRating,nuyen:S.nuyenNow===''||S.nuyenNow==null?null:+S.nuyenNow,resLeft:rBudget?rBudget-rSpent:null,est:!!S.established,at:Date.now()};
   $('exportBox').value=btoa(unescape(encodeURIComponent(JSON.stringify(S))));
@@ -2655,7 +2770,7 @@ function summary(magicRating,rSpent,rBudget){
   const cs=ad?S.powers.filter(p=>p.type==='combatSense').reduce((a,p)=>a+(+p.level||1),0):0;
   const wired=S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0);
   const boosted=gearLevel('body:Boosted Reflexes');
-  const reaction=Math.floor((q+i)/2)+(has('bio:Suprathyroid Gland')?1:0)+incR+2*wired+[0,0,1,2][boosted]+gearLevel('body:Reaction Enhancer')+(S.gear.some(g=>g.key==='bio:Enhanced Articulation')?1:0);
+  const reaction=reactionVal();
   const ess=6-essenceUsed();
   const comp=bestRating(/^computer$/i);
   const baseReact=Math.floor((attrNow('quick')+attrNow('int'))/2); const ri=[1,2,3].reduce((m,L)=>S.gear.some(g=>g.key==='deck:Response Increase '+L)?L:m,0);
@@ -2787,6 +2902,8 @@ document.addEventListener('change',e=>{
   if(t.id==='fMagic'){S.magic=t.value;render();return;}
   if(t.id==='lifestyleOff'){S.lifestyleOff=t.checked;render();return;}
   if(t.id==='established'){S.established=t.checked;render();return;}
+  if(t.id==='swSel'){SWSEL=t.value;renderDefaulting();return;}
+  if(t.id==='swBase'){SWBASE=Math.max(2,Math.min(12,+t.value||4));renderDefaulting();return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='cat'){S.gear[+t.dataset.gr].cat=t.value;render();return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='grade'){S.gear[+t.dataset.gr].grade=t.value;render();return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='cultured'){S.gear[+t.dataset.gr].cultured=t.checked;render();return;}
@@ -2891,7 +3008,7 @@ function sheetStats(){
   const cs=ad?S.powers.filter(p=>p.type==='combatSense').reduce((a,p)=>a+(+p.level||1),0):0;
   const wired=S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0);
   const boosted=gearLevel('body:Boosted Reflexes');
-  const reaction=Math.floor((q+i)/2)+(has('bio:Suprathyroid Gland')?1:0)+incR+2*wired+[0,0,1,2][boosted]+gearLevel('body:Reaction Enhancer')+(S.gear.some(g=>g.key==='bio:Enhanced Articulation')?1:0);
+  const reaction=reactionVal();
   const ess=6-essenceUsed();
   const comp=bestRating(/^computer$/i);
   const baseReact=Math.floor((attrNow('quick')+attrNow('int'))/2); const ri=[1,2,3].reduce((m,L)=>S.gear.some(g=>g.key==='deck:Response Increase '+L)?L:m,0);
