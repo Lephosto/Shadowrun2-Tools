@@ -31,4 +31,4 @@ The build runs these steps in order:
 | `shared/skillweb.js` | Skill Web (not wired into the pages yet). |
 | `chk*.js`, `gear/chk*.js` | Regression tests. `runall.sh` runs them. |
 | `books_tools/` | Scripts that turn the rulebook PDFs into per-page text with printed page numbers, and search them. They need the PDFs; no book text is stored here. |
-| `skill-web-map.html` | Draft Skill Web map, waiting for review. |
+| (Skill Web map) | Draft lives as a claude.ai artifact, waiting for review. |
