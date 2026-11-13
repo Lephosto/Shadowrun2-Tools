@@ -160,6 +160,7 @@ tr.on td{background:color-mix(in srgb,var(--accent) 14%,transparent)}
 .sd-card textarea{width:100%;font-family:var(--mono);font-size:.75rem;border:1px solid var(--line);border-radius:6px;padding:6px;background:var(--panel2);color:var(--ink);resize:vertical}.sd-a{display:flex;gap:8px;margin-top:8px}
 .charbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:.8125rem;min-width:0;max-width:100%}.charbar select{font:inherit;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--ink);max-width:16rem;min-width:0;flex:1 1 9rem}.cb-l{color:var(--muted)}.cb-b{font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap;margin-right:6px}.cb-n{color:var(--good);font-weight:600;white-space:nowrap}
 .own{display:inline-block;margin-left:6px;font:600 .6875rem var(--body);color:var(--good);border:1px solid currentColor;border-radius:999px;padding:0 6px;vertical-align:1px;white-space:nowrap}
+.wish{margin:6px 0 8px;padding:6px 10px;border-left:3px solid var(--accent);background:var(--panel2);border-radius:4px;font-size:.875rem}.wish b{font-weight:600}.wish .neg{color:var(--price);font-weight:600}.wish ul{margin:2px 0 0;padding-left:18px}.wish .note{font-size:.75rem}
 .ownnote{margin:6px 0 8px;padding:6px 10px;border-left:3px solid var(--good);background:var(--panel2);border-radius:4px;font-size:.875rem}
 .sd-card textarea#charCode{font-family:var(--mono)}
 </style>
@@ -1129,6 +1130,22 @@ function ownedMap(C){const m={}; if(!C) return m; const S=C.S, add=(k,q,note)=>{
   if(S.cbody&&S.cbody.limbs){const P=S.cbody; CB.SIDES.forEach(([sd,lab])=>{const L=P.limbs[sd]; if(!L) return; if(L.full) add(L.gyro?'body:Cyberarm Gyromount':'body:Cyberarm or Cyberleg',1,lab); if(!L.full&&L.fore) add('body:Cyber Forearm or Lower Leg',1,lab); if(!L.full&&L.hand) add('body:Cyberhand or Cyberfoot',1,lab); (L.acc||[]).forEach(id=>{if(BYID[id]) add(id,1,'in the '+lab.toLowerCase());});}); if(P.torso&&P.torso.on) add('body:Cybertorso',1,''); if(P.skull&&P.skull.on) add('body:Cyberskull',1,'');}
   if(S.optEF) (S.ef||[]).forEach(x=>{if(x&&BYID['ef:'+x.n]) add('ef:'+x.n,1,'');});
   return m;}
+// ---------- What buying this does to the linked character (money, Essence, Body Index) ----------
+// The builder saves these numbers with each character (S._calc) every time it renders.
+const w2=x=>Math.round(x*100)/100;
+function wishLines(C,price,ess,bi){if(!C) return null; const K=C.S&&C.S._calc, nm=esc(shortName(C));
+  if(!K) return {head:`For ${nm}`,lines:[`Open ${nm} in the Runner Builder once and the money and Essence they’d have left show up here.`],bad:false};
+  const L=[]; let bad=false;
+  const hasN=K.nuyen!=null&&(K.est||K.resLeft==null||K.nuyen>0), have=hasN?K.nuyen:K.resLeft, lab=hasN?'Nuyen on hand':'Resources left';
+  if(have!=null&&price){const after=have-price; if(after<0) bad=true; L.push(`${lab}: ${fmt(have)}¥ → <span class="${after<0?'neg':''}">${fmt(after)}¥</span>${after<0?' (short '+fmt(-after)+'¥)':''}`);}
+  else if(price&&have==null) L.push('No money figure yet: set Nuyen on hand (or a Resources priority) in the builder.');
+  let essCost=+ess||0; if(bi&&K.awake) essCost+= +bi; // awakened characters pay bioware Body Cost in Essence too (ST p. 5)
+  if(essCost){const after=w2(K.ess-essCost); if(after<0) bad=true; let t=`Essence ${w2(K.ess)} → <span class="${after<0?'neg':''}">${after}</span>`; if(after<0) t+=' (below 0: the character dies)';
+    else if(K.awake){const m=Math.max(0,Math.floor(after)); if(m<K.magic) t+=` · <span class="neg">Magic ${K.magic} → ${m}</span>`;} L.push(t+(ess&&!bi?' <span class="note">(standard grade)</span>':''));}
+  if(bi){const after=w2(K.bi+(+bi)); const over=after>K.biMax; L.push(`Body Index ${w2(K.bi)} → <span class="${over?'neg':''}">${after}</span> of ${K.biMax}${over?' (over: system shock, ST p. 7)':''}`);}
+  return L.length?{head:`If ${nm} buys ${'this'}`,lines:L,bad}:null;}
+function wishNote(i,r){if(i.sp||i.ef||i.mt||i.cat==='power') return ''; const W=wishLines(OWNC,costAt(i,r)||0,essAt(i,r),i.bis?i.bis[r]:i.bi); if(!W) return '';
+  return `<div class="wish"><b>${W.head}</b><ul>${W.lines.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;}
 let OWN={}, OWNC=null;
 function refreshOwned(){OWNC=linkedChar(); OWN=ownedMap(OWNC);}
 function ownBadge(i){const o=OWN[i.id]; return o?`<span class="own" title="Already on ${esc(OWNC.label)}">✓ ${o.n>1?'×'+o.n+' ':''}owned</span>`:'';}
@@ -1694,6 +1711,7 @@ function renderTag(){
    <h2>${esc(i.n)}</h2>
    <div class="price">${i.sp||i.ef||i.mt||i.cat==='power'||i.mult!=null?esc(priceLabel(i)):fmt(price)+'¥'}${i.r&&i.mult==null?` <span class="note">at ${esc(i.r[2].toLowerCase())} ${r}</span>`:''}</div>
    ${ownNote(i)}
+   ${wishNote(i,r)}
    ${i.s?`<p class="desc">${esc(i.s)}</p>`:''}
    ${fxHTML(i)}
    ${ratingCtl}
@@ -1748,9 +1766,9 @@ function sendGear(p){p.v=1; p.at=Date.now(); p.from='Gear Locker';
   $('sendDlg').hidden=false; const t=$('sendCode'); if(t){t.focus(); t.select();}}
 function renderKit(){ kitChip();
   if(!st.kit.length){$('kit').innerHTML=`<div class="hd"><b>Shopping list</b><span class="note">Add items to total their price and Essence. Saved in this browser only.</span></div>`;return;}
-  let c=0,e=0; const rows=st.kit.map((k,ix)=>{const i=BYID[k.id]||{n:k.n,src:k.src||'core',cost:k.cost}; const p=costAt(i,k.r)||0; const es=+(essAt(i,k.r)||0); c+=p; e+=es;
+  let c=0,e=0,bt=0; const rows=st.kit.map((k,ix)=>{const i=BYID[k.id]||{n:k.n,src:k.src||'core',cost:k.cost}; const p=costAt(i,k.r)||0; const es=+(essAt(i,k.r)||0); c+=p; e+=es; bt+=+((i.bis?i.bis[k.r]:i.bi)||0);
     return `<li><span>${srcTag(i.src)} ${esc(i.n)}${i.r?` <span class="note">(${esc(i.r[2])} ${k.r})</span>`:''}</span><span class="c">${fmt(p)}¥${es?` · ${es} Ess`:''}</span><button class="x" data-rm="${ix}" aria-label="Remove ${esc(i.n)}">×</button></li>`;}).join('');
-  $('kit').innerHTML=`<div class="hd"><b>Shopping list</b><span class="tot">${fmt(c)}¥${e?` · ${Math.round(e*100)/100} Essence`:''}</span><button class="btn ghost" data-send="kit">Send to a character</button><button class="btn ghost" id="clearKit">Clear</button></div><ul>${rows}</ul>`;
+  $('kit').innerHTML=`<div class="hd"><b>Shopping list</b><span class="tot">${fmt(c)}¥${e?` · ${Math.round(e*100)/100} Essence`:''}</span><button class="btn ghost" data-send="kit">Send to a character</button><button class="btn ghost" id="clearKit">Clear</button></div>${(()=>{const W=wishLines(OWNC,c,e,bt); return W?`<div class="wish"><b>${W.head.replace('this','the whole list')}</b><ul>${W.lines.map(x=>`<li>${x}</li>`).join('')}</ul></div>`:'';})()}<ul>${rows}</ul>`;
 }
 function select(id,scroll){
   st.sel=id; const i=BYID[id];
@@ -1840,8 +1858,9 @@ $('list').addEventListener('keydown',e=>{
 });
 function fromHash(){const h=location.hash.slice(1); const i=BYSLUG[h]; if(i) select(i.id); }
 window.addEventListener('hashchange',fromHash);
-function ownRefresh(){const before=JSON.stringify(OWN)+(OWNC&&OWNC.id); refreshOwned(); renderCharBar(); if(JSON.stringify(OWN)+(OWNC&&OWNC.id)!==before){renderCats(); renderList(); if(st.sel) renderTag();}}
-document.addEventListener('change',e=>{if(e.target.id!=='charSel') return; const v=e.target.value; if(v==='paste'){renderCharBar(); openPaste(); return;} st.charId=v; save(); refreshOwned(); renderCharBar(); renderCats(); renderSortFilter(); renderList(); if(st.sel) renderTag();});
+function ownSig(){return JSON.stringify(OWN)+(OWNC&&OWNC.id)+JSON.stringify(OWNC&&OWNC.S&&OWNC.S._calc&&{...OWNC.S._calc,at:0});}
+function ownRefresh(){const before=ownSig(); refreshOwned(); renderCharBar(); if(ownSig()!==before){renderCats(); renderList(); renderKit(); if(st.sel) renderTag();}}
+document.addEventListener('change',e=>{if(e.target.id!=='charSel') return; const v=e.target.value; if(v==='paste'){renderCharBar(); openPaste(); return;} st.charId=v; save(); refreshOwned(); renderCharBar(); renderCats(); renderSortFilter(); renderList(); renderKit(); if(st.sel) renderTag();});
 document.addEventListener('click',e=>{if(e.target.id!=='charLoad') return; const raw=($('charCode').value||'').trim();
   try{if(/^SR2GEAR:/.test(raw)) throw new Error('gear'); const S=JSON.parse(decodeURIComponent(escape(atob(raw)))); if(!S||!Array.isArray(S.gear)) throw new Error('bad');
     localStorage.setItem(CKEY,JSON.stringify({S,at:Date.now()})); st.charId='p:pasted'; save(); $('sendDlg').hidden=true; refreshOwned(); renderCharBar(); renderCats(); renderList(); if(st.sel) renderTag();}

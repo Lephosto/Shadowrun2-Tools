@@ -35,7 +35,7 @@ header.top{display:flex;justify-content:space-between;gap:1rem;align-items:flex-
 @media (max-width:56.25em){.layout{grid-template-columns:minmax(0,1fr)}}
 .col{display:flex;flex-direction:column;gap:1rem;min-width:0}
 section.card{background:var(--paper);border:1px solid var(--line);border-radius:0.375rem;padding:1rem;display:flex;flex-direction:column;gap:0.75rem;min-width:0}
-.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 0.75rem);display:flex;flex-direction:column;gap:0.75rem}
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 3.75rem);display:flex;flex-direction:column;gap:0.75rem}
 @media (max-width:56.25em){.rail{position:static}}
 .row{display:flex;gap:0.625rem;flex-wrap:wrap;align-items:center}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(12.5rem,1fr));gap:0.625rem}
@@ -82,6 +82,23 @@ ul.issues{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;
 ul.issues li{font-size:0.8125rem;padding:0.375rem 0.5rem;border-radius:0.25rem;border-left:3px solid var(--warn);background:var(--warn-soft)}
 ul.issues li.bad{border-left-color:var(--bad);background:var(--bad-soft)}
 ul.issues li.ok{border-left-color:var(--ok);background:var(--ok-soft)}
+.jump{position:sticky;top:0;z-index:15;display:flex;gap:0.5rem;align-items:center;background:var(--bg);padding:0.5rem 0;margin:0 0 0.75rem;border-bottom:1px solid var(--line)}
+#jumpLinks{display:flex;gap:0.375rem;overflow-x:auto;min-width:0;flex:1;scrollbar-width:thin;padding-bottom:2px}
+.jump a{white-space:nowrap;font-size:0.75rem;padding:0.25rem 0.625rem;border:1px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;background:var(--paper)}
+.jump a:hover{border-color:var(--accent);color:var(--accent)}
+.sesbtn{white-space:nowrap;flex:none}.sesbtn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.card{scroll-margin-top:3.75rem}
+tr.gcat td .gfold{all:unset;cursor:pointer;display:inline-flex;gap:0.375rem;align-items:center}
+tr.gcat td .gfold::before{content:"▾";display:inline-block;width:0.75em}
+tr.gcat.folded td .gfold::before{content:"▸"}
+tr.gcat td .gfold:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tbl table tr[hidden]{display:none!important}
+body.session .card:not(.ses){display:none}
+body.session #sec-play{order:-1}
+body.session .mbar{display:none!important}
+body.session .sesnote{display:block}
+.sesnote{display:none;font-size:0.8125rem;color:var(--muted);margin:-0.25rem 0 0.75rem}
+@media (max-width:56.25em){body.session .rail{order:-1}body.session .layout{display:flex;flex-direction:column}}
 ul.issues li.info{border-left-color:var(--accent);background:var(--accent-soft)}
 .estab{display:flex;flex-direction:row;gap:0.5rem;align-items:flex-start;text-transform:none;letter-spacing:0;font-size:0.8125rem;line-height:1.4;margin:0.25rem 0 0.75rem;padding:0.5rem 0.625rem;border:1px solid var(--line);border-radius:0.375rem;background:var(--soft);color:var(--ink);cursor:pointer}.estab input{margin-top:0.2rem;flex:none;width:1rem;height:1rem}
 .track{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:0.25rem}
@@ -178,13 +195,15 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
       <label for="skinSel" style="flex-direction:row;align-items:center;gap:0.375rem">Colors<select id="skinSel" style="max-width:11rem"><option value="system" selected="">Match my device</option><option value="light">Light</option><option value="dark">Dark</option><option value="matrix">Matrix (green screen)</option><option value="neon">Neon (Seattle at night)</option><option value="amber">Amber terminal</option><option value="paper">Paper (printed sheet)</option><option value="contrast">High contrast</option></select></label>
     </div>
   </header>
+  <nav class="jump" id="jump" aria-label="Sections"><button id="sesBtn" class="sesbtn" aria-pressed="false" title="Show only what you need at the table">Game night view</button><div id="jumpLinks"></div></nav>
   <div id="xferBar" class="xfer" hidden="" role="status"></div>
+  <p class="sesnote" id="sesNote">Game night view: only what you need at the table. Build sections are hidden, not changed. Turn it off with the button above.</p>
   <div id="confirmBox" hidden=""></div>
 
   <div class="layout">
     <div class="col">
 
-      <section class="card">
+      <section class="card" id="sec-rules" data-jump="Rules">
         <h2><span class="num">01</span> Rules</h2>
         <div class="seg" id="modeSeg" role="group" aria-label="Priority rules">
           <button data-mode="standard">Standard<small>Metahumans need Race A</small></button>
@@ -198,13 +217,13 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         <p class="note">Books in play decide which gear, spells and adept powers you can pick. The Companion options are off unless your table uses them.</p>
       </section>
 
-      <section class="card">
+      <section class="card" id="sec-prio" data-jump="Priorities">
         <h2><span class="num">02</span> Priorities <span class="pg">p. 47</span></h2>
         <p class="note">Pick one letter per category. Each letter can be used once; picking a letter that's taken clears it from the other category.</p>
         <div class="tbl"><table class="prio"><thead><tr><th>Category</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr></thead><tbody id="prioBody"></tbody></table></div>
       </section>
 
-      <section class="card">
+      <section class="card" id="sec-id" data-jump="Identity">
         <h2><span class="num">03</span> Identity, race and magic</h2>
         <div class="grid2">
           <label for="fName">Name<input id="fName" placeholder="Full name"></label>
@@ -225,13 +244,13 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         </div>
       </section>
 
-      <section class="card">
+      <section class="card" id="sec-attr" data-jump="Attributes">
         <h2><span class="num">04</span> Attributes <span class="pg">p. 43–45</span></h2>
         <div class="tbl"><table><thead><tr><th>Attribute</th><th class="n">Points</th><th class="n">Race</th><th class="n">Rating</th><th class="n">Max</th></tr></thead><tbody id="attrBody"></tbody></table></div>
         <div class="budget" id="attrBudget"></div>
       </section>
 
-      <section class="card">
+      <section class="card ses" id="sec-skills" data-jump="Skills">
         <h2><span class="num">05</span> Skills <span class="pg">p. 45, 66–73</span></h2>
         <p class="note">Rating 6 at most at creation. A concentration drops the general skill by 1 and raises the concentration by 1. A specialization drops the general skill by 2, keeps the concentration at the bought rating, and raises the specialization by 2.</p>
         <div class="tbl"><table><thead><tr><th>Skill</th><th class="n">Bought</th><th>Narrowed</th><th>Concentration</th><th>Specialization</th><th>Ratings</th><th></th></tr></thead><tbody id="skillBody"></tbody></table></div>
@@ -244,7 +263,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         <div class="budget" id="skillBudget"></div>
       </section>
 
-      <section class="card" id="magicCard">
+      <section class="card ses" id="magicCard" data-jump="Magic">
         <h2><span class="num">06</span> <span id="magicTitle">Spells and powers</span></h2>
         <p class="note" id="magicNote"></p>
         <div class="grid2" id="totemRow" hidden=""><label for="totem">Totem <span class="pg">p. 119</span><select id="totem"></select></label><p class="note" id="totemNote" style="align-self:end"></p></div>
@@ -262,7 +281,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         <div class="budget" id="powerBudget"></div>
       </section>
 
-      <section class="card">
+      <section class="card" id="sec-gear" data-jump="Gear">
         <h2><span class="num">07</span> Gear, cyberware and money</h2>
         <div class="picker">
           <label for="gCat">Category<select id="gCat"></select></label>
@@ -271,6 +290,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
           <button id="gAdd">Add</button>
         </div>
         <div class="note" id="gPreview" style="margin:-0.25rem 0 0.625rem"></div>
+        <div class="row" style="margin:0 0 0.375rem;gap:0.375rem"><span class="note">Tap a category name to fold it.</span><button class="ghost" id="foldAll" type="button">Fold all</button><button class="ghost" id="openAll" type="button">Open all</button></div>
         <div class="tbl"><table><thead><tr><th>Item</th><th class="n">Rating</th><th class="n">Qty</th><th class="n">Cost each (¥)</th><th class="n">Essence</th><th class="n">Total</th><th></th></tr></thead><tbody id="gearBody"></tbody></table></div>
         <div id="hostBuild"></div>
         <div id="cbBuild"></div>
@@ -284,7 +304,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         <div class="stat"><span class="k"><b>Starting cash</b></span><span class="v big" id="cashTotal"></span></div>
       </section>
 
-      <section class="card">
+      <section class="card ses" id="sec-weap" data-jump="Weapons">
         <h2><span class="num">07a</span> Weapons and armor <span class="pg">p. 88–100, 242</span></h2>
         <p class="note">Weapons from your gear, with the dice you roll and range bands (target number: range). Open <b>Add-ons</b> under a gun to fit scopes, smartguns, vents, silencers and so on. Only add-ons that fit that gun are offered (core p. 238–241), and their price is added to the gun in Gear.</p>
         <label id="optRecoilRow" for="optRecoil" hidden="" style="flex-direction:row;align-items:center;gap:0.375rem;text-transform:none;letter-spacing:0;font-size:0.8125rem;margin-bottom:0.5rem"><input type="checkbox" id="optRecoil"> Fields of Fire optional rule: Strength reduces recoil (p. 83)</label>
@@ -294,7 +314,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         <div id="armorTotal"></div>
       </section>
 
-      <section class="card" id="deckCard" hidden="">
+      <section class="card ses" id="deckCard" data-jump="Deck" hidden="">
         <h2><span class="num">07b</span> Cyberdeck <span class="pg" id="deckPg">p. 172–175</span></h2>
         <div id="deckStats"></div>
         <div id="vr2Design" hidden=""></div>
@@ -304,7 +324,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         <div class="budget" id="memBudget"></div>
       </section>
 
-      <section class="card" id="rigCard" hidden="">
+      <section class="card ses" id="rigCard" data-jump="Rigging" hidden="">
         <h2><span class="num">07c</span> Rigging <span class="pg" id="rigPg">p. 85, 104, 264</span></h2>
         <div id="rigStats"></div>
         <p class="note">Vehicle stats from the book: core p. 264–265 (cruise/max speed), FoF p. 62–69, or the Rigger 2 list p. 148–166 (one Speed number; Pilot shows Autonav when a vehicle has no Pilot). Red boxes were unreadable in the scan; fill them in from the book.</p>
@@ -312,20 +332,20 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         <div id="vehBuild"></div>
       </section>
 
-      <section class="card" id="softCard" hidden="">
+      <section class="card ses" id="softCard" data-jump="Skillsofts" hidden="">
         <h2><span class="num">07d</span> Skillsofts <span class="pg">p. 248</span></h2>
         <div class="tbl"><table><thead><tr><th>Soft</th><th class="n">Rating</th><th class="n">Size</th></tr></thead><tbody id="softBody"></tbody></table></div>
         <p class="note" id="softNote"></p>
       </section>
 
-      <section class="card">
+      <section class="card" id="sec-contacts" data-jump="Contacts">
         <h2><span class="num">08</span> Contacts <span class="pg">p. 46</span></h2>
         <p class="note">Two Contact-level contacts come free. Others cost Resources: Contact 5,000¥, Buddy 10,000¥, Gang/Tribe 50,000¥, Followers 200,000¥. <span id="contactCost"></span></p>
         <div class="tbl"><table><thead><tr><th>Name</th><th>Role</th><th>Level</th><th></th></tr></thead><tbody id="contactBody"></tbody></table></div>
         <div class="row"><button id="addContact">Add contact</button></div>
       </section>
 
-      <section class="card">
+      <section class="card ses" id="sec-play" data-jump="In play">
         <h2><span class="num">09</span> In play</h2>
         <div class="grid2">
           <div><h3>Physical</h3><div class="track" id="trkPhys"></div></div>
@@ -346,7 +366,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         <label for="fNotes">Notes<textarea id="fNotes" rows="4" placeholder="Background, gear notes, GM rulings"></textarea></label>
       </section>
 
-      <section class="card">
+      <section class="card" id="sec-export" data-jump="Export">
         <h2>Export</h2>
         <p class="note">Each of these is a single file that works on its own, with nothing to install and no internet needed.</p>
         <div class="exp">
@@ -358,7 +378,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         <div class="note" id="expMsg" role="status"></div>
       </section>
 
-      <section class="card">
+      <section class="card" id="sec-text" data-jump="Save as text">
         <h2>Save a copy as text</h2>
         <p class="note">The page remembers your character in this browser only. To move it to another device or share it, copy the code below and paste it into the box on the other side.</p>
         <textarea id="exportBox" rows="3" readonly=""></textarea>
@@ -369,12 +389,12 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
     </div>
 
     <aside class="rail">
-      <section class="card">
+      <section class="card ses" id="sec-sum" data-jump="Summary">
         <div class="tag" id="sumRace">—</div>
         <h2 id="sumName" style="font-size:1.375rem">New runner</h2>
         <div id="sumStats"></div>
       </section>
-      <section class="card">
+      <section class="card ses" id="sec-dice" data-jump="Dice">
         <h3>Dice</h3>
         <div class="row">
           <label for="dN">Dice<input type="number" id="dN" min="1" max="40" value="6"></label>
@@ -384,14 +404,14 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         </div>
         <div class="result" id="dOut" aria-live="polite">Rule of Six applies for TN 7+. All 1s is a disaster.</div>
       </section>
-      <section class="card">
+      <section class="card" id="sec-check" data-jump="Checklist">
         <h3>Checklist</h3>
         <ul class="issues" id="issues"></ul>
       </section>
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1794539190185","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmweeat1r"}};</script>
+<script>window.__SR2_EMBED={"stamp":"1794540829905","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwef9y9u","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794540829895}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--paper',panel2:'--soft',ink:'--ink',muted:'--muted',line:'--line',accent:'--accent',accentInk:'--accent-ink',accentSoft:'--accent-soft',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skins*/
@@ -939,7 +959,7 @@ function skillParts(s){ // returns [{part,label,r}] at current (advanced) rating
 function advSkills(){return (S.adv||[]).filter(a=>a.kind==='newskill').reduce((m,a)=>{m[a.label]=Math.max(m[a.label]||0,+a.to);return m;},{});}
 function advTargets(){
   const t=[];
-  ATTRS.forEach(([k,l])=>{const cur=attrNow(k);const to=cur+1;const over=to>attrMax(k);t.push({id:'attr:'+k,label:`${l} ${cur} → ${to}${over?' (above racial max, GM approval)':''}`,cost:over?2*to:to,entry:{kind:'attr',key:k,to,label:l}});});
+  ATTRS.forEach(([k,l])=>{const cur=attrNow(k);const to=cur+1;const over=to>attrMax(k);const way=to>Math.floor(attrMax(k)*1.5);t.push({id:'attr:'+k,label:`${l} ${cur} → ${to}${way?' ⚠ past 1.5 × racial max: the book says GMs should discourage this':over?' (above racial max, GM approval)':''}`,cost:over?2*to:to,entry:{kind:'attr',key:k,to,label:l}});});
   S.skills.forEach(s=>{skillParts(s).forEach(p=>{const to=p.r+1;const mult=p.part==='gen'?2:p.part==='conc'?1.5:1;t.push({id:`sk:${s.name}:${p.part}:${p.label}`,label:`${p.label} (${p.part==='gen'?'skill':p.part==='conc'?'concentration':'specialization'}) ${p.r} → ${to}`,cost:Math.ceil(mult*to),entry:{kind:'skill',skill:s.name,part:p.part,label:p.label,to}});});});
   Object.entries(advSkills()).forEach(([n,r])=>t.push({id:'ns:'+n,label:`${n} ${r} → ${r+1}`,cost:2*(r+1),entry:{kind:'newskill',label:n,to:r+1}}));
   (S.langs||[]).forEach((L,i)=>{const cur=+L.rating||0;t.push({id:'lang:'+i,label:`${L.name||'Language'} (language) ${cur} → ${cur+1}`,cost:cur+1,entry:{kind:'lang',idx:i,to:cur+1,label:L.name}});});
@@ -2406,6 +2426,12 @@ function essenceCredit(){const has=k=>S.gear.some(g=>g.key===k);let c=0;
   if(has('head:Cyberears')&&!(hbEar&&hbFixG(hbEar).free)) c+=S.gear.filter(g=>g.key&&GEARDB[g.key]&&GEARDB[g.key].ear&&(+g.ess||0)<=.2).reduce((m,g)=>Math.max(m,+g.ess||0),0);
   return c;}
 function essenceUsed(){syncGear();const bioE=S.magic!=='none'?bodyIndexUsed():0;return Math.max(0,S.gear.reduce((a,g)=>a+(+g.ess||0)*(+g.qty||1),0)-essenceCredit()+bioE);} // Awakened pay bioware Body Cost in Essence too (ST p. 5)
+let LASTADD=null; const FOLD=new Set((()=>{try{return JSON.parse(localStorage.getItem('sr2-builder-fold')||'[]');}catch(e){return [];}})());
+function foldSave(){try{localStorage.setItem('sr2-builder-fold',JSON.stringify([...FOLD]));}catch(e){}}
+function jumpLinks(){const box=$('jumpLinks'); if(!box) return; const ses=document.body.classList.contains('session');
+  box.innerHTML=[...document.querySelectorAll('section.card[data-jump]')].filter(x=>!x.hidden&&x.offsetParent!==null).sort((a,b)=>{const r=a.closest('.rail'),q=b.closest('.rail'); if(window.innerWidth>900&&!!r!==!!q) return r?1:-1; return a.getBoundingClientRect().top-b.getBoundingClientRect().top;}).map(x=>`<a href="#${x.id}">${esc(x.dataset.jump)}</a>`).join(''); if(box.dataset.ses!==String(ses)){box.scrollLeft=0; box.dataset.ses=String(ses);}}
+function sessionSet(on,save){document.body.classList.toggle('session',on); const b=$('sesBtn'); if(b){b.setAttribute('aria-pressed',on?'true':'false'); b.textContent=on?'Full builder':'Game night view';}
+  if(save){try{localStorage.setItem('sr2-builder-session',on?'1':'');}catch(e){}} jumpLinks();}
 function gearLevel(k){return S.gear.filter(g=>g.key===k).reduce((m,g)=>Math.max(m,+g.r||0),0);}
 function augAttr(k){const base=attrEff(k)+(k==='str'||k==='quick'?gearLevel('body:Muscle Replacement'):0)+(k==='body'?gearLevel('body:Dermal Plating'):0);
   if(typeof cbOn==='function'&&cbOn()){const R=cbCalc(); if(R&&R.anyCyber){ if(k==='body') return base+R.bodyBonus; const anyFull=CB.SIDES.some(([sd])=>S.cbody.limbs[sd].full); if(anyFull&&k==='str') return R.avgStr+boost('str'); if(anyFull&&k==='quick') return R.avgQui+boost('quick'); }}
@@ -2560,7 +2586,8 @@ function render(){
   $('gearBody').innerHTML=groups.map(([c,rows])=>{
     rows.sort((A,B)=>(!!B[0].key-!!A[0].key)||(A[0].key&&B[0].key?A[0].name.localeCompare(B[0].name):A[1]-B[1]));
     const sub=rows.reduce((a,[g])=>a+(+g.cost||0)*(+g.qty||1),0), es=rows.reduce((a,[g])=>a+(+g.ess||0)*(+g.qty||1),0)-(c==='head'?essenceCredit():0);
-    return `<tr class="gcat"><td colspan="7">${GCATNAME[c]}<span class="sub">${fmt(sub)}¥${es?` · ${+es.toFixed(2)} Ess`:''}</span></td></tr>`+rows.map(([g,i])=>{const it=g.key&&GEARDB[g.key];const t=(+g.cost||0)*(+g.qty||1);
+    if(LASTADD&&rows.some(([g])=>g.key===LASTADD)) FOLD.delete(c); const fo=FOLD.has(c);
+    return `<tr class="gcat${fo?' folded':''}"><td colspan="7"><button class="gfold" data-fold="${c}" aria-expanded="${!fo}">${GCATNAME[c]} <span class="sub" style="float:none">(${rows.length})</span></button><span class="sub">${fmt(sub)}¥${es?` · ${+es.toFixed(2)} Ess`:''}</span></td></tr>`+rows.map(([g,i])=>{const it=g.key&&GEARDB[g.key];const t=(+g.cost||0)*(+g.qty||1);
       if(it) return `<tr><td>${esc(it.n)} <span class="pg">${it.pg}</span>${lockerLink(g.key)}${it.s?`<div class="gstat">${esc(it.s)}</div>`:''}${DESC[g.key]&&DESC[g.key][0]!==it.s?`<div class="gstat gdesc">${esc(DESC[g.key][0])}</div>`:''}${g.addons?`<div class="gstat">Includes add-ons: ${esc(Object.entries(g.build||{}).filter(([k])=>!['ammo','link'].includes(k)).map(([,v])=>GB.accName(v)).join(', '))} (+${fmt(g.addons)}¥ each). Change them under Weapons.</div>`:''}<input id="g_note_${i}" data-gr="${i}" data-f="note" value="${esc(g.note)}" placeholder="Note" style="margin-top:0.25rem;width:100%;max-width:13.75rem;font-size:0.75rem;padding:3px 0.375rem">${gradeable(it)&&booksOn().ct?`<div><select id="g_gr_${i}" data-gr="${i}" data-f="grade" aria-label="Cyberware grade" style="margin-top:0.25rem;font-size:0.75rem">${Object.entries(CYBER_GRADES).map(([k,[l,e,c]])=>`<option value="${k}" ${(g.grade||'std')===k?'selected':''}>${l}${k==='std'?'':` (Essence ×${e}, price ×${c})`}</option>`).join('')}</select></div>`:''}${it.bi!=null&&!it.neural?`<label style="flex-direction:row;align-items:center;gap:0.3rem;text-transform:none;letter-spacing:0;font-size:0.75rem;margin-top:0.25rem"><input type="checkbox" id="g_cu_${i}" data-gr="${i}" data-f="cultured" ${g.cultured?'checked':''}> Cultured (Body Index ×.75, price ×4)</label>`:it.neural?'<div class="gstat">Neural bioware: already cultured</div>':''}</td>
         <td class="n">${it.r?`${(()=>{const dm=deckRowMax(g); const fixed=it.r[2]==='Deck MPCP'&&dm; return `<input type="number" id="g_r_${i}" data-gr="${i}" data-f="r" min="${it.r[0]}" max="${dm!=null?dm:it.r[1]}" value="${g.r}" style="width:3.5rem" aria-label="${it.r[2]}" title="${fixed?'Set by the deck’s MPCP':it.r[2]+(dm!=null?` (up to ${dm} with this deck)`:'')}" ${fixed?'readonly':''} class="${it.r[2]==='Rating'&&g.r>6?'bad-text':''}">`;})()}`:'—'}</td>
         <td class="n"><input type="number" min="1" id="g_q_${i}" data-gr="${i}" data-f="qty" value="${g.qty||1}" style="width:3.25rem"></td>
@@ -2570,7 +2597,8 @@ function render(){
         <td class="n"><input type="number" min="1" id="g_q_${i}" data-gr="${i}" data-f="qty" value="${g.qty||1}" style="width:3.25rem"></td>
         <td class="n"><input type="number" min="0" id="g_c_${i}" data-gr="${i}" data-f="cost" value="${g.cost||0}" style="width:6.875rem"></td>
         <td class="n"><input type="number" min="0" step="0.05" id="g_e_${i}" data-gr="${i}" data-f="ess" value="${g.ess||0}" style="width:4rem"></td><td class="n mono">${fmt(t)}¥</td>
-        <td><button class="x" data-del="gear" data-i="${i}" aria-label="Remove item">×</button></td></tr>`;}).join('');}).join('') || `<tr><td colspan="7" class="note">No gear yet. Pick a category and an item above.</td></tr>`;
+        <td><button class="x" data-del="gear" data-i="${i}" aria-label="Remove item">×</button></td></tr>`;}).map(h=>fo?h.replace(/^\s*<tr>/,'<tr hidden>'):h).join('');}).join('') || `<tr><td colspan="7" class="note">No gear yet. Pick a category and an item above.</td></tr>`;
+  LASTADD=null;
   const cCost=contactCost(); rSpent+=cCost; $('contactCost').textContent=cCost?`Extra contacts cost ${fmt(cCost)}¥ from Resources.`:'';
   gearPreview();
   $('resBudget').innerHTML=budgetHTML('Resources',rSpent,rBudget,true,!!S.established);
@@ -2588,7 +2616,8 @@ function render(){
   $('kEarned').value=S.kEarned; $('kSpent').value=S.kSpent; $('kPoolBonus').value=S.kPoolBonus; $('nuyenNow').value=S.nuyenNow; $('fNotes').value=S.notes;
   renderExtras();
   // summary
-  summary(magicRating,rSpent,rBudget);
+  summary(magicRating,rSpent,rBudget); jumpLinks();
+  S._calc={ess:+(6-essenceUsed()).toFixed(3),bi:+bodyIndexUsed().toFixed(3),biMax:bodyIndexMax(),awake:S.magic!=='none',magic:S.magic==='none'?0:magicRating,nuyen:S.nuyenNow===''||S.nuyenNow==null?null:+S.nuyenNow,resLeft:rBudget?rBudget-rSpent:null,est:!!S.established,at:Date.now()};
   $('exportBox').value=btoa(unescape(encodeURIComponent(JSON.stringify(S))));
   save();
 }
@@ -2656,6 +2685,7 @@ function summary(magicRating,rSpent,rBudget){
   const aBudget=S.prio.attr?ATTR_PTS[S.prio.attr]:0; const aSpent=ATTRS.reduce((a,[k])=>a+(+S.attrs[k]||0),0);
   if(nb&&aBudget&&aSpent!==aBudget) iss.push([aSpent>aBudget?'bad':'warn',`Attribute points: ${aSpent} of ${aBudget} spent.`]);
   ATTRS.forEach(([k,l])=>{const f=attrFinal(k);if(f>attrMax(k)) iss.push(['bad',`${l} ${f} is over the racial maximum of ${attrMax(k)}.`]); if(f<1||(+S.attrs[k]||0)<1) iss.push(['bad',`${l} must be at least 1.`]);});
+  ATTRS.forEach(([k,l])=>{const a=advFor('attr',k), mx=attrMax(k); if(a>Math.floor(mx*1.5)) iss.push(['warn',`${l} ${a} is past 1.5 × the racial maximum (${Math.floor(mx*1.5)}). The book says GMs should discourage this (p. 190).`]); else if(a>mx) iss.push(['info',`${l} ${a} is above the racial maximum of ${mx}: needs GM approval and costs double Karma (p. 190).`]);});
   const sBudget=S.prio.skills?SKILL_PTS[S.prio.skills]:0; const sSpent=S.skills.reduce((a,s)=>a+(+s.rating||0),0)+(S.langs||[]).reduce((a,L)=>a+(+L.rating||0),0);
   if(nb&&sBudget&&sSpent!==sBudget) iss.push([sSpent>sBudget?'bad':'warn',`Skill points: ${sSpent} of ${sBudget} spent.`]);
   S.skills.forEach(s=>{ if(nb&&(+s.rating||0)>6) iss.push(['bad',`${s.name||'A skill'} is above 6, the creation maximum.`]); if(s.narrow!=='none'&&!s.conc) iss.push(['warn',`${s.name||'A skill'} needs a concentration name.`]); if(s.narrow==='spec'&&!s.spec) iss.push(['warn',`${s.name||'A skill'} needs a specialization name.`]);});
@@ -2787,11 +2817,17 @@ function gearPreview(){const it=GEARDB[$('gItem').value]; if(!it){$('gPreview').
   $('gRateWrap').hidden=!it.r; let r=0; if(it.r){$('gRateLab').textContent=it.r[2];const el=$('gRate');el.min=it.r[0];el.max=it.r[1];r=Math.min(it.r[1],Math.max(it.r[0],+el.value||it.r[0]));}
   const e=+gv(it.e,r)||0; $('gPreview').innerHTML=esc(`${fmt(gv(it.c,r))}¥${e?` · ${+e.toFixed(2)} Essence`:''}${it.s?' · '+it.s:''} · ${it.pg}${it.r&&it.r[2]==='Rating'&&r>6?' · over the rating 6 limit at creation (p. 46)':''}`)+(DESC[$('gItem').value]?'<br>'+descHTML($('gItem').value):'');}
 fillGearCats();
-$('gAdd').onclick=()=>{const k=$('gItem').value,it=GEARDB[k]; if(!it) return; S.gear.push({key:k,qty:1,r:it.r?(it.r[2]==='Deck MPCP'&&deckMPCP()?deckMPCP():(+$('gRate').value||it.r[0])):undefined}); render();};
+$('gAdd').onclick=()=>{const k=$('gItem').value,it=GEARDB[k]; if(!it) return; LASTADD=k; S.gear.push({key:k,qty:1,r:it.r?(it.r[2]==='Deck MPCP'&&deckMPCP()?deckMPCP():(+$('gRate').value||it.r[0])):undefined}); render();};
 $('addGear').onclick=()=>{S.gear.push({name:'',qty:1,cost:0,ess:0,cat:'other'});render();$('g_n_'+(S.gear.length-1)).focus();};
 function efPreview(){const d=EFDB[$('efPick').value]; $('efPrev').textContent=d?`${d.n} (${d.dpg}): ${d.desc}`:'';}
 $('efPick').addEventListener('change',efPreview);
 $('efAdd').onclick=()=>{const d=EFDB[$('efPick').value];if(!d)return;S.ef=S.ef||[];S.ef.push({n:d.n,v:d.edge?d.min:d.max,note:''});render();};
+document.addEventListener('click',e=>{const f=e.target.closest&&e.target.closest('[data-fold]'); if(f){const c=f.dataset.fold; FOLD.has(c)?FOLD.delete(c):FOLD.add(c); foldSave(); render(); return;}
+  if(e.target.id==='foldAll'){S.gear.forEach(g=>FOLD.add(GCATNAME[g.cat]?g.cat:'other')); foldSave(); render(); return;}
+  if(e.target.id==='openAll'){FOLD.clear(); foldSave(); render(); return;}
+  const j=e.target.closest&&e.target.closest('#jumpLinks a'); if(j){const t=document.querySelector(j.getAttribute('href')); if(t){e.preventDefault(); t.scrollIntoView({behavior:'smooth',block:'start'});}}
+  if(e.target.closest&&e.target.closest('#sesBtn')){sessionSet(!document.body.classList.contains('session'),true); window.scrollTo({top:0});}});
+try{sessionSet(localStorage.getItem('sr2-builder-session')==='1',false);}catch(e){}
 document.addEventListener('click',e=>{const m=e.target.closest&&e.target.closest('#mbar');if(m){e.preventDefault();$('issues').scrollIntoView({block:'center'});}});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-efdel]');if(!b)return;S.ef.splice(+b.dataset.efdel,1);render();});
 $('addLang').onclick=()=>{S.langs=S.langs||[];S.langs.push({name:'',rating:1});render();$('lg_n_'+(S.langs.length-1)).focus();};
