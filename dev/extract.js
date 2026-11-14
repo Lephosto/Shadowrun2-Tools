@@ -30,7 +30,7 @@ const data=await p.evaluate(()=>{const X=window.__sr2;const items=[];
  X.FLAWS.forEach(e=>items.push({id:'ef:'+e[0],cat:'ef',n:e[0],src:'co',pg:X.EF_DESC&&X.EF_DESC[e[0]]?'SRC p. '+X.EF_DESC[e[0]][1]:(e[6]||'SRC p. 35'),efd:X.EF_DESC&&X.EF_DESC[e[0]]?X.EF_DESC[e[0]][0]:'',s:(e[4]?e[4]+'. ':'')+'Flaw · '+e[1],ef:{min:e[2],max:e[3],g:e[1],edge:0,steps:e[5]||null}}));
  Object.entries(X.RACES).filter(([k,v])=>v.base).forEach(([k,v])=>items.push({id:'meta:'+k,cat:'meta',n:k.replace(/ \(.*\)/,''),src:'co',pg:'SRC '+(v.traits.match(/p\. \d+/)||['p. 37'])[0],s:v.traits.replace(/ SRC p\. \d+\.$/,''),mt:{base:v.base,mod:v.mod,max:v.max||null,noDerm:!!v.noDerm,extra:v.extra||[],baseMod:X.RACES[v.base].mod}}));
  const cats=X.GCATS.filter(([c])=>X.CAT[c].length); cats.push(['spell','Spells'],['power','Adept powers']); cats.push(['ef','Edges and Flaws'],['meta','Metavariants']);
- return {cats,items};});
+ return {cats,items,keyfix:X.KEYFIX||{}};});
 data.items.forEach(o=>{const d=(X_DESC||{})[o.id]; if(d&&!o.efd){o.desc=d[0];o.dpg=/^p\./.test(d[1])?d[1]:d[1];}});
 fs.writeFileSync('gear_data.json',JSON.stringify(data));
 console.log(data.items.length, JSON.stringify(data.items.find(i=>i.id==='guns:Ares Predator')), JSON.stringify(data.items.find(i=>i.id==='deck:Fuchi Cyber-4')),JSON.stringify(data.items.find(i=>i.id==='melee:Katana')),JSON.stringify(data.items.find(i=>i.id==='head:Cybereyes')),JSON.stringify(data.items.find(i=>i.id==='body:Wired Reflexes')),JSON.stringify(data.items.find(i=>i.id==='veh:Ford Americar')),JSON.stringify(data.items.find(i=>i.id==='prog:Attack')));

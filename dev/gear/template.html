@@ -245,7 +245,8 @@ function veh(n,cost,pg,r,type,drone){
 }
 // Electronics tables (customization cost, CF as a customization, weight kg), R2 p. 137–140. Index = level.
 const T_ECM=[null,[25000,1,12],[75000,2,25],[125000,3,35],[250000,6,50],[375000,3,35],[750000,8,75],[1500000,9,110],[7500000,12,150],[15000000,16,200],[30000000,20,250]];
-const T_ECCM=[null,[110000,1,12],[30000,2,25],[350000,3,35],[100000,6,50],[150000,3,35],[250000,8,75],[750000,9,110],[2500000,12,150],[6000000,16,200],[12000000,20,250]];
+// ECCM levels 1 and 3 are printed 110,000¥ and 350,000¥ (R2 p. 138); every other ECM/ECCM level 1–4 costs 100¥ per Design Point, so these read as misprints of 10,000¥ and 50,000¥.
+const T_ECCM=[null,[10000,1,12],[30000,2,25],[50000,3,35],[100000,6,50],[150000,3,35],[250000,8,75],[750000,9,110],[2500000,12,150],[6000000,16,200],[12000000,20,250]];
 const T_ED=[null,[50000,3,35],[150000,5,45],[400000,7,60],[1000000,5,45],[4000000,7,60],[8000000,9,110]];
 const T_ECD=[null,[25000,3,35],[80000,5,45],[200000,7,60],[750000,4,45],[2000000,6,60],[5000000,8,110]];
 const T_SEN=[null,[5000,1,12],[15000,2,25],[25000,3,35],[50000,6,50],[75000,3,35],[125000,8,75],[375000,9,110],[1250000,12,150],[3000000,16,200],[6000000,20,250]];
@@ -354,7 +355,7 @@ const M=[
  {id:'fddm',g:'Electronics',n:'BattleTac FDDM receiver',pg:'R2 p. 136',kind:'flag',cost:(v,l,o,c)=>35000*Math.max(1,c.pilot),ok:(v,c)=>!c.hasRC?'Needs a Pilot rating (drone or remote control interface)':null,d:'Fire Direction Data Manager: shares targeting so drones can fire on targets out of their own line of sight. Pilot × 35,000¥.'},
  {id:'ivis',g:'Electronics',n:'BattleTac IVIS receiver',pg:'R2 p. 136–137',kind:'flag',cost:(v,l,o,c)=>25000*Math.max(1,c.pilot),ok:(v,c)=>!c.hasRC?'Needs a Pilot rating (drone or remote control interface)':null,d:'Joins the IVIS network: shared data helps Comprehension Tests or builds an IVIS pool for the drones. Pilot × 25,000¥.'},
  {id:'ecm',g:'Electronics',n:'ECM',pg:'R2 p. 137',kind:'level',min:1,max:(v,c)=>c.mil?10:4,cost:(v,l)=>T_ECM[l][0],cf:(v,l)=>T_ECM[l][1],load:(v,l)=>T_ECM[l][2],d:'Jammers, chaff and flares that confound sensors and remote control signals (see R2 p. 31). Levels 1–4 can be bought on the street; 5+ is security or military.'},
- {id:'eccm',g:'Electronics',n:'ECCM',pg:'R2 p. 137–138',kind:'level',min:1,max:(v,c)=>c.mil?10:4,cost:(v,l)=>T_ECCM[l][0],cf:(v,l)=>T_ECCM[l][1],load:(v,l)=>T_ECCM[l][2],d:'Amplifiers and filters that cut through ECM. Prices as printed (the table’s 110,000¥ and 350,000¥ at levels 1 and 3 look like misprints).'},
+ {id:'eccm',g:'Electronics',n:'ECCM',pg:'R2 p. 137–138',kind:'level',min:1,max:(v,c)=>c.mil?10:4,cost:(v,l)=>T_ECCM[l][0],cf:(v,l)=>T_ECCM[l][1],load:(v,l)=>T_ECCM[l][2],d:'Amplifiers and filters that cut through ECM. Levels 1 and 3 corrected to 10,000¥ and 50,000¥: the book prints 110,000¥ and 350,000¥, which break the table’s 100¥-per-Design-Point pattern (R2 p. 138). Level 8 is printed “2.5¥” (2.5M¥).'},
  {id:'ed',g:'Electronics',n:'Electronic deception',pg:'R2 p. 138',kind:'level',min:1,max:()=>6,cost:(v,l)=>T_ED[l][0],cf:(v,l)=>T_ED[l][1],load:(v,l)=>T_ED[l][2],ok:(v,c)=>!c.mil?MIL:null,d:'Feeds enemy sensors false range, position and heading. Security and military only.'},
  {id:'ecd',g:'Electronics',n:'Electronic counter-deception',pg:'R2 p. 138–139',kind:'level',min:1,max:()=>6,cost:(v,l)=>T_ECD[l][0],cf:(v,l)=>T_ECD[l][1],load:(v,l)=>T_ECD[l][2],ok:(v,c)=>!c.mil?MIL:null,d:'Reality-checking gear that negates electronic deception. Security and military only.'},
  {id:'eport',g:'Electronics',n:'Electronics port',pg:'R2 p. 138–139',kind:'qty',min:1,max:()=>8,cost:(v,l)=>1000*l,cf:(v,l)=>l,d:'Powers a radio, camera, RC deck and the like from the vehicle; attached devices get +½ Body to their Flux Rating. Add the device’s own cost and weight.'},
@@ -814,7 +815,9 @@ const fmt=n=>n==null||isNaN(n)?'—':Math.round(n).toLocaleString('en-US');
 const slug=id=>id.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const BYSLUG=Object.fromEntries(ITEMS.map(i=>[slug(i.id),i]));
 let st={books:{core:1,ssc:1,r2:1,vr2:1,fof:1,st:1,ct:1,csh:1,gr:1,aw:1,co:1},cat:'all',q:'',sort:'book',dir:1,f:{},sel:null,rate:{},kit:[]};
-try{const s=JSON.parse(localStorage.getItem('sr2gear')||'null'); if(s){st.books=Object.assign(st.books,s.books||{}); st.kit=Array.isArray(s.kit)?s.kit.map(k=>{const f={'elec:BattleTac Master Unit':'elec:Tacticom Master Unit','elec:BattleTac Portable Master Unit':'elec:Tacticom Portable Master Unit','elec:BattleTac Personal Comm Unit':'elec:Tacticom Personal Comm Unit'}[k.id]; return f?{...k,id:f}:k;}).filter(k=>BYID[k.id]||k.n):[]; if(s.build&&typeof s.build==='object') st.build=s.build; if(s.dbuild&&typeof s.dbuild==='object') st.dbuild=s.dbuild; if(s.vbuild&&typeof s.vbuild==='object') st.vbuild=s.vbuild; if(s.hbuild&&typeof s.hbuild==='object') st.hbuild=s.hbuild; if(s.cbody&&typeof s.cbody==='object') st.cbody=s.cbody; if(typeof s.charId==='string') st.charId=s.charId;}}catch(e){}
+// Old item ids that were renamed or merged (e.g. vehicles superseded by Rigger 2); same table the builder uses.
+const KEYFIX=(DATA&&DATA.keyfix)||{};
+try{const s=JSON.parse(localStorage.getItem('sr2gear')||'null'); if(s){st.books=Object.assign(st.books,s.books||{}); st.kit=Array.isArray(s.kit)?s.kit.map(k=>{const f=KEYFIX[k.id]; return f?{...k,id:f}:k;}).filter(k=>BYID[k.id]||k.n):[]; if(s.build&&typeof s.build==='object') st.build=s.build; if(s.dbuild&&typeof s.dbuild==='object') st.dbuild=s.dbuild; if(s.vbuild&&typeof s.vbuild==='object') st.vbuild=s.vbuild; if(s.hbuild&&typeof s.hbuild==='object') st.hbuild=s.hbuild; if(s.cbody&&typeof s.cbody==='object') st.cbody=s.cbody; if(typeof s.charId==='string') st.charId=s.charId;}}catch(e){}
 const save=()=>{try{localStorage.setItem('sr2gear',JSON.stringify({books:st.books,kit:st.kit,build:st.build||{},dbuild:st.dbuild||{},vbuild:st.vbuild||{},hbuild:st.hbuild||{},cbody:st.cbody||null,charId:st.charId||''}));}catch(e){}};
 const srcTag=s=>`<span class="src" style="--bc:var(${BOOK[s][2]})">${BOOK[s][1]}</span>`;
 function pageRef(i){const p=i.pg||'';return /^(SSC|R2|VR2|FoF|ST|CT|CSH|GR|AW|SRC)\b/.test(p)?p:(p?'Core '+p:'');}
@@ -927,7 +930,7 @@ function related(i){
     add('Weapons and add-ons',ITEMS.filter(x=>x.cat==='vweap'&&!/Missile$|Rocket$|AARM|Mines/.test(x.n)).concat(find(/Smoke Generator|Ablative/,['veh'])),'Heavy weapons (MMG and up) need a hardpoint; firmpoints take LMGs and smaller (R2 p. 131). Each hardpoint uses 2 Body, a firmpoint 1 (R2 p. 22).');
     if(/Wasp|Yellowjacket/.test(n)) add('Upgrades',find(/Wasp F-Series|Yellowjacket F-Series/,['veh']));
     const key=norm(n).replace(/\(.*?\)/g,'').replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(w=>w.length>3&&!/drone|series|standard/.test(w));
-    if(key.length){const other=ITEMS.filter(x=>(x.cat==='veh'||x.cat==='r2veh')&&x.id!==i.id&&key.filter(w=>norm(x.n).includes(w)).length>=Math.min(2,key.length));add('Same vehicle elsewhere',other,'Rigger 2 restated many vehicles with new stats and prices. Use the version your table plays with.');}
+    if(key.length){const other=ITEMS.filter(x=>(x.cat==='veh'||x.cat==='r2veh')&&x.id!==i.id&&key.filter(w=>norm(x.n).includes(w)).length>=Math.min(2,key.length));add('Related vehicles',other,'Other versions and variants of this vehicle. Rigger 2’s Vehicle List supersedes the older books’ prices and stats (R2 p. 147), so those older entries are folded into the Rigger 2 ones.');}
   }
   if(i.cat==='rc') add('Works with',find(/^Remote Control Deck/,['deck','head']).concat(ITEMS.filter(x=>x.cat==='rc'&&x.id!==i.id).slice(0,6)));
   if(i.cat==='vweap'){
@@ -1116,7 +1119,7 @@ function linkedChar(){if(st.charId==='none') return null; const L=charList(); re
 const CUSTOM_DECK='deck:Custom cyberdeck (VR2 à la carte)';
 // key → {n: count, notes: [...]}
 function ownedMap(C){const m={}; if(!C) return m; const S=C.S, add=(k,q,note)=>{const o=m[k]=m[k]||{n:0,notes:[]}; o.n+=q; if(note) o.notes.push(note);};
-  (S.gear||[]).forEach(g=>{if(!g||!g.key) return; const q=Math.max(1,+g.qty||1), it=BYID[g.key]; let note='';
+  (S.gear||[]).forEach(g=>{if(!g||!g.key) return; if(KEYFIX[g.key]) g={...g,key:KEYFIX[g.key]}; const q=Math.max(1,+g.qty||1), it=BYID[g.key]; let note='';
     if(g.r!=null&&it&&it.r) note=`${it.r[2]} ${g.r}`;
     if(g.build){const n=Object.entries(g.build).filter(([k,v])=>v&&!['link','ammo'].includes(k)).map(([k,v])=>accName(v)); if(n.length) note=(note?note+' · ':'')+n.join(', ');}
     if(g.vb&&g.vb.mods&&g.vb.mods.length) note=(note?note+' · ':'')+g.vb.mods.length+' mod'+(g.vb.mods.length>1?'s':'');
