@@ -9,8 +9,12 @@ const r=await pg.evaluate(()=>{const X=window.__sr2,S=X.S,VB=X.VB,bad=[];const R
    if(t%150===0){X.render(); if(/NaN|undefined/.test(document.getElementById('vehBuild').innerHTML)) bad.push(['nan',g.key]);}}catch(e){bad.push(['err',g.key,e.message]);}}
  // UI: click Add repeatedly
  S.gear=[{key:'r2veh:Ford Americar',qty:1}]; X.render(); document.querySelector('details.vbuild').open=true; let clicks=0;
- for(let k=0;k<40;k++){const bt=document.querySelector('[data-vbadd]'); if(!bt) break; bt.click(); clicks++;}
+ for(let k=0;k<80;k++){const bt=[...document.querySelectorAll('input[data-vbck]')].find(x=>!x.checked&&!x.disabled); if(!bt) break; bt.click(); clicks++;}
+ // raise every level dropdown to its top legal value, then untick the first installed mod
+ let lvMoves=0; for(let k=0;k<30;k++){const sel=[...document.querySelectorAll('select[data-vblv]')].find(x=>x.selectedIndex<x.options.length-1); if(!sel) break; sel.selectedIndex=sel.options.length-1; sel.dispatchEvent(new Event('change',{bubbles:true})); lvMoves++;}
+ const before=S.gear[0].vb.mods.length; const on=document.querySelector('input[data-vbck]:checked'); if(on) on.click(); const after=S.gear[0].vb.mods.length; if(!(after<before)) bad.push(['untick',before,after]);
+ const focusOk=document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.vbck!==undefined; if(!focusOk) bad.push(['focus lost']);
  const g=S.gear[0], v=X.vbFixG(g), c=VB.calc(v,g.vb);
  const sheet=X.sheetFile?X.sheetFile():''; 
- return {nbad:bad.length,bad:bad.slice(0,6),clicks,ok:c.ok,cost:g.cost,addons:g.addons,cf:c.cf+'/'+c.Cmax,load:c.load+'/'+c.Lmax,sheetMods:/Mods:/.test(typeof sheet==='string'?sheet:JSON.stringify(sheet))};});
+ return {nbad:bad.length,bad:bad.slice(0,6),clicks,lvMoves,ok:c.ok,cost:g.cost,addons:g.addons,cf:c.cf+'/'+c.Cmax,load:c.load+'/'+c.Lmax,sheetMods:/Mods:/.test(typeof sheet==='string'?sheet:JSON.stringify(sheet))};});
 console.log(JSON.stringify(r));console.log(errs.slice(0,4));await b.close();})();

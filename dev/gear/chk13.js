@@ -16,7 +16,7 @@ const r=await p.evaluate(()=>{const bad=[];let n=0,added=0;const R=a=>a[Math.flo
   }catch(e){bad.push(['err',i.n,e.message]);}}
  // UI walk: on one drone, keep clicking Add on everything that fits until nothing fits
  st.vbuild={}; st.sel='r2veh:Steel Lynx Ground Combat Drone'; renderTag(); let clicks=0;
- for(let k=0;k<60;k++){const btn=document.querySelector('[data-vbadd]'); if(!btn) break; btn.click(); clicks++;}
+ for(let k=0;k<60;k++){const btn=[...document.querySelectorAll('input[data-vbck]')].find(x=>!x.checked&&!x.disabled); if(!btn) break; btn.click(); clicks++;}
  const i=BYID[st.sel]; const {B,v}=vbFix(i); const C=VB.calc(v,B);
  return {n,added,nbad:bad.length,bad:bad.slice(0,10),clicks,uiOk:C.ok,cf:C.cf+'/'+C.Cmax,load:C.load+'/'+C.Lmax,pts:C.pts+'/'+v.B};});
 console.log(JSON.stringify(r));console.log(errs.slice(0,5));await b.close();})();

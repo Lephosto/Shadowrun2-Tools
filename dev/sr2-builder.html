@@ -1734,7 +1734,55 @@ const GROUPS=['Control','Protection','Weapon mounts','Electronics','Signature','
 const typeName=t=>(TYPES.find(x=>x[0]===t)||[0,t])[1];
 function statLine(v,s){const sp=a=>a.join('/'); const H=s.Hoff!=null?`${s.H}/${s.Hoff}`:s.H, H0=v.Hoff!=null?`${v.H}/${v.Hoff}`:v.H;
   return [['Handling',H0,H],['Speed',sp(v.Sp),sp(s.Sp)],['Accel',v.Ac,s.Ac],['Armor',v.A,s.A],['Signature',v.Si,s.Si],['Autonav',v.Au||'—',s.Au||'—'],['Pilot',v.P||'—',s.P||'—'],['Sensor',v.Se,s.Se]];}
-return {TYPES,typeName,veh,M,BY,GROUPS,calc,clamp,levels,optChoices,addable,optsOf,ctxOf,statLine,minLv,fmtN,AIR,GROUND};
+// ---- Checklist UI (shared by both tools): every mod listed by group; tick to add, then pick level/count and option ----
+const E=s=>String(s??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+const UI={open:{},hide:false};
+// legal levels for installed mod i, each with the mod's cost at that level
+function lvCost(v,b,i){const m=b.mods[i],d=BY[m.id]; if(d.kind==='flag') return []; const c=ctxOf(v,b), out=[];
+  for(let l=minLv(d,v,c),mx=d.max(v,c);l<=mx;l++){const t=clone(b); t.mods[i].lv=l; const r=calc(v,t); if(r.ok) out.push([l,r.rows[i].cost]);} return out;}
+function checklist(v,b,key){
+  const R=calc(v,b), A=addable(v,b), k=E(key);
+  const have=new Map(R.rows.map((r,i)=>[r.m.id,{...r,i}])), yes=new Map(A.yes.map(x=>[x.d.id,x])), no=new Map(A.no.map(x=>[x.d.id,x.why]));
+  const money=n=>fmtN(n)+'¥', extra=(cf,ld)=>(cf?' · '+fmtN(cf)+' CF':'')+(ld?' · '+fmtN(ld)+' kg':'');
+  const groups=GROUPS.map(g=>{
+    const L=M.filter(d=>d.g===g), nOn=L.filter(d=>have.has(d.id)).length, nYes=L.filter(d=>yes.has(d.id)).length;
+    const items=L.map(d=>{const h=have.get(d.id), y=yes.get(d.id), id=E(d.id); if(!h&&!y&&UI.hide) return '';
+      let ctl='';
+      if(h){const os=optChoices(v,b,h.i), all=optsOf(d,v)||[];
+        if(d.kind!=='flag') ctl+=`<label class="vck-s">${d.kind==='qty'?'How many':'Level'} <select data-vblv="${k}" data-vbid="${id}" aria-label="${E(d.n)} ${d.kind==='qty'?'count':'level'}">${lvCost(v,b,h.i).map(([l,co])=>`<option value="${l}"${l===h.l?' selected':''}>${l} · ${money(co)}</option>`).join('')}</select></label>`;
+        if(os.length>1) ctl+=`<label class="vck-s">Option <select data-vbop="${k}" data-vbid="${id}" aria-label="${E(d.n)} option">${os.map(o=>`<option value="${E(o[0])}"${o[0]===h.m.opt?' selected':''}>${E(o[1])}</option>`).join('')}</select></label>`;
+        else if(all.length>1&&os.length===1) ctl+=`<span class="vck-w">${E(os[0][1])} (only option that fits)</span>`;
+        ctl+=`<span class="vck-n">${money(h.cost)}${extra(h.cf,h.load)}</span>`;
+      } else if(y){const t={...b,mods:b.mods.concat([{id:d.id,lv:y.lv,opt:y.opt}])}, row=calc(v,t).rows.slice(-1)[0];
+        ctl=`<span class="vck-n">${d.kind==='flag'?'':'from '}${money(row.cost)}${d.kind==='flag'?'':d.kind==='qty'?' each':' at level '+y.lv}${extra(row.cf,row.load)}</span>`;
+      } else ctl=`<span class="vck-w">${E(no.get(d.id)||'Doesn’t fit')}</span>`;
+      return `<li class="vck ${h?'on':y?'off':'no'}"><div class="vck-h"><label><input type="checkbox" data-vbck="${k}" data-vbid="${id}"${h?' checked':''}${!h&&!y?' disabled':''}> <b>${E(d.n)}</b></label><span class="vck-p">${E(d.pg)}</span></div><div class="vck-c">${ctl}</div><details class="vck-d"><summary>What it does</summary><p>${E(d.d)}</p></details></li>`;}).join('');
+    const open=g in UI.open?UI.open[g]:(nOn>0||(!R.rows.length&&g==='Control'));
+    return `<details class="vgrp" data-vbgrp="${E(g)}"${open?' open':''}><summary><b>${E(g)}</b><span class="vgrp-n">${nOn?nOn+' added · ':''}${nYes} more fit${UI.hide?'':` · ${L.length-nOn-nYes} don’t`}</span></summary>${items?`<ul class="vcl">${items}</ul>`:'<p class="vck-w">Nothing else here fits this build.</p>'}</details>`;}).join('');
+  return `<div class="vcheck"><div class="vck-bar"><button type="button" class="vck-b" data-vball="1">Open all</button><button type="button" class="vck-b" data-vball="0">Close all</button><label class="vck-t"><input type="checkbox" data-vbhide="${k}"${UI.hide?' checked':''}> Hide ones that don’t fit</label></div>${groups}</div>`;}
+// apply a checklist control to build b; returns true when it was one of ours
+function act(v,b,el){const ds=el.dataset||{}, id=ds.vbid, ix=b.mods.findIndex(m=>m.id===id);
+  if(ds.vbck!==undefined){ if(el.checked){ if(ix<0){const y=addable(v,b).yes.find(x=>x.d.id===id); if(y) b.mods.push({id,lv:y.lv,opt:y.opt});} } else if(ix>=0) b.mods.splice(ix,1); return true;}
+  if(ds.vblv!==undefined){ if(ix>=0) b.mods[ix].lv=+el.value; return true;}
+  if(ds.vbop!==undefined){ if(ix>=0) b.mods[ix].opt=el.value; return true;}
+  if(ds.vbhide!==undefined){ UI.hide=el.checked; return true;}
+  return false;}
+const keyOf=el=>{const ds=el&&el.dataset||{}; for(const a of ['vbck','vblv','vbop','vbhide']) if(ds[a]!==undefined) return {a,k:ds[a],id:ds.vbid}; return null;};
+// after a re-render, put focus back on the same control so keyboard and screen-reader users keep their place
+function refocus(info){ if(!info||typeof document==='undefined') return; const at=a=>a.replace(/[A-Z]/g,x=>'-'+x.toLowerCase());
+  const el=document.querySelector(`[data-${at(info.a)}="${CSS.escape(info.k)}"]${info.id?`[data-vbid="${CSS.escape(info.id)}"]`:''}`); if(el) el.focus({preventScroll:true});}
+if(typeof document!=='undefined'){
+  document.addEventListener('toggle',e=>{const d=e.target; if(d&&d.dataset&&d.dataset.vbgrp) UI.open[d.dataset.vbgrp]=d.open;},true);
+  document.addEventListener('click',e=>{const bt=e.target.closest&&e.target.closest('[data-vball]'); if(!bt) return; const on=bt.dataset.vball==='1', root=bt.closest('.vcheck'); if(root) root.querySelectorAll('details.vgrp').forEach(x=>{x.open=on;}); GROUPS.forEach(g=>{UI.open[g]=on;});});
+  const st=document.createElement('style'); st.textContent=`.vcheck{margin:8px 0}.vck-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:6px}.vck-b{font:inherit;font-size:.8125rem;padding:3px 10px;border:1px solid var(--line);border-radius:4px;background:transparent;color:var(--ink);cursor:pointer}.vck-t{display:inline-flex;flex-direction:row;align-items:center;gap:6px;font-size:.8125rem;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400;margin:0}.vck-t input{width:1rem;height:1rem;margin:0}
+.vgrp{border:1px solid var(--line);border-radius:8px;margin:6px 0;padding:0 10px}.vgrp>summary{cursor:pointer;padding:8px 0;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}.vgrp>summary b{font-size:.9375rem}.vgrp-n{font-size:.8125rem;color:var(--muted)}
+.vcl{list-style:none;margin:0 0 6px;padding:0}.vck{border-top:1px solid var(--line);padding:8px 0}.vck-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.vck-h label{display:inline-flex;flex-direction:row;justify-content:flex-start;align-items:baseline;margin:0;font-weight:400;gap:8px;flex:1;min-width:12rem;cursor:pointer;text-transform:none;letter-spacing:0;font-size:.875rem;color:var(--ink)}.vck-h input{min-width:0;padding:0;width:1.05rem;height:1.05rem;flex:none;margin:0;align-self:center;accent-color:var(--accent)}.vck-p{font-size:.75rem;color:var(--muted)}
+.vck-c{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin:5px 0 0 1.6rem;font-size:.8125rem}.vck-s{display:inline-flex;flex-direction:row;align-items:center;gap:6px;color:var(--muted);text-transform:none;letter-spacing:0;font-size:.8125rem}.vck-s select{font:inherit;padding:3px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel,transparent);color:var(--ink)}
+.vck-n{font-family:var(--mono,monospace);font-variant-numeric:tabular-nums}.vck.on{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 10%,transparent),transparent 70%)}.vck.on .vck-h b{color:var(--accent)}.vck.no .vck-h label{cursor:default;color:var(--muted)}.vck.no input{opacity:.5}.vck-w{color:var(--muted);font-style:italic}
+.vck-d{margin:4px 0 0 1.6rem;font-size:.8125rem}.vck-d summary{cursor:pointer;color:var(--muted);width:max-content}.vck-d p{margin:4px 0 0;line-height:1.45;color:var(--ink)}`;
+  (document.head||document.documentElement).appendChild(st);
+}
+return {TYPES,typeName,veh,M,BY,GROUPS,calc,clamp,levels,optChoices,addable,optsOf,ctxOf,statLine,minLv,fmtN,AIR,GROUND,checklist,act,keyOf,refocus,UI};
 })();
 /*@end:vehicles*/
 
@@ -2049,7 +2097,7 @@ function cbCard(){const el=$('cbBuild'); if(!el) return; const show=cbOn()||book
 let CB_OPEN=false;
 // ---------- Vehicle build-out (Runner Builder rigger card) ----------
 const R2OBJ=(()=>{const o={}; R2VEH.forEach(([n,c,pg,ref,H,Sp,Ac,B,A,Si,Au,P,Se,C,L])=>{o['r2veh:'+n]={n,c,pg:'R2 p. '+pg,r:{H,Sp,Ac,B,A,Si,Au,P,Se,C,L}};}); return o;})();
-const VB_OPEN=new Set(), VB_GUIDE=new Set(); const VB_DROP=new WeakMap();
+const VB_OPEN=new Set(); const VB_DROP=new WeakMap();
 function vbVeh(g){const R=R2OBJ[g.key]; if(!R) return null; const t=VTYPE[R.n]||['car',0];
   if(!g.vb||typeof g.vb!=='object') g.vb={type:t[0],mil:false,facRC:false,facRig:false,mods:[]};
   if(!Array.isArray(g.vb.mods)) g.vb.mods=[]; if(!VB.TYPES.some(x=>x[0]===g.vb.type)) g.vb.type=t[0];
@@ -2060,22 +2108,15 @@ function vbEditor(g,ix){const v=vbFixG(g); if(!v) return ''; const B=g.vb, R=VB.
   const chk=(f,l)=>`<label ${lab}><input type="checkbox" data-vbf="${ix}" data-f="${f}" ${B[f]?'checked':''}> ${l}</label>`;
   const bar=(l,u,m,un)=>`<div class="vbar"><div class="vb-l"><span>${l}</span><b>${VB.fmtN(u)} / ${VB.fmtN(m)}${un}</b></div><div class="vb-t"><i style="width:${m?Math.min(100,u/m*100):u?100:0}%"></i></div></div>`;
   const tiles=`<div class="vtiles">${VB.statLine(v,s).map(([k,a,b])=>`<div class="vt${String(a)!==String(b)?' chg':''}"><span>${k}</span><b>${b}</b>${String(a)!==String(b)?`<em>was ${a}</em>`:''}</div>`).join('')}</div>`;
-  const rows=R.rows.map(({m,d,l,cost,cf,load},j)=>{const lvs=d.kind==='flag'?[]:VB.levels(v,B,j), os=VB.optChoices(v,B,j);
-    return `<li class="ucard"><div class="uc-h"><b>${esc(d.n)}</b><span class="pg">${esc(d.pg)}</span><button type="button" class="x vbx" data-vbdel="${ix}" data-j="${j}" aria-label="Remove ${esc(d.n)}">×</button></div><p class="uc-d">${esc(d.d)}</p>
-      <div class="uc-c">${d.kind==='flag'?'':`<label class="uc-r">${d.kind==='qty'?'How many':'Level'}<select data-vbl="${ix}" data-j="${j}">${lvs.map(x=>`<option value="${x}" ${x===l?'selected':''}>${x}</option>`).join('')}</select></label>`}${os.length>1?`<label class="uc-r">Option<select data-vbo="${ix}" data-j="${j}">${os.map(o=>`<option value="${esc(o[0])}" ${o[0]===m.opt?'selected':''}>${esc(o[1])}</option>`).join('')}</select></label>`:''}<span class="uc-n">${fmt(cost)}¥${cf?` · ${VB.fmtN(cf)} CF`:''}${load?` · ${VB.fmtN(load)} kg`:''}</span></div></li>`;}).join('');
-  const A=VB.addable(v,B);
-  const guide=`<details class="pguide" data-vbgd="${ix}" ${VB_GUIDE.has(ix)?'open':''}><summary>Add a modification <span class="gstat">${A.yes.length} fit</span></summary>${VB.GROUPS.map(gr=>{const L=A.yes.filter(x=>x.d.g===gr); return L.length?`<h5 class="vg">${gr}</h5><ul class="plist">${L.map(({d,lv,opt})=>{const t={...B,mods:B.mods.concat([{id:d.id,lv,opt}])}; const r=VB.calc(v,t), row=r.rows[r.rows.length-1];
-      return `<li><div class="pl-h"><div><b>${esc(d.n)}</b> <span class="gstat">${fmt(row.cost)}¥${d.kind!=='flag'?` at ${d.kind==='qty'?lv+'×':'level '+lv}`:''}${row.cf?` · ${VB.fmtN(row.cf)} CF`:''}${row.load?` · ${VB.fmtN(row.load)} kg`:''} · ${esc(d.pg)}</span></div><button type="button" class="padd" data-vbadd="${ix}" data-id="${d.id}" aria-label="Add ${esc(d.n)}">Add</button></div><p class="pl-d">${esc(d.d)}</p></li>`;}).join('')}</ul>`:'';}).join('')}</details>
-    ${A.no.length?`<details class="pguide"><summary>Not available on this build <span class="gstat">${A.no.length}</span></summary><ul class="vno">${A.no.map(x=>`<li><b>${esc(x.d.n)}</b>: ${esc(x.why)}</li>`).join('')}</ul></details>`:''}`;
   const dr=VB_DROP.get(g); VB_DROP.delete(g);
   return `<details class="wb vbuild" data-vbd="${ix}" ${VB_OPEN.has(ix)?'open':''}><summary>${esc(GEARDB[g.key].n)}: ${R.rows.length?`${R.rows.length} mod${R.rows.length>1?'s':''} · +${fmt(R.cost)}¥`:'build it out'}</summary>
-    <p class="note">Rigger 2 customization (R2 p. 118–146). Only modifications that fit are offered; cargo space, load and weapon-mount points can’t be exceeded. Mods are added to the vehicle’s price in Gear.</p>
+    <p class="note">Rigger 2 customization (R2 p. 118–146). Tick a modification to add it, then pick its level or count; each level shows its price. Greyed-out ones don’t fit this build yet, with the reason. Cargo space, load and weapon-mount points can’t be exceeded. Mods are added to the vehicle’s price in Gear.</p>
     <div class="picker" style="flex-wrap:wrap"><label>Vehicle type<select data-vbf="${ix}" data-f="type">${VB.TYPES.map(([k,l])=>`<option value="${k}" ${B.type===k?'selected':''}>${esc(l)}</option>`).join('')}</select></label></div>
     <div class="row" style="gap:0.75rem;flex-wrap:wrap">${chk('mil','Security or military vehicle (GM permission)')}${v.drone?'':chk('facRC','Already has a remote control interface')+chk('facRig','Already rigger-adapted')}</div>
     <p class="note">${v.drone?'Drone: remote control interface and rigger adaptation come standard (R2 p. 125). ':''}Check its entry (${esc(v.pg)}) for gear it already has.</p>
     ${bar('Cargo space (CF)',R.cf,R.Cmax,'')}${bar('Load',R.load,R.Lmax,' kg')}${bar('Weapon mount points (Body)',R.pts,v.B,'')}
     ${tiles}${dr?`<p class="wbw">No longer fit, so removed: ${esc(dr.join(', '))}.</p>`:''}
-    ${rows?`<ul class="ulist">${rows}</ul>`:''}${guide}</details>`;}
+    <h4 style="margin:0.75rem 0 0.25rem">Modifications <span class="gstat">${R.rows.length?`${R.rows.length} added · ${fmt(R.cost)}¥`:'none yet'}</span></h4>${VB.checklist(v,B,ix)}</details>`;}
 
 (function(){
  // new categories
@@ -2895,8 +2936,6 @@ document.addEventListener('click',e=>{
   if(b.dataset.cbdel!==undefined&&cbOn()){const [sd,ix]=b.dataset.cbdel.split('|'); S.cbody.limbs[sd].acc.splice(+ix,1); CB_OPEN=true; render(); return;}
   if(b.dataset.hbadd!==undefined){const ix=+b.dataset.hbadd,g=S.gear[ix]; hbFixG(g); const x=HB.addable(g.key,g.hb,HBENV).yes.find(y=>y.id===b.dataset.id); if(x) g.hb.opts.push({id:x.id,r:x.r}); HB_OPEN.add(ix); HB_GUIDE.add(ix); render(); return;}
   if(b.dataset.hbdel!==undefined){const ix=+b.dataset.hbdel,g=S.gear[ix]; if(g.hb) g.hb.opts.splice(+b.dataset.j,1); hbFixG(g); HB_OPEN.add(ix); render(); return;}
-  if(b.dataset.vbadd!==undefined){const ix=+b.dataset.vbadd,g=S.gear[ix]; const v=vbFixG(g); const x=VB.addable(v,g.vb).yes.find(y=>y.d.id===b.dataset.id); if(x) g.vb.mods.push({id:x.d.id,lv:x.lv,opt:x.opt}); VB_OPEN.add(ix); VB_GUIDE.add(ix); render(); return;}
-  if(b.dataset.vbdel!==undefined){const ix=+b.dataset.vbdel,g=S.gear[ix]; if(g.vb) g.vb.mods.splice(+b.dataset.j,1); vbFixG(g); VB_OPEN.add(ix); render(); return;}
   if(b.dataset.mode){S.mode=b.dataset.mode;render();return;}
   if(b.dataset.cat){const c=b.dataset.cat,L=b.dataset.l; for(const [k] of CATS){ if(k!==c&&S.prio[k]===L) S.prio[k]=''; } S.prio[c]=S.prio[c]===L?'':L; render(); return;}
   if(b.dataset.del){const arr=S[b.dataset.del]||[]; if(b.dataset.del==='gear'&&arr[+b.dataset.i]&&arr[+b.dataset.i].key===CBKEY) S.cbody=null; arr.splice(+b.dataset.i,1);render();return;}
@@ -2950,9 +2989,8 @@ document.addEventListener('change',e=>{
   if(t.dataset.cbadd!==undefined&&t.value&&cbOn()){S.cbody.limbs[t.dataset.cbadd].acc.push(t.value); CB_OPEN=true; render(); return;}
   if(t.dataset.hbf!==undefined){const ix=+t.dataset.hbf,g=S.gear[ix]; hbFixG(g); g.hb[t.dataset.f]=t.checked; hbFixG(g); HB_OPEN.add(ix); render(); return;}
   if(t.dataset.hbr!==undefined){const ix=+t.dataset.hbr,g=S.gear[ix]; const o=g.hb&&g.hb.opts[+t.dataset.j]; if(o) o.r=+t.value; hbFixG(g); HB_OPEN.add(ix); render(); return;}
+  {const vk=VB.keyOf(t); if(vk&&vk.a!=='vbhide'){const ix=+vk.k,g=S.gear[ix]; const v=vbFixG(g); if(v){VB.act(v,g.vb,t); vbFixG(g);} VB_OPEN.add(ix); render(); VB.refocus(vk); return;} if(vk){VB.act(null,{mods:[]},t); render(); VB.refocus(vk); return;}}
   if(t.dataset.vbf!==undefined){const ix=+t.dataset.vbf,g=S.gear[ix]; vbVeh(g); g.vb[t.dataset.f]=t.type==='checkbox'?t.checked:t.value; vbFixG(g); VB_OPEN.add(ix); render(); return;}
-  if(t.dataset.vbl!==undefined){const ix=+t.dataset.vbl,g=S.gear[ix]; const m=g.vb&&g.vb.mods[+t.dataset.j]; if(m) m.lv=+t.value; vbFixG(g); VB_OPEN.add(ix); render(); return;}
-  if(t.dataset.vbo!==undefined){const ix=+t.dataset.vbo,g=S.gear[ix]; const m=g.vb&&g.vb.mods[+t.dataset.j]; if(m) m.opt=t.value; vbFixG(g); VB_OPEN.add(ix); render(); return;}
   if(t.dataset.wb!==undefined){const ix=+t.dataset.wb,g=S.gear[ix];g.build=g.build||{};if(t.value)g.build[t.dataset.slot]=t.value;else delete g.build[t.dataset.slot];S.gear.forEach(x=>delete x._migrated);WB_OPEN.add(ix);render();const el=$(t.id);if(el)el.focus();return;}
   if(t.dataset.am!==undefined){S.gear[+t.dataset.am].off=!t.checked;render();return;}
   if(t.dataset.ul!==undefined){S.gear[+t.dataset.ul].loaded=t.checked;render();return;}
@@ -2961,7 +2999,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.ct!==undefined&&t.dataset.f==='level'){S.contacts[+t.dataset.ct].level=t.value;save();}
 });
 document.addEventListener('toggle',e=>{const d=e.target; if(d.dataset&&d.dataset.wbd!==undefined){const i=+d.dataset.wbd; if(d.open) WB_OPEN.add(i); else WB_OPEN.delete(i);}},true);
-document.addEventListener('toggle',e=>{const d=e.target; if(d.id==='cbDet') CB_OPEN=d.open; if(!d.dataset) return; if(d.dataset.hbd!==undefined){const i=+d.dataset.hbd; if(d.open) HB_OPEN.add(i); else HB_OPEN.delete(i);} if(d.dataset.hbgd!==undefined){const i=+d.dataset.hbgd; if(d.open) HB_GUIDE.add(i); else HB_GUIDE.delete(i);} if(d.dataset.vbd!==undefined){const i=+d.dataset.vbd; if(d.open) VB_OPEN.add(i); else VB_OPEN.delete(i);} if(d.dataset.vbgd!==undefined){const i=+d.dataset.vbgd; if(d.open) VB_GUIDE.add(i); else VB_GUIDE.delete(i);}},true);
+document.addEventListener('toggle',e=>{const d=e.target; if(d.id==='cbDet') CB_OPEN=d.open; if(!d.dataset) return; if(d.dataset.hbd!==undefined){const i=+d.dataset.hbd; if(d.open) HB_OPEN.add(i); else HB_OPEN.delete(i);} if(d.dataset.hbgd!==undefined){const i=+d.dataset.hbgd; if(d.open) HB_GUIDE.add(i); else HB_GUIDE.delete(i);} if(d.dataset.vbd!==undefined){const i=+d.dataset.vbd; if(d.open) VB_OPEN.add(i); else VB_OPEN.delete(i);}},true);
 let timer=null;
 function rerenderSoon(t){clearTimeout(timer);timer=setTimeout(()=>{const id=t&&t.id;const pos=t&&t.selectionStart;render();if(id){const el=$(id);if(el){el.focus();try{if(pos!=null&&el.setSelectionRange)el.setSelectionRange(pos,pos);}catch(_){}}}},350);}
 $('addSkill').onclick=()=>{S.skills.push({name:'',rating:1,narrow:'none',conc:'',spec:''});render();$('s_ns_'+(S.skills.length-1)).focus();};
