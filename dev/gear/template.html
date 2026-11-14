@@ -227,7 +227,7 @@ return {P,LIST,get,apply,init};
 /*@end:skins*/
 try{SKIN.init();}catch(e){}
 const DATA=/*DATA*/null;
-const BOOK={core:['Core rulebook','Core','--b-core'],ssc:['Street Samurai Catalog','SSC','--b-ssc'],r2:['Rigger 2','R2','--b-r2'],vr2:['Virtual Realities 2.0','VR2','--b-vr2'],fof:['Fields of Fire','FoF','--b-fof'],st:['Shadowtech','ST','--b-st'],ct:['Cybertechnology','CT','--b-ct'],csh:['Corporate Security Handbook','CSH','--b-csh'],gr:['The Grimoire','GR','--b-gr'],aw:['Awakenings','AW','--b-aw'],co:['Shadowrun Companion','SRC','--b-co']};
+const BOOK={core:['Core rulebook','Core','--b-core'],ssc:['Street Samurai Catalog','SSC','--b-ssc'],r2:['Rigger 2','R2','--b-r2'],vr2:['Virtual Realities 2.0 (set in 2056)','VR2 · 2056','--b-vr2'],fof:['Fields of Fire','FoF','--b-fof'],st:['Shadowtech','ST','--b-st'],ct:['Cybertechnology','CT','--b-ct'],csh:['Corporate Security Handbook','CSH','--b-csh'],gr:['The Grimoire','GR','--b-gr'],aw:['Awakenings','AW','--b-aw'],co:['Shadowrun Companion','SRC','--b-co']};
 const CATN=Object.fromEntries(DATA.cats);
 const ITEMS=DATA.items; const BYID=Object.fromEntries(ITEMS.map(i=>[i.id,i]));
 /*@shared:vehicles*/
@@ -819,7 +819,7 @@ let st={books:{core:1,ssc:1,r2:1,vr2:1,fof:1,st:1,ct:1,csh:1,gr:1,aw:1,co:1},cat
 const KEYFIX=(DATA&&DATA.keyfix)||{};
 try{const s=JSON.parse(localStorage.getItem('sr2gear')||'null'); if(s){st.books=Object.assign(st.books,s.books||{}); st.kit=Array.isArray(s.kit)?s.kit.map(k=>{const f=KEYFIX[k.id]; return f?{...k,id:f}:k;}).filter(k=>BYID[k.id]||k.n):[]; if(s.build&&typeof s.build==='object') st.build=s.build; if(s.dbuild&&typeof s.dbuild==='object') st.dbuild=s.dbuild; if(s.vbuild&&typeof s.vbuild==='object') st.vbuild=s.vbuild; if(s.hbuild&&typeof s.hbuild==='object') st.hbuild=s.hbuild; if(s.cbody&&typeof s.cbody==='object') st.cbody=s.cbody; if(typeof s.charId==='string') st.charId=s.charId;}}catch(e){}
 const save=()=>{try{localStorage.setItem('sr2gear',JSON.stringify({books:st.books,kit:st.kit,build:st.build||{},dbuild:st.dbuild||{},vbuild:st.vbuild||{},hbuild:st.hbuild||{},cbody:st.cbody||null,charId:st.charId||''}));}catch(e){}};
-const srcTag=s=>`<span class="src" style="--bc:var(${BOOK[s][2]})">${BOOK[s][1]}</span>`;
+const srcTag=s=>`<span class="src" title="${BOOK[s][0]}" style="--bc:var(${BOOK[s][2]})">${BOOK[s][1]}</span>`;
 function pageRef(i){const p=i.pg||'';return /^(SSC|R2|VR2|FoF|ST|CT|CSH|GR|AW|SRC)\b/.test(p)?p:(p?'Core '+p:'');}
 function costAt(i,r){ if(i.cost!=null) return i.cost; if(i.costs) return i.costs[r]; if(i.mult!=null) return i.mult*r; return null;}
 function essAt(i,r){ if(i.ess) return i.ess[r]; return i.e;}

@@ -103,6 +103,7 @@ body.session .sesnote{display:block}
 .sesnote{display:none;font-size:0.8125rem;color:var(--muted);margin:-0.25rem 0 0.75rem}
 @media (max-width:56.25em){body.session .rail{order:-1}body.session .layout{display:flex;flex-direction:column}}
 .swbox{margin-top:1rem;border-top:1px solid var(--line);padding-top:0.75rem}.swopts{margin:0.25rem 0 0.5rem 1.25rem;padding:0;font-size:0.875rem}.swopts li{margin:0.375rem 0}.swall summary{cursor:pointer;font-size:0.8125rem;color:var(--accent);margin:0.25rem 0}#swTbl td,#swTbl th{font-size:0.8125rem}
+.era{display:inline-block;font-size:0.6875rem;line-height:1.3;padding:0 0.375rem;margin-left:0.375rem;border-radius:999px;border:1px solid var(--accent);color:var(--accent);background:var(--accent-soft);vertical-align:0.1em;white-space:nowrap}
 ul.issues li.info{border-left-color:var(--accent);background:var(--accent-soft)}
 .estab{display:flex;flex-direction:row;gap:0.5rem;align-items:flex-start;text-transform:none;letter-spacing:0;font-size:0.8125rem;line-height:1.4;margin:0.25rem 0 0.75rem;padding:0.5rem 0.625rem;border:1px solid var(--line);border-radius:0.375rem;background:var(--soft);color:var(--ink);cursor:pointer}.estab input{margin-top:0.2rem;flex:none;width:1rem;height:1rem}
 .track{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:0.25rem}
@@ -817,7 +818,7 @@ const IA_COST={'Athletics':.25,'Stealth':.25,'Armed Combat':.5,'Unarmed Combat':
 // each item: n name, c cost (number or fn of rating), e essence (number or fn), r [min,max,label] if rated, s stats, pg page
 const GCATS=[
  ['melee','Melee weapons'],['ranged','Bows and throwing weapons'],['guns','Firearms'],['ammo','Ammo and gun accessories'],['boom','Grenades'],
- ['armor','Armor and clothing'],['head','Cyberware: headware'],['body','Cyberware: bodyware'],['deck','Cyberdecks'],['prog','Matrix programs'],
+ ['armor','Armor and clothing'],['head','Cyberware: headware'],['body','Cyberware: bodyware'],['deck','Cyberdecks'],['prog','Matrix programs (core rules, 2053)'],
  ['elec','Electronics and comms'],['surv','Surveillance and security'],['med','Medical'],['magic','Magical gear'],['veh','Vehicles and drones'],
  ['tools','Tools and survival'],['soft','Skillsofts'],['other','Other']];
 const GCATNAME=Object.fromEntries(GCATS);
@@ -1379,7 +1380,7 @@ function renderExtras(){
       +(mx.rigPen?`<p class="note">Riggers deck at +1 to all target numbers and lose Hacking Pool dice equal to their VCR level (R2 p. 16).</p>`:'');
     $('deckPg').textContent=B.vr2?'VR2 p. 16–18, 85–89':'p. 172–175';
     $('vr2Design').hidden=!dk.vr2; if(dk.vr2) $('vr2Design').innerHTML=vr2DesignHTML(dk);
-    $('utilBody').innerHTML=dk.utils.map(u=>`<tr><td><label style="flex-direction:row;align-items:center;gap:0.375rem;text-transform:none;letter-spacing:0;font-weight:500;font-size:0.875rem;color:var(--ink)"><input type="checkbox" data-ul="${u.i}" ${u.g.loaded?'checked':''} ${!u.g.loaded&&(u.size>dk.am-dk.used||dk.utils.some(x=>x!==u&&x.g.loaded&&x.g.key===u.g.key))?'disabled':''}>${esc(GEARDB[u.g.key].n)}${!u.g.loaded&&dk.utils.some(x=>x!==u&&x.g.loaded&&x.g.key===u.g.key)?' <span class="note">(a copy is already loaded)</span>':!u.g.loaded&&u.size>dk.am-dk.used?' <span class="note">(not enough active memory)</span>':''}</label>${(()=>{const D=DESC[u.g.key]; const txt=PROG_NOTE[u.g.key]||(D&&!/don’t give it a separate description/.test(D[0])?D[0]:'The core book only lists this program in its price table; there is no rules text for it.'); const pg=D?(/^p\./.test(D[1])?'Core '+D[1]:D[1]):''; return `<div class="gstat gdesc">${esc(txt)}${pg?` <span class="pg">${esc(pg)}</span>`:''}</div>`;})()}</td><td class="n">${u.g.r}</td><td class="n">${u.size} Mp</td></tr>`).join('')||`<tr><td colspan="3" class="note">No utilities yet. Add them from Gear → Matrix programs.</td></tr>`;
+    $('utilBody').innerHTML=dk.utils.map(u=>`<tr><td><label style="flex-direction:row;align-items:center;gap:0.375rem;text-transform:none;letter-spacing:0;font-weight:500;font-size:0.875rem;color:var(--ink)"><input type="checkbox" data-ul="${u.i}" ${u.g.loaded?'checked':''} ${!u.g.loaded&&(u.size>dk.am-dk.used||dk.utils.some(x=>x!==u&&x.g.loaded&&x.g.key===u.g.key))?'disabled':''}>${esc(GEARDB[u.g.key].n)}${eraChip(GEARDB[u.g.key])}${!u.g.loaded&&dk.utils.some(x=>x!==u&&x.g.loaded&&x.g.key===u.g.key)?' <span class="note">(a copy is already loaded)</span>':!u.g.loaded&&u.size>dk.am-dk.used?' <span class="note">(not enough active memory)</span>':''}</label>${(()=>{const D=DESC[u.g.key]; const txt=PROG_NOTE[u.g.key]||(D&&!/don’t give it a separate description/.test(D[0])?D[0]:'The core book only lists this program in its price table; there is no rules text for it.'); const pg=D?(/^p\./.test(D[1])?'Core '+D[1]:D[1]):''; return `<div class="gstat gdesc">${esc(txt)}${pg?` <span class="pg">${esc(pg)}</span>`:''}</div>`;})()}</td><td class="n">${u.g.r}</td><td class="n">${u.size} Mp</td></tr>`).join('')||`<tr><td colspan="3" class="note">No utilities yet. Add them from Gear → Matrix programs.</td></tr>`;
     $('memBudget').innerHTML=budgetHTML('Loaded in active memory (Mp)',dk.used,dk.am,false)+budgetHTML('Stored (Mp)',dk.stored,dk.sm,false)+(dk.loose.length?`<p class="note">Programs entered as your own items don't have sizes, so they aren't counted.</p>`:'');
   }
   // rigger
@@ -2079,7 +2080,7 @@ function vbEditor(g,ix){const v=vbFixG(g); if(!v) return ''; const B=g.vb, R=VB.
 (function(){
  // new categories
  const ins=(after,arr)=>{const i=GCATS.findIndex(c=>c[0]===after);GCATS.splice(i+1,0,...arr);arr.forEach(([k,l])=>{GCATNAME[k]=l;CAT[k]=CAT[k]||[];});};
- ins('prog',[['prog2','Matrix programs (VR2)']]);
+ ins('prog',[['prog2','Matrix programs (Virtual Realities 2.0, 2056)']]);
  ins('veh',[['r2veh','Vehicles and drones (Rigger 2 list)'],['rc','Remote control gear and autosofts'],['vweap','Vehicle weapons and missiles']]);
  // Matrix 1.0 decks and programs hide when VR2 is on (VR2 replaces deck building, p. 89)
  CAT.deck.forEach(it=>{if(it.n!=='Remote Control Deck') it.m1=true;}); CAT.prog.forEach(it=>{it.m1=true;});
@@ -2398,6 +2399,12 @@ const CYBER_GRADES={std:['Standard',1,1],alpha:['Alphaware',.8,3],beta:['Betawar
 
 // Runs after every book has added its gear.
 (()=>{
+ // Virtual Realities 2.0 is set in 2056, three years after the core rulebook (2053). Its Matrix rules replace the core ones
+ // unless a table keeps the older rules (VR2 p. 6), so both program lists stay, with the VR2 items clearly marked.
+ Object.entries(GEARDB).forEach(([k,it])=>{ if(it.src!=='vr2') return; const note='From Virtual Realities 2.0, set in 2056 (the core rulebook is set in 2053). VR2’s Matrix rules replace the core ones unless your table keeps the older rules (VR2 p. 6).';
+   const d=DESC[k]; DESC[k]=d?[d[0]+' '+note,d[1]]:[note,it.pg]; });
+ Object.entries(GEARDB).forEach(([k,it])=>{ if(!k.startsWith('prog:')) return; const v=GEARDB['prog2:'+it.n]; if(!v) return; const note='Core-rules version (2053). Virtual Realities 2.0 (2056) has its own '+it.n+' in the VR2 program list.';
+   const d=DESC[k]; DESC[k]=d?[d[0]+' '+note,d[1]]:[note,it.pg]; });
  // Rigger 2 rebuilt every earlier vehicle and says its Vehicle List supersedes the older books; its prices are the official ones (R2 p. 108, 147).
  // The older entries are folded into their R2 versions: saved characters move over through KEYFIX, and each R2 entry notes the old book's price.
  R2_SUPERSEDES.forEach(([o,n])=>{const ok='veh:'+o, nk='r2veh:'+n, old=GEARDB[ok], nw=GEARDB[nk]; if(!old||!nw) return;
@@ -2571,6 +2578,7 @@ function renderDefaulting(){const box=$('swBox'); if(!box) return; const have=sw
    <div class="picker"><label for="swSel" class="grow">Check a skill<select id="swSel">${opt}</select></label><label for="swBase">Base TN<input type="number" id="swBase" min="2" max="12" value="${SWBASE}" style="width:4rem"></label></div>
    ${detail}
    <details class="swall"><summary>Best default for every skill you don't have</summary><div class="tbl"><table id="swTbl"><thead><tr><th>Skill</th><th>Use</th><th class="n">Dice</th><th class="n">TN</th></tr></thead><tbody>${rows}</tbody></table></div></details>`;}
+function eraChip(it){return it&&it.src==='vr2'?'<span class="era" title="Virtual Realities 2.0 is set in 2056; the core rulebook in 2053">VR2 · 2056</span>':'';}
 function gearLevel(k){return S.gear.filter(g=>g.key===k).reduce((m,g)=>Math.max(m,+g.r||0),0);}
 // Implants that raise attributes (Shadowtech / Cybertechnology), checked against the books:
 // bone lacing +1/+1/+2 Body (ST p. 42); dermal sheath Body + level + 1 (CT p. 28); muscle augmentation +level Strength and Quickness (ST p. 35);
@@ -2737,7 +2745,7 @@ function render(){
     const sub=rows.reduce((a,[g])=>a+(+g.cost||0)*(+g.qty||1),0), es=rows.reduce((a,[g])=>a+(+g.ess||0)*(+g.qty||1),0)-(c==='head'?essenceCredit():0);
     if(LASTADD&&rows.some(([g])=>g.key===LASTADD)) FOLD.delete(c); const fo=FOLD.has(c);
     return `<tr class="gcat${fo?' folded':''}"><td colspan="7"><button class="gfold" data-fold="${c}" aria-expanded="${!fo}">${GCATNAME[c]} <span class="sub" style="float:none">(${rows.length})</span></button><span class="sub">${fmt(sub)}¥${es?` · ${+es.toFixed(2)} Ess`:''}</span></td></tr>`+rows.map(([g,i])=>{const it=g.key&&GEARDB[g.key];const t=(+g.cost||0)*(+g.qty||1);
-      if(it) return `<tr><td>${esc(it.n)} <span class="pg">${it.pg}</span>${lockerLink(g.key)}${it.s?`<div class="gstat">${esc(it.s)}</div>`:''}${DESC[g.key]&&DESC[g.key][0]!==it.s?`<div class="gstat gdesc">${esc(DESC[g.key][0])}</div>`:''}${g.addons?`<div class="gstat">Includes add-ons: ${esc(Object.entries(g.build||{}).filter(([k])=>!['ammo','link'].includes(k)).map(([,v])=>GB.accName(v)).join(', '))} (+${fmt(g.addons)}¥ each). Change them under Weapons.</div>`:''}<input id="g_note_${i}" data-gr="${i}" data-f="note" value="${esc(g.note)}" placeholder="Note" style="margin-top:0.25rem;width:100%;max-width:13.75rem;font-size:0.75rem;padding:3px 0.375rem">${gradeable(it)&&booksOn().ct?`<div><select id="g_gr_${i}" data-gr="${i}" data-f="grade" aria-label="Cyberware grade" style="margin-top:0.25rem;font-size:0.75rem">${Object.entries(CYBER_GRADES).map(([k,[l,e,c]])=>`<option value="${k}" ${(g.grade||'std')===k?'selected':''}>${l}${k==='std'?'':` (Essence ×${e}, price ×${c})`}</option>`).join('')}</select></div>`:''}${it.bi!=null&&!it.neural?`<label style="flex-direction:row;align-items:center;gap:0.3rem;text-transform:none;letter-spacing:0;font-size:0.75rem;margin-top:0.25rem"><input type="checkbox" id="g_cu_${i}" data-gr="${i}" data-f="cultured" ${g.cultured?'checked':''}> Cultured (Body Index ×.75, price ×4)</label>`:it.neural?'<div class="gstat">Neural bioware: already cultured</div>':''}</td>
+      if(it) return `<tr><td>${esc(it.n)}${eraChip(it)} <span class="pg">${it.pg}</span>${lockerLink(g.key)}${it.s?`<div class="gstat">${esc(it.s)}</div>`:''}${DESC[g.key]&&DESC[g.key][0]!==it.s?`<div class="gstat gdesc">${esc(DESC[g.key][0])}</div>`:''}${g.addons?`<div class="gstat">Includes add-ons: ${esc(Object.entries(g.build||{}).filter(([k])=>!['ammo','link'].includes(k)).map(([,v])=>GB.accName(v)).join(', '))} (+${fmt(g.addons)}¥ each). Change them under Weapons.</div>`:''}<input id="g_note_${i}" data-gr="${i}" data-f="note" value="${esc(g.note)}" placeholder="Note" style="margin-top:0.25rem;width:100%;max-width:13.75rem;font-size:0.75rem;padding:3px 0.375rem">${gradeable(it)&&booksOn().ct?`<div><select id="g_gr_${i}" data-gr="${i}" data-f="grade" aria-label="Cyberware grade" style="margin-top:0.25rem;font-size:0.75rem">${Object.entries(CYBER_GRADES).map(([k,[l,e,c]])=>`<option value="${k}" ${(g.grade||'std')===k?'selected':''}>${l}${k==='std'?'':` (Essence ×${e}, price ×${c})`}</option>`).join('')}</select></div>`:''}${it.bi!=null&&!it.neural?`<label style="flex-direction:row;align-items:center;gap:0.3rem;text-transform:none;letter-spacing:0;font-size:0.75rem;margin-top:0.25rem"><input type="checkbox" id="g_cu_${i}" data-gr="${i}" data-f="cultured" ${g.cultured?'checked':''}> Cultured (Body Index ×.75, price ×4)</label>`:it.neural?'<div class="gstat">Neural bioware: already cultured</div>':''}</td>
         <td class="n">${it.r?`${(()=>{const dm=deckRowMax(g); const fixed=it.r[2]==='Deck MPCP'&&dm; return `<input type="number" id="g_r_${i}" data-gr="${i}" data-f="r" min="${it.r[0]}" max="${dm!=null?dm:it.r[1]}" value="${g.r}" style="width:3.5rem" aria-label="${it.r[2]}" title="${fixed?'Set by the deck’s MPCP':it.r[2]+(dm!=null?` (up to ${dm} with this deck)`:'')}" ${fixed?'readonly':''} class="${it.r[2]==='Rating'&&g.r>6?'bad-text':''}">`;})()}`:'—'}</td>
         <td class="n"><input type="number" min="1" id="g_q_${i}" data-gr="${i}" data-f="qty" value="${g.qty||1}" style="width:3.25rem"></td>
         <td class="n mono">${fmt(g.cost)}</td><td class="n mono">${g.ess?+(+g.ess).toFixed(2):g.bi?`${+(+g.bi).toFixed(3)} BI`:'—'}</td><td class="n mono">${fmt(t)}¥</td>
