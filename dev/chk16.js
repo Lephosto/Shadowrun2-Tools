@@ -8,7 +8,7 @@ const r=await pg.evaluate(()=>{const X=window.__sr2,S=X.S,VB=X.VB,bad=[];const R
   S.gear=[g]; try{X.syncGear(); const v=X.vbFixG(g); const c=VB.calc(v,g.vb); if(!c.ok) bad.push([g.key,c.bad]); const base=X.GEARDB[g.key]; if(g.addons!==(c.rows.length?c.cost:g.addons)) bad.push(['addons',g.key]);
    if(t%150===0){X.render(); if(/NaN|undefined/.test(document.getElementById('vehBuild').innerHTML)) bad.push(['nan',g.key]);}}catch(e){bad.push(['err',g.key,e.message]);}}
  // UI: click Add repeatedly
- S.gear=[{key:'r2veh:Ford Americar',qty:1}]; X.render(); document.querySelector('details.vbuild').open=true; let clicks=0;
+ S.gear=[{key:'r2veh:Ford Americar',qty:1}]; X.VB_OPEN.add(0); X.render(); let clicks=0;
  for(let k=0;k<80;k++){const bt=[...document.querySelectorAll('input[data-vbck]')].find(x=>!x.checked&&!x.disabled); if(!bt) break; bt.click(); clicks++;}
  // raise every level dropdown to its top legal value, then untick the first installed mod
  let lvMoves=0; for(let k=0;k<30;k++){const sel=[...document.querySelectorAll('select[data-vblv]')].find(x=>x.selectedIndex<x.options.length-1); if(!sel) break; sel.selectedIndex=sel.options.length-1; sel.dispatchEvent(new Event('change',{bubbles:true})); lvMoves++;}

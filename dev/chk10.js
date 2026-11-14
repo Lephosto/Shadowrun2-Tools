@@ -5,7 +5,7 @@ await p.goto('file://'+process.cwd()+'/sr2-builder.html');await p.click('#btnNew
 console.log('books',await p.$eval('#bookRow',e=>e.innerText.replace(/\n/g,' | ')));
 const add=async(c,k,r)=>{await p.selectOption('#gCat',c);await p.selectOption('#gItem',c+':'+k);if(r)await p.fill('#gRate',String(r));await p.click('#gAdd');};
 await add('bio','Muscle Augmentation',2);await add('bio','Cerebral Booster',2);await add('bio','Orthoskin',3);
-await add('body','Wired Reflexes',2);await add('head','Encephalon',2);await add('guns','Ares ELD-AR');await add('veh','Ares Guardian Drone (CSH)');
+await add('body','Wired Reflexes',2);await add('head','Encephalon',2);await add('guns','Ares ELD-AR');await p.check('[data-book="r2"]');await add('r2veh','Ares Guardian Drone');
 // grade wired to beta, cultured orthoskin
 const rows=await p.$$eval('#gearBody select[data-f="grade"]',e=>e.map(x=>x.id));console.log('grade selects',rows);
 const wid=await p.evaluate(()=>window.__sr2.S.gear.findIndex(g=>g.key==='body:Wired Reflexes'));

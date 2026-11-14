@@ -415,7 +415,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1794687605201","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwgunusy","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794687605183}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1794688083243","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwguy3o2","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794688083230}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--paper',panel2:'--soft',ink:'--ink',muted:'--muted',line:'--line',accent:'--accent',accentInk:'--accent-ink',accentSoft:'--accent-soft',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skillweb*/
@@ -2260,6 +2260,8 @@ function vbVeh(g){const R=R2OBJ[g.key]; if(!R) return null; const t=VTYPE[R.n]||
   return VB.veh(R.n,R.c,R.pg,R.r,g.vb.type,t[1]);}
 function vbFixG(g){const v=vbVeh(g); if(!v) return null; const cl=VB.clamp(v,g.vb); g.vb.mods=cl.b.mods; if(cl.dropped.length) VB_DROP.set(g,cl.dropped); return v;}
 function vbEditor(g,ix){const v=vbFixG(g); if(!v) return ''; const B=g.vb, R=VB.calc(v,B), s=R.s;
+  // the full checklist is built only for open vehicles (a garage of drones would otherwise redraw every checklist on each change)
+  if(!VB_OPEN.has(ix)) return `<details class="wb vbuild" data-vbd="${ix}"><summary>${esc(GEARDB[g.key].n)}: ${R.rows.length?`${R.rows.length} mod${R.rows.length>1?'s':''} · +${fmt(R.cost)}¥`:'build it out'}</summary><p class="note">Opening…</p></details>`;
   const lab='style="flex-direction:row;align-items:center;gap:0.375rem;text-transform:none;letter-spacing:0;font-size:0.8125rem"';
   const chk=(f,l)=>`<label ${lab}><input type="checkbox" data-vbf="${ix}" data-f="${f}" ${B[f]?'checked':''}> ${l}</label>`;
   const bar=(l,u,m,un)=>`<div class="vbar"><div class="vb-l"><span>${l}</span><b>${VB.fmtN(u)} / ${VB.fmtN(m)}${un}</b></div><div class="vb-t"><i style="width:${m?Math.min(100,u/m*100):u?100:0}%"></i></div></div>`;
@@ -3155,7 +3157,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.ct!==undefined&&t.dataset.f==='level'){S.contacts[+t.dataset.ct].level=t.value;save();}
 });
 document.addEventListener('toggle',e=>{const d=e.target; if(d.dataset&&d.dataset.wbd!==undefined){const i=+d.dataset.wbd; if(d.open) WB_OPEN.add(i); else WB_OPEN.delete(i);}},true);
-document.addEventListener('toggle',e=>{const d=e.target; if(d.id==='cbDet') CB_OPEN=d.open; if(!d.dataset) return; if(d.dataset.hbd!==undefined){const i=+d.dataset.hbd; if(d.open) HB_OPEN.add(i); else HB_OPEN.delete(i);} if(d.dataset.hbgd!==undefined){const i=+d.dataset.hbgd; if(d.open) HB_GUIDE.add(i); else HB_GUIDE.delete(i);} if(d.dataset.vbd!==undefined){const i=+d.dataset.vbd; if(d.open) VB_OPEN.add(i); else VB_OPEN.delete(i);}},true);
+document.addEventListener('toggle',e=>{const d=e.target; if(d.id==='cbDet') CB_OPEN=d.open; if(!d.dataset) return; if(d.dataset.hbd!==undefined){const i=+d.dataset.hbd; if(d.open) HB_OPEN.add(i); else HB_OPEN.delete(i);} if(d.dataset.hbgd!==undefined){const i=+d.dataset.hbgd; if(d.open) HB_GUIDE.add(i); else HB_GUIDE.delete(i);} if(d.dataset.vbd!==undefined){const i=+d.dataset.vbd; if(d.open){const was=VB_OPEN.has(i); VB_OPEN.add(i); if(!was) render();} else VB_OPEN.delete(i);}},true);
 let timer=null;
 function rerenderSoon(t){clearTimeout(timer);timer=setTimeout(()=>{const id=t&&t.id;const pos=t&&t.selectionStart;render();if(id){const el=$(id);if(el){el.focus();try{if(pos!=null&&el.setSelectionRange)el.setSelectionRange(pos,pos);}catch(_){}}}},350);}
 $('addSkill').onclick=()=>{S.skills.push({name:'',rating:1,narrow:'none',conc:'',spec:''});render();$('s_ns_'+(S.skills.length-1)).focus();};
@@ -3473,7 +3475,7 @@ $('skillList').innerHTML=SKILLS.map(s=>`<option value="${s}">`).join('');
 render();
 {const st2=document.createElement('style'); st2.textContent=CBUI.CSS; document.head.appendChild(st2);}
 xferCheck(); {const h=lockerHref(), a=$('lockerTop'); if(h&&a){a.href=h; a.hidden=false;}}
-window.__sr2={get S(){return S;},KEYFIX,CB,CBENV,cbCalc,cbChar,augAttr,HB,HBENV,hbFixG,essenceUsed,armorTotals,gearImport,xferCheck,VB,R2OBJ,vbFixG,VTYPE,deckEnforce,deckRowMax,deckPickOk,vr2Clamp,syncGear,DESC,EDGES,FLAWS,RACES,EF_DESC,CAT,GCATS,GEARDB,WSTAT,VSTAT,MSTAT,ASTAT,DSTAT,RANGES,RT_SKILL,vr2DeckCost,vr2Default,itemVisible,render,sheetFile,deckInfo,matrixInfo,builderFile,SPELLS,POWERS,XPOWERS,IA_COST};
+window.__sr2={get S(){return S;},KEYFIX,VB_OPEN,CB,CBENV,cbCalc,cbChar,augAttr,HB,HBENV,hbFixG,essenceUsed,armorTotals,gearImport,xferCheck,VB,R2OBJ,vbFixG,VTYPE,deckEnforce,deckRowMax,deckPickOk,vr2Clamp,syncGear,DESC,EDGES,FLAWS,RACES,EF_DESC,CAT,GCATS,GEARDB,WSTAT,VSTAT,MSTAT,ASTAT,DSTAT,RANGES,RT_SKILL,vr2DeckCost,vr2Default,itemVisible,render,sheetFile,deckInfo,matrixInfo,builderFile,SPELLS,POWERS,XPOWERS,IA_COST};
 })();
 </script>
 </body></html>
