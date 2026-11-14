@@ -11,7 +11,7 @@ const r=await p.evaluate(()=>{const bad=[];let n=0,added=0;const R=a=>a[Math.flo
    // everything the UI would offer must stay legal
    const A=VB.addable(v,B); A.yes.slice(0,6).forEach(x=>{const t2={...B,mods:B.mods.concat([{id:x.d.id,lv:x.lv,opt:x.opt}])}; if(!VB.calc(v,t2).ok) bad.push(['addable broke',i.n,x.d.id]); added++;});
    B.mods.forEach((m,ix)=>{VB.levels(v,B,ix).forEach(l=>{const t2={...B,mods:B.mods.map((q,j)=>j===ix?{...q,lv:l}:q)}; if(!VB.calc(v,t2).ok) bad.push(['level broke',i.n,m.id,l]);});});
-   if(C.cf>C.Cmax||C.load>C.Lmax||C.pts>v.B) bad.push(['cap',i.n]);
+   if(C.cf>C.Cmax||C.load>C.Lmax||C.pts>C.ptsMax) bad.push(['cap',i.n]);
    if(t%250===0){st.sel=i.id; renderTag(); const h=document.getElementById('tag').innerHTML; if(/NaN|undefined/.test(h)) bad.push(['nan',i.n]);}
   }catch(e){bad.push(['err',i.n,e.message]);}}
  // UI walk: on one drone, keep clicking Add on everything that fits until nothing fits
