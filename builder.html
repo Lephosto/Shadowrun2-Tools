@@ -362,8 +362,12 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
           <label for="kEarned">Good Karma earned<input id="kEarned" type="number" min="0"></label>
           <label for="kSpent">Other Karma spent<input id="kSpent" type="number" min="0"></label>
           <label for="kPoolBonus">Karma Pool added in play<input id="kPoolBonus" type="number" min="0"></label>
-          <label for="nuyenNow">Nuyen on hand<input id="nuyenNow" type="number" min="0" style="width:7.5rem"></label>
+          <label for="nuyenNow">Nuyen on hand<input id="nuyenNow" type="number" style="width:7.5rem"></label>
         </div>
+        <h3>Add or spend nuyen</h3>
+        <p class="note">Log a run payout or a purchase. Nuyen on hand updates, and × undoes an entry.</p>
+        <div class="picker"><label for="nyAmt">Amount (¥)<input id="nyAmt" type="number" min="0" step="1" style="width:8rem" placeholder="50000"></label><label for="nyNote" class="grow">For<input id="nyNote" placeholder="Run payout, shopping list…"></label><span style="display:flex;gap:0.5rem"><button id="nyAdd" class="primary">Add</button><button id="nySpend">Spend</button></span></div>
+        <div class="tbl"><table><thead><tr><th>Date</th><th>For</th><th class="n">¥</th><th></th></tr></thead><tbody id="nyLog"></tbody></table></div>
         <h3>Spend Good Karma <span class="pg">p. 190</span></h3>
         <p class="note">Attributes cost the new rating (double above racial max). Skills cost 2 × new rating, concentrations 1.5 ×, specializations and languages 1 ×. Bought raises update the sheet.</p>
         <div class="picker"><label for="advPick" class="grow">Raise<select id="advPick"></select></label><button id="advBuy" class="primary">Buy</button><span class="pill" id="advAvail"></span></div>
@@ -417,7 +421,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1794703421726","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwh42uwv","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794703421707}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1794784310412","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwig8l11","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794784310399}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--paper',panel2:'--soft',ink:'--ink',muted:'--muted',line:'--line',accent:'--accent',accentInk:'--accent-ink',accentSoft:'--accent-soft',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skillweb*/
@@ -1484,6 +1488,8 @@ function renderExtras(){
   const avail=(+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog();
   $('advAvail').textContent=`${avail} Good Karma available`;
   $('advLog').innerHTML=(S.adv||[]).map((a,i)=>`<tr><td>${esc(a.desc||a.label)}</td><td class="n">${a.cost}</td><td><button class="x" data-del="adv" data-i="${i}" aria-label="Undo">×</button></td></tr>`).join('')||`<tr><td colspan="3" class="note">Nothing bought yet.</td></tr>`;
+  // nuyen log
+  $('nyLog').innerHTML=(S.nyLog||[]).map((e,i)=>({e,i})).reverse().map(({e,i})=>`<tr><td class="mono small">${esc(e.d||'')}</td><td>${esc(e.note||(e.amt>=0?'Added':'Spent'))}</td><td class="n mono ${e.amt<0?'bad-text':''}">${e.amt>=0?'+':'−'}${fmt(Math.abs(e.amt))}</td><td><button class="x" data-nyrm="${i}" aria-label="Undo this entry">×</button></td></tr>`).join('')||`<tr><td colspan="4" class="note">No entries yet.</td></tr>`;
   // wounds
   const wm=woundMods();
   $('woundNote').innerHTML=wm.out?'<b>Out of action</b>: unconscious, or dying if the Physical track is full (p. 112).':wm.m?`<b>Wound modifier +${wm.m}</b> to target numbers and <b>−${wm.m}</b> to Reaction for Initiative. Stun and Physical add together (p. 112).${wm.pain?` Pain Resistance ignores the first ${wm.pain} boxes.`:''}`:'Uninjured. Boxes 1, 3, 6 and 10 mark Light (+1), Moderate (+2), Serious (+3) and Deadly. Stun and Physical modifiers add together.';
@@ -2816,12 +2822,12 @@ function detectionFactor(dk){
 
 function blank(){return{mode:'standard',prio:{race:'',magic:'',attr:'',skills:'',res:''},name:'',handle:'',race:'Human',magic:'none',tradition:'',concept:'',
  attrs:{body:1,quick:1,str:1,cha:1,int:1,wil:1},skills:[],powers:[],gear:[],contacts:[{name:'',role:'',level:'Contact'},{name:'',role:'',level:'Contact'}],
- phys:0,stun:0,kEarned:0,kSpent:0,kPoolBonus:0,nuyenNow:'',cashRoll:null,lifestyleOff:true,irErrata:false,notes:'',langs:[],adv:[],totem:'',books:{ssc:true,r2:true,vr2:false,fof:true},vr2deck:null,optRecoil:false};}
+ phys:0,stun:0,kEarned:0,kSpent:0,kPoolBonus:0,nuyenNow:'',nyLog:[],cashRoll:null,lifestyleOff:true,irErrata:false,notes:'',langs:[],adv:[],totem:'',books:{ssc:true,r2:true,vr2:false,fof:true},vr2deck:null,optRecoil:false};}
 function example(){return{mode:'house',prio:{race:'E',magic:'D',attr:'B',skills:'C',res:'A'},name:'Example Runner',handle:'Lumen',race:'Elf',magic:'none',tradition:'',concept:'Decker (example build)',
  attrs:{body:5,quick:5,str:1,cha:1,int:6,wil:6},
  skills:[{name:'Computer',rating:6,narrow:'spec',conc:'Software',spec:'Decking'},{name:'Electronics',rating:4,narrow:'none',conc:'',spec:''},{name:'Firearms',rating:3,narrow:'none',conc:'',spec:''},{name:'Stealth',rating:3,narrow:'none',conc:'',spec:''},{name:'Negotiation',rating:3,narrow:'none',conc:'',spec:''},{name:'Etiquette',rating:3,narrow:'conc',conc:'Matrix',spec:''},{name:'Athletics',rating:2,narrow:'none',conc:'',spec:''}],
  powers:[],gear:[{key:'deck:Fuchi Cyber-6',qty:1},{key:'deck:Response Increase 2',qty:1,r:8},{key:'prog:Persona: Bod',qty:1,r:6},{key:'prog:Persona: Evasion',qty:1,r:6},{key:'prog:Persona: Masking',qty:1,r:6},{key:'prog:Persona: Sensors',qty:1,r:6},{key:'prog:Sleaze',qty:1,r:6,loaded:true},{key:'prog:Deception',qty:1,r:6,loaded:true},{key:'prog:Attack',qty:1,r:6},{key:'prog:Slow',qty:1,r:6},{key:'prog:Analyze',qty:1,r:6},{key:'prog:Browse',qty:1,r:6,loaded:true},{key:'prog:Decrypt',qty:1,r:6},{key:'prog:Relocate',qty:1,r:6},{key:'prog:Medic',qty:1,r:6},{key:'prog:Shield',qty:1,r:6},{key:'prog:Mirrors',qty:1,r:6},{key:'prog:Smoke',qty:1,r:6},{key:'prog:Evaluate',qty:1,r:4,loaded:true},{key:'deck:Extra Active Memory (per Mp)',qty:300},{key:'deck:Extra Storage Memory (per Mp)',qty:1000},{key:'head:Datajack',qty:1},{key:'armor:Lined Coat',qty:1},{key:'guns:Ares Predator',qty:1,acc:{laser:false}},{key:'ammo:Regular Ammo (10 rounds)',qty:5}],langs:[{name:'Sperethiel',rating:0}].filter(x=>x.rating),adv:[],totem:'',
- contacts:[{name:'',role:'Fixer',level:'Contact'},{name:'',role:'Data broker',level:'Contact'}],phys:0,stun:0,kEarned:0,kSpent:0,kPoolBonus:0,nuyenNow:'',cashRoll:null,lifestyleOff:true,notes:'Example build. Load a blank character to start your own.'};}
+ contacts:[{name:'',role:'Fixer',level:'Contact'},{name:'',role:'Data broker',level:'Contact'}],phys:0,stun:0,kEarned:0,kSpent:0,kPoolBonus:0,nuyenNow:'',nyLog:[],cashRoll:null,lifestyleOff:true,notes:'Example build. Load a blank character to start your own.'};}
 
 let S;
 const KEY='sr2-builder-v1';
@@ -3200,6 +3206,7 @@ function summary(magicRating,rSpent,rBudget){
   else if(ri) iss.push(['warn','Response Increase needs a cyberdeck.']);}
   if(ess<0) iss.push(['bad','Essence is below 0. The character dies.']);
   if(S.magic!=='none'){ const pSpent=+S.powers.reduce((a,p)=>a+(S.magic==='adept'?powerCost(p).cost:(+p.cost||0)),0).toFixed(2); const pB=S.magic==='adept'?magicRating:(S.prio.res?FORCE[S.prio.res]:0); if(pSpent>pB&&(nb||S.magic==='adept')) iss.push(['bad',`${S.magic==='adept'?'Power':'Force'} points overspent: ${pSpent} of ${pB}.`]); }
+  if(S.nuyenNow!==''&&S.nuyenNow!=null&&+S.nuyenNow<0) iss.push(['warn',`Nuyen on hand is ${fmt(+S.nuyenNow)}¥. That's more spent than you had.`]);
   if(nb&&!S.lifestyleOff) iss.push(['warn','Remember to buy a lifestyle from Resources.']);
   if(nb&&S.gear.some(g=>{const it=g.key&&GEARDB[g.key];return it&&it.r&&it.r[2]==='Rating'&&+g.r>6;})) iss.push(['bad','Some gear is above rating 6, the creation maximum (p. 46).']);
   if(gearLevel('body:Boosted Reflexes')&&(gearLevel('body:Wired Reflexes')||gearLevel('body:Vehicle Control Rig'))) iss.push(['bad','Boosted Reflexes can never be combined with Wired Reflexes or a Vehicle Control Rig (SSC p. 87).']);
@@ -3239,6 +3246,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.hbdel!==undefined){const ix=+b.dataset.hbdel,g=S.gear[ix]; if(g.hb) g.hb.opts.splice(+b.dataset.j,1); hbFixG(g); HB_OPEN.add(ix); render(); return;}
   if(b.dataset.mode){S.mode=b.dataset.mode;render();return;}
   if(b.dataset.cat){const c=b.dataset.cat,L=b.dataset.l; for(const [k] of CATS){ if(k!==c&&S.prio[k]===L) S.prio[k]=''; } S.prio[c]=S.prio[c]===L?'':L; render(); return;}
+  if(b.dataset.nyrm!==undefined){const L=S.nyLog||[];const e=L[+b.dataset.nyrm];if(e){S.nuyenNow=(S.nuyenNow===''||S.nuyenNow==null?0:+S.nuyenNow)-e.amt;L.splice(+b.dataset.nyrm,1);S.nyLog=L;}render();return;}
   if(b.dataset.del){const arr=S[b.dataset.del]||[]; if(b.dataset.del==='gear'&&arr[+b.dataset.i]&&arr[+b.dataset.i].key===CBKEY) S.cbody=null; if(b.dataset.del==='gear') gearRemoveAt(+b.dataset.i); else arr.splice(+b.dataset.i,1);render();return;}
   if(b.dataset.trk){const k=b.dataset.trk,v=+b.dataset.v;S[k]=S[k]===v?v-1:v;render();return;}
 });
@@ -3346,6 +3354,12 @@ $('btnDel').onclick=()=>ask(`Delete ${esc(S.handle||S.name||'this character')} f
 $('dRoll').onclick=()=>{const n=Math.max(1,+$('dN').value||1),tn=Math.max(2,+$('dTN').value||4);const r=rollTest(n,tn);$('dOut').innerHTML=`<b>${r.succ} success${r.succ===1?'':'es'}</b> vs TN ${tn}${r.ones?' · <span class="bad-text">all 1s: disaster</span>':''}<br>${r.dice.join(', ')}`;};
 $('dInit').onclick=()=>{const txt=[...document.querySelectorAll('#sumStats .stat')].find(e=>e.firstChild.textContent==='Initiative');const m=txt&&txt.lastChild.textContent.match(/^(-?\d+) \+ (\d+)D6/);if(!m)return;const dice=Array.from({length:+m[2]},d6);$('dOut').innerHTML=`<b>Initiative ${+m[1]+dice.reduce((a,b)=>a+b,0)}</b> = ${m[1]} + ${dice.join(' + ')}`;};
 $('addContact').onclick=()=>{S.contacts.push({name:'',role:'',level:'Contact'});render();};
+function nyLogAdd(sign){const a=Math.round(+$('nyAmt').value||0);if(!(a>0)){$('nyAmt').focus();return;}
+  const d=new Date();const ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  S.nuyenNow=(S.nuyenNow===''||S.nuyenNow==null?0:+S.nuyenNow)+sign*a;
+  S.nyLog=S.nyLog||[];S.nyLog.push({d:ds,amt:sign*a,note:$('nyNote').value.trim()});
+  $('nyAmt').value='';$('nyNote').value='';render();}
+$('nyAdd').onclick=()=>nyLogAdd(1);$('nySpend').onclick=()=>nyLogAdd(-1);
 $('rollCash').onclick=()=>{const d=[1,2,3].map(()=>1+Math.floor(Math.random()*6));S.cashRoll={dice:d,total:d.reduce((a,b)=>a+b,0)*1000};render();};
 function ask(msg,action){const box=$('confirmBox');box.hidden=false;box.innerHTML=`<div class="confirm"><span>${msg}</span><button class="primary" id="cfYes">Yes, replace it</button><button id="cfNo">Cancel</button></div>`;$('cfYes').onclick=()=>{box.hidden=true;action();};$('cfNo').onclick=()=>{box.hidden=true;};}
 $('btnNew').onclick=()=>{roster();S=blank();S.id='c'+Date.now().toString(36);render();$('fName').focus();};

@@ -1,0 +1,15 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:900}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/sr2-builder.html');
+await p.fill('#nuyenNow','96480');await p.dispatchEvent('#nuyenNow','input');
+await p.fill('#nyAmt','50000');await p.fill('#nyNote','Run payout');await p.click('#nyAdd');
+const a=await p.inputValue('#nuyenNow');
+await p.fill('#nyAmt','1500');await p.click('#nySpend');
+const b2=await p.inputValue('#nuyenNow');
+const rows=await p.$$eval('#nyLog tr',r=>r.map(x=>x.innerText.replace(/\s+/g,' ')));
+await p.click('#nyLog button[data-nyrm="1"]');const c=await p.inputValue('#nuyenNow');
+await p.reload();const d=await p.inputValue('#nuyenNow');const n=await p.$$eval('#nyLog tr',r=>r.length);
+await p.$('#nyLog').then(e=>e.scrollIntoViewIfNeeded());
+await p.locator('#nyAmt').screenshot({path:'ny_shot.png'}).catch(()=>{});
+const sw=await p.evaluate(()=>document.documentElement.scrollWidth);
+console.log(JSON.stringify({a,b2,rows,c,d,n,sw,errs}));await b.close();})();
