@@ -163,3 +163,22 @@ function buildCalc(g){
   if(halfVis) ext.push('Ultrasound: halves darkness and invisibility modifiers');
   return {parts,ints,chosen,slots,conc:concTxt,rc,gyro,aim,aimTxt,ext,mag,notice,cost,warn,rows,heavy,extraR,dmg,dmgNote,armor,halfVis,smart,userLv};
 }
+// ---- Slot rows shared by both tools (same look as the checklists): one dropdown per mount slot, price and effect in each
+// choice, choices that won't fit shown greyed with the reason, and the chosen add-on's effect underneath.
+const SLOT_LABEL={top:'Top mount',barrel:'Barrel mount',under:'Under-barrel mount',stock:'Stock',harness:'Harness or mount',holster:'Holster',internal:'Internal',other:'Other add-ons'};
+function accPrice(g,k){const a=ACC[k]||{}, it=GBENV.item(k); if(a.costMult!=null) return Math.round((g.cost||0)*a.costMult);
+  const c=it?(typeof it.c==='function'?it.c(0):it.c!=null?it.c:(it.cost||0)):0; return (+c||0)+(a.extra||0);}
+function accShort(k,ab){const a=ACC[k]||{}, m=n=>n<0?'−'+(-n):'+'+n, o=[];
+  if(a.rc) o.push(ab?`RC ${a.rc}`:`recoil comp ${a.rc}`); if(a.gyro) o.push(`gyro ${a.gyro}`); if(a.laser) o.push('−1 TN'); if(a.smart) o.push(ab?'smart':'smartgun link'); if(a.mag) o.push(ab?`range −${a.mag}`:`range ${a.mag} step${a.mag>1?'s':''} closer`);
+  if(a.notice) o.push(ab?`notice +${a.notice}`:`notice +${a.notice} TN`); if(a.armor) o.push(`+${a.armor} armor`); if(a.nocon) o.push(ab?'no conceal':'not concealable'); else if(a.conc) o.push(ab?`Conc ${m(a.conc)}`:`Concealability ${m(a.conc)}`); return o.join(' · ');}
+function slotRowsHTML(g,B,K,extra){const X=s=>String(s??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+  const ints=integral(g), intBy={}; ints.forEach(x=>{if(x.slot)(intBy[x.slot]=intBy[x.slot]||[]).push(x.n);});
+  const rows=gunSlots(g).map(s=>{const lab=SLOT_LABEL[s]||s;
+    if(intBy[s]) return `<li class="vck fac"><div class="vck-h"><b>${X(lab)}</b><span class="vck-tag">Built in</span></div><div class="vck-c"><span>${X(intBy[s].join(', '))}</span></div></li>`;
+    const {out,no}=accFor(g,s); if(!out.length&&!no.length) return '';
+    const cur=B[s]&&out.some(x=>x.k===B[s])?B[s]:'', a=cur?ACC[cur]:null;
+    const opt=(k,dis,why)=>`<option value="${X(k)}"${k===cur?' selected':''}${dis?' disabled':''}>${X(accName(k))}${dis?` — ${X(why)}`:` · ${accPrice(g,k).toLocaleString('en-US')}¥${accShort(k,1)?' · '+X(accShort(k,1)):''}`}</option>`;
+    const sel=out.length?`<select data-gbs="${X(K)}" data-slot="${X(s)}" aria-label="${X(lab)}"><option value="">None</option>${out.map(x=>opt(x.k)).join('')}${no.map(x=>opt(x.k,1,x.why)).join('')}</select>`:`<span class="vck-w">Nothing fits: ${X(no[0].why)}</span>`;
+    return `<li class="vck ${cur?'on':out.length?'off':'no'} gslot"><div class="vck-h"><b>${X(lab)}</b>${a&&a.pg?`<span class="vck-p">${X(a.pg)}</span>`:''}</div><div class="vck-c">${sel}${cur?`<span class="vck-n">${accPrice(g,cur).toLocaleString('en-US')}¥${accShort(cur)?' · '+X(accShort(cur)):''}</span>`:''}</div>${a&&a.fx?`<details class="vck-d"><summary>What it does</summary><p>${X(a.fx)}</p></details>`:''}</li>`;}).join('');
+  return `<ul class="vcl gsl">${rows}${extra||''}</ul>`;}
+function slotKeyOf(el){const ds=el&&el.dataset||{}; return ds.gbs!==undefined?{k:ds.gbs,slot:ds.slot}:null;}

@@ -324,9 +324,9 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         <h2><span class="num">07b</span> Cyberdeck <span class="pg" id="deckPg">p. 172–175</span></h2>
         <div id="deckStats"></div>
         <div id="vr2Design" hidden=""></div>
-        <h3>Utilities</h3>
-        <p class="note">Tick the programs loaded into active memory for the run.</p>
-        <div class="tbl"><table><thead><tr><th>Loaded</th><th class="n">Rating</th><th class="n">Size</th></tr></thead><tbody id="utilBody"></tbody></table></div>
+        <h3>Programs <span class="pg" id="progPg"></span></h3>
+        <p class="note">Tick a program to put it on the deck, then pick its rating (size and price shown); tick Loaded for the ones in active memory for the run. Greyed-out ones don’t fit the free storage. Each one is also a line in Gear.</p>
+        <div id="progList"></div>
         <div class="budget" id="memBudget"></div>
       </section>
 
@@ -417,7 +417,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1794697603848","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwh0m5tc","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794697603836}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1794703421726","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwh42uwv","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794703421707}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--paper',panel2:'--soft',ink:'--ink',muted:'--muted',line:'--line',accent:'--accent',accentInk:'--accent-ink',accentSoft:'--accent-soft',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skillweb*/
@@ -573,6 +573,38 @@ function vr2Price(d){
  const ext=extras.reduce((a,x)=>a+x.v,0);
  return {lines:L,extras,sub,disc,complete,total:sub-disc+ext,d,M,pf};
 }
+// ---------- Program checklist shared by both tools (same look as the other build-outs) ----------
+// Groups follow the books: core p. 174–176 headings; VR2 Utilities Table types, p. 161.
+const PROG_GROUPS={
+  core:[['Combat utilities',['Attack','Slow']],['Defense utilities',['Medic','Mirrors','Shield','Smoke']],['Sensor utilities',['Analyze','Browse','Decrypt','Evaluate']],['Masking utilities',['Deception','Relocate','Sleaze']],['In the price table only',['Armor','Restore','Sift']]],
+  vr2:[['Operational',['Analyze','Browse','Commlink','Crash','Defuse','Deception','Decrypt','Disinfect','Evaluate','Mirrors','Read/Write','Relocate','Scanner','Spoof','Validate']],['Offensive',['Attack-L','Attack-M','Attack-S','Attack-D','Black Hammer','Hog','Killjoy','Poison','Restrict','Reveal','Slow','Steamroller']],['Defensive',['Armor','Camo','Cloak','Lock-on','Medic','Restore','Shield']],['Special',['Compressor','Sleaze','Track']]]};
+const PROGUI=(()=>{
+const X=s=>String(s??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+const OPEN={};
+// rows: [{id,n,pg,desc,tag,on,r,ropts:[[r,label]],loaded,canLoad,loadTxt,price,from,why,more}], groups: [[title,[names]]], extra rows group first
+function group(title,rows,K,intro,first){const nOn=rows.filter(r=>r.on).length, nYes=rows.filter(r=>!r.on&&!r.why).length;
+  const open=title in OPEN?OPEN[title]:(nOn>0||!!first);
+  const items=rows.map(r=>{let c='';
+    if(r.on){ if(r.ropts&&r.ropts.length) c+=`<label class="vck-s">${X(r.rlab||'Rating')} <select data-pgr="${K}" data-pgid="${X(r.id)}" aria-label="${X(r.n)} ${X(r.rlab||'rating')}">${r.ropts.map(([v,l])=>`<option value="${v}"${v===r.r?' selected':''}>${X(l)}</option>`).join('')}</select></label>`;
+      c+=`<span class="vck-n">${X(r.price)}</span>`;
+      if(r.canLoad!=null) c+=`<label class="vck-t"><input type="checkbox" data-pgld="${K}" data-pgid="${X(r.id)}"${r.loaded?' checked':''}${r.canLoad||r.loaded?'':' disabled'}> ${r.canLoad||r.loaded?'Loaded':'Won’t fit in active memory'}</label>${r.loaded&&r.loadTxt?`<span class="vck-w">loads: ${X(r.loadTxt)}</span>`:''}`;
+      if(r.more) c+=`<span class="vck-w">${X(r.more)}</span>`;
+    } else if(!r.why) c=`<span class="vck-n">${X(r.from)}</span>`;
+    else c=`<span class="vck-w">${X(r.why)}</span>`;
+    return `<li class="vck ${r.on?'on':r.why?'no':'off'}"><div class="vck-h"><label><input type="checkbox" data-pgck="${K}" data-pgid="${X(r.id)}"${r.on?' checked':''}${!r.on&&r.why?' disabled':''}> <b>${X(r.n)}</b>${r.tag||''}</label><span class="vck-p">${X(r.pg||'')}</span></div><div class="vck-c">${c}</div>${r.desc?`<details class="vck-d"><summary>What it does</summary><p>${X(r.desc)}</p></details>`:''}</li>`;}).join('');
+  return `<details class="vgrp" data-pggrp="${X(title)}"${open?' open':''}><summary><b>${X(title)}</b><span class="vgrp-n">${nOn?nOn+' on the deck · ':''}${nYes} more fit${rows.length-nOn-nYes?` · ${rows.length-nOn-nYes} don’t`:''}</span></summary>${intro?`<p class="vck-fac">${X(intro)}</p>`:''}<ul class="vcl">${items}</ul></details>`;}
+function render(sets,K){ // sets: [{title,rows,intro}]
+  return `<div class="vcheck"><div class="vck-bar"><button type="button" class="vck-b" data-pgall="1">Open all</button><button type="button" class="vck-b" data-pgall="0">Close all</button></div>${(L=>L.map((s,i)=>group(s.title,s.rows,K,s.intro,i===0&&!L.some(x=>x.rows.some(r=>r.on)))).join(''))(sets.filter(s=>s.rows.length))}</div>`;}
+// split programs into the book's groups; anything unlisted goes last
+function split(list,vr2,nameOf){const G=PROG_GROUPS[vr2?'vr2':'core'], seen=new Set(), out=G.map(([t,names])=>({title:t,rows:names.map(n=>{const x=list.find(p=>nameOf(p)===n); if(x) seen.add(x); return x;}).filter(Boolean)}));
+  const rest=list.filter(p=>!seen.has(p)); if(rest.length) out.push({title:'Other programs',rows:rest}); return out;}
+const keyOf=el=>{const ds=el&&el.dataset||{}; for(const a of ['pgck','pgr','pgld']) if(ds[a]!==undefined) return {a,k:ds[a],id:ds.pgid}; return null;};
+function refocus(info){ if(!info||typeof document==='undefined') return; const el=document.querySelector(`[data-${info.a}="${CSS.escape(info.k)}"][data-pgid="${CSS.escape(info.id)}"]`); if(el) el.focus({preventScroll:true});}
+if(typeof document!=='undefined'){
+  document.addEventListener('toggle',e=>{const d=e.target; if(d&&d.dataset&&d.dataset.pggrp) OPEN[d.dataset.pggrp]=d.open;},true);
+  document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-pgall]'); if(!b) return; const on=b.dataset.pgall==='1', root=b.closest('.vcheck'); if(root) root.querySelectorAll('details.vgrp').forEach(x=>{x.open=on; if(x.dataset.pggrp) OPEN[x.dataset.pggrp]=on;});});
+}
+return {render,split,keyOf,refocus,OPEN};})();
 /*@end:decks*/
 (function(){
 const PRISTINE=document.getElementById('appRoot').outerHTML;
@@ -1111,6 +1143,26 @@ function deckInfo(){
   return {name:it.n,mpcp:it.mpcp,h,am:am+extraA,amMax:it.mpcp*50,sm:sm+extraS,ls,io,persona,utils,loose,ri,
     used:utils.filter(u=>u.g.loaded).reduce((a,u)=>a+u.size,0),stored:utils.reduce((a,u)=>a+u.size,0)};
 }
+// Deck programs as a checklist (shared look: PROGUI in shared/decks.js). One row per program; extra copies stay in Gear.
+function progChecklistHTML(dk){
+  const B=booksOn(), cust=!!dk.vr2, vr2l=cust||!!B.vr2, cat=vr2l?'prog2':'prog', M=deckMax()||dk.mpcp;
+  const free=dk.sm-dk.stored, aFree=dk.am-dk.used, lt=sz=>dk.ls?(sz<=dk.ls/2?'same action':Math.ceil(sz/dk.ls)===1?'end of turn':`${Math.ceil(sz/dk.ls)} turns`):'';
+  const row=key=>{const it=GEARDB[key]; const gi=S.gear.findIndex(g=>g.key===key), g=S.gear[gi], copies=S.gear.filter(x=>x.key===key).length;
+    const base={id:key,n:it.n,pg:it.pg,desc:DESC[key]?DESC[key][0]:'',tag:eraChip(it)}, cap=cust?Math.min(it.r[1],M):it.r[1];
+    if(g){const r=+g.r||1, cur=it.sz(r), otherLoaded=S.gear.some((x,j)=>j!==gi&&x.key===key&&x.loaded);
+      const ropts=[]; for(let x=1;x<=Math.max(cap,r);x++){const z=it.sz(x); if(x===r||(z<=free+cur&&(!g.loaded||z<=aFree+cur))) ropts.push([x,`${x} · ${z} Mp · ${fmt(gv(it.c,x))}¥`]);}
+      return {...base,on:true,r,ropts,price:`${cur} Mp · ${fmt(gv(it.c,r))}¥`,loaded:!!g.loaded,canLoad:!!g.loaded||(cur<=aFree&&!otherLoaded),loadTxt:lt(cur),more:copies>1?`+${copies-1} more cop${copies>2?'ies':'y'} in Gear`:''};}
+    const s1=it.sz(1); return s1<=free?{...base,on:false,from:`from ${s1} Mp · ${fmt(gv(it.c,1))}¥ at rating 1`}:{...base,on:false,why:`Needs ${s1} Mp at rating 1; ${free} Mp of storage free`};};
+  const list=CAT[cat].filter(it=>!/^Persona/.test(it.n)&&itemVisible(it)).map(it=>cat+':'+it.n);
+  const sets=PROGUI.split(list,vr2l,k=>GEARDB[k].n).map(x=>({title:x.title,rows:x.rows.map(row)}));
+  const other=S.gear.filter(g=>isUtil(g)&&!list.includes(g.key)).map(g=>g.key).filter((k,i,a)=>a.indexOf(k)===i);
+  if(other.length) sets.push({title:vr2l?'Core-rules programs in Gear':'VR2 programs in Gear',rows:other.map(row)});
+  if(!cust){const per=n=>S.gear.find(g=>g.key==='prog:Persona: '+n), others=n=>['Bod','Evasion','Masking','Sensors'].reduce((a,x)=>a+(x===n?0:(+(per(x)||{}).r||0)),0);
+    sets.unshift({title:'Persona chips',intro:`Installed in chips, so they take no memory. Ratings can total ${3*M} (3 × MPCP); core p. 174.`,rows:['Bod','Evasion','Masking','Sensors'].map(n=>{const key='prog:Persona: '+n, it=GEARDB[key], g=per(n), v=g?+g.r||1:0, room=Math.min(it.r[1],3*M-others(n));
+      const base={id:key,n,pg:it.pg,desc:DESC[key]?DESC[key][0]:''};
+      if(g){const ropts=[]; for(let x=1;x<=Math.max(v,room);x++) ropts.push([x,`${x} · ${fmt(gv(it.c,x))}¥`]); return {...base,on:true,r:v,ropts,price:`${fmt(gv(it.c,v))}¥`};}
+      return room>=1?{...base,on:false,from:`from ${fmt(gv(it.c,1))}¥ at rating 1`}:{...base,on:false,why:`The chips already total ${3*M} (3 × MPCP)`};})});}
+  return PROGUI.render(sets,'D');}
 function fociBond(){return S.gear.filter(g=>BOND[g.key]).reduce((a,g)=>a+BOND[g.key](+g.r||1)*(+g.qty||1),0);}
 function powerFoci(){return S.gear.filter(g=>g.key==='magic:Power Focus').reduce((a,g)=>a+(+g.r||0),0);}
 
@@ -1292,10 +1344,29 @@ function buildCalc(g){
   if(halfVis) ext.push('Ultrasound: halves darkness and invisibility modifiers');
   return {parts,ints,chosen,slots,conc:concTxt,rc,gyro,aim,aimTxt,ext,mag,notice,cost,warn,rows,heavy,extraR,dmg,dmgNote,armor,halfVis,smart,userLv};
 }
+// ---- Slot rows shared by both tools (same look as the checklists): one dropdown per mount slot, price and effect in each
+// choice, choices that won't fit shown greyed with the reason, and the chosen add-on's effect underneath.
+const SLOT_LABEL={top:'Top mount',barrel:'Barrel mount',under:'Under-barrel mount',stock:'Stock',harness:'Harness or mount',holster:'Holster',internal:'Internal',other:'Other add-ons'};
+function accPrice(g,k){const a=ACC[k]||{}, it=GBENV.item(k); if(a.costMult!=null) return Math.round((g.cost||0)*a.costMult);
+  const c=it?(typeof it.c==='function'?it.c(0):it.c!=null?it.c:(it.cost||0)):0; return (+c||0)+(a.extra||0);}
+function accShort(k,ab){const a=ACC[k]||{}, m=n=>n<0?'−'+(-n):'+'+n, o=[];
+  if(a.rc) o.push(ab?`RC ${a.rc}`:`recoil comp ${a.rc}`); if(a.gyro) o.push(`gyro ${a.gyro}`); if(a.laser) o.push('−1 TN'); if(a.smart) o.push(ab?'smart':'smartgun link'); if(a.mag) o.push(ab?`range −${a.mag}`:`range ${a.mag} step${a.mag>1?'s':''} closer`);
+  if(a.notice) o.push(ab?`notice +${a.notice}`:`notice +${a.notice} TN`); if(a.armor) o.push(`+${a.armor} armor`); if(a.nocon) o.push(ab?'no conceal':'not concealable'); else if(a.conc) o.push(ab?`Conc ${m(a.conc)}`:`Concealability ${m(a.conc)}`); return o.join(' · ');}
+function slotRowsHTML(g,B,K,extra){const X=s=>String(s??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+  const ints=integral(g), intBy={}; ints.forEach(x=>{if(x.slot)(intBy[x.slot]=intBy[x.slot]||[]).push(x.n);});
+  const rows=gunSlots(g).map(s=>{const lab=SLOT_LABEL[s]||s;
+    if(intBy[s]) return `<li class="vck fac"><div class="vck-h"><b>${X(lab)}</b><span class="vck-tag">Built in</span></div><div class="vck-c"><span>${X(intBy[s].join(', '))}</span></div></li>`;
+    const {out,no}=accFor(g,s); if(!out.length&&!no.length) return '';
+    const cur=B[s]&&out.some(x=>x.k===B[s])?B[s]:'', a=cur?ACC[cur]:null;
+    const opt=(k,dis,why)=>`<option value="${X(k)}"${k===cur?' selected':''}${dis?' disabled':''}>${X(accName(k))}${dis?` — ${X(why)}`:` · ${accPrice(g,k).toLocaleString('en-US')}¥${accShort(k,1)?' · '+X(accShort(k,1)):''}`}</option>`;
+    const sel=out.length?`<select data-gbs="${X(K)}" data-slot="${X(s)}" aria-label="${X(lab)}"><option value="">None</option>${out.map(x=>opt(x.k)).join('')}${no.map(x=>opt(x.k,1,x.why)).join('')}</select>`:`<span class="vck-w">Nothing fits: ${X(no[0].why)}</span>`;
+    return `<li class="vck ${cur?'on':out.length?'off':'no'} gslot"><div class="vck-h"><b>${X(lab)}</b>${a&&a.pg?`<span class="vck-p">${X(a.pg)}</span>`:''}</div><div class="vck-c">${sel}${cur?`<span class="vck-n">${accPrice(g,cur).toLocaleString('en-US')}¥${accShort(cur)?' · '+X(accShort(cur)):''}</span>`:''}</div>${a&&a.fx?`<details class="vck-d"><summary>What it does</summary><p>${X(a.fx)}</p></details>`:''}</li>`;}).join('');
+  return `<ul class="vcl gsl">${rows}${extra||''}</ul>`;}
+function slotKeyOf(el){const ds=el&&el.dataset||{}; return ds.gbs!==undefined?{k:ds.gbs,slot:ds.slot}:null;}
 /*@end:guns*/
 
 
-return {ACC,FX,GUNFIT,SLOTS,gunSlots,canBuild,accName,integral,accFor,buildCalc};
+return {ACC,FX,GUNFIT,SLOTS,gunSlots,canBuild,accName,integral,accFor,buildCalc,slotRowsHTML,slotKeyOf,accPrice,accShort};
 })();
 
 // Builder side of the gun build-out. Each gun row keeps g.build = {top,barrel,under,...,ammo}; add-ons are priced into the gun's cost.
@@ -1313,19 +1384,15 @@ function migrateAcc(g){ // old checkboxes → build picks (one time)
 function gunCalc(g){const o=gunObj(g); if(!o||!GB.canBuild(o)) return null; g.build=g.build||{}; o._B=g.build; g.build.link=shooterLink(); if(!g.build.ammo) g.build.ammo='ammo:Regular Ammo (10 rounds)'; return {o,C:GB.buildCalc(o)};}
 const WB_OPEN=new Set();
 function buildEditor(g,i){const r=gunCalc(g); if(!r) return ''; const {o,C}=r;
-  const ints=GB.integral(o), intBy={}; ints.forEach(x=>{if(x.slot)(intBy[x.slot]=intBy[x.slot]||[]).push(x.n);});
-  const sel=C.slots.map(sl=>{const lab=GB.SLOTS.find(x=>x[0]===sl)[1];
-    if(intBy[sl]) return `<div class="wbs"><span>${lab}</span><em>Built in: ${intBy[sl].map(esc).join(', ')}</em></div>`;
-    const {out}=GB.accFor(o,sl); if(!out.length) return '';
-    return `<label class="wbs" for="wb_${i}_${sl}"><span>${lab}</span><select id="wb_${i}_${sl}" data-wb="${i}" data-slot="${sl}"><option value="">None</option>${out.map(({k})=>{const it=GEARDB[k];const a=GB.ACC[k];const p=a.costMult!=null?Math.round(o.cost*a.costMult):(it?gv(it.c,0):0)+(a.extra||0);return `<option value="${esc(k)}" ${g.build[sl]===k?'selected':''}>${esc(GB.accName(k))} · ${fmt(p)}¥</option>`;}).join('')}</select></label>`;}).join('');
+  const ints=GB.integral(o);
   const ammos=['ammo:Regular Ammo (10 rounds)','ammo:Explosive Rounds (10)','ammo:EX Explosive Rounds (10)','ammo:APDS Ammo (10 rounds)','ammo:Flechette Rounds (10)','ammo:Gel Rounds (10)','ammo:Stun Rounds (10)','ammo:Tracer Rounds (10)'].filter(k=>GEARDB[k]&&bookOn(GEARDB[k].src));
-  const am=`<label class="wbs" for="wb_${i}_ammo"><span>Loaded ammo</span><select id="wb_${i}_ammo" data-wb="${i}" data-slot="ammo">${ammos.map(k=>`<option value="${esc(k)}" ${g.build.ammo===k?'selected':''}>${esc(GEARDB[k].n.replace(/ \(10( rounds)?\)/,''))}</option>`).join('')}</select></label>`;
+  const am=`<li class="vck off gslot"><div class="vck-h"><b>Loaded ammo</b></div><div class="vck-c"><select id="wb_${i}_ammo" data-wb="${i}" data-slot="ammo" aria-label="Loaded ammo">${ammos.map(k=>`<option value="${esc(k)}" ${g.build.ammo===k?'selected':''}>${esc(GEARDB[k].n.replace(/ \(10( rounds)?\)/,''))} · ${fmt(gv(GEARDB[k].c,0))}¥ per 10</option>`).join('')}</select></div></li>`;
   const loose=ints.filter(x=>!x.slot).map(x=>x.n+(x.rc?` (recoil comp ${x.rc})`:''));
   const picked=C.chosen.map(p=>p.n), addon=C.cost-o.cost;
   const fx=C.parts.filter(p=>p.fx&&!p.integral).map(p=>`<li><b>${esc(p.n)}:</b> ${esc(p.fx)} <span class="gstat">${esc(p.pg||'')}</span></li>`).join('');
   return `<details class="wb" data-wbd="${i}" ${WB_OPEN.has(i)?'open':''}><summary>Add-ons: ${picked.length?esc(picked.join(', ')):'none'}${addon?` · +${fmt(addon)}¥`:''}</summary>
-    <div class="wbg">${sel}${am}</div>${loose.length?`<p class="gstat">Also built in: ${esc(loose.join(', '))}.</p>`:''}
-    ${C.warn.map(w=>`<p class="wbw">${esc(w)}</p>`).join('')}${fx?`<ul class="wbfx">${fx}</ul>`:''}</details>`;}
+    <div class="vcheck">${GB.slotRowsHTML(o,g.build,i,am)}</div>${loose.length?`<p class="gstat">Also built in: ${esc(loose.join(', '))}.</p>`:''}
+    ${C.warn.map(w=>`<p class="wbw">${esc(w)}</p>`).join('')}</details>`;}
 // ---------- render extras ----------
 function renderExtras(){
   syncGear();
@@ -1385,7 +1452,7 @@ function renderExtras(){
       +(mx.rigPen?`<p class="note">Riggers deck at +1 to all target numbers and lose Hacking Pool dice equal to their VCR level (R2 p. 16).</p>`:'');
     $('deckPg').textContent=B.vr2?'VR2 p. 16–18, 85–89':'p. 172–175';
     $('vr2Design').hidden=!dk.vr2; if(dk.vr2) $('vr2Design').innerHTML=vr2DesignHTML(dk);
-    $('utilBody').innerHTML=dk.utils.map(u=>`<tr><td><label style="flex-direction:row;align-items:center;gap:0.375rem;text-transform:none;letter-spacing:0;font-weight:500;font-size:0.875rem;color:var(--ink)"><input type="checkbox" data-ul="${u.i}" ${u.g.loaded?'checked':''} ${!u.g.loaded&&(u.size>dk.am-dk.used||dk.utils.some(x=>x!==u&&x.g.loaded&&x.g.key===u.g.key))?'disabled':''}>${esc(GEARDB[u.g.key].n)}${eraChip(GEARDB[u.g.key])}${!u.g.loaded&&dk.utils.some(x=>x!==u&&x.g.loaded&&x.g.key===u.g.key)?' <span class="note">(a copy is already loaded)</span>':!u.g.loaded&&u.size>dk.am-dk.used?' <span class="note">(not enough active memory)</span>':''}</label>${(()=>{const D=DESC[u.g.key]; const txt=PROG_NOTE[u.g.key]||(D&&!/don’t give it a separate description/.test(D[0])?D[0]:'The core book only lists this program in its price table; there is no rules text for it.'); const pg=D?(/^p\./.test(D[1])?'Core '+D[1]:D[1]):''; return `<div class="gstat gdesc">${esc(txt)}${pg?` <span class="pg">${esc(pg)}</span>`:''}</div>`;})()}</td><td class="n">${u.g.r}</td><td class="n">${u.size} Mp</td></tr>`).join('')||`<tr><td colspan="3" class="note">No utilities yet. Add them from Gear → Matrix programs.</td></tr>`;
+    $('progList').innerHTML=progChecklistHTML(dk); $('progPg').textContent=dk.vr2||B.vr2?'VR2 p. 16, 161':'core p. 174–176';
     $('memBudget').innerHTML=budgetHTML('Loaded in active memory (Mp)',dk.used,dk.am,false)+budgetHTML('Stored (Mp)',dk.stored,dk.sm,false)+(dk.loose.length?`<p class="note">Programs entered as your own items don't have sizes, so they aren't counted.</p>`:'');
   }
   // rigger
@@ -1943,7 +2010,7 @@ if(typeof document!=='undefined'){
 .vgrp{border:1px solid var(--line);border-radius:8px;margin:6px 0;padding:0 10px}.vgrp>summary{cursor:pointer;padding:8px 0;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}.vgrp>summary b{font-size:.9375rem}.vgrp-n{font-size:.8125rem;color:var(--muted)}
 .vcl{list-style:none;margin:0 0 6px;padding:0}.vck{border-top:1px solid var(--line);padding:8px 0}.vck-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.vck-h label{display:inline-flex;flex-direction:row;justify-content:flex-start;align-items:baseline;margin:0;font-weight:400;gap:8px;flex:1;min-width:12rem;cursor:pointer;text-transform:none;letter-spacing:0;font-size:.875rem;color:var(--ink)}.vck-h input{min-width:0;padding:0;width:1.05rem;height:1.05rem;flex:none;margin:0;align-self:center;accent-color:var(--accent)}.vck-p{font-size:.75rem;color:var(--muted)}
 .vck-c{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin:5px 0 0 1.6rem;font-size:.8125rem}.vck-s{display:inline-flex;flex-direction:row;align-items:center;gap:6px;color:var(--muted);text-transform:none;letter-spacing:0;font-size:.8125rem}.vck-s select{font:inherit;padding:3px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel,transparent);color:var(--ink)}
-.vck-n{font-family:var(--mono,monospace);font-variant-numeric:tabular-nums}.vck.on{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 10%,transparent),transparent 70%)}.vck.on .vck-h b{color:var(--accent)}.vck.no .vck-h label{cursor:default;color:var(--muted)}.vck.no input{opacity:.5}.vck-w{color:var(--muted);font-style:italic}
+.vck-n{font-family:var(--mono,monospace);font-variant-numeric:tabular-nums}.vck-c>select{font:inherit;font-size:.8125rem;padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel,transparent);color:var(--ink);max-width:100%;min-width:0}.gsl .vck-c,.gsl .vck-d{margin-left:0}.gsl .vck-c>select{width:100%;max-width:32rem}.gsl .vck-h b{font-size:.875rem}.gsl .vck.on .vck-h b{color:var(--accent)}.vck.on{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 10%,transparent),transparent 70%)}.vck.on .vck-h b{color:var(--accent)}.vck.no .vck-h label{cursor:default;color:var(--muted)}.vck.no input{opacity:.5}.vck-w{color:var(--muted);font-style:italic}
 .vck-tag{font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:1px solid var(--line);border-radius:3px;padding:0 4px;color:var(--muted);align-self:center}.vck.fac .vck-h b{color:var(--ink)}.vck.fac input{opacity:.7}.vck-fac{font-size:.8125rem;line-height:1.45;margin:4px 0 8px;color:var(--ink)}.vck-fac span{color:var(--muted)}.vck-sum{font-size:.8125rem;line-height:1.5;margin:4px 0 8px}.vck-gm{font-size:.8125rem;margin:6px 0;padding:6px 8px;border-left:3px solid var(--accent);color:var(--ink)}
 .vck-d{margin:4px 0 0 1.6rem;font-size:.8125rem}.vck-d summary{cursor:pointer;color:var(--muted);width:max-content}.vck-d p{margin:4px 0 0;line-height:1.45;color:var(--ink)}`;
   (document.head||document.documentElement).appendChild(st);
@@ -2095,7 +2162,9 @@ function hbItem(k){ if(HBCACHE[k]!==undefined) return HBCACHE[k]; const it=GEARD
   if(it.r){o.r=it.r.slice(0,3); o.costs={}; o.ess={}; for(let x=it.r[0];x<=it.r[1];x++){o.costs[x]=gv(it.c,x); o.ess[x]=+gv(it.e,x)||0;}} else {o.cost=gv(it.c,0); o.e=+gv(it.e,0)||0;}
   return HBCACHE[k]=o;}
 const HBENV={item:hbItem,all:()=>Object.keys(GEARDB).map(hbItem).filter(Boolean),bookOn:s=>bookOn(s)};
-const HB_OPEN=new Set(), HB_GUIDE=new Set(), NOTE_OPEN=new Set(); const HB_DROP=new WeakMap();
+const HB_OPEN=new Set(), HB_GUIDE=new Set(), NOTE_OPEN=new Set();
+// remove gear row i and shift the remembered open panels (build-outs, notes) of the rows after it
+function gearRemoveAt(i){S.gear.splice(i,1); [VB_OPEN,HB_OPEN,NOTE_OPEN].forEach(set=>{const a=[...set]; set.clear(); a.forEach(x=>{if(x<i) set.add(x); else if(x>i) set.add(x-1);});});} const HB_DROP=new WeakMap();
 function hbFixG(g){if(!HB.isHost(g.key)) return null; if(!g.hb||typeof g.hb!=='object') g.hb=HB.defaults(g.key); const c=HB.clamp(g.key,g.hb,HBENV); g.hb=c.st; if(c.dropped.length) HB_DROP.set(g,c.dropped); return HB.calc(g.key,g.hb,HBENV);}
 function hbEditor(g,ix){const C=hbFixG(g); if(!C) return ''; const S=g.hb, k=C.k, nopt=C.rows.filter(x=>!x.fixed).length+(C.extras||[]).length;
   const dr=HB_DROP.get(g); HB_DROP.delete(g);
@@ -3170,7 +3239,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.hbdel!==undefined){const ix=+b.dataset.hbdel,g=S.gear[ix]; if(g.hb) g.hb.opts.splice(+b.dataset.j,1); hbFixG(g); HB_OPEN.add(ix); render(); return;}
   if(b.dataset.mode){S.mode=b.dataset.mode;render();return;}
   if(b.dataset.cat){const c=b.dataset.cat,L=b.dataset.l; for(const [k] of CATS){ if(k!==c&&S.prio[k]===L) S.prio[k]=''; } S.prio[c]=S.prio[c]===L?'':L; render(); return;}
-  if(b.dataset.del){const arr=S[b.dataset.del]||[]; if(b.dataset.del==='gear'&&arr[+b.dataset.i]&&arr[+b.dataset.i].key===CBKEY) S.cbody=null; arr.splice(+b.dataset.i,1);render();return;}
+  if(b.dataset.del){const arr=S[b.dataset.del]||[]; if(b.dataset.del==='gear'&&arr[+b.dataset.i]&&arr[+b.dataset.i].key===CBKEY) S.cbody=null; if(b.dataset.del==='gear') gearRemoveAt(+b.dataset.i); else arr.splice(+b.dataset.i,1);render();return;}
   if(b.dataset.trk){const k=b.dataset.trk,v=+b.dataset.v;S[k]=S[k]===v?v-1:v;render();return;}
 });
 document.addEventListener('input',e=>{
@@ -3224,9 +3293,13 @@ document.addEventListener('change',e=>{
   if(t.dataset.hbr!==undefined){const ix=+t.dataset.hbr,g=S.gear[ix]; const o=g.hb&&g.hb.opts[+t.dataset.j]; if(o) o.r=+t.value; hbFixG(g); HB_OPEN.add(ix); render(); return;}
   {const vk=VB.keyOf(t); if(vk&&vk.a!=='vbhide'){const ix=+vk.k,g=S.gear[ix]; const v=vbFixG(g); if(v){VB.act(v,g.vb,t); vbFixG(g);} VB_OPEN.add(ix); render(); VB.refocus(vk); return;} if(vk){VB.act(null,{mods:[]},t); render(); VB.refocus(vk); return;}}
   if(t.dataset.vbf!==undefined){const ix=+t.dataset.vbf,g=S.gear[ix]; vbVeh(g); g.vb[t.dataset.f]=t.type==='checkbox'?t.checked:t.value; vbFixG(g); VB_OPEN.add(ix); render(); return;}
+  {const gk=GB.slotKeyOf(t); if(gk){const ix=+gk.k,g=S.gear[ix]; g.build=g.build||{}; if(t.value) g.build[gk.slot]=t.value; else delete g.build[gk.slot]; WB_OPEN.add(ix); render(); const el=document.querySelector(`[data-gbs="${ix}"][data-slot="${gk.slot}"]`); if(el) el.focus({preventScroll:true}); return;}}
   if(t.dataset.wb!==undefined){const ix=+t.dataset.wb,g=S.gear[ix];g.build=g.build||{};if(t.value)g.build[t.dataset.slot]=t.value;else delete g.build[t.dataset.slot];S.gear.forEach(x=>delete x._migrated);WB_OPEN.add(ix);render();const el=$(t.id);if(el)el.focus();return;}
   if(t.dataset.am!==undefined){S.gear[+t.dataset.am].off=!t.checked;render();return;}
-  if(t.dataset.ul!==undefined){S.gear[+t.dataset.ul].loaded=t.checked;render();return;}
+  {const pk=PROGUI.keyOf(t); if(pk&&pk.k==='D'){const key=pk.id, gi=S.gear.findIndex(g=>g.key===key);
+    if(pk.a==='pgck'){ if(t.checked){ if(gi<0) S.gear.push({key,qty:1,r:1,loaded:false}); } else { for(let j=S.gear.length-1;j>=0;j--) if(S.gear[j].key===key) gearRemoveAt(j); } }
+    else if(gi>=0){ if(pk.a==='pgr') S.gear[gi].r=+t.value; else if(pk.a==='pgld') S.gear[gi].loaded=t.checked; }
+    render(); PROGUI.refocus(pk); return;}}
   if(t.id==='totem'){S.totem=t.value;render();return;}
   if(t.id==='rosterSel'){roster();switchTo(t.value);return;}
   if(t.dataset.ct!==undefined&&t.dataset.f==='level'){S.contacts[+t.dataset.ct].level=t.value;save();}
