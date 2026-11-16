@@ -7,3 +7,4 @@ for c in 8 9 10 11 12 13 14 15 16 20 21; do echo "== builder chk$c"; timeout 200
 echo "== builder chk_ny"; node chk_ny.js
 echo "== builder chk_fg"; node chk_fg.js
 echo "== builder chk_amt"; node chk_amt.js
+echo "== locker chk23"; node gear/chk23.js

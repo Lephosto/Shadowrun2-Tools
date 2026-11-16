@@ -128,6 +128,7 @@ tr.on td{background:color-mix(in srgb,var(--accent) 14%,transparent)}
 .kit li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;font-size:.875rem;border-bottom:1px dashed var(--line);padding:4px 0}
 .kit li .x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:1rem}
 .kit li .c{font-family:var(--mono);color:var(--price)}
+.kfg{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:3px;font-size:.75rem;color:var(--muted)}.kfg select{font-size:.75rem;max-width:15rem;padding:2px 4px}.kfg .bad{color:var(--bad,#c33)}
 .foot{margin-top:18px;font-size:.75rem;color:var(--muted);max-width:90ch}
 @media (max-width:1100px){.grid{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)} nav{display:none} #catSel{display:block;margin-bottom:10px}}
 @media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)} .shelf{position:static;max-height:60vh} .shelf:not(.fopen) .fbar{display:none} .ftog{display:inline-block} #catName{display:none} .tblw th,.tblw td{padding:6px 7px;font-size:.8125rem} .build{padding:4px 10px 12px}}
@@ -2060,7 +2061,9 @@ function xferItem(i){const items=[]; let vr2deck=null; const ok=k=>!!BYID[k];
   else if(HB.isHost(i.id)){const S=hbFix(i); items.push(Object.assign({key:i.id,qty:1,hb:JSON.parse(JSON.stringify(S))},gelOK(i)&&st.gel&&st.gel[i.id]?{gel:true}:{}));}
   else items.push(Object.assign({key:i.id,qty:1,r:i.r?(st.rate[i.id]??(i.mult!=null?1000:i.r[0])):undefined},gelOK(i)&&st.gel&&st.gel[i.id]?{gel:true}:{}));
   return {items:items.filter(x=>ok(x.key)),vr2deck,label:i.n};}
-function xferKit(){const items=st.kit.map(k=>BYID[k.id]?Object.assign({key:k.id,qty:1,r:BYID[k.id].r?k.r:undefined},k.gel?{gel:true}:{}):{name:k.n,cost:k.cost}); return {items,label:'Shopping list ('+st.kit.length+')'};}
+function xferKit(){const items=st.kit.map(k=>{if(!BYID[k.id]) return {name:k.n,cost:k.cost}; const o=Object.assign({key:k.id,qty:1,r:BYID[k.id].r?k.r:undefined},k.gel?{gel:true}:{});
+    if(k.fg&&kitForGun(k.id)){if(k.fg.startsWith('k:')){const j=st.kit.findIndex(x=>x.u===k.fg.slice(2)); if(j>=0&&kitFeed(BYID[st.kit[j].id])) o.forItem=j;} else if(k.fg.startsWith('o:')) o.forKey=k.fg.slice(2);}
+    return o;}); return {items,label:'Shopping list ('+st.kit.length+')'};}
 function sendGear(p){p.v=1; p.at=Date.now(); p.from='Gear Locker';
   let stored=false; try{localStorage.setItem(XFER_KEY,JSON.stringify(p)); stored=true;}catch(e){}
   const code='SR2GEAR:'+btoa(unescape(encodeURIComponent(JSON.stringify(p))));
@@ -2073,10 +2076,21 @@ function sendGear(p){p.v=1; p.at=Date.now(); p.from='Gear Locker';
     <p><b>Anywhere else</b> (another site, another device, or a saved file): copy this code and paste it into the builder’s <i>Paste a character code</i> box, then press <i>Load pasted character</i>. It adds the gear instead of replacing the character. <span class="note" id="sendCopied"></span></p>
     <textarea readonly rows="3" id="sendCode">${esc(code)}</textarea><div class="sd-a"><button class="btn" id="sendCopy">Copy code</button><button class="btn ghost" id="sendClose2">Done</button></div></div>`;
   $('sendDlg').hidden=false; const t=$('sendCode'); if(t){t.focus(); t.select();}}
+// ammo and spare clips on the list can name the gun they're for; the Runner Builder keeps the link
+const kitForGun=id=>id==='ammo:Spare Clip'||/^ammo:.*(Ammo|Rounds)\b/.test(id||'');
+const kitFeed=i=>!!(i&&i.w&&/\((c|m|b|cy|internal)\)|^Belt/.test(String(i.w[2]).trim()));
+function kitGuns(){const out=[]; let dirty=false; const cnt={};
+  st.kit.forEach(k=>{const i=BYID[k.id]; if(!kitFeed(i)) return; if(!k.u){k.u=Math.random().toString(36).slice(2,9); dirty=true;} cnt[i.n]=(cnt[i.n]||0)+1; out.push({v:'k:'+k.u,i,label:i.n,where:'on this list',n:cnt[i.n]});});
+  out.forEach(o=>{if(cnt[o.label]>1) o.label+=' #'+o.n;});
+  Object.keys(OWN).forEach(id=>{const i=BYID[id]; if(kitFeed(i)) out.push({v:'o:'+id,i,label:i.n,where:'owned'});});
+  if(dirty) save(); return out;}
+function kitFgHTML(k,ix,G){if(!G.length) return `<div class="note kfg">Add a gun to pick which one this is for.</div>`; const t=G.find(o=>o.v===k.fg);
+  const bad=t&&k.id==='ammo:Spare Clip'&&!/\(c\)/.test(String(t.i.w[2]));
+  return `<div class="kfg"><label for="kfg_${ix}">For</label> <select id="kfg_${ix}" data-kfg="${ix}"><option value="">Any gun</option>${G.map(o=>`<option value="${esc(o.v)}"${o.v===k.fg?' selected':''}>${esc(o.label)} (${o.where})</option>`).join('')}</select>${bad?` <span class="bad">${esc(t.label)} doesn’t take clips (${esc(t.i.w[2])}).</span>`:''}</div>`;}
 function renderKit(){ kitChip();
   if(!st.kit.length){$('kit').innerHTML=`<div class="hd"><b>Shopping list</b><span class="note">Add items to total their price and Essence. Saved in this browser only.</span></div>`;return;}
-  let c=0,e=0,bt=0; const rows=st.kit.map((k,ix)=>{const i=BYID[k.id]||{n:k.n,src:k.src||'core',cost:k.cost}; const p=(costAt(i,k.r)||0)*(k.gel?5:1); const es=+(essAt(i,k.r)||0); c+=p; e+=es; bt+=+((i.bis?i.bis[k.r]:i.bi)||0);
-    return `<li><span>${srcTag(i.src)} ${esc(i.n)}${k.gel?' + gel-packs':''}${i.r?` <span class="note">(${esc(i.r[2])} ${k.r})</span>`:''}</span><span class="c">${fmt(p)}¥${es?` · ${es} Ess`:''}</span><button class="x" data-rm="${ix}" aria-label="Remove ${esc(i.n)}">×</button></li>`;}).join('');
+  let c=0,e=0,bt=0; const KG=kitGuns(); const rows=st.kit.map((k,ix)=>{const i=BYID[k.id]||{n:k.n,src:k.src||'core',cost:k.cost}; const p=(costAt(i,k.r)||0)*(k.gel?5:1); const es=+(essAt(i,k.r)||0); c+=p; e+=es; bt+=+((i.bis?i.bis[k.r]:i.bi)||0);
+    return `<li><span>${srcTag(i.src)} ${esc(i.n)}${k.gel?' + gel-packs':''}${i.r?` <span class="note">(${esc(i.r[2])} ${k.r})</span>`:''}${BYID[k.id]&&kitForGun(k.id)?kitFgHTML(k,ix,KG):''}</span><span class="c">${fmt(p)}¥${es?` · ${es} Ess`:''}</span><button class="x" data-rm="${ix}" aria-label="Remove ${esc(i.n)}">×</button></li>`;}).join('');
   $('kit').innerHTML=`<div class="hd"><b>Shopping list</b><span class="tot">${fmt(c)}¥${e?` · ${Math.round(e*100)/100} Essence`:''}</span><button class="btn ghost" data-send="kit">Send to a character</button><button class="btn ghost" id="clearKit">Clear</button></div>${(()=>{const W=wishLines(OWNC,c,e,bt); return W?`<div class="wish"><b>${W.head.replace('this','the whole list')}</b><ul>${W.lines.map(x=>`<li>${x}</li>`).join('')}</ul></div>`:'';})()}<ul>${rows}</ul>`;
 }
 function select(id,scroll){
@@ -2134,6 +2148,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('toggle',e=>{if(e.target.classList&&e.target.classList.contains('pguide')){if(e.target.closest('[aria-label="Vehicle build-out"]')) st.vguide=e.target.open; else if(e.target.closest('[aria-label="Options build-out"]')) st.hguide=e.target.open; else st.pguide=e.target.open;}},true);
 document.addEventListener('change',e=>{
+  if(e.target.dataset&&e.target.dataset.kfg!=null){const k=st.kit[+e.target.dataset.kfg]; if(k){if(e.target.value) k.fg=e.target.value; else delete k.fg; save(); renderKit();} return;}
   const t=e.target, g=BYID[st.sel]; if(!g) return;
   if(t.dataset.cb){const S=cbState(); CBUI.apply(S.P,t.dataset.cb,t.type==='checkbox'?t.checked:t.value); cbFix(); save(); renderTag(); return;}
   if(t.dataset.cbadd!==undefined&&t.value){const S=cbState(); S.P.limbs[t.dataset.cbadd].acc.push(t.value); cbFix(); save(); renderTag(); return;}

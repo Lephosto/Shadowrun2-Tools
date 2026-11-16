@@ -424,7 +424,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1794862371717","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwjqppie","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794862371698}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1794866410903","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwjt4a5j","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794866410880}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--paper',panel2:'--soft',ink:'--ink',muted:'--muted',line:'--line',accent:'--accent',accentInk:'--accent-ink',accentSoft:'--accent-soft',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skillweb*/
@@ -3671,8 +3671,8 @@ function xferSeen(){try{return +localStorage.getItem(XFER_KEY+'-seen')||0;}catch
 // Link to the same item in the Gear Locker when it sits next to this page (GitHub site: gear-locker.html; offline: SR2_Gear_Locker.html).
 function lockerHref(){const f=(location.pathname.split('/').pop()||'').toLowerCase(); if(location.protocol==='file:'&&/sr2_runner_builder/.test(f)) return 'SR2_Gear_Locker.html'; if(/^https?:$/.test(location.protocol)&&!/claude/.test(location.hostname)&&/builder\.html$/.test(f)) return 'gear-locker.html'; if(/^https?:$/.test(location.protocol)&&/github\.io$/.test(location.hostname)) return 'gear-locker.html'; return '';}
 function lockerLink(key){const h=lockerHref(); if(!h||!key) return ''; const sl=key.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); return ` <a class="glink" href="${h}#${sl}" target="_blank" rel="noopener" title="Open in the Gear Locker">Gear Locker ↗</a>`;}
-function gearImport(p){const added=[],skipped=[]; const books=Object.assign({},booksOn()); const had=new Set(S.gear.map(g=>g.key).filter(Boolean)); const dup=[];
-  (p.items||[]).slice(0,200).forEach(x=>{
+function gearImport(p){const added=[],skipped=[],byIx={},links=[]; const books=Object.assign({},booksOn()); const had=new Set(S.gear.map(g=>g.key).filter(Boolean)); const dup=[];
+  (p.items||[]).slice(0,200).forEach((x,ix)=>{
     if(x&&x.key&&KEYFIX[x.key]) x.key=KEYFIX[x.key];
     if(x&&x.key){const it=GEARDB[x.key]; if(!it){skipped.push(String(x.key).split(':').slice(1).join(':'));return;}
       const row={key:x.key,qty:Math.max(1,Math.min(9999,Math.floor(+x.qty||1)))}; if(x.r!=null&&isFinite(+x.r)) row.r=+x.r;
@@ -3681,8 +3681,9 @@ function gearImport(p){const added=[],skipped=[]; const books=Object.assign({},b
       if(x.hb&&typeof x.hb==='object') row.hb=JSON.parse(JSON.stringify(x.hb));
       if(x.gel) row.gel=true;
       if(x.loaded) row.loaded=true;
-      if(had.has(x.key)) dup.push(it.n); S.gear.push(row); if(it.src&&it.src!=='core') books[it.src]=true; added.push(it.n);}
+      if(had.has(x.key)) dup.push(it.n); S.gear.push(row); byIx[ix]=row; if(forGunItem(x.key)&&(x.forItem!=null||x.forKey)) links.push([row,x]); if(it.src&&it.src!=='core') books[it.src]=true; added.push(it.n);}
     else if(x&&x.name){S.gear.push({name:String(x.name).slice(0,140),cat:'other',qty:1,cost:Math.max(0,+x.cost||0),ess:0}); added.push(String(x.name));}});
+  links.forEach(([row,x])=>{let t=x.forItem!=null?byIx[+x.forItem]:null; if(!t&&x.forKey) t=S.gear.find(g=>g.key===x.forKey&&isFeedGun(g)); if(t&&isFeedGun(t)){if(!t.gid) t.gid='w'+Math.random().toString(36).slice(2,9); row.forGun=t.gid;}});
   if(p.cbody&&typeof p.cbody==='object'&&p.cbody.limbs){S.cbody=JSON.parse(JSON.stringify(p.cbody)); books.ct=true; added.push('Cyber body plan');}
   if(p.vr2deck&&typeof p.vr2deck==='object'){S.vr2deck=Object.assign(vr2Default(),p.vr2deck); books.vr2=true;}
   S.books=books; if(typeof fillGearCats==='function') fillGearCats(); render(); return {added,skipped,dup};}
