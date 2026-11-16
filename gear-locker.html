@@ -130,7 +130,7 @@ tr.on td{background:color-mix(in srgb,var(--accent) 14%,transparent)}
 .kit li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;font-size:.875rem;border-bottom:1px dashed var(--line);padding:4px 0}
 .kit li .x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:1rem}
 .kit li .c{font-family:var(--mono);color:var(--price)}
-.kfg{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:3px;font-size:.75rem;color:var(--muted)}.kfg select{font-size:.75rem;max-width:15rem;padding:2px 4px}.kfg .bad{color:var(--bad,#c33)}
+.kfg{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:3px;font-size:.75rem;color:var(--muted)}.kfg select{font-size:.75rem;max-width:15rem;padding:2px 4px}.kfg .bad{color:var(--bad,#c33)}.tfg{margin-top:12px;display:grid;gap:4px}.tfg label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}.tfg select{font:inherit;font-size:.875rem;padding:6px 8px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--ink);max-width:100%}.tfg .bad{color:var(--bad,#c33);font-size:.8125rem}
 .foot{margin-top:18px;font-size:.75rem;color:var(--muted);max-width:90ch}
 @media (max-width:1100px){.grid{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)} nav{display:none} #catSel{display:block;margin-bottom:10px}}
 @media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)} .shelf{position:static;max-height:60vh} .shelf:not(.fopen) .fbar{display:none} .ftog{display:inline-block} #catName{display:none} .tblw th,.tblw td{padding:6px 7px;font-size:.8125rem} .build{padding:4px 10px 12px}}
@@ -1086,8 +1086,8 @@ const BYSLUG=Object.fromEntries(ITEMS.map(i=>[slug(i.id),i]));
 let st={books:{core:1,ssc:1,r2:1,vr2:1,fof:1,st:1,ct:1,csh:1,gr:1,aw:1,co:1},cat:'all',q:'',sort:'book',dir:1,f:{},sel:null,rate:{},kit:[]};
 // Old item ids that were renamed or merged (e.g. vehicles superseded by Rigger 2); same table the builder uses.
 const KEYFIX=(DATA&&DATA.keyfix)||{};
-try{const s=JSON.parse(localStorage.getItem('sr2gear')||'null'); if(s){st.books=Object.assign(st.books,s.books||{}); st.kit=Array.isArray(s.kit)?s.kit.map(k=>{const f=KEYFIX[k.id]; return f?{...k,id:f}:k;}).filter(k=>BYID[k.id]||k.n):[]; if(s.build&&typeof s.build==='object') st.build=s.build; if(s.gel&&typeof s.gel==='object') st.gel=s.gel; if(s.dbuild&&typeof s.dbuild==='object') st.dbuild=s.dbuild; if(s.vbuild&&typeof s.vbuild==='object') st.vbuild=s.vbuild; if(s.hbuild&&typeof s.hbuild==='object') st.hbuild=s.hbuild; if(s.cbody&&typeof s.cbody==='object') st.cbody=s.cbody; if(typeof s.charId==='string') st.charId=s.charId;}}catch(e){}
-const save=()=>{try{localStorage.setItem('sr2gear',JSON.stringify({books:st.books,kit:st.kit,build:st.build||{},dbuild:st.dbuild||{},vbuild:st.vbuild||{},hbuild:st.hbuild||{},gel:st.gel||{},cbody:st.cbody||null,charId:st.charId||''}));}catch(e){}};
+try{const s=JSON.parse(localStorage.getItem('sr2gear')||'null'); if(s){st.books=Object.assign(st.books,s.books||{}); st.kit=Array.isArray(s.kit)?s.kit.map(k=>{const f=KEYFIX[k.id]; return f?{...k,id:f}:k;}).filter(k=>BYID[k.id]||k.n):[]; if(s.build&&typeof s.build==='object') st.build=s.build; if(s.gel&&typeof s.gel==='object') st.gel=s.gel; if(s.dbuild&&typeof s.dbuild==='object') st.dbuild=s.dbuild; if(s.vbuild&&typeof s.vbuild==='object') st.vbuild=s.vbuild; if(s.hbuild&&typeof s.hbuild==='object') st.hbuild=s.hbuild; if(s.cbody&&typeof s.cbody==='object') st.cbody=s.cbody; if(typeof s.charId==='string') st.charId=s.charId; if(s.fgSel&&typeof s.fgSel==='object') st.fgSel=s.fgSel;}}catch(e){}
+const save=()=>{try{localStorage.setItem('sr2gear',JSON.stringify({books:st.books,kit:st.kit,build:st.build||{},dbuild:st.dbuild||{},vbuild:st.vbuild||{},hbuild:st.hbuild||{},gel:st.gel||{},cbody:st.cbody||null,charId:st.charId||'',fgSel:st.fgSel||{}}));}catch(e){}};
 const srcTag=s=>`<span class="src" title="${BOOK[s][0]}" style="--bc:var(${BOOK[s][2]})">${BOOK[s][1]}</span>`;
 function pageRef(i){const p=i.pg||'';return /^(SSC|R2|VR2|FoF|ST|CT|CSH|GR|AW|SRC)\b/.test(p)?p:(p?'Core '+p:'');}
 function costAt(i,r){ if(i.cost!=null) return i.cost; if(i.costs) return i.costs[r]; if(i.mult!=null) return i.mult*r; return null;}
@@ -2038,7 +2038,7 @@ function renderTag(){
    ${gradeTable(i,r)}
    ${spellTable(i)}
    ${rulesFor(i)}
-   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">${i.sp||i.ef||i.mt||i.cat==='power'||canBuild(i)||isDeck(i)||isVeh(i)||HB.isHost(i.id)||CB_PAGES.has(i.id)?'':'<button class="btn" id="addKit">Add to shopping list</button><button class="btn ghost" data-send="item">Send to a character</button>'}${i.m1?'<span class="note">Matrix 1.0 item: VR2 replaces it if your table uses VR2.</span>':''}</div>
+   ${tagFgHTML(i)}<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">${i.sp||i.ef||i.mt||i.cat==='power'||canBuild(i)||isDeck(i)||isVeh(i)||HB.isHost(i.id)||CB_PAGES.has(i.id)?'':'<button class="btn" id="addKit">Add to shopping list</button><button class="btn ghost" data-send="item">Send to a character</button>'}${i.m1?'<span class="note">Matrix 1.0 item: VR2 replaces it if your table uses VR2.</span>':''}</div>
    ${G.length?`<h3>Goes with</h3><div class="links">${G.map(g=>`<div class="lgrp"><h4>${esc(g.title)}</h4>${g.note?`<p>${esc(g.note)}</p>`:''}${g.text?`<p>${esc(g.text)}</p>`:`<div class="pills">${g.list.map(x=>`<button class="pill ${visible(x)?'':'off'}" data-id="${esc(x.id)}" title="${esc(BOOK[x.src][0]+' '+pageRef(x))}">${srcTag(x.src)}${esc(x.n)}<span class="pp">${priceLabel(x)}</span></button>`).join('')}</div>`}</div>`).join('')}</div>`:''}`;
 }
 function kitChip(){const el=$('kitchip'); if(!el) return; let c=0; st.kit.forEach(k=>{const i=BYID[k.id]||{cost:k.cost}; c+=costAt(i,k.r)||0;}); el.textContent=st.kit.length?`Shopping list: ${st.kit.length} · ${fmt(c)}¥`:'Shopping list: empty';}
@@ -2061,7 +2061,7 @@ function xferItem(i){const items=[]; let vr2deck=null; const ok=k=>!!BYID[k];
     C.U.forEach(x=>items.push({key:x.it.id,qty:1,r:x.u.r,loaded:!!x.u.loaded}));}
   else if(isVeh(i)){const {B}=vbFix(i); items.push({key:i.id,qty:1,vb:JSON.parse(JSON.stringify(B))});}
   else if(HB.isHost(i.id)){const S=hbFix(i); items.push(Object.assign({key:i.id,qty:1,hb:JSON.parse(JSON.stringify(S))},gelOK(i)&&st.gel&&st.gel[i.id]?{gel:true}:{}));}
-  else items.push(Object.assign({key:i.id,qty:1,r:i.r?(st.rate[i.id]??(i.mult!=null?1000:i.r[0])):undefined},gelOK(i)&&st.gel&&st.gel[i.id]?{gel:true}:{}));
+  else items.push(Object.assign({key:i.id,qty:1,r:i.r?(st.rate[i.id]??(i.mult!=null?1000:i.r[0])):undefined},gelOK(i)&&st.gel&&st.gel[i.id]?{gel:true}:{},kitForGun(i.id)&&st.fgSel&&/^o:/.test(st.fgSel[i.id]||'')?{forKey:st.fgSel[i.id].slice(2)}:{}));
   return {items:items.filter(x=>ok(x.key)),vr2deck,label:i.n};}
 function xferKit(){const items=st.kit.map(k=>{if(!BYID[k.id]) return {name:k.n,cost:k.cost}; const o=Object.assign({key:k.id,qty:1,r:BYID[k.id].r?k.r:undefined},k.gel?{gel:true}:{});
     if(k.fg&&kitForGun(k.id)){if(k.fg.startsWith('k:')){const j=st.kit.findIndex(x=>x.u===k.fg.slice(2)); if(j>=0&&kitFeed(BYID[st.kit[j].id])) o.forItem=j;} else if(k.fg.startsWith('o:')) o.forKey=k.fg.slice(2);}
@@ -2086,9 +2086,13 @@ function kitGuns(){const out=[]; let dirty=false; const cnt={};
   out.forEach(o=>{if(cnt[o.label]>1) o.label+=' #'+o.n;});
   Object.keys(OWN).forEach(id=>{const i=BYID[id]; if(kitFeed(i)) out.push({v:'o:'+id,i,label:i.n,where:'owned'});});
   if(dirty) save(); return out;}
-function kitFgHTML(k,ix,G){if(!G.length) return `<div class="note kfg">Add a gun to pick which one this is for.</div>`; const t=G.find(o=>o.v===k.fg);
-  const bad=t&&k.id==='ammo:Spare Clip'&&!/\(c\)/.test(String(t.i.w[2]));
-  return `<div class="kfg"><label for="kfg_${ix}">For</label> <select id="kfg_${ix}" data-kfg="${ix}"><option value="">Any gun</option>${G.map(o=>`<option value="${esc(o.v)}"${o.v===k.fg?' selected':''}>${esc(o.label)} (${o.where})</option>`).join('')}</select>${bad?` <span class="bad">${esc(t.label)} doesn’t take clips (${esc(t.i.w[2])}).</span>`:''}</div>`;}
+function kitFgHTML(k,ix,G){const t=G.find(o=>o.v===k.fg); if(!t) return '';
+  const bad=k.id==='ammo:Spare Clip'&&!/\(c\)/.test(String(t.i.w[2]));
+  return `<div class="kfg">For ${esc(t.label)} (${t.where})${bad?` <span class="bad">doesn’t take clips (${esc(t.i.w[2])})</span>`:''}</div>`;}
+// the purchase panel: choose the gun before adding (like picking a gun's add-ons)
+function tagFgHTML(i){if(!kitForGun(i.id)) return ''; const G=kitGuns(); st.fgSel=st.fgSel||{}; let v=st.fgSel[i.id]||''; if(v&&!G.some(o=>o.v===v)){v=''; delete st.fgSel[i.id];}
+  const t=G.find(o=>o.v===v), bad=t&&i.id==='ammo:Spare Clip'&&!/\(c\)/.test(String(t.i.w[2]));
+  return `<div class="tfg"><label for="tfg">${i.id==='ammo:Spare Clip'?'Clip for':'Ammo for'}</label> ${G.length?`<select id="tfg" data-tfg="${esc(i.id)}"><option value="">Any gun</option>${G.map(o=>`<option value="${esc(o.v)}"${o.v===v?' selected':''}>${esc(o.label)} (${o.where})</option>`).join('')}</select>`:'<span class="note">Add a gun to your shopping list, or link a character, to pick one.</span>'}${bad?`<div class="bad">${esc(t.label)} doesn’t take clips (${esc(t.i.w[2])}). It loads ${/\(m\)/.test(t.i.w[2])?'from an internal magazine':'another way'} (core p. 95).</div>`:''}<div class="note">${i.id==='ammo:Spare Clip'?'Clips fit one specific gun.':'Ammo is shared by every gun of the same class.'} The Runner Builder links it to that gun when you send the list.</div></div>`;}
 function renderKit(){ kitChip();
   if(!st.kit.length){$('kit').innerHTML=`<div class="hd"><b>Shopping list</b><span class="note">Add items to total their price and Essence. Saved in this browser only.</span></div>`;return;}
   let c=0,e=0,bt=0; const KG=kitGuns(); const rows=st.kit.map((k,ix)=>{const i=BYID[k.id]||{n:k.n,src:k.src||'core',cost:k.cost}; const p=(costAt(i,k.r)||0)*(k.gel?5:1); const es=+(essAt(i,k.r)||0); c+=p; e+=es; bt+=+((i.bis?i.bis[k.r]:i.bi)||0);
@@ -2117,7 +2121,7 @@ document.addEventListener('click',e=>{
   if(e.target.dataset&&e.target.dataset.send){ if(e.target.dataset.send==='kit'){ if(st.kit.length) sendGear(xferKit()); } else {const i=BYID[st.sel]; if(i) sendGear(xferItem(i));} return;}
   if(e.target.id==='sendClose'||e.target.id==='sendClose2'||e.target.id==='sendDlg'){$('sendDlg').hidden=true; return;}
   if(e.target.id==='sendCopy'){const t=$('sendCode'); t.select(); let ok=false; try{navigator.clipboard.writeText(t.value).then(()=>{e.target.textContent='Copied';},()=>{try{document.execCommand('copy');e.target.textContent='Copied';}catch(_){}});}catch(_){try{document.execCommand('copy');e.target.textContent='Copied';}catch(__){}} return;}
-  if(e.target.id==='addKit'){const i=BYID[st.sel]; st.kit.push(Object.assign({id:i.id,r:st.rate[i.id]??(i.r?(i.mult!=null?1000:i.r[0]):0)},gelOK(i)&&st.gel&&st.gel[i.id]?{gel:true}:{})); save(); renderKit(); e.target.textContent='Added'; setTimeout(()=>{const b=$('addKit'); if(b) b.textContent='Add to shopping list';},1200); return;}
+  if(e.target.id==='addKit'){const i=BYID[st.sel]; st.kit.push(Object.assign({id:i.id,r:st.rate[i.id]??(i.r?(i.mult!=null?1000:i.r[0]):0)},gelOK(i)&&st.gel&&st.gel[i.id]?{gel:true}:{},kitForGun(i.id)&&st.fgSel&&st.fgSel[i.id]?{fg:st.fgSel[i.id]}:{})); save(); renderKit(); e.target.textContent='Added'; setTimeout(()=>{const b=$('addKit'); if(b) b.textContent='Add to shopping list';},1200); return;}
   if(e.target.id==='addBuild'){const g=BYID[st.sel]; const C=buildCalc(g); st.kit.push({id:g.id,r:0});
     C.chosen.forEach(p=>{ if(BYID[p.id]){ const it=BYID[p.id]; st.kit.push({id:p.id,r:it.mult!=null?Math.round((g.cost||0)):0}); } else st.kit.push({n:p.n+' ('+g.n+')',cost:Math.round((g.cost||0)*(p.costMult||0)),src:p.src||'core'}); if(p.extra) st.kit.push({n:'Grenade launcher modification for the link',cost:p.extra,src:'ssc'}); });
     save(); renderKit(); e.target.textContent='Added'; setTimeout(()=>{const b=$('addBuild'); if(b) b.textContent='Add gun and add-ons to shopping list';},1200); return;}
@@ -2150,7 +2154,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('toggle',e=>{if(e.target.classList&&e.target.classList.contains('pguide')){if(e.target.closest('[aria-label="Vehicle build-out"]')) st.vguide=e.target.open; else if(e.target.closest('[aria-label="Options build-out"]')) st.hguide=e.target.open; else st.pguide=e.target.open;}},true);
 document.addEventListener('change',e=>{
-  if(e.target.dataset&&e.target.dataset.kfg!=null){const k=st.kit[+e.target.dataset.kfg]; if(k){if(e.target.value) k.fg=e.target.value; else delete k.fg; save(); renderKit();} return;}
+  if(e.target.dataset&&e.target.dataset.tfg){st.fgSel=st.fgSel||{}; if(e.target.value) st.fgSel[e.target.dataset.tfg]=e.target.value; else delete st.fgSel[e.target.dataset.tfg]; save(); renderTag(); return;}
   const t=e.target, g=BYID[st.sel]; if(!g) return;
   if(t.dataset.cb){const S=cbState(); CBUI.apply(S.P,t.dataset.cb,t.type==='checkbox'?t.checked:t.value); cbFix(); save(); renderTag(); return;}
   if(t.dataset.cbadd!==undefined&&t.value){const S=cbState(); S.P.limbs[t.dataset.cbadd].acc.push(t.value); cbFix(); save(); renderTag(); return;}
