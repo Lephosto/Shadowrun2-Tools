@@ -20,5 +20,5 @@ const st=await p.evaluate(()=>({names:window.__sr2.S.gear.map(g=>g.name),carried
 const after=await p.evaluate(()=>window.__sr2.S.gear.filter(g=>g.forGun).length);
 await p.reload(); const persisted=await p.evaluate(()=>window.__sr2.S.gear.filter(g=>g.forGun).map(g=>g.name));
 const sw=await p.evaluate(()=>document.documentElement.scrollWidth);
-const ok=sels.length===3&&sels[0].length===4&&st.names.some(n=>/Spare Clip \(for Mossberg CMDT\/SM\)/.test(n))&&st.carried.some(t=>/spare clips 0, 0, 0 · pool 40 regular/.test(t))&&st.warnRow&&st.issue&&after===1&&persisted.length===1&&sw<=390&&!errs.length;
+const ok=sels.length===3&&sels[0].length===4&&st.names.some(n=>/Spare Clip \(for Mossberg CMDT\/SM\)/.test(n))&&st.carried.some(t=>/3 empty spare clips · pool 40 regular/.test(t))&&st.warnRow&&st.issue&&after===1&&persisted.length===1&&sw<=390&&!errs.length;
 console.log(JSON.stringify({ok,sels,st,after,persisted,sw,errs}));await b.close(); if(!ok) process.exit(1);})();

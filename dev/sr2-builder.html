@@ -118,7 +118,20 @@ textarea{width:100%;font-family:var(--f-mono);font-size:0.75rem}
 .picker{display:flex;flex-wrap:wrap;gap:0.625rem;align-items:flex-end;margin-bottom:0.625rem}.books{display:flex;flex-wrap:wrap;gap:0.375rem 0.875rem;align-items:center;margin-bottom:0.75rem;padding:0.5rem 0.625rem;border:1px solid var(--line);border-radius:6px;font-size:0.8125rem}.books .k{font-weight:700;font-size:0.6875rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.books label.bk{flex-direction:row;align-items:center;gap:0.3rem;text-transform:none;letter-spacing:0;font-size:0.8125rem;font-weight:500;color:var(--ink)}.picker .grow{flex:1 1 13.75rem}.picker select{width:100%}
 tr.gcat td{background:var(--line);font-size:0.6875rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--muted);padding:0.375rem}
 tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-transform:none}
-.gstat{font-size:0.75rem;color:var(--muted)}.amcard{border:1px solid var(--line);border-radius:6px;padding:0.625rem 0.75rem;margin-bottom:0.625rem;display:grid;gap:0.4rem}.amhead{display:flex;flex-wrap:wrap;gap:0.25rem 0.625rem;align-items:baseline}.amrow{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem 0.625rem}.amk{font-size:0.6875rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);min-width:5.5rem}.amv{font-size:1.25rem;font-weight:700}.amv small{font-size:0.8125rem;color:var(--muted);font-weight:500}.ambtn{display:flex;gap:0.375rem;flex-wrap:wrap}.amempty{opacity:.55}.amsel{flex-direction:row;align-items:center;gap:0.375rem}.amsel select{width:auto;font-size:0.8125rem}.amact button{font-size:0.8125rem}.forgun{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem;margin-top:0.25rem}.forgun label{display:inline;text-transform:none;letter-spacing:0;font-weight:600}.forgun select{font-size:0.75rem;width:auto;max-width:14rem;min-height:0;padding:0.2rem 0.4rem}
+.gstat{font-size:0.75rem;color:var(--muted)}.stboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:0.625rem}
+.stcol{border:1px solid var(--line);border-radius:6px;padding:0.5rem;min-height:5rem;display:flex;flex-direction:column;gap:0.375rem;background:var(--soft)}
+.stcol.carry{background:transparent;border-color:var(--accent)}
+.stcol.over{outline:2px dashed var(--accent);outline-offset:2px}
+.sth{display:flex;align-items:baseline;gap:0.5rem;justify-content:space-between}.sth b{font-size:0.875rem}
+.stlist{display:flex;flex-direction:column;gap:0.3rem}
+.stchip{display:flex;align-items:center;gap:0.375rem;justify-content:space-between;border:1px solid var(--line);border-radius:5px;padding:0.3rem 0.4rem;background:var(--bg);font-size:0.8125rem;cursor:grab}
+.stchip.drag{opacity:.4}.stchip span{min-width:0;overflow-wrap:anywhere}.stchip i{color:var(--muted);font-style:normal}
+.stchip select{width:auto;max-width:7.5rem;font-size:0.75rem;padding:0.15rem 0.3rem;min-height:0;flex:none}
+.stempty{margin:0.25rem 0;font-size:0.75rem}.stcat{font-size:0.6875rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:0.375rem 0 0.1rem}
+.quick{display:none}body.session .quick{display:block}
+body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2):not(.quick){display:none!important}
+.qrow{display:flex;justify-content:space-between;gap:0.75rem;padding:0.4rem 0;border-bottom:1px solid var(--line);font-size:0.875rem}.qrow .mono{white-space:nowrap}.qrow small{display:block;color:var(--muted);font-size:0.75rem}
+.amcard{border:1px solid var(--line);border-radius:6px;padding:0.625rem 0.75rem;margin-bottom:0.625rem;display:grid;gap:0.4rem}.amhead{display:flex;flex-wrap:wrap;gap:0.25rem 0.625rem;align-items:baseline}.amrow{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem 0.625rem}.amk{font-size:0.6875rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);min-width:5.5rem}.amv{font-size:1.25rem;font-weight:700}.amv small{font-size:0.8125rem;color:var(--muted);font-weight:500}.ambtn{display:flex;gap:0.375rem;flex-wrap:wrap}.amempty{opacity:.55}.amsel{flex-direction:row;align-items:center;gap:0.375rem}.amsel select{width:auto;font-size:0.8125rem}.amact button{font-size:0.8125rem}.forgun{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem;margin-top:0.25rem}.forgun label{display:inline;text-transform:none;letter-spacing:0;font-weight:600}.forgun select{font-size:0.75rem;width:auto;max-width:14rem;min-height:0;padding:0.2rem 0.4rem}
 .gdesc{max-width:30rem;font-style:italic}.desc{font-style:normal}
 .mbar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:20;gap:0.5rem;align-items:baseline;padding:0.625rem 1rem calc(0.625rem + env(safe-area-inset-bottom));background:var(--paper);border-top:3px solid var(--line);color:var(--ink);text-decoration:none;font-size:0.8125rem;box-shadow:0 -4px 12px rgba(0,0,0,.08)}
 .mbar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;color:var(--muted)}.mbar b{white-space:nowrap}
@@ -262,6 +275,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
 
       <section class="card ses" id="sec-skills" data-jump="Skills">
         <h2><span class="num">05</span> Skills <span class="pg">p. 45, 66–73</span></h2>
+        <div class="quick" id="skillQuick"></div>
         <p class="note">Rating 6 at most at creation. A concentration drops the general skill by 1 and raises the concentration by 1. A specialization drops the general skill by 2, keeps the concentration at the bought rating, and raises the specialization by 2.</p>
         <div class="tbl"><table><thead><tr><th>Skill</th><th class="n">Bought</th><th>Narrowed</th><th>Concentration</th><th>Specialization</th><th>Ratings</th><th></th></tr></thead><tbody id="skillBody"></tbody></table></div>
         <datalist id="skillList"></datalist>
@@ -276,6 +290,7 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
 
       <section class="card ses" id="magicCard" data-jump="Magic">
         <h2><span class="num">06</span> <span id="magicTitle">Spells and powers</span></h2>
+        <div class="quick" id="powerQuick"></div>
         <p class="note" id="magicNote"></p>
         <div class="grid2" id="totemRow" hidden><label for="totem">Totem <span class="pg">p. 119</span><select id="totem"></select></label><p class="note" id="totemNote" style="align-self:end"></p></div>
         <div class="picker" id="spellPick" hidden>
@@ -313,6 +328,13 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         <div class="stat"><span class="k">Starting cash: unspent ÷ 10 <span class="pg">p. 47</span></span><span class="v" id="cashFromLeft"></span></div>
         <div class="stat"><span class="k">Plus 3D6 × 1,000¥ <button id="rollCash" class="ghost">Roll</button></span><span class="v" id="cashRoll"></span></div>
         <div class="stat"><span class="k"><b>Starting cash</b></span><span class="v big" id="cashTotal"></span></div>
+      </section>
+
+      <section class="card ses" id="sec-stash" data-jump="Stash">
+        <h2><span class="num">07e</span> Stash and storage</h2>
+        <p class="note">Gear you aren't carrying. Drag an item to a column, or use its <b>Move</b> menu. Stashed gear stays yours and keeps its price, but it leaves the weapons and armor tables, the ammo tracker and the at-the-table part of the sheet. Vehicles and drones you own show up as places too, so a rigger can park drones in the van.</p>
+        <div class="stboard" id="stBoard"></div>
+        <div class="picker" style="margin-top:0.625rem"><label for="stNew" class="grow">New place<input id="stNew" placeholder="Safehouse, coffin motel locker, the van…" maxlength="40"></label><button id="stAdd">Add place</button></div>
       </section>
 
       <section class="card ses" id="sec-weap" data-jump="Weapons">
@@ -997,19 +1019,56 @@ function feedSpec(key){const w=WSTAT[key]; if(!w) return null; const a=String(w[
   return null;}
 function isFeedGun(g){return !!(g&&GEARDB[g.key]&&feedSpec(g.key));}
 function feedGuns(){const L=S.gear.filter(isFeedGun); const seen={}; return L.map(g=>{const n=GEARDB[g.key].n; const tot=L.filter(x=>x.key===g.key).length; seen[n]=(seen[n]||0)+1; return {g,gid:g.gid,label:n+(tot>1?` #${seen[n]}`:''),clips:/\(c\)/.test(String(WSTAT[g.key][2]))};});}
+// ---- game night: read-only skills and powers
+function skillQuickHTML(){const L=S.skills.filter(x=>x.name); const langs=`<div class="qrow"><span>Native language</span><span class="mono">${nativeLang()}</span></div>`+(S.langs||[]).filter(l=>l.name).map(l=>`<div class="qrow"><span>${esc(l.name)}</span><span class="mono">${l.rating||1}</span></div>`).join('');
+  return (L.map(x=>`<div class="qrow"><span>${esc(x.name)}</span><span class="mono">${esc(skillRatings(x))}</span></div>`).join('')||'<p class="note">No skills.</p>')+langs+(Object.keys(advSkills()).length?Object.entries(advSkills()).map(([n,r])=>`<div class="qrow"><span>${esc(n)} <small>learned with Karma</small></span><span class="mono">${r}</span></div>`).join(''):'');}
+function powerQuickHTML(){if(S.magic==='none') return '';
+  if(S.magic==='adept') return S.powers.map(p=>{const c=powerCost(p); return `<div class="qrow"><span>${esc((allPowers()[p.type||'custom']||POWERS.custom).label)}<small>${esc(c.err||c.desc||'')}</small></span><span class="mono">${c.cost} PP</span></div>`;}).join('')||'<p class="note">No powers.</p>';
+  return S.powers.filter(p=>p.name).map(p=>{const sp=SPELLDB[p.name]; return `<div class="qrow"><span>${esc(p.name)}${sp?`<small>${esc(sp.cat)} · Drain ${esc(drainText(sp,+p.cost||1))}</small>`:''}</span><span class="mono">Force ${+p.cost||0}</span></div>`;}).join('')||'<p class="note">No spells.</p>';}
+// ---- stash: gear the runner owns but isn't carrying (g.at = place name)
+const NOSTASH=new Set(['head','body','prog','soft','bio']);
+function stashable(g){return !!g&&!!(g.key||g.name)&&!NOSTASH.has(g.cat)&&g.key!==CBKEY&&!(+g.ess>0)&&!(+g.bi>0);}
+const carried=g=>!g||!g.at;
+function stashPlaces(){const P=(Array.isArray(S.places)&&S.places.length?S.places:['Stash']).slice();
+  S.gear.forEach(g=>{if(isVehG(g)&&GEARDB[g.key]){const n=GEARDB[g.key].n; if(!P.includes(n)) P.push(n);}});
+  S.gear.forEach(g=>{if(g.at&&!P.includes(g.at)) P.push(g.at);}); return P;}
+const isVehG=g=>!!g&&(g.cat==='veh'||g.cat==='r2veh');
+const isVehPlace=n=>S.gear.some(g=>isVehG(g)&&GEARDB[g.key]&&GEARDB[g.key].n===n);
+function stashSync(){S.gear.forEach(g=>{if(g.at&&!stashable(g)) delete g.at; if(g.at&&isVehG(g)&&GEARDB[g.key]&&GEARDB[g.key].n===g.at) delete g.at;});}
+function plainRow(g){return !!GEARDB[g.key]&&!WSTAT[g.key]&&!MSTAT[g.key]&&!g.build&&!g.vb&&!g.hb&&!g.gel&&!g.loaded&&!g.note&&!g.gid&&g.cat!=='veh'&&!g.grade;}
+function stashMove(i,to,one){const g=S.gear[i]; if(!g||!stashable(g)) return; to=to||'';
+  if(one&&(+g.qty||1)>1){g.qty=(+g.qty||1)-1; const c=JSON.parse(JSON.stringify(g)); c.qty=1; delete c.gid; delete c.used; if(to) c.at=to; else delete c.at; S.gear.push(c); i=S.gear.length-1;}
+  else {if(to) g.at=to; else delete g.at;}
+  const m=S.gear[i]; if(plainRow(m)){const j=S.gear.findIndex((x,k)=>k!==i&&plainRow(x)&&x.key===m.key&&x.r===m.r&&(x.forGun||'')===(m.forGun||'')&&(x.at||'')===(m.at||''));
+    if(j>=0){S.gear[j].qty=(+S.gear[j].qty||1)+(+m.qty||1); if(m.used) S.gear[j].used=(+S.gear[j].used||0)+m.used; gearRemoveAt(i);}}}
+function stashHTML(){const P=stashPlaces(); const items=S.gear.map((g,i)=>[g,i]).filter(([g])=>stashable(g));
+  if(!items.length) return `<p class="note">No gear to stash yet. Cyberware and other implants always go with you.</p>`;
+  const nm=g=>esc((GEARDB[g.key]?g.name:g.name)||'Item');
+  const opts=(g,here)=>{const q=+g.qty||1, own=isVehG(g)&&GEARDB[g.key]?GEARDB[g.key].n:null; const T=[['',`Carry (on ${esc(S.handle||S.name||'you')})`],...P.filter(p=>p!==own).map(p=>[p,esc(p)])].filter(([v])=>v!==here);
+    return `<option value="">Move…</option>${T.map(([v,l])=>`<option value="a|${esc(v)}">${q>1?'All to ':'To '}${l}</option>`).join('')}${q>1?T.map(([v,l])=>`<option value="1|${esc(v)}">One to ${l}</option>`).join(''):''}`;};
+  const chip=([g,i])=>`<div class="stchip" draggable="true" data-stdrag="${i}"><span>${nm(g)}${(+g.qty||1)>1?` <i>×${g.qty}</i>`:''}</span><select data-stmove="${i}" aria-label="Move ${nm(g)}">${opts(g,g.at||'')}</select></div>`;
+  const catOf=g=>isVehG(g)?'Vehicles and drones':GCATNAME[g.cat]||'Other', order=GCATS.map(c=>c[1]).concat(['Other']);
+  const grp=L=>{if(L.length<6) return L.map(chip).join(''); const by={}; L.forEach(x=>{(by[catOf(x[0])]=by[catOf(x[0])]||[]).push(x);});
+    return Object.keys(by).sort((a,b)=>order.indexOf(a)-order.indexOf(b)).map(c=>`<div class="stcat">${esc(c)}</div>`+by[c].map(chip).join('')).join('');};
+  const col=(place,label,cls,removable)=>{const L=items.filter(([g])=>(g.at||'')===place);
+    return `<div class="stcol${cls?' '+cls:''}" data-stdrop="${esc(place)}"><div class="sth"><b>${label}</b><span class="note">${L.length?L.reduce((a,[g])=>a+(+g.qty||1),0)+' item'+(L.reduce((a,[g])=>a+(+g.qty||1),0)>1?'s':''):''}${removable&&!L.length?` <button class="x" data-strm="${esc(place)}" aria-label="Remove ${esc(place)}">×</button>`:''}</span></div><div class="stlist">${grp(L)||'<p class="note stempty">Drop gear here.</p>'}</div></div>`;};
+  return col('',`With ${esc(S.handle||S.name||'you')}`,'carry',false)+P.map(p=>col(p,esc(p)+(isVehPlace(p)?' <span class="pg">vehicle</span>':''),'',!isVehPlace(p)&&!(p==='Stash'&&(!S.places||S.places.length<=1)))).join('');}
+function stashSummaryHTML(){const st=S.gear.filter(g=>g.at&&stashable(g)); if(!st.length) return ''; const by={}; st.forEach(g=>{(by[g.at]=by[g.at]||[]).push(g);});
+  return Object.entries(by).map(([p,L])=>`<b>${esc(p)}:</b> ${L.map(g=>esc(g.name||'')+((+g.qty||1)>1?' ×'+g.qty:'')).join(', ')}`).join(' · ');}
 // ---- ammo tracker: rounds move from the bought ammo (the pool) into the gun and its spare clips
 const AMSHORT=k=>(GEARDB[k]?GEARDB[k].n:k).replace(/ \((10|10 rounds)\)$/,'').replace(/ (Ammo|Rounds)$/,'');
-function amLines(gid,t){return S.gear.filter(x=>x.key===t&&GEARDB[x.key]&&(x.forGun===gid||!x.forGun)).sort((a,b)=>(!!b.forGun)-(!!a.forGun));}
+function amLines(gid,t){return S.gear.filter(x=>x.key===t&&GEARDB[x.key]&&!x.at&&(x.forGun===gid||!x.forGun)).sort((a,b)=>(!!b.forGun)-(!!a.forGun));}
 const amLeft=x=>Math.max(0,(+x.qty||1)*10-(+x.used||0));
 function amPool(gid,t){return amLines(gid,t).reduce((a,x)=>a+amLeft(x),0);}
 function amTake(gid,t,n){let got=0; for(const x of amLines(gid,t)){const k=Math.min(n-got,amLeft(x)); if(k>0){x.used=(+x.used||0)+k; got+=k;} if(got>=n) break;} return got;}
 function amGive(gid,t,n){if(!t||!n) return; let left=n; for(const x of amLines(gid,t)){const k=Math.min(left,+x.used||0); if(k>0){x.used-=k; left-=k;} if(!left) break;}}
-function amTypes(gid){const at=(S.ammoT||{})[gid]; const T=new Set(S.gear.filter(x=>forGunItem(x.key)&&x.key!=='ammo:Spare Clip'&&GEARDB[x.key]&&(x.forGun===gid||!x.forGun)).map(x=>x.key)); if(at){if(at.in.t)T.add(at.in.t); at.clips.forEach(c=>c.t&&T.add(c.t));} return [...T];}
+function amTypes(gid){const at=(S.ammoT||{})[gid]; const T=new Set(S.gear.filter(x=>forGunItem(x.key)&&x.key!=='ammo:Spare Clip'&&GEARDB[x.key]&&!x.at&&(x.forGun===gid||!x.forGun)).map(x=>x.key)); if(at){if(at.in.t)T.add(at.in.t); at.clips.forEach(c=>c.t&&T.add(c.t));} return [...T];}
 function ammoSync(){S.ammoT=S.ammoT||{}; S.gear.forEach(x=>{if(forGunItem(x.key)&&x.key!=='ammo:Spare Clip'){x.used=Math.min(Math.max(0,+x.used||0),(+x.qty||1)*10); if(!x.used) delete x.used;} else delete x.used;});
   const fg=feedGuns(); Object.keys(S.ammoT).forEach(id=>{if(!fg.some(x=>x.gid===id)) delete S.ammoT[id];});
   fg.forEach(({g,gid})=>{const sp=feedSpec(g.key); const at=S.ammoT[gid]=S.ammoT[gid]||{in:{t:'',n:0},clips:[]};
     if(sp.cap!=null&&at.in.n>sp.cap){amGive(gid,at.in.t,at.in.n-sp.cap); at.in.n=sp.cap;}
-    const want=sp.clip?S.gear.filter(x=>x.key==='ammo:Spare Clip'&&x.forGun===gid).reduce((a,x)=>a+(+x.qty||1),0):0;
+    const clipGuns=fg.filter(x=>carried(x.g)&&feedSpec(x.g.key).clip), solo=clipGuns.length===1&&clipGuns[0].gid===gid;
+    const want=sp.clip?S.gear.filter(x=>x.key==='ammo:Spare Clip'&&!x.at&&(x.forGun===gid||(solo&&!x.forGun))).reduce((a,x)=>a+(+x.qty||1),0):0;
     while(at.clips.length>want){const c=at.clips.pop(); amGive(gid,c.t,c.n);} while(at.clips.length<want) at.clips.push({t:'',n:0});
     if(!at.sel||!amTypes(gid).includes(at.sel)) at.sel=at.in.t||amTypes(gid)[0]||'';
     if(at.in.t&&at.in.n&&g.build&&GB&&GB.canBuild&&gunObj(g)&&GB.canBuild(gunObj(g))) g.build.ammo=at.in.t;});}
@@ -1021,8 +1080,8 @@ function ammoAct(gid,act,arg){const fg=feedGuns().find(x=>x.gid===gid); if(!fg) 
   if(act==='unload'){amGive(gid,at.in.t,at.in.n); at.in={t:'',n:0}; at.clips.forEach(c=>{amGive(gid,c.t,c.n); c.n=0;}); return;}}
 function ammoSummary(gid){const at=(S.ammoT||{})[gid]; const fg=feedGuns().find(x=>x.gid===gid); if(!at||!fg) return ''; const sp=feedSpec(fg.g.key);
   const p=amTypes(gid).map(t=>[t,amPool(gid,t)]).filter(x=>x[1]);
-  return `In gun ${at.in.n}${sp.cap!=null?'/'+sp.cap:''}${at.in.n&&at.in.t?' '+AMSHORT(at.in.t).toLowerCase():''}${at.clips.length?` · spare clips ${at.clips.map(c=>c.n).join(', ')}`:''}${p.length?` · pool ${p.map(([t,n])=>n+' '+AMSHORT(t).toLowerCase()).join(', ')}`:''}`;}
-function ammoTrackHTML(){const fg=feedGuns(); if(!fg.length) return `<p class="note">No guns that take ammunition yet.</p>`;
+  return `In gun ${at.in.n}${sp.cap!=null?'/'+sp.cap:''}${at.in.n&&at.in.t?' '+AMSHORT(at.in.t).toLowerCase():''}${at.clips.length?(at.clips.every(c=>!c.n)?` · ${at.clips.length} empty spare clip${at.clips.length>1?'s':''}`:` · spare clips ${at.clips.map(c=>c.n).join(', ')}`):''}${p.length?` · pool ${p.map(([t,n])=>n+' '+AMSHORT(t).toLowerCase()).join(', ')}`:''}`;}
+function ammoTrackHTML(){const fg=feedGuns().filter(x=>carried(x.g)); if(!fg.length) return `<p class="note">No carried guns that take ammunition${S.gear.some(g=>g.at&&isFeedGun(g))?' (stashed guns aren’t tracked until you carry them)':''}.</p>`;
   return fg.map(({g,gid,label})=>{const sp=feedSpec(g.key); const at=S.ammoT[gid]; const mode=String(WSTAT[g.key][3]||''); const types=amTypes(gid);
     const fire=[['SA|SS|^SA','1','Shot',1],['BF','3','Burst',3],['FA','10','Auto 10',10]].filter(([re])=>new RegExp(re).test(mode)||(re.startsWith('SA')&&!/BF|FA/.test(mode)));
     const ty=t=>t?AMSHORT(t):'empty';
@@ -1042,7 +1101,7 @@ function forGunHTML(g,i){const fg=feedGuns(); if(!fg.length) return `<div class=
   const t=fg.find(x=>x.gid===g.forGun); const bad=t&&g.key==='ammo:Spare Clip'&&!t.clips;
   return `<div class="gstat forgun"><label for="g_fg_${i}">For</label> <select id="g_fg_${i}" data-gr="${i}" data-f="forGun"><option value="">Any gun</option>${fg.map(x=>`<option value="${x.gid}" ${x.gid===g.forGun?'selected':''}>${esc(x.label)}</option>`).join('')}</select>${bad?` <span class="bad-text">${esc(t.label)} doesn’t take clips (${esc(WSTAT[t.g.key][2])}).</span>`:''}</div>`;}
 function forGunSync(){S.gear.forEach(g=>{if(isFeedGun(g)&&!g.gid) g.gid='w'+Math.random().toString(36).slice(2,9);});
-  const fg=feedGuns(); S.gear.forEach(g=>{if(!forGunItem(g.key)){delete g.forGun;return;} if(!g.forGun) return; const t=fg.find(x=>x.gid===g.forGun); if(!t){delete g.forGun;return;} if(GEARDB[g.key]) g.name+=` (for ${t.label})`;}); ammoSync();}
+  const fg=feedGuns(); S.gear.forEach(g=>{if(!forGunItem(g.key)){delete g.forGun;return;} if(!g.forGun) return; const t=fg.find(x=>x.gid===g.forGun); if(!t){delete g.forGun;return;} if(GEARDB[g.key]) g.name+=` (for ${t.label})`;}); stashSync(); ammoSync();}
 function gradeable(it){return (it.cat==='head'||it.cat==='body')&&it.e!=null;}
 function bodyIndexUsed(){return S.gear.reduce((a,g)=>a+(+g.bi||0)*(+g.qty||1),0);}
 function bodyIndexMax(){return attrNow('body')+(adeptOn()?boost('body'):0);} // unaugmented Body, modified only by race and Karma; adepts may count magical boosts (ST p. 5)
@@ -1176,7 +1235,7 @@ function woundMods(){const pain=adeptOn()?S.powers.filter(p=>p.type==='pain').re
   const ph=woundLevel(Math.max(0,S.phys-pain)), st=woundLevel(Math.max(0,S.stun-pain));
   const out=ph>=4||st>=4; const m=Math.min(3,ph)+Math.min(3,st); return {m,out,ph,st,pain};}
 function armorTotals(){
-  let b=0,i=0,hb=0,hi=0,heavyB=0; const worn=S.gear.filter(g=>ASTAT[g.key]&&!g.off);
+  let b=0,i=0,hb=0,hi=0,heavyB=0; const worn=S.gear.filter(g=>ASTAT[g.key]&&!g.off&&!g.at);
   let milB=0;
   worn.forEach(g=>{if(g.hb&&g.hb.helmet&&HB.kind(g.key)==='secarmor'){hb=Math.max(hb,1);hi=Math.max(hi,2);} const [bb,ii,k]=ASTAT[g.key]; if(k==='helmet'){hb=Math.max(hb,bb);hi=Math.max(hi,ii);} else {b=Math.max(b,bb);i=Math.max(i,ii); if(k==='heavy') heavyB=Math.max(heavyB,bb); if(k==='mil') milB=Math.max(milB,bb);}});
   const derm=gearLevel('body:Dermal Plating')+hasDerm();
@@ -1190,7 +1249,7 @@ function armorTotals(){
   const dsh=gearLevel('body:Dermal Sheath'); if(dsh) ii+=Math.ceil(dsh/2);
   return {b:b+hb+cbA+ib,i:i+hi+mystic+cbA+ii,derm,poolPenalty,worn,mystic,cbA,implant:{b:ib,i:ii}};
 }
-function hasLinedCoat(){return S.gear.some(g=>g.key==='armor:Lined Coat'&&!g.off);}
+function hasLinedCoat(){return S.gear.some(g=>g.key==='armor:Lined Coat'&&!g.off&&!g.at);}
 const PROG_NOTE={"prog:Armor": "No rules text in the core book; it only appears in the price table. It looks like a leftover from SR1. Matrix 2.0 has a real Armor utility (VR2 p. 99) that cuts the Power of damage to your icon by its rating; ask your GM before using that version with core rules.", "prog:Restore": "No rules text in the core book; it only appears in the price table. It looks like a leftover from SR1. Matrix 2.0 has a real Restore utility (VR2 p. 100) that repairs damaged icon attributes, 1 point per 2 successes; ask your GM before using that version with core rules.", "prog:Sift": "No rules text in the core book; it only appears in the price table. It looks like a leftover from SR1, and VR2 dropped it. The closest core programs for digging through data are Browse and Evaluate (p. 176); ask your GM what Sift does at your table."};
 function deckInfo(){
   const cust=S.gear.find(g=>g.key==='deck:Custom cyberdeck (VR2 à la carte)');
@@ -1468,7 +1527,7 @@ function renderExtras(){
   // racial traits note
   // weapons
   const str=augAttr('str'); const recStr=booksOn().fof&&S.optRecoil?strRecoil(str):0;
-  const wrows=S.gear.map((g,i)=>[g,i]).filter(([g])=>WSTAT[g.key]||MSTAT[g.key]);
+  const wrows=S.gear.map((g,i)=>[g,i]).filter(([g])=>(WSTAT[g.key]||MSTAT[g.key])&&carried(g));
   $('weapBody').innerHTML=wrows.map(([g,i])=>{
     const a=g.acc||{};
     if(MSTAT[g.key]){const [cc,reach,dmg,conc,msk]=MSTAT[g.key]; const mskill=msk||'Armed Combat'; const sd=skillDiceFor(mskill,conc,GEARDB[g.key].n);
@@ -1490,7 +1549,7 @@ function renderExtras(){
   }).join('') || `<tr><td colspan="7" class="note">No weapons yet. Add them from the gear list and they show up here with their stats.</td></tr>`;
   // armor
   const ar=armorTotals();
-  $('armorBody').innerHTML=S.gear.map((g,i)=>[g,i]).filter(([g])=>ASTAT[g.key]).map(([g,i])=>{const [b,im,k]=ASTAT[g.key];return `<tr><td><label style="flex-direction:row;align-items:center;gap:0.375rem;text-transform:none;letter-spacing:0;font-weight:500;font-size:0.875rem;color:var(--ink)"><input type="checkbox" data-am="${i}" ${g.off?'':'checked'}>${esc(GEARDB[g.key].n)}</label></td><td class="n">${k==='helmet'?'+':''}${b}</td><td class="n">${k==='helmet'?'+':''}${im}</td><td class="note">${k==='helmet'?'Adds to other armor':k==='heavy'?'Heavy: Combat Pool penalty':k==='mil'?'Military: −1 Combat Pool per 2 over Quickness':''}</td></tr>`;}).join('')||`<tr><td colspan="4" class="note">No armor yet.</td></tr>`;
+  $('armorBody').innerHTML=S.gear.map((g,i)=>[g,i]).filter(([g])=>ASTAT[g.key]&&carried(g)).map(([g,i])=>{const [b,im,k]=ASTAT[g.key];return `<tr><td><label style="flex-direction:row;align-items:center;gap:0.375rem;text-transform:none;letter-spacing:0;font-weight:500;font-size:0.875rem;color:var(--ink)"><input type="checkbox" data-am="${i}" ${g.off?'':'checked'}>${esc(GEARDB[g.key].n)}</label></td><td class="n">${k==='helmet'?'+':''}${b}</td><td class="n">${k==='helmet'?'+':''}${im}</td><td class="note">${k==='helmet'?'Adds to other armor':k==='heavy'?'Heavy: Combat Pool penalty':k==='mil'?'Military: −1 Combat Pool per 2 over Quickness':''}</td></tr>`;}).join('')||`<tr><td colspan="4" class="note">No armor yet.</td></tr>`;
   $('armorTotal').innerHTML=`<div class="stat"><span class="k">Ballistic / Impact worn</span><span class="v big">${ar.b} / ${ar.i}</span></div>
    <div class="stat"><span class="k">Body for damage resistance</span><span class="v">${augAttr('body')+hasDerm()}</span></div>
    ${ar.poolPenalty?`<div class="stat"><span class="k">Armor Combat Pool penalty</span><span class="v bad-text">−${ar.poolPenalty}</span></div>`:''}
@@ -1553,6 +1612,8 @@ function renderExtras(){
   $('advAvail').textContent=`${avail} Good Karma available`;
   $('advLog').innerHTML=(S.adv||[]).map((a,i)=>`<tr><td>${esc(a.desc||a.label)}</td><td class="n">${a.cost}</td><td><button class="x" data-del="adv" data-i="${i}" aria-label="Undo">×</button></td></tr>`).join('')||`<tr><td colspan="3" class="note">Nothing bought yet.</td></tr>`;
   $('ammoTrack').innerHTML=ammoTrackHTML();
+  $('stBoard').innerHTML=stashHTML();
+  $('skillQuick').innerHTML=skillQuickHTML(); $('powerQuick').innerHTML=powerQuickHTML();
   // nuyen log
   $('nyLog').innerHTML=(S.nyLog||[]).map((e,i)=>({e,i})).reverse().map(({e,i})=>`<tr><td class="mono small">${esc(e.d||'')}</td><td>${esc(e.note||(e.amt>=0?'Added':'Spent'))}</td><td class="n mono ${e.amt<0?'bad-text':''}">${e.amt>=0?'+':'−'}${fmt(Math.abs(e.amt))}</td><td><button class="x" data-nyrm="${i}" aria-label="Undo this entry">×</button></td></tr>`).join('')||`<tr><td colspan="4" class="note">No entries yet.</td></tr>`;
   // wounds
@@ -2887,12 +2948,12 @@ function detectionFactor(dk){
 
 function blank(){return{mode:'standard',prio:{race:'',magic:'',attr:'',skills:'',res:''},name:'',handle:'',race:'Human',magic:'none',tradition:'',concept:'',
  attrs:{body:1,quick:1,str:1,cha:1,int:1,wil:1},skills:[],powers:[],gear:[],contacts:[{name:'',role:'',level:'Contact'},{name:'',role:'',level:'Contact'}],
- phys:0,stun:0,kEarned:0,kSpent:0,kPoolBonus:0,nuyenNow:'',nyLog:[],ammoT:{},cashRoll:null,lifestyleOff:true,irErrata:false,notes:'',langs:[],adv:[],totem:'',books:{ssc:true,r2:true,vr2:false,fof:true},vr2deck:null,optRecoil:false};}
+ phys:0,stun:0,kEarned:0,kSpent:0,kPoolBonus:0,nuyenNow:'',nyLog:[],ammoT:{},places:['Stash'],cashRoll:null,lifestyleOff:true,irErrata:false,notes:'',langs:[],adv:[],totem:'',books:{ssc:true,r2:true,vr2:false,fof:true},vr2deck:null,optRecoil:false};}
 function example(){return{mode:'house',prio:{race:'E',magic:'D',attr:'B',skills:'C',res:'A'},name:'Example Runner',handle:'Lumen',race:'Elf',magic:'none',tradition:'',concept:'Decker (example build)',
  attrs:{body:5,quick:5,str:1,cha:1,int:6,wil:6},
  skills:[{name:'Computer',rating:6,narrow:'spec',conc:'Software',spec:'Decking'},{name:'Electronics',rating:4,narrow:'none',conc:'',spec:''},{name:'Firearms',rating:3,narrow:'none',conc:'',spec:''},{name:'Stealth',rating:3,narrow:'none',conc:'',spec:''},{name:'Negotiation',rating:3,narrow:'none',conc:'',spec:''},{name:'Etiquette',rating:3,narrow:'conc',conc:'Matrix',spec:''},{name:'Athletics',rating:2,narrow:'none',conc:'',spec:''}],
  powers:[],gear:[{key:'deck:Fuchi Cyber-6',qty:1},{key:'deck:Response Increase 2',qty:1,r:8},{key:'prog:Persona: Bod',qty:1,r:6},{key:'prog:Persona: Evasion',qty:1,r:6},{key:'prog:Persona: Masking',qty:1,r:6},{key:'prog:Persona: Sensors',qty:1,r:6},{key:'prog:Sleaze',qty:1,r:6,loaded:true},{key:'prog:Deception',qty:1,r:6,loaded:true},{key:'prog:Attack',qty:1,r:6},{key:'prog:Slow',qty:1,r:6},{key:'prog:Analyze',qty:1,r:6},{key:'prog:Browse',qty:1,r:6,loaded:true},{key:'prog:Decrypt',qty:1,r:6},{key:'prog:Relocate',qty:1,r:6},{key:'prog:Medic',qty:1,r:6},{key:'prog:Shield',qty:1,r:6},{key:'prog:Mirrors',qty:1,r:6},{key:'prog:Smoke',qty:1,r:6},{key:'prog:Evaluate',qty:1,r:4,loaded:true},{key:'deck:Extra Active Memory (per Mp)',qty:300},{key:'deck:Extra Storage Memory (per Mp)',qty:1000},{key:'head:Datajack',qty:1},{key:'armor:Lined Coat',qty:1},{key:'guns:Ares Predator',qty:1,acc:{laser:false}},{key:'ammo:Regular Ammo (10 rounds)',qty:5}],langs:[{name:'Sperethiel',rating:0}].filter(x=>x.rating),adv:[],totem:'',
- contacts:[{name:'',role:'Fixer',level:'Contact'},{name:'',role:'Data broker',level:'Contact'}],phys:0,stun:0,kEarned:0,kSpent:0,kPoolBonus:0,nuyenNow:'',nyLog:[],ammoT:{},cashRoll:null,lifestyleOff:true,notes:'Example build. Load a blank character to start your own.'};}
+ contacts:[{name:'',role:'Fixer',level:'Contact'},{name:'',role:'Data broker',level:'Contact'}],phys:0,stun:0,kEarned:0,kSpent:0,kPoolBonus:0,nuyenNow:'',nyLog:[],ammoT:{},places:['Stash'],cashRoll:null,lifestyleOff:true,notes:'Example build. Load a blank character to start your own.'};}
 
 let S;
 const KEY='sr2-builder-v1';
@@ -3312,6 +3373,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.hbdel!==undefined){const ix=+b.dataset.hbdel,g=S.gear[ix]; if(g.hb) g.hb.opts.splice(+b.dataset.j,1); hbFixG(g); HB_OPEN.add(ix); render(); return;}
   if(b.dataset.mode){S.mode=b.dataset.mode;render();return;}
   if(b.dataset.cat){const c=b.dataset.cat,L=b.dataset.l; for(const [k] of CATS){ if(k!==c&&S.prio[k]===L) S.prio[k]=''; } S.prio[c]=S.prio[c]===L?'':L; render(); return;}
+  if(b.dataset.strm!==undefined){const p=b.dataset.strm; S.places=stashPlaces().filter(x=>x!==p&&!isVehPlace(x)); render(); return;}
   if(b.dataset.amo){ammoAct(b.dataset.gid,b.dataset.amo,+b.dataset.amn||0); render(); return;}
   if(b.dataset.nyrm!==undefined){const L=S.nyLog||[];const e=L[+b.dataset.nyrm];if(e){S.nuyenNow=(S.nuyenNow===''||S.nuyenNow==null?0:+S.nuyenNow)-e.amt;L.splice(+b.dataset.nyrm,1);S.nyLog=L;}render();return;}
   if(b.dataset.del){const arr=S[b.dataset.del]||[]; if(b.dataset.del==='gear'&&arr[+b.dataset.i]&&arr[+b.dataset.i].key===CBKEY) S.cbody=null; if(b.dataset.del==='gear') gearRemoveAt(+b.dataset.i); else arr.splice(+b.dataset.i,1);render();return;}
@@ -3348,6 +3410,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.gr!==undefined&&t.dataset.f==='cat'){S.gear[+t.dataset.gr].cat=t.value;render();return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='grade'){S.gear[+t.dataset.gr].grade=t.value;render();return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='cultured'){S.gear[+t.dataset.gr].cultured=t.checked;render();return;}
+  if(t.dataset.stmove!==undefined&&t.value){const [n,to]=t.value.split(/\|(.*)/s); stashMove(+t.dataset.stmove,to,n==='1'); render(); return;}
   if(t.dataset.amosel){const at=(S.ammoT||{})[t.dataset.amosel]; if(at){at.sel=t.value;} render(); return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='forGun'){const g=S.gear[+t.dataset.gr]; if(t.value) g.forGun=t.value; else delete g.forGun; render();return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='gel'){S.gear[+t.dataset.gr].gel=t.checked;render();return;}
@@ -3428,6 +3491,13 @@ function nyLogAdd(sign){const a=Math.round(+$('nyAmt').value||0);if(!(a>0)){$('n
   S.nuyenNow=(S.nuyenNow===''||S.nuyenNow==null?0:+S.nuyenNow)+sign*a;
   S.nyLog=S.nyLog||[];S.nyLog.push({d:ds,amt:sign*a,note:$('nyNote').value.trim()});
   $('nyAmt').value='';$('nyNote').value='';render();}
+$('stAdd').onclick=()=>{const n=$('stNew').value.trim().slice(0,40); if(!n) return; const P=stashPlaces().filter(x=>!isVehPlace(x)); if(!P.includes(n)) P.push(n); S.places=P; $('stNew').value=''; render();};
+$('stNew').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault(); $('stAdd').click();}});
+{let DRAG=null;
+ document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('[data-stdrag]'); if(!c) return; DRAG=+c.dataset.stdrag; c.classList.add('drag'); try{e.dataTransfer.setData('text/plain',String(DRAG)); e.dataTransfer.effectAllowed='move';}catch(_){} });
+ document.addEventListener('dragend',e=>{DRAG=null; document.querySelectorAll('.stchip.drag,.stcol.over').forEach(x=>x.classList.remove('drag','over'));});
+ document.addEventListener('dragover',e=>{const col=e.target.closest&&e.target.closest('[data-stdrop]'); if(!col||DRAG===null) return; e.preventDefault(); document.querySelectorAll('.stcol.over').forEach(x=>x!==col&&x.classList.remove('over')); col.classList.add('over');});
+ document.addEventListener('drop',e=>{const col=e.target.closest&&e.target.closest('[data-stdrop]'); if(!col||DRAG===null) return; e.preventDefault(); const i=DRAG; DRAG=null; stashMove(i,col.dataset.stdrop,e.shiftKey); render();});}
 $('nyAdd').onclick=()=>nyLogAdd(1);$('nySpend').onclick=()=>nyLogAdd(-1);
 $('rollCash').onclick=()=>{const d=[1,2,3].map(()=>1+Math.floor(Math.random()*6));S.cashRoll={dice:d,total:d.reduce((a,b)=>a+b,0)*1000};render();};
 function ask(msg,action){const box=$('confirmBox');box.hidden=false;box.innerHTML=`<div class="confirm"><span>${msg}</span><button class="primary" id="cfYes">Yes, replace it</button><button id="cfNo">Cancel</button></div>`;$('cfYes').onclick=()=>{box.hidden=true;action();};$('cfNo').onclick=()=>{box.hidden=true;};}
@@ -3518,7 +3588,7 @@ function sheetFile(){
   const chip=(p)=>`<span class="sk ${p.part}"><i>${esc(p.part==='gen'?'General':p.part==='conc'?'Concentration':'Specialization')}</i>${esc(p.label)} <b>${p.r}</b></span>`;
   let skills=Object.entries(groups).map(([c,L])=>`<div class="skg"><h3>${esc(c)}</h3>${L.map(x=>`<div class="skr"><span class="skn">${esc(x.name)}</span><span class="skv">${skillParts(x).map(chip).join('')}</span></div>`).join('')}</div>`).join('');
   const nsk=Object.entries(advSkills()); if(nsk.length) skills+=`<div class="skg"><h3>Learned with Karma</h3>${nsk.map(([n,r])=>`<div class="skr"><span class="skn">${esc(n)}</span><span class="skv"><span class="sk gen">${esc(n)} <b>${r}</b></span></span></div>`).join('')}</div>`;
-  skills+=`<div class="skg"><h3>Languages</h3><div class="skr"><span class="skn">Native language <span class="pg">p. 45</span></span><span class="skv"><span class="sk gen">Creation Intelligence + 2 <b>${nativeLang()}</b></span></span></div>${(S.langs||[]).map(L=>`<div class="skr"><span class="skn">${esc(L.name||'Language')}</span><span class="skv"><span class="sk gen">Language <b>${L.rating}</b></span></span></div>`).join('')}</div>`;
+  skills+=`<div class="skg"><h3>Languages</h3><div class="skr"><span class="skn">Native language <span class="pg">p. 45</span></span><span class="skv"><span class="sk gen">Rating <b>${nativeLang()}</b></span></span></div>${(S.langs||[]).map(L=>`<div class="skr"><span class="skn">${esc(L.name||'Language')}</span><span class="skv"><span class="sk gen">Language <b>${L.rating}</b></span></span></div>`).join('')}</div>`;
   // ---- weapons ----
   const str=augAttr('str'),recStr=booksOn().fof&&S.optRecoil?strRecoil(str):0;
   const unarmed=(()=>{const sk=S.skills.find(x=>x.name==='Unarmed Combat'); const kh=adeptOn()?S.powers.find(p=>p.type==='killing'):null; const cbHas=(typeof cbOn==='function'&&cbOn())&&((cbCalc()||{}).power>0); if(!sk&&!kh&&!cbHas) return '';
@@ -3528,10 +3598,11 @@ function sheetFile(){
     return `<article class="wcard"><header><b>Unarmed${kh?' · Killing Hands':''}</b><span class="ts">Unarmed Combat${best.label!=='Unarmed Combat'&&best.r?' · '+esc(best.label):''} · p. 98${kh?' · p. 126':''}</span></header>
       <div class="wstats">${kh?tile('Killing Hands',`${str+cbp}${esc(kh.level||'M')}`,'Physical, or Stun if you choose'+(cbp?` · +${cbp} cyberhands`:'')):''}${tile('Normal blow',`${str+cbp}M Stun`,cbp?`+${cbp} from cyberhands or feet`:'')}${tile('Reach',reach,reach?'troll +1':'')}${tile('Skill dice',`${best.r||'—'}${ia?'+'+ia:''}`,best.r?esc(parts.map(p=>p.label+' '+p.r).join(' · ')):'')}</div>
       ${kh?`<p class="ts">Killing Hands also affects Immunity to Normal Weapons and manifested spirits (p. 126, 142).</p>`:''}</article>`;})();
-  const weap=unarmed+S.gear.filter(g=>WSTAT[g.key]||MSTAT[g.key]).map(g=>{const it=GEARDB[g.key];
+  const tileO=(k,v,sub)=>v==null||v===''||v==='—'?'':tile(k,v,sub);
+  const weap=unarmed+S.gear.filter(g=>(WSTAT[g.key]||MSTAT[g.key])&&carried(g)).map(g=>{const it=GEARDB[g.key];
     if(MSTAT[g.key]){const [cc,reach,dmg,conc,msk]=MSTAT[g.key];const sd=skillDiceFor(msk||'Armed Combat',conc,it.n);
       return `<article class="wcard"><header><b>${esc(it.n)}</b><span class="ts">${esc(msk||'Armed Combat')} · ${esc(conc)} · ${esc(it.pg||'')}</span></header>
-      <div class="wstats">${tile('Damage',esc(strDmg(dmg,str)),'')}${tile('Reach',reach+(baseRace()==='Troll'?1:0),'')}${tile('Skill dice',`${sd.dice??'—'}${sd.ia?'+'+sd.ia:''}`,'')}${tile('Conceal',cc??'—','')}</div></article>`;}
+      <div class="wstats">${tile('Damage',esc(strDmg(dmg,str)),'')}${tile('Reach',reach+(baseRace()==='Troll'?1:0),'')}${tile('Skill dice',`${sd.dice??'default'}${sd.ia?'+'+sd.ia:''}`,sd.dice==null?'no skill: see Defaulting':'')}${tileO('Conceal',cc,'')}</div></article>`;}
     const [rt,cc,ammo,mode,dmg]=WSTAT[g.key];const [sk,conc]=RT_SKILL[rt];const sd=skillDiceFor(sk,conc,it.n);let n=[],aim=0; const gc=gunCalc(g); let cfin=cc, rc=0;
     if(gc){const C=gc.C; aim=C.aim; rc=C.rc||0; cfin=C.conc==='Not concealable'?null:+C.conc; if(C.gyro) n.push('Gyro '+C.gyro); if(C.mag) n.push('Magnification '+C.mag); if(C.notice) n.push('Notice +'+C.notice);}
     if(recStr&&['Firearms','Gunnery'].includes(sk)) n.push('Strength recoil −'+recStr);
@@ -3539,9 +3610,9 @@ function sheetFile(){
     const adds=gc?gc.C.chosen.map(p=>p.n):[];
     const conceal=cfin==null?(gc?'—':'?'):cfin+(hasLinedCoat()&&cfin>0?2:0);
     return `<article class="wcard"><header><b>${esc(it.n)}</b><span class="ts">${esc(sk)} · ${esc(conc)} · ${esc(it.pg||'')}</span></header>
-      <div class="wstats">${tile('Damage',esc(rt==='bow'?strDmg(dmg,+g.r||str):strDmg(dmg,str)),'')}${tile('Mode',esc(mode)||'—','')}${tile('Ammo',esc(ammo)||'—','')}${tile('Skill dice',`${sd.dice??'—'}${sd.ia?'+'+sd.ia:''}`,sd.how&&sd.how!==sk?esc(sd.how):'')}${tile('Conceal',conceal,hasLinedCoat()&&cfin>0?'with lined coat':'')}${tile('Recoil comp',rc||'—','')}${aim?tile('TN modifier',(aim>0?'+':'−')+Math.abs(aim),esc((gc.C.aimTxt||[]).filter(x=>!/pick the shooter/.test(x)).join(', ')||'from add-ons')):''}</div>
+      <div class="wstats">${tile('Damage',esc(rt==='bow'?strDmg(dmg,+g.r||str):strDmg(dmg,str)),'')}${tileO('Mode',esc(mode),'')}${tileO('Ammo',esc(ammo),'')}${tile('Skill dice',`${sd.dice??'default'}${sd.ia?'+'+sd.ia:''}`,sd.dice==null?'no skill: see Defaulting':sd.how&&sd.how!==sk?esc(sd.how):'')}${tile('Conceal',conceal,hasLinedCoat()&&cfin>0?'with lined coat':'')}${rc?tile('Recoil comp',rc,''):''}${aim?tile('TN modifier',(aim>0?'+':'−')+Math.abs(aim),esc((gc.C.aimTxt||[]).filter(x=>!/pick the shooter/.test(x)).join(', ')||'from add-ons')):''}</div>
       <table class="rng"><thead><tr><th>Short</th><th>Medium</th><th>Long</th><th>Extreme</th></tr></thead><tbody><tr>${bands.map(b=>`<td>${esc(b)} m</td>`).join('')}</tr><tr class="tn">${['TN 4','TN 5','TN 6','TN 9'].map((t)=>`<td>${t}</td>`).join('')}</tr></tbody></table>
-      ${adds.length||n.length?`<p class="ts">${adds.length?`<b>Add-ons:</b> ${esc(adds.join(', '))}`:''}${adds.length&&n.length?' · ':''}${esc(n.join(' · '))}</p>`:''}</article>`;}).join('');
+      ${adds.length||n.length?`<p class="ts">${adds.length?`<b>Add-ons:</b> ${esc(adds.join(', '))}`:''}${adds.length&&n.length?' · ':''}${esc(n.join(' · '))}</p>`:''}${g.gid&&ammoSummary(g.gid)?`<p class="ts"><b>Ammo:</b> ${esc(ammoSummary(g.gid))}</p>`:''}</article>`;}).join('');
   const armor=ar.worn.length?`<p><b>Worn:</b> ${ar.worn.map(g=>esc(GEARDB[g.key].n)).join(', ')} · <b>Ballistic ${ar.b} / Impact ${ar.i}</b> · resist damage with Body ${bodyR}${ar.poolPenalty?` · heavy armor costs ${ar.poolPenalty} Combat Pool`:''}</p>`:'';
   // ---- magic ----
   let magic='';
@@ -3583,8 +3654,10 @@ function sheetFile(){
   // ---- gear (programs and deck options are shown with the deck) ----
   const shownWithDeck=g=>dk&&g.key&&(/^prog2?:/.test(g.key)||/^deck:(Response Increase|Extra (Active|Storage)|Hitcher|Off-line|Vidscreen)/.test(g.key));
   let gTot=0,eTot=0;
-  const gear=GCATS.map(([c,l])=>{const rows=S.gear.filter(g=>(g.name||+g.cost)&&(GCATNAME[g.cat]?g.cat:'other')===c&&!shownWithDeck(g)).sort((a,b)=>String(a.name).localeCompare(String(b.name)));if(!rows.length)return '';
+  const gear=GCATS.map(([c,l])=>{const rows=S.gear.filter(g=>(g.name||+g.cost)&&carried(g)&&(GCATNAME[g.cat]?g.cat:'other')===c&&!shownWithDeck(g)).sort((a,b)=>String(a.name).localeCompare(String(b.name)));if(!rows.length)return '';
     return `<div class="gg"><h3>${l}</h3><ul>${rows.map(g=>{const q=+g.qty||1, c=(+g.cost||0)*q, e=+(+g.ess||0)*q; gTot+=c; eTot+=e; return `<li><span>${esc(g.name)}${q>1?` <i>×${q}</i>`:''}${g.note?` <i>· ${esc(g.note)}</i>`:''}</span><span class="gm">${e?`${+e.toFixed(2)} Ess · `:''}${fmt(c)}¥</span></li>`;}).join('')}</ul></div>`;}).join('');
+  const stashed=(()=>{const by={}; S.gear.filter(g=>g.at&&(g.name||+g.cost)).forEach(g=>{(by[g.at]=by[g.at]||[]).push(g);});
+    return Object.entries(by).map(([p,L])=>`<div class="gg"><h3>${esc(p)}</h3><ul>${L.sort((a,b)=>String(a.name).localeCompare(String(b.name))).map(g=>{const q=+g.qty||1,c=(+g.cost||0)*q; gTot+=c; return `<li><span>${esc(g.name)}${q>1?` <i>×${q}</i>`:''}${g.note?` <i>· ${esc(g.note)}</i>`:''}</span><span class="gm">${fmt(c)}¥</span></li>`;}).join('')}</ul></div>`).join('');})();
   const deckCost=dk?S.gear.filter(shownWithDeck).reduce((a,g)=>a+(+g.cost||0)*(+g.qty||1),0):0;
   // ---- condition monitor ----
   const ML=['L','','M','','','S','','','','D'];
@@ -3609,7 +3682,7 @@ h2::before{content:"";width:4px;height:12px;background:var(--accent);border-radi
 h3{font:600 .6875rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 0 4px}
 .pg{font:500 .6875rem var(--mono);color:var(--muted);letter-spacing:0;text-transform:none}
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}.cols>.sec{margin-bottom:12px}
-.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}.tiles.sm{grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}.tiles.sm{grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}
 .tile,.attr{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--panel2);min-width:0}
 .tk{display:block;font:600 .625rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .tv{display:block;font:600 1.15rem/1.2 var(--mono);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.ts{display:block;font-size:.75rem;color:var(--muted);line-height:1.35}
@@ -3658,7 +3731,7 @@ ${rig?sec('rig','Rigging','',`<div class="wgrid">${rig.replace(/^(<p>.*?<\/p>)/,
 ${softHtml?sec('soft','Skillsofts','',softHtml):''}
 ${advHtml?sec('adv','Karma spent','',advHtml):''}
 ${contacts?sec('contacts','Contacts','p. 201',`<ul class="ct">${contacts}</ul>`):''}
-${sec('gear','Gear and cyberware','',`<div class="gcols">${gear||'<p class="mut">None</p>'}</div><p class="ts">Total ${fmt(gTot+deckCost)}¥${deckCost?` (deck options and programs ${fmt(deckCost)}¥ are listed with the cyberdeck)`:''}${eTot?` · ${+eTot.toFixed(2)} Essence in implants`:''}.</p>`)}
+${sec('gear','Gear and cyberware',stashed?'carried':'',`<div class="gcols">${gear||'<p class="mut">None</p>'}</div><p class="ts">Total ${stashed?'owned, carried and stashed, ':''}${fmt(gTot+deckCost)}¥${deckCost?` (deck options and programs ${fmt(deckCost)}¥ are listed with the cyberdeck)`:''}${eTot?` · ${+eTot.toFixed(2)} Essence in implants`:''}.</p>`)}${stashed?sec('stash','Stashed','not carried',`<div class="gcols">${stashed}</div>`):''}
 ${S.notes?sec('notes','Notes','',`<div class="notes">${esc(S.notes)}</div>`):''}
 <p class="foot">Shadowrun 2nd Edition character sheet · made with the SR2 Runner Builder. Page numbers are the core rulebook unless marked.</p></div>`;
   return docShell((S.name||'Runner')+' · SR2 character sheet',css,body);
