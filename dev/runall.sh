@@ -8,3 +8,4 @@ echo "== builder chk_ny"; node chk_ny.js
 echo "== builder chk_fg"; node chk_fg.js
 echo "== builder chk_amt"; node chk_amt.js
 echo "== locker chk23"; node gear/chk23.js
+echo "== locker chk24"; node gear/chk24.js
