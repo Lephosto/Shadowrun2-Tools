@@ -13,12 +13,12 @@ const ids=await p.evaluate(()=>window.__sr2.S.gear.filter(g=>g.gid).map(g=>g.gid
 const rowIdx=await p.evaluate(()=>window.__sr2.S.gear.map((g,i)=>[g.key,i]).filter(([k])=>/Spare Clip|Regular/.test(k)).map(x=>x[1]));
 await p.selectOption(`#g_fg_${rowIdx[0]}`,ids[0]); await p.selectOption(`#g_fg_${rowIdx[1]}`,ids[0]);
 await p.selectOption(`#g_fg_${rowIdx[2]}`,ids[1]);
-const st=await p.evaluate(()=>({names:window.__sr2.S.gear.map(g=>g.name),carried:[...document.querySelectorAll('#weapBody .gstat')].map(x=>x.textContent).filter(t=>/Carried/.test(t)),
+const st=await p.evaluate(()=>({names:window.__sr2.S.gear.map(g=>g.name),carried:[...document.querySelectorAll('#weapBody .gstat')].map(x=>x.textContent).filter(t=>/In gun|Carried/.test(t)),
   warnRow:!!document.querySelector('.forgun .bad-text'),issue:document.body.innerText.includes("loads from an internal magazine")}));
 // remove the Mossberg: its tags should clear
 {const i=await p.evaluate(()=>window.__sr2.S.gear.findIndex(g=>g.key==='guns:Mossberg CMDT/SM')); await p.click(`#gearBody button[data-del="gear"][data-i="${i}"]`);}
 const after=await p.evaluate(()=>window.__sr2.S.gear.filter(g=>g.forGun).length);
 await p.reload(); const persisted=await p.evaluate(()=>window.__sr2.S.gear.filter(g=>g.forGun).map(g=>g.name));
 const sw=await p.evaluate(()=>document.documentElement.scrollWidth);
-const ok=sels.length===3&&sels[0].length===4&&st.names.some(n=>/Spare Clip \(for Mossberg CMDT\/SM\)/.test(n))&&st.carried.some(t=>/3 spare clips, 40 regular/.test(t))&&st.warnRow&&st.issue&&after===1&&persisted.length===1&&sw<=390&&!errs.length;
+const ok=sels.length===3&&sels[0].length===4&&st.names.some(n=>/Spare Clip \(for Mossberg CMDT\/SM\)/.test(n))&&st.carried.some(t=>/spare clips 0, 0, 0 · pool 40 regular/.test(t))&&st.warnRow&&st.issue&&after===1&&persisted.length===1&&sw<=390&&!errs.length;
 console.log(JSON.stringify({ok,sels,st,after,persisted,sw,errs}));await b.close(); if(!ok) process.exit(1);})();

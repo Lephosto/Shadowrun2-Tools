@@ -118,7 +118,7 @@ textarea{width:100%;font-family:var(--f-mono);font-size:0.75rem}
 .picker{display:flex;flex-wrap:wrap;gap:0.625rem;align-items:flex-end;margin-bottom:0.625rem}.books{display:flex;flex-wrap:wrap;gap:0.375rem 0.875rem;align-items:center;margin-bottom:0.75rem;padding:0.5rem 0.625rem;border:1px solid var(--line);border-radius:6px;font-size:0.8125rem}.books .k{font-weight:700;font-size:0.6875rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.books label.bk{flex-direction:row;align-items:center;gap:0.3rem;text-transform:none;letter-spacing:0;font-size:0.8125rem;font-weight:500;color:var(--ink)}.picker .grow{flex:1 1 13.75rem}.picker select{width:100%}
 tr.gcat td{background:var(--line);font-size:0.6875rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--muted);padding:0.375rem}
 tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-transform:none}
-.gstat{font-size:0.75rem;color:var(--muted)}.forgun{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem;margin-top:0.25rem}.forgun label{display:inline;text-transform:none;letter-spacing:0;font-weight:600}.forgun select{font-size:0.75rem;width:auto;max-width:14rem;min-height:0;padding:0.2rem 0.4rem}
+.gstat{font-size:0.75rem;color:var(--muted)}.amcard{border:1px solid var(--line);border-radius:6px;padding:0.625rem 0.75rem;margin-bottom:0.625rem;display:grid;gap:0.4rem}.amhead{display:flex;flex-wrap:wrap;gap:0.25rem 0.625rem;align-items:baseline}.amrow{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem 0.625rem}.amk{font-size:0.6875rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);min-width:5.5rem}.amv{font-size:1.25rem;font-weight:700}.amv small{font-size:0.8125rem;color:var(--muted);font-weight:500}.ambtn{display:flex;gap:0.375rem;flex-wrap:wrap}.amempty{opacity:.55}.amsel{flex-direction:row;align-items:center;gap:0.375rem}.amsel select{width:auto;font-size:0.8125rem}.amact button{font-size:0.8125rem}.forgun{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem;margin-top:0.25rem}.forgun label{display:inline;text-transform:none;letter-spacing:0;font-weight:600}.forgun select{font-size:0.75rem;width:auto;max-width:14rem;min-height:0;padding:0.2rem 0.4rem}
 .gdesc{max-width:30rem;font-style:italic}.desc{font-style:normal}
 .mbar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:20;gap:0.5rem;align-items:baseline;padding:0.625rem 1rem calc(0.625rem + env(safe-area-inset-bottom));background:var(--paper);border-top:3px solid var(--line);color:var(--ink);text-decoration:none;font-size:0.8125rem;box-shadow:0 -4px 12px rgba(0,0,0,.08)}
 .mbar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;color:var(--muted)}.mbar b{white-space:nowrap}
@@ -373,6 +373,9 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
         <p class="note">Log a run payout or a purchase. Nuyen on hand updates, and × undoes an entry.</p>
         <div class="picker"><label for="nyAmt">Amount (¥)<input id="nyAmt" type="number" min="0" step="1" style="width:8rem" placeholder="50000"></label><label for="nyNote" class="grow">For<input id="nyNote" placeholder="Run payout, shopping list…"></label><span style="display:flex;gap:0.5rem"><button id="nyAdd" class="primary">Add</button><button id="nySpend">Spend</button></span></div>
         <div class="tbl"><table><thead><tr><th>Date</th><th>For</th><th class="n">¥</th><th></th></tr></thead><tbody id="nyLog"></tbody></table></div>
+        <h3>Ammo <span class="pg">p. 95</span></h3>
+        <p class="note">Bought ammo is the pool. Loading the gun or filling clips takes rounds from it, and firing uses them up. Raise the ammo quantity in the gear list when you buy more.</p>
+        <div id="ammoTrack"></div>
         <h3>Spend Good Karma <span class="pg">p. 190</span></h3>
         <p class="note">Attributes cost the new rating (double above racial max). Skills cost 2 × new rating, concentrations 1.5 ×, specializations and languages 1 ×. Bought raises update the sheet.</p>
         <div class="picker"><label for="advPick" class="grow">Raise<select id="advPick"></select></label><button id="advBuy" class="primary">Buy</button><span class="pill" id="advAvail"></span></div>
@@ -987,13 +990,59 @@ function syncGear(){S.gear.forEach(g=>{if(g&&KEYFIX[g.key]) g.key=KEYFIX[g.key];
   if(g.gel){ if(gelOK(it)&&bookOn('fof')){g.cost*=5; g.name+=' · gel-packs (Hardened)';} else delete g.gel;}}); forGunSync();}
 // ammo and spare clips can be tagged with the gun they're for
 function forGunItem(key){return key==='ammo:Spare Clip'||/^ammo:.*(Ammo|Rounds)\b/.test(key||'');}
-function isFeedGun(g){const w=g&&WSTAT[g.key]; return !!(w&&/\((c|m|b|cy|belt)\)/.test(String(w[2]))&&GEARDB[g.key]);}
+function feedSpec(key){const w=WSTAT[key]; if(!w) return null; const a=String(w[2]).trim(), n=parseInt(a,10);
+  if(/\(c\)/.test(a)) return {cap:n||0,clip:true,belt:/Belt/.test(a),feed:a};
+  if(a==='Belt') return {cap:null,clip:false,belt:true,feed:a};
+  const m=a.match(/\((m|b|cy|internal)\)/); if(m&&n) return {cap:n,clip:false,feed:a};
+  return null;}
+function isFeedGun(g){return !!(g&&GEARDB[g.key]&&feedSpec(g.key));}
 function feedGuns(){const L=S.gear.filter(isFeedGun); const seen={}; return L.map(g=>{const n=GEARDB[g.key].n; const tot=L.filter(x=>x.key===g.key).length; seen[n]=(seen[n]||0)+1; return {g,gid:g.gid,label:n+(tot>1?` #${seen[n]}`:''),clips:/\(c\)/.test(String(WSTAT[g.key][2]))};});}
+// ---- ammo tracker: rounds move from the bought ammo (the pool) into the gun and its spare clips
+const AMSHORT=k=>(GEARDB[k]?GEARDB[k].n:k).replace(/ \((10|10 rounds)\)$/,'').replace(/ (Ammo|Rounds)$/,'');
+function amLines(gid,t){return S.gear.filter(x=>x.key===t&&GEARDB[x.key]&&(x.forGun===gid||!x.forGun)).sort((a,b)=>(!!b.forGun)-(!!a.forGun));}
+const amLeft=x=>Math.max(0,(+x.qty||1)*10-(+x.used||0));
+function amPool(gid,t){return amLines(gid,t).reduce((a,x)=>a+amLeft(x),0);}
+function amTake(gid,t,n){let got=0; for(const x of amLines(gid,t)){const k=Math.min(n-got,amLeft(x)); if(k>0){x.used=(+x.used||0)+k; got+=k;} if(got>=n) break;} return got;}
+function amGive(gid,t,n){if(!t||!n) return; let left=n; for(const x of amLines(gid,t)){const k=Math.min(left,+x.used||0); if(k>0){x.used-=k; left-=k;} if(!left) break;}}
+function amTypes(gid){const at=(S.ammoT||{})[gid]; const T=new Set(S.gear.filter(x=>forGunItem(x.key)&&x.key!=='ammo:Spare Clip'&&GEARDB[x.key]&&(x.forGun===gid||!x.forGun)).map(x=>x.key)); if(at){if(at.in.t)T.add(at.in.t); at.clips.forEach(c=>c.t&&T.add(c.t));} return [...T];}
+function ammoSync(){S.ammoT=S.ammoT||{}; S.gear.forEach(x=>{if(forGunItem(x.key)&&x.key!=='ammo:Spare Clip'){x.used=Math.min(Math.max(0,+x.used||0),(+x.qty||1)*10); if(!x.used) delete x.used;} else delete x.used;});
+  const fg=feedGuns(); Object.keys(S.ammoT).forEach(id=>{if(!fg.some(x=>x.gid===id)) delete S.ammoT[id];});
+  fg.forEach(({g,gid})=>{const sp=feedSpec(g.key); const at=S.ammoT[gid]=S.ammoT[gid]||{in:{t:'',n:0},clips:[]};
+    if(sp.cap!=null&&at.in.n>sp.cap){amGive(gid,at.in.t,at.in.n-sp.cap); at.in.n=sp.cap;}
+    const want=sp.clip?S.gear.filter(x=>x.key==='ammo:Spare Clip'&&x.forGun===gid).reduce((a,x)=>a+(+x.qty||1),0):0;
+    while(at.clips.length>want){const c=at.clips.pop(); amGive(gid,c.t,c.n);} while(at.clips.length<want) at.clips.push({t:'',n:0});
+    if(!at.sel||!amTypes(gid).includes(at.sel)) at.sel=at.in.t||amTypes(gid)[0]||'';
+    if(at.in.t&&at.in.n&&g.build&&GB&&GB.canBuild&&gunObj(g)&&GB.canBuild(gunObj(g))) g.build.ammo=at.in.t;});}
+function ammoAct(gid,act,arg){const fg=feedGuns().find(x=>x.gid===gid); if(!fg) return; const sp=feedSpec(fg.g.key); const at=S.ammoT[gid]; const t=at.sel;
+  if(act==='fire'){at.in.n=Math.max(0,at.in.n-arg); return;}
+  if(act==='swap'){let bi=-1; at.clips.forEach((c,i)=>{if(c.n>0&&(bi<0||c.n>at.clips[bi].n)) bi=i;}); if(bi<0) return; const c=at.clips[bi]; at.clips[bi]={t:at.in.t,n:at.in.n}; at.in={t:c.t,n:c.n}; return;}
+  if(act==='load'){if(!t) return; if(at.in.t!==t&&at.in.n){amGive(gid,at.in.t,at.in.n); at.in.n=0;} at.in.t=t; const need=sp.cap==null?amPool(gid,t):sp.cap-at.in.n; at.in.n+=amTake(gid,t,need); return;}
+  if(act==='fill'){if(!t) return; at.clips.forEach(c=>{if(c.t!==t&&c.n){amGive(gid,c.t,c.n); c.n=0;} c.t=t; c.n+=amTake(gid,t,sp.cap-c.n);}); return;}
+  if(act==='unload'){amGive(gid,at.in.t,at.in.n); at.in={t:'',n:0}; at.clips.forEach(c=>{amGive(gid,c.t,c.n); c.n=0;}); return;}}
+function ammoSummary(gid){const at=(S.ammoT||{})[gid]; const fg=feedGuns().find(x=>x.gid===gid); if(!at||!fg) return ''; const sp=feedSpec(fg.g.key);
+  const p=amTypes(gid).map(t=>[t,amPool(gid,t)]).filter(x=>x[1]);
+  return `In gun ${at.in.n}${sp.cap!=null?'/'+sp.cap:''}${at.in.n&&at.in.t?' '+AMSHORT(at.in.t).toLowerCase():''}${at.clips.length?` · spare clips ${at.clips.map(c=>c.n).join(', ')}`:''}${p.length?` · pool ${p.map(([t,n])=>n+' '+AMSHORT(t).toLowerCase()).join(', ')}`:''}`;}
+function ammoTrackHTML(){const fg=feedGuns(); if(!fg.length) return `<p class="note">No guns that take ammunition yet.</p>`;
+  return fg.map(({g,gid,label})=>{const sp=feedSpec(g.key); const at=S.ammoT[gid]; const mode=String(WSTAT[g.key][3]||''); const types=amTypes(gid);
+    const fire=[['SA|SS|^SA','1','Shot',1],['BF','3','Burst',3],['FA','10','Auto 10',10]].filter(([re])=>new RegExp(re).test(mode)||(re.startsWith('SA')&&!/BF|FA/.test(mode)));
+    const ty=t=>t?AMSHORT(t):'empty';
+    const pool=types.map(t=>`<span class="pill">${amPool(gid,t)} ${esc(AMSHORT(t).toLowerCase())}</span>`).join(' ')||'<span class="note">No ammo bought for this gun. Add ammo in the gear list.</span>';
+    const hasSpare=at.clips.some(c=>c.n>0);
+    return `<div class="amcard"><div class="amhead"><b>${esc(label)}</b><span class="gstat">${esc(sp.feed)} · ${esc(mode)}</span></div>
+      <div class="amrow"><span class="amk">In gun</span><span class="amv mono ${at.in.n?'':'bad-text'}">${at.in.n}${sp.cap!=null?`<small>/${sp.cap}</small>`:''}</span><span class="gstat">${esc(at.in.n?ty(at.in.t):sp.belt&&!sp.clip?'belt empty':'empty')}</span>
+        <span class="ambtn">${fire.map(([,n,lab,k])=>`<button class="ghost" data-amo="fire" data-amn="${k}" data-gid="${gid}" ${at.in.n?'':'disabled'}>${lab}${k>1?` −${k}`:''}</button>`).join('')}</span></div>
+      ${sp.clip?`<div class="amrow"><span class="amk">Spare clips</span><span class="amclips">${at.clips.length?at.clips.map(c=>`<span class="pill ${c.n?'':'amempty'}" title="${esc(ty(c.t))}">${c.n}${c.n?' '+esc(AMSHORT(c.t).toLowerCase()):''}</span>`).join(' '):'<span class="note">None. Assign Spare Clips to this gun in the gear list.</span>'}</span></div>`:''}
+      <div class="amrow"><span class="amk">Pool</span><span>${pool}</span></div>
+      <div class="amrow amact">${types.length?`<label class="amsel"><span>Ammo</span> <select data-amosel="${gid}" aria-label="Ammo type for ${esc(label)}">${types.map(t=>`<option value="${esc(t)}" ${t===at.sel?'selected':''}>${esc(AMSHORT(t))} (${amPool(gid,t)})</option>`).join('')}</select></label>`:''}
+        ${sp.clip&&at.clips.length?`<button data-amo="swap" data-gid="${gid}" ${hasSpare?'':'disabled'} title="Swap in the fullest spare clip (Simple Action)">Change clip</button>`:''}
+        <button data-amo="load" data-gid="${gid}" ${types.length?'':'disabled'} title="${sp.clip?'Refill the clip in the gun':sp.belt?'Feed the belt':'Load rounds'} from the pool">${sp.clip?'Refill gun clip':sp.belt?'Load belt':'Load gun'}</button>
+        ${sp.clip&&at.clips.length?`<button data-amo="fill" data-gid="${gid}" ${types.length?'':'disabled'}>Fill spare clips</button>`:''}
+        <button class="ghost" data-amo="unload" data-gid="${gid}" title="Put every loaded round back in the pool">Unload all</button></div></div>`;}).join('');}
 function forGunHTML(g,i){const fg=feedGuns(); if(!fg.length) return `<div class="gstat">Add a gun to choose which one this is for.</div>`;
   const t=fg.find(x=>x.gid===g.forGun); const bad=t&&g.key==='ammo:Spare Clip'&&!t.clips;
   return `<div class="gstat forgun"><label for="g_fg_${i}">For</label> <select id="g_fg_${i}" data-gr="${i}" data-f="forGun"><option value="">Any gun</option>${fg.map(x=>`<option value="${x.gid}" ${x.gid===g.forGun?'selected':''}>${esc(x.label)}</option>`).join('')}</select>${bad?` <span class="bad-text">${esc(t.label)} doesn’t take clips (${esc(WSTAT[t.g.key][2])}).</span>`:''}</div>`;}
 function forGunSync(){S.gear.forEach(g=>{if(isFeedGun(g)&&!g.gid) g.gid='w'+Math.random().toString(36).slice(2,9);});
-  const fg=feedGuns(); S.gear.forEach(g=>{if(!forGunItem(g.key)){delete g.forGun;return;} if(!g.forGun) return; const t=fg.find(x=>x.gid===g.forGun); if(!t){delete g.forGun;return;} if(GEARDB[g.key]) g.name+=` (for ${t.label})`;});}
+  const fg=feedGuns(); S.gear.forEach(g=>{if(!forGunItem(g.key)){delete g.forGun;return;} if(!g.forGun) return; const t=fg.find(x=>x.gid===g.forGun); if(!t){delete g.forGun;return;} if(GEARDB[g.key]) g.name+=` (for ${t.label})`;}); ammoSync();}
 function gradeable(it){return (it.cat==='head'||it.cat==='body')&&it.e!=null;}
 function bodyIndexUsed(){return S.gear.reduce((a,g)=>a+(+g.bi||0)*(+g.qty||1),0);}
 function bodyIndexMax(){return attrNow('body')+(adeptOn()?boost('body'):0);} // unaugmented Body, modified only by race and Karma; adepts may count magical boosts (ST p. 5)
@@ -1435,7 +1484,7 @@ function renderExtras(){
     const conceal=cfin==null?(gc?'—':'?'):(cfin+(hasLinedCoat()&&cfin>0?2:0));
     const acc=gc?buildEditor(g,i):'';
     const carried=g.gid?S.gear.filter(x=>x.forGun===g.gid&&GEARDB[x.key]).map(x=>{const q=+x.qty||1; return x.key==='ammo:Spare Clip'?`${q} spare clip${q>1?'s':''}`:`${q*10} ${GEARDB[x.key].n.replace(/ \((10|10 rounds)\)$/,'').replace(/ (Ammo|Rounds)$/,'').toLowerCase()}`;}):[];
-    return `<tr><td><b>${esc(GEARDB[g.key].n)}</b><div class="gstat">${esc(sk)} · ${esc(conc)}</div>${carried.length?`<div class="gstat">Carried: ${esc(carried.join(', '))}</div>`:''}</td><td class="n">${conceal}${hasLinedCoat()&&cfin>0?'<div class="gstat">coat +2</div>':''}</td><td class="mono small">${esc(ammo)}<br>${esc(mode)}</td><td class="mono">${esc(dshow||(rt==='bow'?strDmg(dmg,+g.r||str):strDmg(dmg,str)))}</td>
+    return `<tr><td><b>${esc(GEARDB[g.key].n)}</b><div class="gstat">${esc(sk)} · ${esc(conc)}</div>${g.gid&&ammoSummary(g.gid)?`<div class="gstat">${esc(ammoSummary(g.gid))}</div>`:carried.length?`<div class="gstat">Carried: ${esc(carried.join(', '))}</div>`:''}</td><td class="n">${conceal}${hasLinedCoat()&&cfin>0?'<div class="gstat">coat +2</div>':''}</td><td class="mono small">${esc(ammo)}<br>${esc(mode)}</td><td class="mono">${esc(dshow||(rt==='bow'?strDmg(dmg,+g.r||str):strDmg(dmg,str)))}</td>
       <td class="mono">${sd.dice===null?'<span class="bad-text">no skill</span>':sd.dice+(sd.ia?`+${sd.ia}`:'')}<div class="gstat">${esc(sd.how)}</div></td>
       <td class="mono small">${bands.map((b,j)=>`<span title="TN ${[4,5,6,9][j]}">${[4,5,6,9][j]}: ${b}</span>`).join('<br>')}</td><td class="mono">${mod?String(mod).replace('-','−'):'—'}<div class="gstat">${esc(notes.join(', '))}</div></td></tr>${acc?`<tr class="wbrow"><td colspan="7">${acc}</td></tr>`:''}`;
   }).join('') || `<tr><td colspan="7" class="note">No weapons yet. Add them from the gear list and they show up here with their stats.</td></tr>`;
@@ -1503,6 +1552,7 @@ function renderExtras(){
   const avail=(+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog();
   $('advAvail').textContent=`${avail} Good Karma available`;
   $('advLog').innerHTML=(S.adv||[]).map((a,i)=>`<tr><td>${esc(a.desc||a.label)}</td><td class="n">${a.cost}</td><td><button class="x" data-del="adv" data-i="${i}" aria-label="Undo">×</button></td></tr>`).join('')||`<tr><td colspan="3" class="note">Nothing bought yet.</td></tr>`;
+  $('ammoTrack').innerHTML=ammoTrackHTML();
   // nuyen log
   $('nyLog').innerHTML=(S.nyLog||[]).map((e,i)=>({e,i})).reverse().map(({e,i})=>`<tr><td class="mono small">${esc(e.d||'')}</td><td>${esc(e.note||(e.amt>=0?'Added':'Spent'))}</td><td class="n mono ${e.amt<0?'bad-text':''}">${e.amt>=0?'+':'−'}${fmt(Math.abs(e.amt))}</td><td><button class="x" data-nyrm="${i}" aria-label="Undo this entry">×</button></td></tr>`).join('')||`<tr><td colspan="4" class="note">No entries yet.</td></tr>`;
   // wounds
@@ -2837,12 +2887,12 @@ function detectionFactor(dk){
 
 function blank(){return{mode:'standard',prio:{race:'',magic:'',attr:'',skills:'',res:''},name:'',handle:'',race:'Human',magic:'none',tradition:'',concept:'',
  attrs:{body:1,quick:1,str:1,cha:1,int:1,wil:1},skills:[],powers:[],gear:[],contacts:[{name:'',role:'',level:'Contact'},{name:'',role:'',level:'Contact'}],
- phys:0,stun:0,kEarned:0,kSpent:0,kPoolBonus:0,nuyenNow:'',nyLog:[],cashRoll:null,lifestyleOff:true,irErrata:false,notes:'',langs:[],adv:[],totem:'',books:{ssc:true,r2:true,vr2:false,fof:true},vr2deck:null,optRecoil:false};}
+ phys:0,stun:0,kEarned:0,kSpent:0,kPoolBonus:0,nuyenNow:'',nyLog:[],ammoT:{},cashRoll:null,lifestyleOff:true,irErrata:false,notes:'',langs:[],adv:[],totem:'',books:{ssc:true,r2:true,vr2:false,fof:true},vr2deck:null,optRecoil:false};}
 function example(){return{mode:'house',prio:{race:'E',magic:'D',attr:'B',skills:'C',res:'A'},name:'Example Runner',handle:'Lumen',race:'Elf',magic:'none',tradition:'',concept:'Decker (example build)',
  attrs:{body:5,quick:5,str:1,cha:1,int:6,wil:6},
  skills:[{name:'Computer',rating:6,narrow:'spec',conc:'Software',spec:'Decking'},{name:'Electronics',rating:4,narrow:'none',conc:'',spec:''},{name:'Firearms',rating:3,narrow:'none',conc:'',spec:''},{name:'Stealth',rating:3,narrow:'none',conc:'',spec:''},{name:'Negotiation',rating:3,narrow:'none',conc:'',spec:''},{name:'Etiquette',rating:3,narrow:'conc',conc:'Matrix',spec:''},{name:'Athletics',rating:2,narrow:'none',conc:'',spec:''}],
  powers:[],gear:[{key:'deck:Fuchi Cyber-6',qty:1},{key:'deck:Response Increase 2',qty:1,r:8},{key:'prog:Persona: Bod',qty:1,r:6},{key:'prog:Persona: Evasion',qty:1,r:6},{key:'prog:Persona: Masking',qty:1,r:6},{key:'prog:Persona: Sensors',qty:1,r:6},{key:'prog:Sleaze',qty:1,r:6,loaded:true},{key:'prog:Deception',qty:1,r:6,loaded:true},{key:'prog:Attack',qty:1,r:6},{key:'prog:Slow',qty:1,r:6},{key:'prog:Analyze',qty:1,r:6},{key:'prog:Browse',qty:1,r:6,loaded:true},{key:'prog:Decrypt',qty:1,r:6},{key:'prog:Relocate',qty:1,r:6},{key:'prog:Medic',qty:1,r:6},{key:'prog:Shield',qty:1,r:6},{key:'prog:Mirrors',qty:1,r:6},{key:'prog:Smoke',qty:1,r:6},{key:'prog:Evaluate',qty:1,r:4,loaded:true},{key:'deck:Extra Active Memory (per Mp)',qty:300},{key:'deck:Extra Storage Memory (per Mp)',qty:1000},{key:'head:Datajack',qty:1},{key:'armor:Lined Coat',qty:1},{key:'guns:Ares Predator',qty:1,acc:{laser:false}},{key:'ammo:Regular Ammo (10 rounds)',qty:5}],langs:[{name:'Sperethiel',rating:0}].filter(x=>x.rating),adv:[],totem:'',
- contacts:[{name:'',role:'Fixer',level:'Contact'},{name:'',role:'Data broker',level:'Contact'}],phys:0,stun:0,kEarned:0,kSpent:0,kPoolBonus:0,nuyenNow:'',nyLog:[],cashRoll:null,lifestyleOff:true,notes:'Example build. Load a blank character to start your own.'};}
+ contacts:[{name:'',role:'Fixer',level:'Contact'},{name:'',role:'Data broker',level:'Contact'}],phys:0,stun:0,kEarned:0,kSpent:0,kPoolBonus:0,nuyenNow:'',nyLog:[],ammoT:{},cashRoll:null,lifestyleOff:true,notes:'Example build. Load a blank character to start your own.'};}
 
 let S;
 const KEY='sr2-builder-v1';
@@ -3262,6 +3312,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.hbdel!==undefined){const ix=+b.dataset.hbdel,g=S.gear[ix]; if(g.hb) g.hb.opts.splice(+b.dataset.j,1); hbFixG(g); HB_OPEN.add(ix); render(); return;}
   if(b.dataset.mode){S.mode=b.dataset.mode;render();return;}
   if(b.dataset.cat){const c=b.dataset.cat,L=b.dataset.l; for(const [k] of CATS){ if(k!==c&&S.prio[k]===L) S.prio[k]=''; } S.prio[c]=S.prio[c]===L?'':L; render(); return;}
+  if(b.dataset.amo){ammoAct(b.dataset.gid,b.dataset.amo,+b.dataset.amn||0); render(); return;}
   if(b.dataset.nyrm!==undefined){const L=S.nyLog||[];const e=L[+b.dataset.nyrm];if(e){S.nuyenNow=(S.nuyenNow===''||S.nuyenNow==null?0:+S.nuyenNow)-e.amt;L.splice(+b.dataset.nyrm,1);S.nyLog=L;}render();return;}
   if(b.dataset.del){const arr=S[b.dataset.del]||[]; if(b.dataset.del==='gear'&&arr[+b.dataset.i]&&arr[+b.dataset.i].key===CBKEY) S.cbody=null; if(b.dataset.del==='gear') gearRemoveAt(+b.dataset.i); else arr.splice(+b.dataset.i,1);render();return;}
   if(b.dataset.trk){const k=b.dataset.trk,v=+b.dataset.v;S[k]=S[k]===v?v-1:v;render();return;}
@@ -3297,6 +3348,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.gr!==undefined&&t.dataset.f==='cat'){S.gear[+t.dataset.gr].cat=t.value;render();return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='grade'){S.gear[+t.dataset.gr].grade=t.value;render();return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='cultured'){S.gear[+t.dataset.gr].cultured=t.checked;render();return;}
+  if(t.dataset.amosel){const at=(S.ammoT||{})[t.dataset.amosel]; if(at){at.sel=t.value;} render(); return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='forGun'){const g=S.gear[+t.dataset.gr]; if(t.value) g.forGun=t.value; else delete g.forGun; render();return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='gel'){S.gear[+t.dataset.gr].gel=t.checked;render();return;}
   if(t.dataset.sk!==undefined&&t.tagName==='SELECT'){const s=S.skills[+t.dataset.sk],f=t.dataset.f,v=t.value;
