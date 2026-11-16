@@ -3689,6 +3689,10 @@ function gearImport(p){const added=[],skipped=[],byIx={},links=[]; const books=O
       if(had.has(x.key)) dup.push(it.n); S.gear.push(row); byIx[ix]=row; if(forGunItem(x.key)&&(x.forItem!=null||x.forKey)) links.push([row,x]); if(it.src&&it.src!=='core') books[it.src]=true; added.push(it.n);}
     else if(x&&x.name){S.gear.push({name:String(x.name).slice(0,140),cat:'other',qty:1,cost:Math.max(0,+x.cost||0),ess:0}); added.push(String(x.name));}});
   links.forEach(([row,x])=>{let t=x.forItem!=null?byIx[+x.forItem]:null; if(!t&&x.forKey) t=S.gear.find(g=>g.key===x.forKey&&isFeedGun(g)); if(t&&isFeedGun(t)){if(!t.gid) t.gid='w'+Math.random().toString(36).slice(2,9); row.forGun=t.gid;}});
+  // spare clips sent without a gun: if the send brings exactly one gun that takes clips, they're for it
+  {const rows=Object.values(byIx); const cg=rows.filter(r=>isFeedGun(r)&&feedSpec(r.key).clip); if(cg.length===1){const t=cg[0]; rows.filter(r=>r.key==='ammo:Spare Clip'&&!r.forGun).forEach(r=>{if(!t.gid) t.gid='w'+Math.random().toString(36).slice(2,9); r.forGun=t.gid;});}}
+  // identical plain lines from one send become one line with a quantity (10 smoke grenades, not 10 rows)
+  {const seen=new Map(), plain=r=>!WSTAT[r.key]&&!r.build&&!r.vb&&!r.hb&&!r.gel&&!r.loaded; Object.values(byIx).forEach(r=>{if(!plain(r)) return; const k=[r.key,r.r,r.forGun||''].join('|'); const f=seen.get(k); if(f){f.qty+=r.qty; const j=S.gear.indexOf(r); if(j>=0) S.gear.splice(j,1);} else seen.set(k,r);});}
   if(p.cbody&&typeof p.cbody==='object'&&p.cbody.limbs){S.cbody=JSON.parse(JSON.stringify(p.cbody)); books.ct=true; added.push('Cyber body plan');}
   if(p.vr2deck&&typeof p.vr2deck==='object'){S.vr2deck=Object.assign(vr2Default(),p.vr2deck); books.vr2=true;}
   S.books=books; if(typeof fillGearCats==='function') fillGearCats(); render(); return {added,skipped,dup};}
