@@ -11,3 +11,4 @@ echo "== locker chk23"; node gear/chk23.js
 echo "== locker chk24"; node gear/chk24.js
 echo "== locker chk25"; node gear/chk25.js
 echo "== builder chk_stash"; node chk_stash.js
+echo "== builder chk_arch"; node chk_arch.js

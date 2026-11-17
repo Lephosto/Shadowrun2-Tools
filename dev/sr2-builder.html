@@ -296,7 +296,7 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
         <div class="picker" id="spellPick" hidden>
           <label for="spCat">Spell category<select id="spCat"></select></label>
           <label for="spName" class="grow">Spell <span class="pg">p. 151–158</span><select id="spName"></select></label>
-          <label for="spForce">Force<input type="number" id="spForce" min="1" max="6" value="3"></label>
+          <label for="spForce">Force <span class="pg">max 6 at creation</span><input type="number" id="spForce" min="1" max="6" value="3"></label>
           <button id="spAdd">Add spell</button>
           <div class="note" id="spPrev" style="flex-basis:100%"></div>
         </div>
@@ -360,7 +360,7 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
       <section class="card ses" id="rigCard" data-jump="Rigging" hidden>
         <h2><span class="num">07c</span> Rigging <span class="pg" id="rigPg">p. 85, 104, 264</span></h2>
         <div id="rigStats"></div>
-        <p class="note">Vehicle stats from the book: core p. 264–265 (cruise/max speed), FoF p. 62–69, or the Rigger 2 list p. 148–166 (one Speed number; Pilot shows Autonav when a vehicle has no Pilot). Red boxes were unreadable in the scan; fill them in from the book.</p>
+        <p class="note">Vehicle stats from the book: core p. 264–265 (cruise/max speed), FoF p. 62–69, or the Rigger 2 list p. 148–166 (one Speed number; Pilot shows Autonav when a vehicle has no Pilot). A red box means that stat isn’t listed here; fill it in from the book.</p>
         <div class="tbl"><table><thead><tr><th>Vehicle</th><th>Hand.</th><th>Speed</th><th>Body</th><th>Armor</th><th>Sig.</th><th>Pilot</th></tr></thead><tbody id="vehBody"></tbody></table></div>
         <div id="vehBuild"></div>
       </section>
@@ -1080,6 +1080,7 @@ function ammoAct(gid,act,arg){const fg=feedGuns().find(x=>x.gid===gid); if(!fg) 
   if(act==='unload'){amGive(gid,at.in.t,at.in.n); at.in={t:'',n:0}; at.clips.forEach(c=>{amGive(gid,c.t,c.n); c.n=0;}); return;}}
 function ammoSummary(gid){const at=(S.ammoT||{})[gid]; const fg=feedGuns().find(x=>x.gid===gid); if(!at||!fg) return ''; const sp=feedSpec(fg.g.key);
   const p=amTypes(gid).map(t=>[t,amPool(gid,t)]).filter(x=>x[1]);
+  if(!at.in.n&&!at.clips.length&&!p.length) return '';
   return `In gun ${at.in.n}${sp.cap!=null?'/'+sp.cap:''}${at.in.n&&at.in.t?' '+AMSHORT(at.in.t).toLowerCase():''}${at.clips.length?(at.clips.every(c=>!c.n)?` · ${at.clips.length} empty spare clip${at.clips.length>1?'s':''}`:` · spare clips ${at.clips.map(c=>c.n).join(', ')}`):''}${p.length?` · pool ${p.map(([t,n])=>n+' '+AMSHORT(t).toLowerCase()).join(', ')}`:''}`;}
 function ammoTrackHTML(){const fg=feedGuns().filter(x=>carried(x.g)); if(!fg.length) return `<p class="note">No carried guns that take ammunition${S.gear.some(g=>g.at&&isFeedGun(g))?' (stashed guns aren’t tracked until you carry them)':''}.</p>`;
   return fg.map(({g,gid,label})=>{const sp=feedSpec(g.key); const at=S.ammoT[gid]; const mode=String(WSTAT[g.key][3]||''); const types=amTypes(gid);
@@ -1584,12 +1585,12 @@ function renderExtras(){
   }
   // rigger
   const vcr=gearLevel('body:Vehicle Control Rig'); const vehs=S.gear.map((g,i)=>[g,i]).filter(([g])=>VSTAT[g.key]);
-  $('rigCard').hidden=!vcr&&!vehs.length;
+  const rcs=rcDecks(); $('rigCard').hidden=!vcr&&!vehs.length&&!rcs.length;
   if(!$('rigCard').hidden){
     const baseR=Math.floor((attrNow('quick')+attrNow('int'))/2); const R2on=booksOn().r2; $('rigPg').textContent=R2on?'p. 85, 264 · R2 p. 16–18, 148':'p. 85, 104, 264'; const trig=gearLevel('body:VCR Reflex Trigger')||S.gear.some(g=>g.key==='body:VCR Reflex Trigger');
-    $('rigStats').innerHTML=(vcr?[['Vehicle Control Rig',`Level ${vcr}${trig?' with reflex trigger':''}`],['Control Pool',`${baseR+2*vcr} <span class="pg">${R2on?'R2 p. 16':'p. 85'}</span>`],['Rigged Reaction / Initiative',`${baseR+2*vcr} + ${1+vcr}D6`]]:[['Control Pool','Needs a Vehicle Control Rig (p. 85)']]).map(([k,v])=>`<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')
+    $('rigStats').innerHTML=(vcr?[['Vehicle Control Rig',`Level ${vcr}${trig?' with reflex trigger':''}`],['Control Pool',`${baseR+2*vcr} <span class="pg">${R2on?'R2 p. 16':'p. 85'}</span>`],['Rigged Reaction / Initiative',`${baseR+2*vcr} + ${1+vcr}D6`]]:[['Control Pool','Needs a Vehicle Control Rig (p. 85)']]).concat(rcs.map(g=>[HB.kind(g.key)==='crd'?'Remote control deck (cranial)':'Remote control deck',esc(g.name||'')])).map(([k,v])=>`<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')
       +(R2on&&vehs.length?`<p class="note">Monthly overhead (R2 p. 18): 1% of each vehicle’s cost value, rounded up, plus 10¥ per Stress Point that month. ${vehs.map(([g])=>`${esc(GEARDB[g.key].n)}: ${fmt(Math.ceil((+g.cost||0)/100))}¥`).join(' · ')}.</p>`:'');
-    $('vehBody').innerHTML=vehs.map(([g,i])=>{const d=VSTAT[g.key],o=g.vs||{};return `<tr><td><b>${esc(GEARDB[g.key].n)}</b></td>${['Handling','Speed','Body','Armor','Signature','Pilot'].map((l,j)=>{const v=o[j]!==undefined&&o[j]!==''?o[j]:(d[j]??'');return `<td><input data-vs="${i}" data-j="${j}" value="${esc(v)}" aria-label="${l}" placeholder="?" style="width:${j===1||j===5?76:44}px" class="${d[j]==null&&(o[j]===undefined||o[j]==='')?'bad-text':''}"></td>`;}).join('')}</tr>`;}).join('')||`<tr><td colspan="7" class="note">No vehicles yet.</td></tr>`;
+    $('vehBody').innerHTML=vehs.map(([g,i])=>{const d=VSTAT[g.key],o=g.vs||{};return `<tr><td><b>${esc(GEARDB[g.key].n)}</b>${(+g.qty||1)>1?` <span class="note">×${g.qty}</span>`:''}</td>${['Handling','Speed','Body','Armor','Signature','Pilot'].map((l,j)=>{const v=o[j]!==undefined&&o[j]!==''?o[j]:(d[j]??'');return `<td><input data-vs="${i}" data-j="${j}" value="${esc(v)}" aria-label="${l}" placeholder="?" style="width:${j===1||j===5?76:44}px" class="${d[j]==null&&(o[j]===undefined||o[j]==='')?'bad-text':''}"></td>`;}).join('')}</tr>`;}).join('')||`<tr><td colspan="7" class="note">No vehicles yet.</td></tr>`;
     {const L=vehs.filter(([g])=>R2OBJ[g.key]); $('vehBuild').innerHTML=L.length?`<h3>Build-outs <span class="pg">R2 p. 118–146</span></h3>`+L.map(([g,i])=>vbEditor(g,i)).join(''):(vehs.length?'<p class="note">Build-outs use the Rigger 2 list (it has cargo space and load). Add the Rigger 2 version of a vehicle from Gear to customize it.</p>':'');}
   }
   // skillsofts
@@ -1604,7 +1605,7 @@ function renderExtras(){
   }
   // languages
   $('langNative').textContent=`Native language: rating ${nativeLang()}, free (Intelligence at creation + 2).`;
-  $('langBody').innerHTML=(S.langs||[]).map((L,i)=>`<tr><td><input data-lg="${i}" data-f="name" id="lg_n_${i}" value="${esc(L.name)}" placeholder="Language"></td><td class="n"><input type="number" min="1" max="6" data-lg="${i}" data-f="rating" id="lg_r_${i}" value="${L.rating||1}"></td><td><button class="x" data-del="langs" data-i="${i}" aria-label="Remove language">×</button></td></tr>`).join('');
+  $('langBody').innerHTML=(S.langs||[]).map((L,i)=>`<tr><td><input data-lg="${i}" data-f="name" id="lg_n_${i}" aria-label="Language" value="${esc(L.name)}" placeholder="Language"></td><td class="n"><input type="number" min="1" max="6" data-lg="${i}" data-f="rating" id="lg_r_${i}" aria-label="Language rating" value="${L.rating||1}"></td><td><button class="x" data-del="langs" data-i="${i}" aria-label="Remove language">×</button></td></tr>`).join('');
   // advancement
   const tg=advTargets(); const sel=$('advPick').value;
   $('advPick').innerHTML=`<option value="">Choose what to raise…</option>`+tg.map(x=>`<option value="${esc(x.id)}" ${x.id===sel?'selected':''}>${esc(x.label)} · ${x.cost} Karma</option>`).join('');
@@ -2998,6 +2999,8 @@ function magicAllowed(type){
   }
   return full? L==='A' : L==='B';
 }
+function magicNeed(type){const out=[]; for(const L of 'ABCDE'){const keep=S.prio.magic; S.prio.magic=L; const ok=magicAllowed(type); S.prio.magic=keep; if(ok) out.push(L);} return out.join(' or ')||'—';}
+function rcDecks(){return S.gear.filter(g=>typeof HB!=='undefined'&&HB.isHost(g.key)&&['rcdeck','crd'].includes(HB.kind(g.key)));}
 function isMagician(){return S.magic==='hermetic'||S.magic==='shamanic';}
 function essenceCredit(){const has=k=>S.gear.some(g=>g.key===k);let c=0;
   const hbEye=S.gear.find(g=>g.key==='head:Cybereyes'&&g.hb&&g.hb.opts&&g.hb.opts.length), hbEar=S.gear.find(g=>g.key==='head:Cyberears'&&g.hb&&g.hb.opts&&g.hb.opts.length);
@@ -3034,7 +3037,7 @@ function swOptions(target,base){const have=swHave(), out=[];
   swAttrs().forEach(([k,l,v])=>{const r=SKILLWEB.route(k,target); if(r&&v>0) out.push({kind:'attr',from:l,dice:v,ia:0,tn:r.tn,circles:r.circles,dots:r.dots});});
   out.forEach(o=>o.ev=o.dice*swP(base+o.tn)); out.sort((a,b)=>b.ev-a.ev||b.dice-a.dice); return out;}
 let SWSEL=null, SWBASE=4;
-function swOptText(o){return `${esc(o.from)} ${o.kind==='attr'?'(attribute)':''}: <b>${o.dice} ${o.dice===1?'die':'dice'}</b>${o.ia?` (incl. ${o.ia} Improved Ability)`:''}, target number <b>+${o.tn}</b> <span class="note">(${o.circles} circle${o.circles===1?'':'s'})</span>`;}
+function swOptText(o){return `${esc(o.from)}${o.kind==='attr'?' (attribute)':''}: <b>${o.dice} ${o.dice===1?'die':'dice'}</b>${o.ia?` (incl. ${o.ia} Improved Ability)`:''}, target number <b>+${o.tn}</b> <span class="note">(${o.circles} circle${o.circles===1?'':'s'})</span>`;}
 function renderDefaulting(){const box=$('swBox'); if(!box) return; const have=swHave();
   const all=SKILLWEB.SKILLS.slice(); if(!SWSEL||!all.includes(SWSEL)) SWSEL=all.find(n=>!have[n])||all[0];
   const magicBlock=n=>(n==='Sorcery'||n==='Conjuring')&&S.magic==='none';
@@ -3167,18 +3170,18 @@ function render(){
     const concs=known?Object.keys(known.concs):[];
     const concKnown=concs.includes(s.conc);
     const concField = s.narrow==='none' ? `<span class="note">—</span>` :
-      (concs.length? `<select id="s_cs_${i}" data-sk="${i}" data-f="concSel"><option value="">Choose…</option>${concs.map(c=>`<option ${c===s.conc?'selected':''}>${esc(c)}</option>`).join('')}<option value="${OTHER}" ${s.conc&&!concKnown?'selected':''}>Other…</option></select>${s.conc&&!concKnown||s._concOther?`<input id="s_c_${i}" data-sk="${i}" data-f="conc" value="${esc(s.conc)}" placeholder="Type it" style="width:6.875rem;margin-top:0.25rem">`:''}`
+      (concs.length? `<select id="s_cs_${i}" aria-label="Concentration" data-sk="${i}" data-f="concSel"><option value="">Choose…</option>${concs.map(c=>`<option ${c===s.conc?'selected':''}>${esc(c)}</option>`).join('')}<option value="${OTHER}" ${s.conc&&!concKnown?'selected':''}>Other…</option></select>${s.conc&&!concKnown||s._concOther?`<input id="s_c_${i}" data-sk="${i}" data-f="conc" value="${esc(s.conc)}" placeholder="Type it" style="width:6.875rem;margin-top:0.25rem">`:''}`
         : `<input id="s_c_${i}" data-sk="${i}" data-f="conc" value="${esc(s.conc)}" placeholder="Type it" style="width:7.5rem">`);
     let specField=`<span class="note">—</span>`;
     if(s.narrow==='spec'){
       const sp=known&&concKnown?known.concs[s.conc]:'';
       if(Array.isArray(sp)){const spKnown=sp.includes(s.spec);
-        specField=`<select id="s_ss_${i}" data-sk="${i}" data-f="specSel"><option value="">Choose…</option>${sp.map(x=>`<option ${x===s.spec?'selected':''}>${esc(x)}</option>`).join('')}<option value="${OTHER}" ${s.spec&&!spKnown?'selected':''}>Other…</option></select>${s.spec&&!spKnown||s._specOther?`<input id="s_s_${i}" data-sk="${i}" data-f="spec" value="${esc(s.spec)}" placeholder="Type it" style="width:6.875rem;margin-top:0.25rem">`:''}`;
-      } else specField=`<input id="s_s_${i}" data-sk="${i}" data-f="spec" value="${esc(s.spec)}" placeholder="${esc(sp||'Type it')}" style="width:9.375rem">`;
+        specField=`<select id="s_ss_${i}" data-sk="${i}" data-f="specSel"><option value="">Choose…</option>${sp.map(x=>`<option ${x===s.spec?'selected':''}>${esc(x)}</option>`).join('')}<option value="${OTHER}" ${s.spec&&!spKnown?'selected':''}>Other…</option></select>${s.spec&&!spKnown||s._specOther?`<input id="s_s_${i}" aria-label="Specialization" data-sk="${i}" data-f="spec" value="${esc(s.spec)}" placeholder="Type it" style="width:6.875rem;margin-top:0.25rem">`:''}`;
+      } else specField=`<input id="s_s_${i}" aria-label="Specialization" data-sk="${i}" data-f="spec" value="${esc(s.spec)}" placeholder="${esc(sp||'Type it')}" style="width:9.375rem">`;
     }
-    return `<tr><td><select id="s_ns_${i}" data-sk="${i}" data-f="nameSel" style="width:10rem">${nameOpts}</select>${nameSel===OTHER?`<input id="s_name_${i}" data-sk="${i}" data-f="name" value="${esc(s.name)}" placeholder="Skill name" style="width:10rem;margin-top:0.25rem">`:''}</td>
-    <td class="n"><input type="number" min="1" max="6" id="s_r_${i}" data-sk="${i}" data-f="rating" value="${s.rating||1}" class="${over?'bad-text':''}"></td>
-    <td><select id="s_n_${i}" data-sk="${i}" data-f="narrow"><option value="none" ${s.narrow==='none'?'selected':''}>General</option><option value="conc" ${s.narrow==='conc'?'selected':''}>Concentration</option><option value="spec" ${s.narrow==='spec'?'selected':''}>Specialization</option></select></td>
+    return `<tr><td><select id="s_ns_${i}" aria-label="Skill" data-sk="${i}" data-f="nameSel" style="width:10rem">${nameOpts}</select>${nameSel===OTHER?`<input id="s_name_${i}" data-sk="${i}" data-f="name" value="${esc(s.name)}" placeholder="Skill name" style="width:10rem;margin-top:0.25rem">`:''}</td>
+    <td class="n"><input type="number" min="1" max="6" id="s_r_${i}" aria-label="Rating bought" data-sk="${i}" data-f="rating" value="${s.rating||1}" class="${over?'bad-text':''}"></td>
+    <td><select id="s_n_${i}" aria-label="Narrowed" data-sk="${i}" data-f="narrow"><option value="none" ${s.narrow==='none'?'selected':''}>General</option><option value="conc" ${s.narrow==='conc'?'selected':''}>Concentration</option><option value="spec" ${s.narrow==='spec'?'selected':''}>Specialization</option></select></td>
     <td>${concField}</td><td>${specField}</td>
     <td class="mono small">${esc(skillRatings(s))}</td><td><button class="x" data-del="skills" data-i="${i}" aria-label="Remove skill">×</button></td></tr>`;}).join('') || `<tr><td colspan="7" class="note">No skills yet. Add one to start spending points.</td></tr>`;
   $('skillBudget').innerHTML=budgetHTML('Skill points',sSpent,sBudget,false,!!S.established);
@@ -3238,7 +3241,7 @@ function render(){
   $('cashRoll').textContent=S.cashRoll?`${S.cashRoll.dice.join(' + ')} = ${fmt(S.cashRoll.total)}¥`:'not rolled';
   $('cashTotal').textContent=fmt(fromLeft+(S.cashRoll?S.cashRoll.total:0))+'¥';
   // contacts
-  $('contactBody').innerHTML=S.contacts.map((c,i)=>`<tr><td><input id="c_n_${i}" data-ct="${i}" data-f="name" value="${esc(c.name)}" placeholder="Name"></td><td><input id="c_r_${i}" data-ct="${i}" data-f="role" value="${esc(c.role)}" placeholder="Fixer, doc, cop…"></td><td><select id="c_l_${i}" data-ct="${i}" data-f="level">${['Contact','Buddy','Gang/Tribe','Followers'].map(o=>`<option ${c.level===o?'selected':''}>${o}</option>`).join('')}</select></td><td><button class="x" data-del="contacts" data-i="${i}" aria-label="Remove contact">×</button></td></tr>`).join('');
+  $('contactBody').innerHTML=S.contacts.map((c,i)=>`<tr><td><input id="c_n_${i}" aria-label="Contact name" data-ct="${i}" data-f="name" value="${esc(c.name)}" placeholder="Name"></td><td><input id="c_r_${i}" aria-label="Contact rating" data-ct="${i}" data-f="role" value="${esc(c.role)}" placeholder="Fixer, doc, cop…"></td><td><select id="c_l_${i}" aria-label="Contact level" data-ct="${i}" data-f="level">${['Contact','Buddy','Gang/Tribe','Followers'].map(o=>`<option ${c.level===o?'selected':''}>${o}</option>`).join('')}</select></td><td><button class="x" data-del="contacts" data-i="${i}" aria-label="Remove contact">×</button></td></tr>`).join('');
   // tracks
   track('trkPhys',S.phys,'phys'); track('trkStun',S.stun,'stun');
   const w=Math.max(S.phys,S.stun); const wm=w>=10?null:w>=6?3:w>=3?2:w>=1?1:0;
@@ -3311,7 +3314,8 @@ function summary(magicRating,rSpent,rBudget){
   if(!S.optEF&&(S.ef||[]).length) iss.push(['warn','Edges and Flaws are switched off, so the ones picked are ignored.']);
   if(R().base&&!S.optMeta) iss.push(['warn',`${S.race} is a Companion metavariant, but metavariants are switched off.`]);
   if(nb&&!raceAllowed(S.race)) iss.push(['bad',`${S.race} isn't allowed at Race ${S.prio.race||'(none)'} under these rules.`]);
-  if(nb&&!magicAllowed(S.magic)) iss.push(['bad',`${MAGIC_TYPES.find(m=>m[0]===S.magic)[1]} needs a different Magic priority.`]);
+  {const eU=essenceUsed(); if(S.magic!=='none'&&eU>0){const m=Math.max(0,Math.floor(6-eU)); iss.push(['warn',`Essence ${+(6-eU).toFixed(2)} lowers Magic to ${m}${S.magic==='adept'?`, so ${m} power points`:''} (p. 42). Implants cost the Awakened magic.`]);}}
+  if(nb&&!magicAllowed(S.magic)) iss.push(['bad',`${MAGIC_TYPES.find(m=>m[0]===S.magic)[1]} needs Magic priority ${magicNeed(S.magic)}${S.prio.magic?` (you have ${S.prio.magic})`:''}.`]);
   if(nb&&S.magic==='none'&&S.prio.magic&&['A','B'].includes(S.prio.magic)) iss.push(['warn',`Magic ${S.prio.magic} is assigned but the character is mundane. That priority is wasted.`]);
   const aBudget=S.prio.attr?ATTR_PTS[S.prio.attr]:0; const aSpent=ATTRS.reduce((a,[k])=>a+(+S.attrs[k]||0),0);
   if(nb&&aBudget&&aSpent!==aBudget) iss.push([aSpent>aBudget?'bad':'warn',`Attribute points: ${aSpent} of ${aBudget} spent.`]);
@@ -3331,7 +3335,7 @@ function summary(magicRating,rSpent,rBudget){
     if(nb&&m>6) iss.push(['warn',`Deck MPCP ${m} is above 6. Check with your GM, since gear is capped at rating 6 at creation (p. 46).`]);}
   else if(ri) iss.push(['warn','Response Increase needs a cyberdeck.']);}
   if(ess<0) iss.push(['bad','Essence is below 0. The character dies.']);
-  if(S.magic!=='none'){ const pSpent=+S.powers.reduce((a,p)=>a+(S.magic==='adept'?powerCost(p).cost:(+p.cost||0)),0).toFixed(2); const pB=S.magic==='adept'?magicRating:(S.prio.res?FORCE[S.prio.res]:0); if(pSpent>pB&&(nb||S.magic==='adept')) iss.push(['bad',`${S.magic==='adept'?'Power':'Force'} points overspent: ${pSpent} of ${pB}.`]); }
+  if(S.magic!=='none'){ const pSpent=+(S.powers.reduce((a,p)=>a+(S.magic==='adept'?powerCost(p).cost:(+p.cost||0)),0)+(isMagician()?fociBond():0)).toFixed(2); const pB=S.magic==='adept'?magicRating:(S.prio.res?FORCE[S.prio.res]:0); if(pSpent>pB&&(nb||S.magic==='adept')) iss.push(['bad',`${S.magic==='adept'?'Power':'Force'} points overspent: ${pSpent} of ${pB}${isMagician()&&fociBond()?` (spells plus ${fociBond()} for bonding foci, p. 46)`:''}.`]); }
   {const fg=feedGuns(); S.gear.filter(x=>x.key==='ammo:Spare Clip'&&x.forGun).forEach(x=>{const t=fg.find(y=>y.gid===x.forGun); if(t&&!t.clips) iss.push(['warn',`Spare clips assigned to the ${t.label}, which loads ${String(WSTAT[t.g.key][2]).includes('(m)')?'from an internal magazine':'without clips'} (core p. 95).`]);});}
   if(S.nuyenNow!==''&&S.nuyenNow!=null&&+S.nuyenNow<0) iss.push(['warn',`Nuyen on hand is ${fmt(+S.nuyenNow)}¥. That's more spent than you had.`]);
   if(nb&&!S.lifestyleOff) iss.push(['warn','Remember to buy a lifestyle from Resources.']);
@@ -3640,14 +3644,15 @@ function sheetFile(){
      ${R.warn.map(w=>`<p class="ts">${esc(w)}</p>`).join('')}`;}}
   // ---- rigging ----
   const vehs=S.gear.filter(g=>VSTAT[g.key]); let rig='';
-  if(vcr||vehs.length){
-    rig=(vcr?`<p>Vehicle Control Rig ${vcr}: <b>Control Pool ${baseR+2*vcr}</b> · rigged Reaction ${baseR+2*vcr}, Initiative ${baseR+2*vcr} + ${1+vcr}D6 <span class="pg">p. 85</span></p>`:'')+vehs.map(g=>{const d=VSTAT[g.key],o=g.vs||{};
+  const rcs=rcDecks();
+  if(vcr||vehs.length||rcs.length){
+    rig=(vcr||rcs.length?`<p>${vcr?`Vehicle Control Rig ${vcr}: <b>Control Pool ${baseR+2*vcr}</b> · rigged Reaction ${baseR+2*vcr}, Initiative ${baseR+2*vcr} + ${1+vcr}D6 <span class="pg">p. 85</span>`:''}${rcs.length?`${vcr?'<br>':''}${rcs.map(g=>esc(g.name||'')).join(' · ')}`:''}</p>`:'')+vehs.map(g=>{const d=VSTAT[g.key],o=g.vs||{};
       if(R2OBJ[g.key]){const v=vbFixG(g),r=VB.calc(v,g.vb),s2=r.s;
-        return `<article class="wcard"><header><b>${esc(GEARDB[g.key].n)}</b><span class="ts">${esc(v.pg)}${r.rows.length?` · ${r.rows.length} mod${r.rows.length>1?'s':''}`:''}</span></header>
+        return `<article class="wcard"><header><b>${esc(GEARDB[g.key].n)}${(+g.qty||1)>1?` ×${g.qty}`:''}</b><span class="ts">${esc(v.pg)}${r.rows.length?` · ${r.rows.length} mod${r.rows.length>1?'s':''}`:''}</span></header>
         <div class="wstats">${VB.statLine(v,s2).map(([k,a,b])=>tile(k,b,String(a)!==String(b)?`was ${a}`:'',String(a)!==String(b)?'chg':'')).join('')}${tile('Body',v.B,'')}${tile('Cargo',`${r.cf} / ${r.Cmax} CF`,'')}${tile('Load',`${r.load} / ${r.Lmax} kg`,'')}</div>
         ${r.rows.length?`<p class="ts"><b>Mods:</b> ${esc(r.rows.map(x=>x.d.n+(x.d.kind==='flag'?'':' '+x.l)).join(', '))}</p>`:''}</article>`;}
       const lab=['Handling','Speed','Body','Armor','Signature','Pilot'];
-      return `<article class="wcard"><header><b>${esc(GEARDB[g.key].n)}</b><span class="ts">${esc(GEARDB[g.key].pg||'')}</span></header><div class="wstats">${d.map((x,j)=>tile(lab[j],esc(o[j]!==undefined&&o[j]!==''?o[j]:(x??'?')),'')).join('')}</div></article>`;}).join('');}
+      return `<article class="wcard"><header><b>${esc(GEARDB[g.key].n)}${(+g.qty||1)>1?` ×${g.qty}`:''}</b><span class="ts">${esc(GEARDB[g.key].pg||'')}</span></header><div class="wstats">${d.map((x,j)=>tile(lab[j],esc(o[j]!==undefined&&o[j]!==''?o[j]:(x??'?')),'')).join('')}</div></article>`;}).join('');}
   // ---- skillsofts ----
   const softs=S.gear.filter(g=>g.key&&GEARDB[g.key]&&GEARDB[g.key].soft); const sw=gearLevel('body:Skillwires');
   const softHtml=softs.length?`<table><tbody>${softs.map(g=>`<tr><td><b>${esc(GEARDB[g.key].n)}</b> ${esc(g.note||'')}</td><td class="n">${g.r}</td><td class="n">${GEARDB[g.key].mp(+g.r)} Mp</td></tr>`).join('')}</tbody></table><p class="ts">Skillwires ${sw||'none'}: ActiveSofts running at once can total rating ${sw||0}. <span class="pg">p. 248</span></p>`:'';
