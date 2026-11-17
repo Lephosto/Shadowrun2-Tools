@@ -192,7 +192,7 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
 .plist{gap:0}.plist li{border-top:1px solid var(--line);padding:9px 0}.pl-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .padd{flex:none;font:inherit;font-size:.8125rem;font-weight:600;padding:3px 12px;border-radius:6px;border:1px solid var(--line);background:var(--soft);color:var(--ink);cursor:pointer}
 .vg{margin:12px 0 2px;font-size:.6875rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}.vno li{font-size:.8125rem}
-.xfer{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:0.75rem;border:1px solid var(--accent);border-left-width:4px;border-radius:0.5rem;background:var(--paper);padding:0.75rem 1rem;margin:0 0 1rem}.xfer[hidden]{display:none}.xfer .note{display:block}
+.xfer{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:0.75rem;border:1px solid var(--accent);border-left-width:4px;border-radius:0.5rem;background:var(--paper);padding:0.75rem 1rem;margin:0 0 1rem}.xpay{display:flex;gap:0.375rem;align-items:center;font-size:0.875rem;margin:0.375rem 0;text-transform:none;letter-spacing:0;font-weight:500}.xfer[hidden]{display:none}.xfer .note{display:block}
 .glink{font-size:0.75rem;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap}.glink:hover{text-decoration:underline}#lockerTop{display:inline-block;margin-top:0.25rem}#lockerTop[hidden]{display:none}
 .notebtn{font:inherit;font-size:.75rem;margin-top:.25rem;padding:1px 8px;border:1px dashed var(--line);border-radius:4px;background:transparent;color:var(--muted);cursor:pointer}.notebtn:hover{color:var(--ink);border-color:var(--muted)}
 </style></head><body>
@@ -395,8 +395,9 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
         <div id="ammoTrack"></div>
         <h3>Spend Good Karma <span class="pg">p. 190</span></h3>
         <p class="note">Attributes cost the new rating (double above racial max). Skills cost 2 × new rating, concentrations 1.5 ×, specializations and languages 1 ×. Bought raises update the sheet.</p>
-        <div class="picker"><label for="advPick" class="grow">Raise<select id="advPick"></select></label><button id="advBuy" class="primary">Buy</button><span class="pill" id="advAvail"></span></div>
+        <div class="picker"><label for="advPick" class="grow">Raise<select id="advPick"></select></label><button id="advBuy" class="primary">Buy</button><span class="pill" id="advAvail"></span></div><p class="note bad-text" id="advNote" role="status" hidden=""></p>
         <div class="picker"><label for="advNewName" class="grow">Or learn a new skill<input id="advNewName" placeholder="Skill name"></label><button id="advNew">Learn at rating 1 (1 Karma)</button></div>
+        <div id="initBox" hidden=""><div class="picker"><label for="initHow" class="grow">Initiation <span class="pg">GR p. 38</span><select id="initHow"></select></label><button id="initBuy">Initiate</button></div><p class="note" id="initNote"></p></div>
         <div class="tbl"><table><thead><tr><th>Bought</th><th class="n">Karma</th><th></th></tr></thead><tbody id="advLog"></tbody></table></div>
         <label for="fNotes">Notes<textarea id="fNotes" rows="4" placeholder="Background, gear notes, GM rulings"></textarea></label>
       </section>
@@ -446,7 +447,7 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1794895889898","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwkao4b1","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794895889885}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1794898961616","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwkchyge","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794898961596}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--paper',panel2:'--soft',ink:'--ink',muted:'--muted',line:'--line',accent:'--accent',accentInk:'--accent-ink',accentSoft:'--accent-soft',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skillweb*/
@@ -827,6 +828,8 @@ const SKILLDB={
 const SKILLS=Object.keys(SKILLDB);
 const CATORDER=['Combat','Physical','Technical','Magical','Social','Vehicle','Knowledge','Build/Repair'];
 const OTHER='__other';
+// powers bought once (more levels go on the same line); these can be taken for several skills, attributes or senses
+const PW_MULTI=new Set(['improvedAbility','improvedAttr','attrBoost','senses','custom','amber','contrast','neon','paper','matrix']);
 const POWERS={
  astral:{label:'Astral Perception',pg:'p. 125'},
  combatSense:{label:'Combat Sense',pg:'p. 125'},
@@ -1030,6 +1033,7 @@ function stashPlaces(){const P=(Array.isArray(S.places)&&S.places.length?S.place
 const isVehG=g=>!!g&&(g.cat==='veh'||g.cat==='r2veh');
 const isVehPlace=n=>S.gear.some(g=>isVehG(g)&&GEARDB[g.key]&&GEARDB[g.key].n===n);
 function stashSync(){S.gear.forEach(g=>{if(g.at&&!stashable(g)) delete g.at; if(g.at&&isVehG(g)&&GEARDB[g.key]&&GEARDB[g.key].n===g.at) delete g.at;});}
+function stackable(g){const w=WSTAT[g.key]; return !!GEARDB[g.key]&&(!w||w[0]==='grenade')&&!MSTAT[g.key]&&!g.build&&!g.vb&&!g.hb&&!g.gel&&!g.loaded&&!g.note&&!g.grade&&g.cat!=='veh'&&!(g.at);}
 function plainRow(g){return !!GEARDB[g.key]&&!WSTAT[g.key]&&!MSTAT[g.key]&&!g.build&&!g.vb&&!g.hb&&!g.gel&&!g.loaded&&!g.note&&!g.gid&&g.cat!=='veh'&&!g.grade;}
 function stashMove(i,to,one){const g=S.gear[i]; if(!g||!stashable(g)) return; to=to||'';
   if(one&&(+g.qty||1)>1){g.qty=(+g.qty||1)-1; const c=JSON.parse(JSON.stringify(g)); c.qty=1; delete c.gid; delete c.used; if(to) c.at=to; else delete c.at; S.gear.push(c); i=S.gear.length-1;}
@@ -1208,9 +1212,23 @@ function advTargets(){
   ATTRS.forEach(([k,l])=>{const cur=attrNow(k);const to=cur+1;const over=to>attrMax(k);const way=to>Math.floor(attrMax(k)*1.5);t.push({id:'attr:'+k,label:`${l} ${cur} → ${to}${way?' ⚠ past 1.5 × racial max: the book says GMs should discourage this':over?' (above racial max, GM approval)':''}`,cost:over?2*to:to,entry:{kind:'attr',key:k,to,label:l}});});
   S.skills.forEach(s=>{skillParts(s).forEach(p=>{const to=p.r+1;const mult=p.part==='gen'?2:p.part==='conc'?1.5:1;t.push({id:`sk:${s.name}:${p.part}:${p.label}`,label:`${p.label} (${p.part==='gen'?'skill':p.part==='conc'?'concentration':'specialization'}) ${p.r} → ${to}`,cost:Math.ceil(mult*to),entry:{kind:'skill',skill:s.name,part:p.part,label:p.label,to}});});});
   Object.entries(advSkills()).forEach(([n,r])=>t.push({id:'ns:'+n,label:`${n} ${r} → ${r+1}`,cost:2*(r+1),entry:{kind:'newskill',label:n,to:r+1}}));
+  // a higher Force means re-learning the spell: Karma equal to the new Force, not step by step (p. 128, 133)
+  if(isMagician()) S.powers.forEach(p=>{if(!p.name) return; const f=+p.cost||1; for(let n=f+1;n<=12;n++) t.push({id:'spf:'+p.name+':'+n,label:`${p.name} (spell) Force ${f} → ${n}`,cost:n,entry:{kind:'spellF',name:p.name,from:f,to:n}});});
+  if(S.established) S.gear.forEach(g=>{if(canBondFocus(g)&&!focusBonded(g)){if(!g.fid) g.fid='f'+Math.random().toString(36).slice(2,9); const c=BOND[g.key](+g.r||1); t.push({id:'bond:'+g.fid,label:`Bond ${g.name||GEARDB[g.key].n}`,cost:c,entry:{kind:'bond',fid:g.fid,label:g.name}});}});
   (S.langs||[]).forEach((L,i)=>{const cur=+L.rating||0;t.push({id:'lang:'+i,label:`${L.name||'Language'} (language) ${cur} → ${cur+1}`,cost:cur+1,entry:{kind:'lang',idx:i,to:cur+1,label:L.name}});});
   return t;
 }
+// initiation (The Grimoire p. 38): Grade 0 first; each grade above 0 adds 1 to Magic. Cost = (6 + grade) x method, rounded down.
+const INIT_HOW={self:[3,'Self-initiation'],group:[2,'Group initiation'],selfOrd:[2.5,'Self-initiation with an ordeal'],groupOrd:[1.5,'Group initiation with an ordeal']};
+function initGrade(){return (S.adv||[]).filter(a=>a.kind==='init').reduce((m,a)=>Math.max(m,+a.grade),-1);}
+function initCost(g,how){return Math.floor((6+g)*INIT_HOW[how][0]);}
+function magicNow(){if(S.magic==='none') return 0; return Math.max(0,Math.floor(6-essenceUsed()))+Math.max(0,initGrade());}
+// foci: bonded with Force Points at creation, or with Karma later (p. 137)
+function canBondFocus(g){return !!BOND[g.key]&&(isMagician()||(S.magic==='adept'&&/Weapon Focus/.test(g.key)));} // adepts may use weapon foci (AW p. 114)
+function focusBonded(g){return !S.established||g.bondPaid==='fp'||(S.adv||[]).some(a=>a.kind==='bond'&&a.fid===g.fid);}
+function karmaAvail(){return (+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog();}
+function karmaShort(c){const a=karmaAvail(); if(c<=a) return false; const n=$('advNote'); if(n){n.textContent=`That costs ${c} Karma and only ${a} is available.`; n.hidden=false;} return true;}
+function spellPaid(p){let f=p.lid?((S.adv||[]).find(a=>a.kind==='spell'&&a.lid===p.lid)||{}).cost:p.base; if(f==null) return null; (S.adv||[]).forEach(a=>{if(a.kind==='spellF'&&a.name===p.name) f=Math.max(+f,+a.to);}); return +f;}
 function karmaSpentLog(){return (S.adv||[]).reduce((a,x)=>a+(+x.cost||0),0);}
 
 // ---------- helpers ----------
@@ -1272,7 +1290,7 @@ function progChecklistHTML(dk){
   const row=key=>{const it=GEARDB[key]; const gi=S.gear.findIndex(g=>g.key===key), g=S.gear[gi], copies=S.gear.filter(x=>x.key===key).length;
     const base={id:key,n:it.n,pg:it.pg,desc:DESC[key]?DESC[key][0]:'',tag:eraChip(it)}, cap=cust?Math.min(it.r[1],M):it.r[1];
     if(g){const r=+g.r||1, cur=it.sz(r), otherLoaded=S.gear.some((x,j)=>j!==gi&&x.key===key&&x.loaded);
-      const ropts=[]; for(let x=1;x<=Math.max(cap,r);x++){const z=it.sz(x); if(x===r||(z<=free+cur&&(!g.loaded||z<=aFree+cur))) ropts.push([x,`${x} · ${z} Mp · ${fmt(gv(it.c,x))}¥`]);}
+      const ropts=[]; for(let x=1;x<=Math.max(cap,r);x++){const z=it.sz(x); if(x===r||(z<=free+cur&&(!g.loaded||z<=aFree+cur))) ropts.push([x,`${x} · ${z} Mp · ${fmt(gv(it.c,x))}¥`]); else ropts.push([x,`${x} · ${z} Mp: doesn’t fit (${z>free+cur?free+cur+' Mp of storage':aFree+cur+' Mp of active memory'} free)`,true]);}
       return {...base,on:true,r,ropts,price:`${cur} Mp · ${fmt(gv(it.c,r))}¥`,loaded:!!g.loaded,canLoad:!!g.loaded||(cur<=aFree&&!otherLoaded),loadTxt:lt(cur),more:copies>1?`+${copies-1} more cop${copies>2?'ies':'y'} in Gear`:''};}
     const s1=it.sz(1); return s1<=free?{...base,on:false,from:`from ${s1} Mp · ${fmt(gv(it.c,1))}¥ at rating 1`}:{...base,on:false,why:`Needs ${s1} Mp at rating 1; ${free} Mp of storage free`};};
   const list=CAT[cat].filter(it=>!/^Persona/.test(it.n)&&itemVisible(it)).map(it=>cat+':'+it.n);
@@ -1286,7 +1304,7 @@ function progChecklistHTML(dk){
       return room>=1?{...base,on:false,from:`from ${fmt(gv(it.c,1))}¥ at rating 1`}:{...base,on:false,why:`The chips already total ${3*M} (3 × MPCP)`};})});}
   return PROGUI.render(sets,'D');}
 function fociBond(){return S.gear.filter(g=>BOND[g.key]).reduce((a,g)=>a+BOND[g.key](+g.r||1)*(+g.qty||1),0);}
-function powerFoci(){return S.gear.filter(g=>g.key==='magic:Power Focus').reduce((a,g)=>a+(+g.r||0),0);}
+function powerFoci(){return S.gear.filter(g=>g.key==='magic:Power Focus'&&focusBonded(g)).reduce((a,g)=>a+(+g.r||0),0);}
 
 // ---------- Gun build-out (same rules as the Gear Locker; core p. 238–241, SSC, FoF p. 57, 84–85) ----------
 const GB=(()=>{
@@ -1529,7 +1547,7 @@ function renderExtras(){
     if(MSTAT[g.key]){const [cc,reach,dmg,conc,msk]=MSTAT[g.key]; const mskill=msk||'Armed Combat'; const sd=skillDiceFor(mskill,conc,GEARDB[g.key].n);
       const rch=reach+(baseRace()==='Troll'?1:0);
       return `<tr><td><b>${esc(GEARDB[g.key].n)}</b><div class="gstat">${esc(mskill)} · ${esc(conc)}</div></td><td class="n">${cc??'—'}</td><td>Reach ${rch}</td><td class="mono">${esc(strDmg(dmg,str))}</td><td class="mono">${sd.dice===null?'<span class="bad-text">no skill</span>':sd.dice+(sd.ia?`+${sd.ia}`:'')}<div class="gstat">${esc(sd.how)}</div></td><td colspan="2" class="note">Melee: TN 4 base, opposed (p. 100)</td></tr>`;}
-    const [rt,cc,ammo,mode,dmg]=WSTAT[g.key]; const [sk,conc]=RT_SKILL[rt]; const sd=skillDiceFor(sk,conc,GEARDB[g.key].n);
+    const [rt,cc,ammo,mode,dmg]=WSTAT[g.key]; const [sk,conc]=RT_SKILL[rt]; const sd=skillDiceFor(sk,conc,GEARDB[g.key].n); const qx=(+g.qty||1)>1?` ×${+g.qty}`:'';
     let bands=RANGES[rt]; if(['bow','lxbow','mxbow','hxbow','knife','shuriken'].includes(rt)){const base=rt==='bow'?(+g.r||str):str; bands=bands.map((m,j)=>(j?`to ${base*m}`:`0-${base*m}`));} if(rt==='grenade'){bands=[`0-${str*3}`,`to ${str*5}`,`to ${str*10}`,`to ${str*20}`];}
     let mod=0,notes=[]; const gc=gunCalc(g); let cfin=cc, dshow=null;
     if(gc){const C=gc.C; mod=C.aim; notes.push(...C.aimTxt.map(x=>x.replace(/ −?\d+$/,'').replace(/ -\d+$/,'')).filter(x=>!/pick the shooter/.test(x)));
@@ -1539,7 +1557,7 @@ function renderExtras(){
     const conceal=cfin==null?(gc?'—':'?'):(cfin+(hasLinedCoat()&&cfin>0?2:0));
     const acc=gc?buildEditor(g,i):'';
     const carried=g.gid?S.gear.filter(x=>x.forGun===g.gid&&GEARDB[x.key]).map(x=>{const q=+x.qty||1; return x.key==='ammo:Spare Clip'?`${q} spare clip${q>1?'s':''}`:`${q*10} ${GEARDB[x.key].n.replace(/ \((10|10 rounds)\)$/,'').replace(/ (Ammo|Rounds)$/,'').toLowerCase()}`;}):[];
-    return `<tr><td><b>${esc(GEARDB[g.key].n)}</b><div class="gstat">${esc(sk)} · ${esc(conc)}</div>${g.gid&&ammoSummary(g.gid)?`<div class="gstat">${esc(ammoSummary(g.gid))}</div>`:carried.length?`<div class="gstat">Carried: ${esc(carried.join(', '))}</div>`:''}</td><td class="n">${conceal}${hasLinedCoat()&&cfin>0?'<div class="gstat">coat +2</div>':''}</td><td class="mono small">${esc(ammo)}<br>${esc(mode)}</td><td class="mono">${esc(dshow||(rt==='bow'?strDmg(dmg,+g.r||str):strDmg(dmg,str)))}</td>
+    return `<tr><td><b>${esc(GEARDB[g.key].n)}${qx}</b><div class="gstat">${esc(sk)} · ${esc(conc)}</div>${g.gid&&ammoSummary(g.gid)?`<div class="gstat">${esc(ammoSummary(g.gid))}</div>`:carried.length?`<div class="gstat">Carried: ${esc(carried.join(', '))}</div>`:''}</td><td class="n">${conceal}${hasLinedCoat()&&cfin>0?'<div class="gstat">coat +2</div>':''}</td><td class="mono small">${esc(ammo)}<br>${esc(mode)}</td><td class="mono">${esc(dshow||(rt==='bow'?strDmg(dmg,+g.r||str):strDmg(dmg,str)))}</td>
       <td class="mono">${sd.dice===null?'<span class="bad-text">no skill</span>':sd.dice+(sd.ia?`+${sd.ia}`:'')}<div class="gstat">${esc(sd.how)}</div></td>
       <td class="mono small">${bands.map((b,j)=>`<span title="TN ${[4,5,6,9][j]}">${[4,5,6,9][j]}: ${b}</span>`).join('<br>')}</td><td class="mono">${mod?String(mod).replace('-','−'):'—'}<div class="gstat">${esc(notes.join(', '))}</div></td></tr>${acc?`<tr class="wbrow"><td colspan="7">${acc}</td></tr>`:''}`;
   }).join('') || `<tr><td colspan="7" class="note">No weapons yet. Add them from the gear list and they show up here with their stats.</td></tr>`;
@@ -1561,7 +1579,7 @@ function renderExtras(){
     $('totem').innerHTML=`<option value="">Choose a totem…</option>`+Object.keys(TOTEMS).map(t=>`<option ${S.totem===t?'selected':''}>${t}</option>`).join('');
     const T=TOTEMS[S.totem]; $('totemNote').textContent=T?`${S.totem} (${T.env}): ${Object.entries(T.b).map(([c,v])=>`${v>0?'+':''}${v} dice ${c} spells`).join(', ')||'no spell modifiers'}; conjuring: ${T.c}. Disadvantages: see p. 120–122.`:'';
     const fb=fociBond(); const nF=S.gear.filter(g=>BOND[g.key]).length;
-    $('fociNote').textContent=fb?`Foci in your gear cost ${fb} Force Points to bond (p. 137). You can have up to ${attrNow('int')} foci active at once (Intelligence).${nF>attrNow('int')?' You have more than that.':''}`:'Foci you buy in Gear (Magical gear) also cost Force Points to bond, and that is added here automatically.';
+    $('fociNote').textContent=S.established?`Foci you had at creation were bonded with Force Points; new ones are bonded with Good Karma under Spend Good Karma (p. 137). You can have up to ${attrNow('int')} foci active at once (Intelligence).${nF>attrNow('int')?' You have more than that.':''}`:fb?`Foci in your gear cost ${fb} Force Points to bond (p. 137). You can have up to ${attrNow('int')} foci active at once (Intelligence).${nF>attrNow('int')?' You have more than that.':''}`:'Foci you buy in Gear (Magical gear) also cost Force Points to bond, and that is added here automatically.';
   }
   // decker
   const dk=deckInfo(); $('deckCard').hidden=!dk;
@@ -1603,9 +1621,12 @@ function renderExtras(){
   $('langBody').innerHTML=(S.langs||[]).map((L,i)=>`<tr><td><input data-lg="${i}" data-f="name" id="lg_n_${i}" aria-label="Language" value="${esc(L.name)}" placeholder="Language"></td><td class="n"><input type="number" min="1" max="6" data-lg="${i}" data-f="rating" id="lg_r_${i}" aria-label="Language rating" value="${L.rating||1}"></td><td><button class="x" data-del="langs" data-i="${i}" aria-label="Remove language">×</button></td></tr>`).join('');
   // advancement
   const tg=advTargets(); const sel=$('advPick').value;
-  $('advPick').innerHTML=`<option value="">Choose what to raise…</option>`+tg.map(x=>`<option value="${esc(x.id)}" ${x.id===sel?'selected':''}>${esc(x.label)} · ${x.cost} Karma</option>`).join('');
-  const avail=(+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog();
+  $('advPick').innerHTML=`<option value="">Choose what to raise…</option>`+tg.map(x=>`<option value="${esc(x.id)}" ${x.id===sel?'selected':''} ${x.cost>karmaAvail()?'disabled':''}>${esc(x.label)} · ${x.cost} Karma${x.cost>karmaAvail()?' (not enough Karma)':''}</option>`).join('');
+  const avail=karmaAvail(); if($('advNote')) $('advNote').hidden=true;
   $('advAvail').textContent=`${avail} Good Karma available`;
+  {const show=S.magic!=='none'&&booksOn().gr; $('initBox').hidden=!show; if(show){const g=initGrade(), nx=g+1, keep=$('initHow').value||'self';
+    $('initHow').innerHTML=Object.entries(INIT_HOW).map(([k,[m,l]])=>`<option value="${k}" ${k===keep?'selected':''}>Grade ${nx}: ${l} · ${initCost(nx,k)} Karma${initCost(nx,k)>avail?' (not enough Karma)':''}</option>`).join('');
+    $('initNote').innerHTML=`${g<0?'Not initiated yet.':`Initiate Grade ${g}.`} Grade 1 and each grade after add 1 to Magic${S.magic==='adept'?' (1 more power point)':''}; Grade 0 adds nothing. Initiates add their grade to Astral Reaction and get an Astral Pool of that many dice, and can learn metamagic: centering, quickening, dispelling, shielding, masking and anchoring (GR p. 42). Cost: (6 + grade) × 3 alone, × 2 in a group, half a step less with an ordeal (GR p. 38).`;}}
   $('advLog').innerHTML=(S.adv||[]).map((a,i)=>`<tr><td>${esc(a.desc||a.label)}</td><td class="n">${a.cost}</td><td><button class="x" data-del="adv" data-i="${i}" aria-label="Undo">×</button></td></tr>`).join('')||`<tr><td colspan="3" class="note">Nothing bought yet.</td></tr>`;
   $('ammoTrack').innerHTML=ammoTrackHTML();
   $('stBoard').innerHTML=stashHTML();
@@ -3182,14 +3203,14 @@ function render(){
   $('skillBudget').innerHTML=budgetHTML('Skill points',sSpent,sBudget,false,!!S.established);
   // magic
   const card=$('magicCard'); card.hidden=S.magic==='none';
-  const magicRating=S.magic==='none'?0:Math.max(0,Math.floor(6-essenceUsed()));
-  if(S.magic==='adept'){ $('magicTitle').textContent='Adept powers'; $('magicNote').innerHTML=`Adepts get Power Points equal to their Magic Rating (${magicRating}) <span class="pg">p. 125</span>.`; }
-  else { $('magicTitle').textContent='Spells and foci'; $('magicNote').innerHTML=`Magicians spend Force Points from the Resources priority on spells and bonding foci <span class="pg">p. 46–47</span>.`; }
+  const magicRating=magicNow();
+  if(S.magic==='adept'){ $('magicTitle').textContent='Adept powers'; const ig=Math.max(0,initGrade()), el=S.magic==='none'?0:6-Math.max(0,Math.floor(6-essenceUsed())); $('magicNote').innerHTML=`Adepts get Power Points equal to their Magic Rating (${magicRating}${ig||el?`: 6${ig?` + ${ig} initiation`:''}${el?` − ${el} for Essence lost`:''}`:''}) <span class="pg">p. 125</span>.`; }
+  else { $('magicTitle').textContent='Spells and foci'; $('magicNote').innerHTML=S.established?`Established runner: a new spell costs Good Karma equal to its Force <span class="pg">p. 133</span>, logged when you add it. Raise a spell’s Force or bond a new focus under Spend Good Karma <span class="pg">p. 137</span>.`:`Magicians spend Force Points from the Resources priority on spells and bonding foci <span class="pg">p. 46–47</span>.`; }
   let pSpent=0;
   if(S.magic==='adept'){
     $('powerHead').innerHTML='<tr><th>Power</th><th>Details</th><th class="n">Power points</th><th></th></tr>';
     $('powerBody').innerHTML=S.powers.map((p,i)=>{const c=powerCost(p);pSpent+=c.cost;
-      const typeSel=`<select id="p_ty_${i}" data-pw="${i}" data-f="type">${Object.entries(allPowers()).filter(([k,v])=>!v.src||bookOn(v.src)||p.type===k).map(([k,v])=>`<option value="${k}" ${p.type===k?'selected':''}>${v.label}${v.src?` (${v.src==='gr'?'Grimoire':'Awakenings'})`:''}</option>`).join('')}</select>`;
+      const typeSel=`<select id="p_ty_${i}" data-pw="${i}" data-f="type">${Object.entries(allPowers()).filter(([k,v])=>!v.src||bookOn(v.src)||p.type===k).map(([k,v])=>`<option value="${k}" ${p.type===k?'selected':''}>${v.label}${v.src?` (${v.src==='gr'?'Grimoire':'Awakenings'})`:''}${p.type!==k&&!PW_MULTI.has(k)&&S.powers.some(q=>q.type===k)?' (already taken: raise that one)':''}</option>`).join('')}</select>`;
       return `<tr><td>${typeSel}<div class="pg" style="white-space:nowrap;margin-top:3px">${(allPowers()[p.type||'custom']||POWERS.custom).pg}</div></td><td>${powerDetails(p,i)}<div class="note small ${c.err?'bad-text':''}">${esc(c.err||c.desc)}</div></td><td class="n mono">${c.cost}</td><td><button class="x" data-del="powers" data-i="${i}" aria-label="Remove">×</button></td></tr>`;}).join('') || `<tr><td colspan="4" class="note">No powers yet. Add one and pick it from the list.</td></tr>`;
     $('irErrataRow').hidden=false;
   } else {
@@ -3200,7 +3221,8 @@ function render(){
   $('irErrata').checked=!!S.irErrata;
   if(isMagician()) pSpent+=fociBond();
   const pBudget=S.magic==='adept'?magicRating:(S.prio.res?FORCE[S.prio.res]:0);
-  $('powerBudget').innerHTML=budgetHTML(S.magic==='adept'?'Power points':'Force points',pSpent,pBudget,false,!!S.established&&S.magic!=='adept');
+  $('powerBudget').innerHTML=S.established&&S.magic!=='adept'?'':budgetHTML(S.magic==='adept'?'Power points':'Force points',pSpent,pBudget,false,!!S.established&&S.magic!=='adept');
+  {const fl=document.querySelector('label[for="spForce"] .pg'); if(fl) fl.textContent=S.established?'costs that much Karma':'max 6 at creation';}
   // gear
   $('bookRow').innerHTML=`<span class="k">Books in play</span><label class="bk"><input type="checkbox" checked disabled> Core rulebook</label>`+BOOKS.map(([k,l])=>`<label class="bk"><input type="checkbox" data-book="${k}" ${booksOn()[k]?'checked':''}> ${l}</label>`).join('');
   $('optRecoilRow').hidden=!booksOn().fof; $('optRecoil').checked=!!S.optRecoil;
@@ -3246,14 +3268,14 @@ function render(){
   // summary
   renderDefaulting();
   summary(magicRating,rSpent,rBudget); jumpLinks();
-  S._calc={ess:+(6-essenceUsed()).toFixed(3),bi:+bodyIndexUsed().toFixed(3),biMax:bodyIndexMax(),awake:S.magic!=='none',magic:S.magic==='none'?0:magicRating,nuyen:S.nuyenNow===''||S.nuyenNow==null?null:+S.nuyenNow,resLeft:rBudget?rBudget-rSpent:null,est:!!S.established,at:Date.now()};
+  S._calc={ess:+(6-essenceUsed()).toFixed(3),bi:+bodyIndexUsed().toFixed(3),biMax:bodyIndexMax(),awake:S.magic!=='none',adept:S.magic==='adept',init:Math.max(0,initGrade()),magic:S.magic==='none'?0:magicRating,nuyen:S.nuyenNow===''||S.nuyenNow==null?null:+S.nuyenNow,resLeft:rBudget?rBudget-rSpent:null,est:!!S.established,at:Date.now()};
   $('exportBox').value=btoa(unescape(encodeURIComponent(JSON.stringify(S))));
   save();
 }
 function budgetHTML(label,spent,budget,money,soft){
   const pct=budget?Math.min(100,spent/budget*100):0; const over=!soft&&spent>budget; const full=!soft&&budget&&spent===budget; if(soft) label+=' (creation, not checked)';
-  const u=money?'¥':'';
-  return `<div class="row" style="justify-content:space-between"><span class="small"><b>${label}</b></span><span class="pill ${!budget?'':over?'bad':full?'ok':''}">${fmt(spent)}${u} / ${budget?fmt(budget)+u:'pick a priority'}</span></div><div class="bar ${over?'over':full?'full':''}"><i style="width:${pct}%"></i></div>`;
+  const u=money?'¥':''; const nf=x=>money?fmt(x):String(Math.round(x*100)/100);
+  return `<div class="row" style="justify-content:space-between"><span class="small"><b>${label}</b></span><span class="pill ${!budget?'':over?'bad':full?'ok':''}">${nf(spent)}${u} / ${budget?fmt(budget)+u:'pick a priority'}</span></div><div class="bar ${over?'over':full?'full':''}"><i style="width:${pct}%"></i></div>`;
 }
 function track(id,val,key){
   $(id).innerHTML=Array.from({length:10},(_,i)=>`<button class="${i<val?'on':''} ${[0,2,5,9].includes(i)?'mark':''}" data-trk="${key}" data-v="${i+1}" aria-label="${key} box ${i+1}">${i+1}</button>`).join('');
@@ -3281,6 +3303,7 @@ function summary(magicRating,rSpent,rBudget){
   ];
   if(S.magic!=='none') rows.push(['Magic',magicRating]);
   if(isMagician()) rows.push(['Magic Pool',sorc]);
+  if(S.magic!=='none'&&initGrade()>=0) rows.push(['Initiate grade',`${initGrade()} · Astral Pool ${initGrade()}`]);
   {const vcr=gearLevel('body:Vehicle Control Rig'); if(vcr) rows.push(['Control Pool',baseReact+2*vcr]);}
   if(wmod.m) rows.push(['Wound modifier',`+${wmod.m} TN`]);
   const mx=matrixInfo();
@@ -3309,7 +3332,7 @@ function summary(magicRating,rSpent,rBudget){
   if(!S.optEF&&(S.ef||[]).length) iss.push(['warn','Edges and Flaws are switched off, so the ones picked are ignored.']);
   if(R().base&&!S.optMeta) iss.push(['warn',`${S.race} is a Companion metavariant, but metavariants are switched off.`]);
   if(nb&&!raceAllowed(S.race)) iss.push(['bad',`${S.race} isn't allowed at Race ${S.prio.race||'(none)'} under these rules.`]);
-  {const eU=essenceUsed(); if(S.magic!=='none'&&eU>0){const m=Math.max(0,Math.floor(6-eU)); iss.push(['warn',`Essence ${+(6-eU).toFixed(2)} lowers Magic to ${m}${S.magic==='adept'?`, so ${m} power points`:''} (p. 42). Implants cost the Awakened magic.`]);}}
+  {const eU=essenceUsed(); if(S.magic!=='none'&&eU>0){const m=magicNow(); iss.push(['warn',`Essence ${+(6-eU).toFixed(2)} lowers Magic to ${m}${initGrade()>0?` (with initiation)`:''}${S.magic==='adept'?`, so ${m} power points`:''} (p. 42). Implants cost the Awakened magic.`]);}}
   if(nb&&!magicAllowed(S.magic)) iss.push(['bad',`${MAGIC_TYPES.find(m=>m[0]===S.magic)[1]} needs Magic priority ${magicNeed(S.magic)}${S.prio.magic?` (you have ${S.prio.magic})`:''}.`]);
   if(nb&&S.magic==='none'&&S.prio.magic&&['A','B'].includes(S.prio.magic)) iss.push(['warn',`Magic ${S.prio.magic} is assigned but the character is mundane. That priority is wasted.`]);
   const aBudget=S.prio.attr?ATTR_PTS[S.prio.attr]:0; const aSpent=ATTRS.reduce((a,[k])=>a+(+S.attrs[k]||0),0);
@@ -3338,12 +3361,13 @@ function summary(magicRating,rSpent,rBudget){
   if(gearLevel('body:Boosted Reflexes')&&(gearLevel('body:Wired Reflexes')||gearLevel('body:Vehicle Control Rig'))) iss.push(['bad','Boosted Reflexes can never be combined with Wired Reflexes or a Vehicle Control Rig (SSC p. 87).']);
   if(S.magic==='shamanic'&&!S.totem) iss.push(['warn','Pick a totem for the shaman (p. 119).']);
   if(isMagician()&&S.gear.filter(g=>BOND[g.key]).length>attrNow('int')) iss.push(['warn',`More foci than Intelligence ${attrNow('int')}; only that many can be active at once (p. 137).`]);
-  if(!isMagician()&&S.gear.some(g=>BOND[g.key])) iss.push(['warn','Foci only work for magicians who bond them.']);
+  if(S.established) S.gear.filter(g=>canBondFocus(g)&&!focusBonded(g)).forEach(g=>iss.push(['warn',`${g.name||GEARDB[g.key].n} isn’t bonded yet. Bond it under Spend Good Karma (${BOND[g.key](+g.r||1)} Karma, p. 137).`]));
+  if(S.gear.some(g=>BOND[g.key]&&!canBondFocus(g))) iss.push(['warn',S.magic==='adept'?'Adepts can bond weapon foci only (AW p. 114); other foci need a magician.':'Foci only work for the Awakened who bond them: magicians, or adepts with weapon foci (p. 137; AW p. 114).']);
   {const dk=deckInfo(); if(dk){ if(dk.used>dk.am) iss.push(['bad',`Loaded utilities need ${dk.used} Mp; active memory is ${dk.am} Mp.`]); if(dk.stored>dk.sm) iss.push(['bad',`Programs need ${dk.stored} Mp of storage; the deck has ${dk.sm} Mp.`]); if(dk.am>dk.amMax) iss.push(['bad',`Active memory can be expanded to MPCP × 50 = ${dk.amMax} Mp at most (p. 172).`]);}}
   if(S.gear.some(g=>VSTAT[g.key])&&!gearLevel('body:Vehicle Control Rig')&&S.gear.some(g=>/^veh:.*Drone/.test(g.key||''))) iss.push(['warn','Drones are best run with a Vehicle Control Rig and remote control gear.']);
   if(armorTotals().poolPenalty) iss.push(['warn',`Armor cuts Combat Pool by ${armorTotals().poolPenalty} (heavy armor: Ballistic over Quickness, p. 84${booksOn().fof?'; military armor: 1 per 2 points over Quickness, FoF p. 54':''}).`]);
   iss.push(...vr2Issues());
-  if(S.magic==='adept'){const ma=S.powers.filter(p=>p.type==='mysticArmor').reduce((m,p)=>m+(+p.n||0),0); const mg=Math.max(0,Math.floor(6-essenceUsed())); if(ma>mg) iss.push(['bad',`Mystic Armor ${ma} is above your Magic ${mg} (GR p. 34).`]);}
+  if(S.magic==='adept'){const ma=S.powers.filter(p=>p.type==='mysticArmor').reduce((m,p)=>m+(+p.n||0),0); const mg=magicNow(); if(ma>mg) iss.push(['bad',`Mystic Armor ${ma} is above your Magic ${mg} (GR p. 34).`]);}
   {const bi=bodyIndexUsed(),mx=bodyIndexMax(); if(bi>mx) iss.push(['bad',`Body Index ${+bi.toFixed(3)} is over the limit of ${mx} (unaugmented Body). In system shock: +${Math.ceil(bi-mx-1e-9)} to Body tests (ST p. 7).`]);
    if(bi&&S.magic!=='none') iss.push(['warn',`Awakened characters pay bioware’s Body Cost in Essence too: ${+bi.toFixed(3)} Essence included (ST p. 5).`]);
    if(gearLevel('bio:Orthoskin')&&(gearLevel('body:Dermal Plating')||hasDerm())) iss.push(['bad','Orthoskin isn’t compatible with dermal armor (ST p. 17).']);
@@ -3356,6 +3380,9 @@ function summary(magicRating,rSpent,rBudget){
   if(booksOn().vr2){const old=S.gear.filter(g=>{const it=g.key&&GEARDB[g.key];return it&&it.m1;}); if(old.length) iss.push(['warn',`Virtual Realities 2.0 replaces Matrix 1.0 decks and programs. Rebuild these with the VR2 deck and programs: ${old.slice(0,4).map(g=>GEARDB[g.key].n).join(', ')}${old.length>4?'…':''}.`]);}
   if(S.gear.some(g=>g.key==='body:VCR Reflex Trigger')&&!gearLevel('body:Vehicle Control Rig')) iss.push(['bad','A reflex trigger is part of a Vehicle Control Rig; buy the VCR too (R2 p. 17).']);
   if(booksOn().r2&&gearLevel('body:Vehicle Control Rig')&&deckInfo()) iss.push(['warn',`Rigger decking: +1 to all Matrix target numbers and Hacking Pool −${gearLevel('body:Vehicle Control Rig')} (R2 p. 16).`]);
+  if(adeptOn()){const seen=new Set(); S.powers.forEach(q=>{if(!q.type||PW_MULTI.has(q.type)) return; if(seen.has(q.type)){const L=(allPowers()[q.type]||{}).label||q.type; iss.push(['warn',`${L} is on the powers list twice. Take it once and set the level you want on that line; going up a level costs only the difference.`]);} seen.add(q.type);});}
+  if(S.established&&isMagician()) S.powers.forEach(p=>{const f=spellPaid(p); if(f!=null&&(+p.cost||0)>f) iss.push(['warn',`${p.name||'A spell'} is at Force ${p.cost} but Karma was paid for Force ${f}. Raise it under Spend Good Karma so the Karma is counted (p. 133).`]);});
+  if(karmaAvail()<0) iss.push(['bad',`Good Karma overspent by ${-karmaAvail()}: undo a purchase under Spend Good Karma or add the Karma earned.`]);
   if(!iss.some(x=>x[0]!=='ok'&&x[0]!=='info')) iss.unshift(['ok','Everything adds up.']);
   $('issues').innerHTML=iss.map(([t,m])=>`<li class="${t==='warn'?'':t}">${esc(m)}</li>`).join('');
   {const todo=iss.filter(x=>x[0]!=='ok'&&x[0]!=='info'), bad=iss.filter(x=>x[0]==='bad').length, mb=$('mbar'); if(mb){mb.className='mbar '+(bad?'bad':todo.length?'warn':'ok'); mb.innerHTML=todo.length?`<b>${todo.length} to check</b><span>${esc(todo[0][1])}</span>`:'<b>✓ Everything adds up</b>';}}
@@ -3375,6 +3402,8 @@ document.addEventListener('click',e=>{
   if(b.dataset.strm!==undefined){const p=b.dataset.strm; S.places=stashPlaces().filter(x=>x!==p&&!isVehPlace(x)); render(); return;}
   if(b.dataset.amo){ammoAct(b.dataset.gid,b.dataset.amo,+b.dataset.amn||0); render(); return;}
   if(b.dataset.nyrm!==undefined){const L=S.nyLog||[];const e=L[+b.dataset.nyrm];if(e){S.nuyenNow=(S.nuyenNow===''||S.nuyenNow==null?0:+S.nuyenNow)-e.amt;L.splice(+b.dataset.nyrm,1);S.nyLog=L;}render();return;}
+  if(b.dataset.del==='adv'){const a=(S.adv||[])[+b.dataset.i]; if(a&&a.kind==='spell') S.powers=S.powers.filter(p=>p.lid!==a.lid); if(a&&a.kind==='spellF'){const sp=S.powers.find(p=>p.name===a.name); if(sp&&+sp.cost===+a.to) sp.cost=a.from;} if(a&&a.kind==='init'&&+a.grade<initGrade()){$('saveState').textContent='Undo the highest grade first.'; return;}}
+  if(b.dataset.del==='powers'){const p=S.powers[+b.dataset.i]; if(p&&p.lid) S.adv=(S.adv||[]).filter(a=>!(a.kind==='spell'&&a.lid===p.lid));}
   if(b.dataset.del){const arr=S[b.dataset.del]||[]; if(b.dataset.del==='gear'&&arr[+b.dataset.i]&&arr[+b.dataset.i].key===CBKEY) S.cbody=null; if(b.dataset.del==='gear') gearRemoveAt(+b.dataset.i); else arr.splice(+b.dataset.i,1);render();return;}
   if(b.dataset.trk){const k=b.dataset.trk,v=+b.dataset.v;S[k]=S[k]===v?v-1:v;render();return;}
 });
@@ -3403,7 +3432,7 @@ document.addEventListener('change',e=>{
   if(t.id==='optEF'){S.optEF=t.checked;render();return;}
   if(t.id==='fMagic'){S.magic=t.value;render();return;}
   if(t.id==='lifestyleOff'){S.lifestyleOff=t.checked;render();return;}
-  if(t.id==='established'){S.established=t.checked;render();return;}
+  if(t.id==='established'){S.established=t.checked; if(t.checked){S.gear.forEach(g=>{if(BOND[g.key]&&!g.bondPaid) g.bondPaid='fp';}); S.powers.forEach(p=>{if(p.name!=null&&p.base==null&&!p.lid) p.base=+p.cost||0;});} render();return;}
   if(t.id==='swSel'){SWSEL=t.value;renderDefaulting();return;}
   if(t.id==='swBase'){SWBASE=Math.max(2,Math.min(12,+t.value||4));renderDefaulting();return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='cat'){S.gear[+t.dataset.gr].cat=t.value;render();return;}
@@ -3477,8 +3506,9 @@ try{sessionSet(localStorage.getItem('sr2-builder-session')==='1',false);}catch(e
 document.addEventListener('click',e=>{const m=e.target.closest&&e.target.closest('#mbar');if(m){e.preventDefault();$('issues').scrollIntoView({block:'center'});}});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-efdel]');if(!b)return;S.ef.splice(+b.dataset.efdel,1);render();});
 $('addLang').onclick=()=>{S.langs=S.langs||[];S.langs.push({name:'',rating:1});render();$('lg_n_'+(S.langs.length-1)).focus();};
-$('spAdd').onclick=()=>{const n=$('spName').value;const f=Math.min(6,Math.max(1,+$('spForce').value||1));S.powers.push({name:n,cost:f,note:''});render();};
-$('advBuy').onclick=()=>{const x=advTargets().find(t=>t.id===$('advPick').value); if(!x) return; S.adv=S.adv||[]; S.adv.push(Object.assign({cost:x.cost,desc:x.label.replace(/ \(above racial max, GM approval\)/,'')},x.entry)); render();};
+$('spAdd').onclick=()=>{const n=$('spName').value;const f=Math.min(S.established?12:6,Math.max(1,+$('spForce').value||1)); const sp={name:n,cost:f,note:''}; if(S.established&&karmaShort(f)) return; if(S.established){sp.lid='s'+Math.random().toString(36).slice(2,9); S.adv=S.adv||[]; S.adv.push({kind:'spell',lid:sp.lid,label:n,cost:f,desc:`Learned ${n} at Force ${f}`});} S.powers.push(sp);render();};
+$('advBuy').onclick=()=>{const x=advTargets().find(t=>t.id===$('advPick').value); if(!x||karmaShort(x.cost)) return; S.adv=S.adv||[]; S.adv.push(Object.assign({cost:x.cost,desc:x.label.replace(/ \(above racial max, GM approval\)/,'')},x.entry)); if(x.entry.kind==='spellF'){const sp=S.powers.find(p=>p.name===x.entry.name); if(sp) sp.cost=x.entry.to;} render();};
+$('initBuy').onclick=()=>{const how=$('initHow').value||'self'; const g=initGrade()+1; if(karmaShort(initCost(g,how))) return; S.adv=S.adv||[]; S.adv.push({kind:'init',grade:g,how,cost:initCost(g,how),desc:`Initiated to Grade ${g} (${INIT_HOW[how][1].toLowerCase()})`}); render();};
 $('advNew').onclick=()=>{const n=$('advNewName').value.trim(); if(!n) return; S.adv=S.adv||[]; S.adv.push({kind:'newskill',label:n,to:1,cost:1,desc:`Learned ${n} at 1`}); $('advNewName').value=''; render();};
 $('btnDup').onclick=()=>{roster();const c=JSON.parse(JSON.stringify(S));c.id='c'+Date.now().toString(36);c.name=(c.name||'')+(c.name?' (copy)':'');c.handle=(c.handle||'Runner')+' copy';S=Object.assign(blank(),c);render();};
 $('btnDel').onclick=()=>ask(`Delete ${esc(S.handle||S.name||'this character')} from this browser? Export it first if you want to keep it.`,()=>{let r=[];try{r=JSON.parse(localStorage.getItem(RKEY)||'[]');}catch(e){} r=r.filter(c=>c.id!==S.id); try{localStorage.setItem(RKEY,JSON.stringify(r));}catch(e){} S=r.length?Object.assign(blank(),r[0].data):blank(); render();});
@@ -3523,7 +3553,7 @@ function builderFile(){
   return docShell('SR2 Runner Builder'+(S.name?' · '+S.name:''),css,`${PRISTINE}\n<script>window.__SR2_EMBED=${safeJSON(embed)};<\/script>\n<script id="appJs">${js}<\/script>`,'appCss');
 }
 function sheetStats(){
-  const magicRating=S.magic==='none'?0:Math.max(0,Math.floor(6-essenceUsed()));
+  const magicRating=magicNow();
   const q=attrEff('quick')+bioAug('quick'),i=attrNow('int')+bioAug('int'),w=attrNow('wil');
   const ad=adeptOn(); const incR=ad?S.powers.filter(p=>p.type==='incReaction').reduce((a,p)=>a+(+p.n||0),0):0;
   const dice=1+gearLevel('bio:Synaptic Accelerator')+[0,1,1,2][gearLevel('body:Boosted Reflexes')]+(S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0))+(ad?S.powers.filter(p=>p.type==='incReflexes').reduce((a,p)=>a+(+p.level||1),0):0);
@@ -3544,6 +3574,7 @@ function sheetStats(){
   ];
   if(S.magic!=='none') rows.push(['Magic',magicRating]);
   if(isMagician()) rows.push(['Magic Pool',sorc]);
+  if(S.magic!=='none'&&initGrade()>=0) rows.push(['Initiate grade',`${initGrade()} · Astral Pool ${initGrade()}`]);
   {const vcr=gearLevel('body:Vehicle Control Rig'); if(vcr) rows.push(['Control Pool',baseReact+2*vcr]);}
   if(wmod.m) rows.push(['Wound modifier',`+${wmod.m} TN`]);
   const mx=matrixInfo();
@@ -3557,7 +3588,7 @@ function spellFind(n){if(!n) return null; if(SPELLDB[n]) return SPELLDB[n]; cons
 function sheetFile(){
   syncGear();
   const T=sheetStats(), magicLbl=(MAGIC_TYPES.find(m=>m[0]===S.magic)||[,''])[1];
-  const ess=6-essenceUsed(), magicRating=S.magic==='none'?0:Math.max(0,Math.floor(ess));
+  const ess=6-essenceUsed(), magicRating=magicNow();
   const tile=(k,v,sub,cls)=>`<div class="tile${cls?' '+cls:''}"><span class="tk">${k}</span><b class="tv">${v}</b>${sub?`<span class="ts">${sub}</span>`:''}</div>`;
   const sec=(id,title,pg,inner,cls)=>inner?`<section class="sec${cls?' '+cls:''}" id="${id}"><h2>${title}${pg?` <span class="pg">${pg}</span>`:''}</h2>${inner}</section>`:'';
   // ---- at the table ----
@@ -3572,7 +3603,7 @@ function sheetFile(){
     tile('Karma Pool',T.kpool,'Rerolls and more, p. 191'),
     tile('Essence',+ess.toFixed(2),T.bi?`Body Index ${+T.bi.toFixed(3)} of ${bodyIndexMax()}`:''),
     ...(S.magic!=='none'?[tile('Magic',magicRating,'')]:[]),
-    ...(isMagician()?[tile('Magic Pool',sorc,'Sorcery + power foci')]:[]),
+    ...(isMagician()?[tile('Magic Pool',sorc,'Sorcery + power foci')]:[]),...(S.magic!=='none'&&initGrade()>=0?[tile('Initiate',`Grade ${initGrade()}`,`Astral Pool ${initGrade()} · +${initGrade()} Astral Reaction · GR p. 38`)]:[]),
     ...(T.mx&&(T.mx.vr2||T.mx.hasDeck)?[tile('Hacking Pool',T.mx.pool,T.mx.vr2?'VR2 p. 18':'p. 85'),tile('Matrix Initiative',`${T.mx.react} + ${T.mx.dice}D6`,'')]:[]),
     ...(vcr?[tile('Control Pool',baseR+2*vcr,`VCR ${vcr}`),tile('Rigged Initiative',`${baseR+2*vcr} + ${1+vcr}D6`,'')]:[]),
   ].join('');
@@ -3602,13 +3633,13 @@ function sheetFile(){
     if(MSTAT[g.key]){const [cc,reach,dmg,conc,msk]=MSTAT[g.key];const sd=skillDiceFor(msk||'Armed Combat',conc,it.n);
       return `<article class="wcard"><header><b>${esc(it.n)}</b><span class="ts">${esc(msk||'Armed Combat')} · ${esc(conc)} · ${esc(it.pg||'')}</span></header>
       <div class="wstats">${tile('Damage',esc(strDmg(dmg,str)),'')}${tile('Reach',reach+(baseRace()==='Troll'?1:0),'')}${tile('Skill dice',`${sd.dice??'default'}${sd.ia?'+'+sd.ia:''}`,sd.dice==null?'no skill: see Defaulting':'')}${tileO('Conceal',cc,'')}</div></article>`;}
-    const [rt,cc,ammo,mode,dmg]=WSTAT[g.key];const [sk,conc]=RT_SKILL[rt];const sd=skillDiceFor(sk,conc,it.n);let n=[],aim=0; const gc=gunCalc(g); let cfin=cc, rc=0;
+    const [rt,cc,ammo,mode,dmg]=WSTAT[g.key];const [sk,conc]=RT_SKILL[rt];const sd=skillDiceFor(sk,conc,it.n);let n=[],aim=0; const qx=(+g.qty||1)>1?` ×${+g.qty}`:''; const gc=gunCalc(g); let cfin=cc, rc=0;
     if(gc){const C=gc.C; aim=C.aim; rc=C.rc||0; cfin=C.conc==='Not concealable'?null:+C.conc; if(C.gyro) n.push('Gyro '+C.gyro); if(C.mag) n.push('Magnification '+C.mag); if(C.notice) n.push('Notice +'+C.notice);}
     if(recStr&&['Firearms','Gunnery'].includes(sk)) n.push('Strength recoil −'+recStr);
     let bands=RANGES[rt]; if(['bow','lxbow','mxbow','hxbow','knife','shuriken'].includes(rt)){const base=rt==='bow'?(+g.r||str):str;bands=bands.map((m,j)=>(j?`${base*m}`:`0-${base*m}`));} if(rt==='grenade') bands=[`0-${str*3}`,`${str*5}`,`${str*10}`,`${str*20}`];
     const adds=gc?gc.C.chosen.map(p=>p.n):[];
     const conceal=cfin==null?(gc?'—':'?'):cfin+(hasLinedCoat()&&cfin>0?2:0);
-    return `<article class="wcard"><header><b>${esc(it.n)}</b><span class="ts">${esc(sk)} · ${esc(conc)} · ${esc(it.pg||'')}</span></header>
+    return `<article class="wcard"><header><b>${esc(it.n)}${qx}</b><span class="ts">${esc(sk)} · ${esc(conc)} · ${esc(it.pg||'')}</span></header>
       <div class="wstats">${tile('Damage',esc(rt==='bow'?strDmg(dmg,+g.r||str):strDmg(dmg,str)),'')}${tileO('Mode',esc(mode),'')}${tileO('Ammo',esc(ammo),'')}${tile('Skill dice',`${sd.dice??'default'}${sd.ia?'+'+sd.ia:''}`,sd.dice==null?'no skill: see Defaulting':sd.how&&sd.how!==sk?esc(sd.how):'')}${tile('Conceal',conceal,hasLinedCoat()&&cfin>0?'with lined coat':'')}${rc?tile('Recoil comp',rc,''):''}${aim?tile('TN modifier',(aim>0?'+':'−')+Math.abs(aim),esc((gc.C.aimTxt||[]).filter(x=>!/pick the shooter/.test(x)).join(', ')||'from add-ons')):''}</div>
       <table class="rng"><thead><tr><th>Short</th><th>Medium</th><th>Long</th><th>Extreme</th></tr></thead><tbody><tr>${bands.map(b=>`<td>${esc(b)} m</td>`).join('')}</tr><tr class="tn">${['TN 4','TN 5','TN 6','TN 9'].map((t)=>`<td>${t}</td>`).join('')}</tr></tbody></table>
       ${adds.length||n.length?`<p class="ts">${adds.length?`<b>Add-ons:</b> ${esc(adds.join(', '))}`:''}${adds.length&&n.length?' · ':''}${esc(n.join(' · '))}</p>`:''}${g.gid&&ammoSummary(g.gid)?`<p class="ts"><b>Ammo:</b> ${esc(ammoSummary(g.gid))}</p>`:''}</article>`;}).join('');
@@ -3765,19 +3796,27 @@ function gearImport(p){const added=[],skipped=[],byIx={},links=[]; const books=O
   // spare clips sent without a gun: if the send brings exactly one gun that takes clips, they're for it
   {const rows=Object.values(byIx); const cg=rows.filter(r=>isFeedGun(r)&&feedSpec(r.key).clip); if(cg.length===1){const t=cg[0]; rows.filter(r=>r.key==='ammo:Spare Clip'&&!r.forGun).forEach(r=>{if(!t.gid) t.gid='w'+Math.random().toString(36).slice(2,9); r.forGun=t.gid;});}}
   // identical plain lines from one send become one line with a quantity (10 smoke grenades, not 10 rows)
-  {const seen=new Map(), plain=r=>!WSTAT[r.key]&&!r.build&&!r.vb&&!r.hb&&!r.gel&&!r.loaded; Object.values(byIx).forEach(r=>{if(!plain(r)) return; const k=[r.key,r.r,r.forGun||''].join('|'); const f=seen.get(k); if(f){f.qty+=r.qty; const j=S.gear.indexOf(r); if(j>=0) S.gear.splice(j,1);} else seen.set(k,r);});}
+  // ... and they add to a matching line the runner already has (4 more trauma patches make ×6, not a second row)
+  {const seen=new Map(), plain=r=>stackable(r), fresh=new Set(Object.values(byIx)), K=r=>[r.key,r.r,r.forGun||''].join('|');
+    S.gear.forEach(g=>{if(!fresh.has(g)&&plain(g)&&!seen.has(K(g))) seen.set(K(g),g);});
+    Object.values(byIx).forEach(r=>{if(!plain(r)) return; const k=K(r); const f=seen.get(k); if(f){f.qty=(+f.qty||1)+r.qty; const j=S.gear.indexOf(r); if(j>=0) S.gear.splice(j,1);} else seen.set(k,r);});}
   if(p.cbody&&typeof p.cbody==='object'&&p.cbody.limbs){S.cbody=JSON.parse(JSON.stringify(p.cbody)); books.ct=true; added.push('Cyber body plan');}
   if(p.vr2deck&&typeof p.vr2deck==='object'){S.vr2deck=Object.assign(vr2Default(),p.vr2deck); books.vr2=true;}
   S.books=books; if(typeof fillGearCats==='function') fillGearCats(); render(); return {added,skipped,dup};}
 function xferCheck(){const p=xferRead(), bar=$('xferBar'); if(!bar) return; if(!p||p.at<=xferSeen()){bar.hidden=true; return;}
   const n=p.items.length;
   const dups=[...new Set(p.items.filter(x=>x&&x.key&&S.gear.some(g=>g.key===x.key)).map(x=>(GEARDB[x.key]||{}).n).filter(Boolean))];
-  bar.innerHTML=`<div><b>The Gear Locker sent ${esc(p.label||n+' items')}</b><span class="note">${n} item${n>1?'s':''}${p.vr2deck?' and a custom deck design':''}, build-outs included. Switch characters first if it’s for someone else.</span>${dups.length?`<span class="note"><b>Already on ${esc(S.name||'this character')}:</b> ${esc(dups.join(', '))}. Adding gives a second one.</span>`:''}</div>
+  bar.innerHTML=`<div><b>The Gear Locker sent ${esc(p.label||n+' items')}</b><span class="note">${n} item${n>1?'s':''}${p.vr2deck?' and a custom deck design':''}, build-outs included. Switch characters first if it’s for someone else.</span>${dups.length?`<span class="note"><b>Already on ${esc(S.name||'this character')}:</b> ${esc(dups.join(', '))}. Ammo, grenades and other plain items add to the count you have; anything with a build-out comes in as a second one.</span>`:''}</div>
+    ${S.nuyenNow!==''&&S.nuyenNow!=null?`<label class="xpay"><input type="checkbox" id="xferPay" ${S.established?'checked':''}> Pay for it from nuyen on hand (${fmt(+S.nuyenNow)}¥ now)</label>`:''}
     <div class="row"><button class="primary" id="xferAdd">Add to ${esc(S.name||'this character')}</button><button class="ghost" id="xferNo">Dismiss</button></div>`;
   bar.hidden=false;}
 function xferDone(p){try{localStorage.setItem(XFER_KEY+'-seen',String(p.at));}catch(e){} $('xferBar').hidden=true;}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#xferAdd,#xferNo'); if(!b) return; const p=xferRead(); if(!p){$('xferBar').hidden=true;return;}
-  if(b.id==='xferAdd'){const r=gearImport(p); xferDone(p); $('saveState').textContent=`Added ${r.added.length} item${r.added.length===1?'':'s'} from the Gear Locker${r.skipped.length?` (skipped ${r.skipped.length} this builder doesn’t know)`:''}.`; const g=document.getElementById('gearCard')||document.getElementById('gearBody'); if(g&&g.scrollIntoView) g.scrollIntoView({block:'start'});}
+  if(b.id==='xferAdd'){const pay=!!($('xferPay')&&$('xferPay').checked); syncGear(); const q0=new Map(S.gear.map(g=>[g,+g.qty||1])); const r=gearImport(p); syncGear();
+    // pay for what arrived: new lines in full, plus any extra count added to a line already owned (not for repricing old gear)
+    const spent=Math.max(0,Math.round(S.gear.reduce((a,g)=>a+(+g.cost||0)*(q0.has(g)?Math.max(0,(+g.qty||1)-q0.get(g)):(+g.qty||1)),0)));
+    if(pay&&spent){const d=new Date(); const ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); S.nuyenNow=(+S.nuyenNow||0)-spent; S.nyLog=S.nyLog||[]; S.nyLog.push({d:ds,amt:-spent,note:`Gear Locker: ${p.label||'shopping list'}`}); render();}
+    xferDone(p); $('saveState').textContent=`Added ${r.added.length} item${r.added.length===1?'':'s'} from the Gear Locker${pay&&spent?` and paid ${fmt(spent)}¥`:''}${p.total!=null&&Math.abs(spent-p.total)>=1&&pay?` (the Gear Locker list said ${fmt(p.total)}¥: some prices depend on the runner, like deck options sized to their own deck’s MPCP)`:''}${r.skipped.length?` (skipped ${r.skipped.length} this builder doesn’t know)`:''}.`; const g=document.getElementById('gearCard')||document.getElementById('gearBody'); if(g&&g.scrollIntoView) g.scrollIntoView({block:'start'});}
   else xferDone(p);});
 window.addEventListener('storage',e=>{if(e.key===XFER_KEY) xferCheck();});
 window.addEventListener('focus',xferCheck); document.addEventListener('visibilitychange',()=>{if(!document.hidden) xferCheck();});

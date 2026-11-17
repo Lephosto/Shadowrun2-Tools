@@ -1411,7 +1411,7 @@ function wishLines(C,price,ess,bi){if(!C) return null; const K=C.S&&C.S._calc, n
   else if(price&&have==null) L.push('No money figure yet: set Nuyen on hand (or a Resources priority) in the builder.');
   let essCost=+ess||0; if(bi&&K.awake) essCost+= +bi; // awakened characters pay bioware Body Cost in Essence too (ST p. 5)
   if(essCost){const after=w2(K.ess-essCost); if(after<0) bad=true; let t=`Essence ${w2(K.ess)} → <span class="${after<0?'neg':''}">${after}</span>`; if(after<0) t+=' (below 0: the character dies)';
-    else if(K.awake){const m=Math.max(0,Math.floor(after)); if(m<K.magic) t+=` · <span class="neg">Magic ${K.magic} → ${m}</span>`;} L.push(t+(ess&&!bi?' <span class="note">(standard grade)</span>':''));}
+    else if(K.awake){const m=Math.max(0,Math.floor(after))+(+K.init||0); if(m<K.magic) t+=` · <span class="neg">Magic ${K.magic} → ${m}${K.adept?` (${K.magic-m} power point${K.magic-m>1?'s':''} fewer)`:''}</span>`;} L.push(t+(ess&&!bi?' <span class="note">(standard grade)</span>':''));}
   if(bi){const after=w2(K.bi+(+bi)); const over=after>K.biMax; L.push(`Body Index ${w2(K.bi)} → <span class="${over?'neg':''}">${after}</span> of ${K.biMax}${over?' (over: system shock, ST p. 7)':''}`);}
   return L.length?{head:`If ${nm} buys ${'this'}`,lines:L,bad}:null;}
 function wishNote(i,r){if(i.sp||i.ef||i.mt||i.cat==='power') return ''; const W=wishLines(OWNC,costAt(i,r)||0,essAt(i,r),i.bis?i.bis[r]:i.bi); if(!W) return '';
@@ -2041,7 +2041,8 @@ function renderTag(){
    ${tagFgHTML(i)}<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">${i.sp||i.ef||i.mt||i.cat==='power'||canBuild(i)||isDeck(i)||isVeh(i)||HB.isHost(i.id)||CB_PAGES.has(i.id)?'':'<button class="btn" id="addKit">Add to shopping list</button><button class="btn ghost" data-send="item">Send to a character</button>'}${i.m1?'<span class="note">Matrix 1.0 item: VR2 replaces it if your table uses VR2.</span>':''}</div>
    ${G.length?`<h3>Goes with</h3><div class="links">${G.map(g=>`<div class="lgrp"><h4>${esc(g.title)}</h4>${g.note?`<p>${esc(g.note)}</p>`:''}${g.text?`<p>${esc(g.text)}</p>`:`<div class="pills">${g.list.map(x=>`<button class="pill ${visible(x)?'':'off'}" data-id="${esc(x.id)}" title="${esc(BOOK[x.src][0]+' '+pageRef(x))}">${srcTag(x.src)}${esc(x.n)}<span class="pp">${priceLabel(x)}</span></button>`).join('')}</div>`}</div>`).join('')}</div>`:''}`;
 }
-function kitChip(){const el=$('kitchip'); if(!el) return; let c=0; st.kit.forEach(k=>{const i=BYID[k.id]||{cost:k.cost}; c+=k.build&&k.bc!=null?k.bc:k.hb&&k.hc!=null?k.hc:(costAt(i,k.r)||0);}); el.textContent=st.kit.length?`Shopping list: ${st.kit.length} · ${fmt(c)}¥`:'Shopping list: empty';}
+function kitPrice(k){if(k.pc!=null) return k.pc; const i=BYID[k.id]||{cost:k.cost}; return k.build&&k.bc!=null?k.bc:k.hb&&k.hc!=null?k.hc:(costAt(i,k.r)||0)*(k.gel?5:1)*(k.q||1);}
+function kitChip(){const el=$('kitchip'); if(!el) return; let c=0; st.kit.forEach(k=>{c+=kitPrice(k);}); el.textContent=st.kit.length?`Shopping list: ${st.kit.length} · ${fmt(c)}¥`:'Shopping list: empty';}
 
 // ---------- Send gear to the Runner Builder ----------
 // Same site (GitHub Pages, or both files opened locally): the builder picks it up from browser storage. Anywhere else: a code to paste.
@@ -2063,9 +2064,9 @@ function xferItem(i){const items=[]; let vr2deck=null; const ok=k=>!!BYID[k];
   else if(HB.isHost(i.id)){const S=hbFix(i); items.push(Object.assign({key:i.id,qty:1,hb:JSON.parse(JSON.stringify(S))},gelOK(i)&&st.gel&&st.gel[i.id]?{gel:true}:{}));}
   else items.push(Object.assign({key:i.id,qty:1,r:i.r?(st.rate[i.id]??(i.mult!=null?1000:i.r[0])):undefined},gelOK(i)&&st.gel&&st.gel[i.id]?{gel:true}:{},kitForGun(i.id)&&st.fgSel&&/^o:/.test(st.fgSel[i.id]||'')?{forKey:st.fgSel[i.id].slice(2)}:{}));
   return {items:items.filter(x=>ok(x.key)),vr2deck,label:i.n};}
-function xferKit(){const items=st.kit.map(k=>{if(!BYID[k.id]) return {name:k.n,cost:k.cost}; const o=Object.assign({key:k.id,qty:1,r:BYID[k.id].r?k.r:undefined},k.gel?{gel:true}:{},k.build?{build:JSON.parse(JSON.stringify(k.build))}:{},k.hb?{hb:JSON.parse(JSON.stringify(k.hb))}:{});
+function xferKit(){const items=st.kit.map(k=>{if(!BYID[k.id]) return {name:k.n,cost:k.cost}; const o=Object.assign({key:k.id,qty:k.q||1,r:BYID[k.id].r||k.noR?k.r:undefined},k.gel?{gel:true}:{},k.vb?{vb:JSON.parse(JSON.stringify(k.vb))}:{},k.loaded?{loaded:true}:{},k.build?{build:JSON.parse(JSON.stringify(k.build))}:{},k.hb?{hb:JSON.parse(JSON.stringify(k.hb))}:{});
     if(k.fg&&kitForGun(k.id)){if(k.fg.startsWith('k:')){const j=st.kit.findIndex(x=>x.u===k.fg.slice(2)); if(j>=0&&kitFeed(BYID[st.kit[j].id])) o.forItem=j;} else if(k.fg.startsWith('o:')) o.forKey=k.fg.slice(2);}
-    return o;}); return {items,label:'Shopping list ('+st.kit.length+')'};}
+    return o;}); const v2=st.kit.find(k=>k.v2); return Object.assign({items,label:'Shopping list ('+st.kit.length+')',total:st.kit.reduce((a,k)=>a+kitPrice(k),0)},v2?{vr2deck:JSON.parse(JSON.stringify(v2.v2))}:{});}
 function sendGear(p){p.v=1; p.at=Date.now(); p.from='Gear Locker';
   let stored=false; try{localStorage.setItem(XFER_KEY,JSON.stringify(p)); stored=true;}catch(e){}
   const code='SR2GEAR:'+btoa(unescape(encodeURIComponent(JSON.stringify(p))));
@@ -2095,8 +2096,8 @@ function tagFgHTML(i){if(!kitForGun(i.id)) return ''; const G=kitGuns(); st.fgSe
   return `<div class="tfg"><label for="tfg">${i.id==='ammo:Spare Clip'?'Clip for':'Ammo for'}</label> ${G.length?`<select id="tfg" data-tfg="${esc(i.id)}"><option value="">Any gun</option>${G.map(o=>`<option value="${esc(o.v)}"${o.v===v?' selected':''}>${esc(o.label)} (${o.where})</option>`).join('')}</select>`:'<span class="note">Add a gun to your shopping list, or link a character, to pick one.</span>'}${bad?`<div class="bad">${esc(t.label)} doesn’t take clips (${esc(t.i.w[2])}). It loads ${/\(m\)/.test(t.i.w[2])?'from an internal magazine':'another way'} (core p. 95).</div>`:''}<div class="note">${i.id==='ammo:Spare Clip'?'Clips fit one specific gun.':'Ammo is shared by every gun of the same class.'} The Runner Builder links it to that gun when you send the list.</div></div>`;}
 function renderKit(){ kitChip();
   if(!st.kit.length){$('kit').innerHTML=`<div class="hd"><b>Shopping list</b><span class="note">Add items to total their price and Essence. Saved in this browser only.</span></div>`;return;}
-  let c=0,e=0,bt=0; const KG=kitGuns(); const rows=st.kit.map((k,ix)=>{const i=BYID[k.id]||{n:k.n,src:k.src||'core',cost:k.cost}; const p=k.build&&k.bc!=null?k.bc:k.hb&&k.hc!=null?k.hc:(costAt(i,k.r)||0)*(k.gel?5:1); const es=k.hb&&k.hc!=null?+(k.he||0):+(essAt(i,k.r)||0); c+=p; e+=es; bt+=+((i.bis?i.bis[k.r]:i.bi)||0);
-    return `<li><span>${srcTag(i.src)} ${esc(i.n)}${k.gel?' + gel-packs':''}${i.r&&!k.hb?` <span class="note">(${esc(i.r[2])} ${k.r})</span>`:''}${k.bp&&k.bp.length?`<div class="kfg">With ${esc(k.bp.join(', '))}</div>`:''}${BYID[k.id]&&kitForGun(k.id)?kitFgHTML(k,ix,KG):''}</span><span class="c">${fmt(p)}¥${es?` · ${es} Ess`:''}</span><button class="x" data-rm="${ix}" aria-label="Remove ${esc(i.n)}">×</button></li>`;}).join('');
+  let c=0,e=0,bt=0; const KG=kitGuns(); const rows=st.kit.map((k,ix)=>{const i=BYID[k.id]||{n:k.n,src:k.src||'core',cost:k.cost}; const p=kitPrice(k); const es=k.hb&&k.hc!=null?+(k.he||0):+(essAt(i,k.r)||0)*(k.q||1); c+=p; e+=es; bt+=+((i.bis?i.bis[k.r]:i.bi)||0);
+    return `<li><span>${srcTag(i.src)} ${esc(i.n)}${k.q>1?' × '+k.q:''}${k.gel?' + gel-packs':''}${i.r&&!k.hb&&!k.noR?` <span class="note">(${esc(i.r[2])} ${k.r})</span>`:''}${k.bp&&k.bp.length?`<div class="kfg">With ${esc(k.bp.join(', '))}</div>`:''}${BYID[k.id]&&kitForGun(k.id)?kitFgHTML(k,ix,KG):''}</span><span class="c">${fmt(p)}¥${es?` · ${es} Ess`:''}</span><button class="x" data-rm="${ix}" aria-label="Remove ${esc(i.n)}">×</button></li>`;}).join('');
   $('kit').innerHTML=`<div class="hd"><b>Shopping list</b><span class="tot">${fmt(c)}¥${e?` · ${Math.round(e*100)/100} Essence`:''}</span><button class="btn ghost" data-send="kit">Send to a character</button><button class="btn ghost" id="clearKit">Clear</button></div>${(()=>{const W=wishLines(OWNC,c,e,bt); return W?`<div class="wish"><b>${W.head.replace('this','the whole list')}</b><ul>${W.lines.map(x=>`<li>${x}</li>`).join('')}</ul></div>`:'';})()}<ul>${rows}</ul>`;
 }
 function select(id,scroll){
@@ -2121,7 +2122,8 @@ document.addEventListener('click',e=>{
   if(e.target.dataset&&e.target.dataset.send){ if(e.target.dataset.send==='kit'){ if(st.kit.length) sendGear(xferKit()); } else {const i=BYID[st.sel]; if(i) sendGear(xferItem(i));} return;}
   if(e.target.id==='sendClose'||e.target.id==='sendClose2'||e.target.id==='sendDlg'){$('sendDlg').hidden=true; return;}
   if(e.target.id==='sendCopy'){const t=$('sendCode'); t.select(); let ok=false; try{navigator.clipboard.writeText(t.value).then(()=>{e.target.textContent='Copied';},()=>{try{document.execCommand('copy');e.target.textContent='Copied';}catch(_){}});}catch(_){try{document.execCommand('copy');e.target.textContent='Copied';}catch(__){}} return;}
-  if(e.target.id==='addKit'){const i=BYID[st.sel]; st.kit.push(Object.assign({id:i.id,r:st.rate[i.id]??(i.r?(i.mult!=null?1000:i.r[0]):0)},gelOK(i)&&st.gel&&st.gel[i.id]?{gel:true}:{},kitForGun(i.id)&&st.fgSel&&st.fgSel[i.id]?{fg:st.fgSel[i.id]}:{})); save(); renderKit(); e.target.textContent='Added'; setTimeout(()=>{const b=$('addKit'); if(b) b.textContent='Add to shopping list';},1200); return;}
+  if(e.target.id==='addKit'){const i=BYID[st.sel]; const nl=Object.assign({id:i.id,r:st.rate[i.id]??(i.r?(i.mult!=null?1000:i.r[0]):0)},gelOK(i)&&st.gel&&st.gel[i.id]?{gel:true}:{},kitForGun(i.id)&&st.fgSel&&st.fgSel[i.id]?{fg:st.fgSel[i.id]}:{});
+    const same=st.kit.find(k=>k.id===nl.id&&k.r===nl.r&&!!k.gel===!!nl.gel&&(k.fg||'')===(nl.fg||'')&&!k.build&&!k.hb&&!k.vb&&k.pc==null&&!kitFeed(i)); if(same) same.q=(same.q||1)+1; else st.kit.push(nl); save(); renderKit(); e.target.textContent='Added'; setTimeout(()=>{const b=$('addKit'); if(b) b.textContent='Add to shopping list';},1200); return;}
   if(e.target.id==='addBuild'){const g=BYID[st.sel]; const C=buildCalc(g); const B=JSON.parse(JSON.stringify(bstate(g)));
     // one line: the gun carries its add-ons, so the Runner Builder gets them fitted
     st.kit.push(C.chosen.length?{id:g.id,r:0,build:B,bc:C.cost,bp:C.chosen.map(p=>p.n+(p.extra?' (with link modification)':''))}:{id:g.id,r:0});
@@ -2141,14 +2143,17 @@ document.addEventListener('click',e=>{
     const ex=C.rows.filter(x=>!x.fixed).map(x=>x.n).concat((C.extras||[]).map(x=>x.n));
     st.kit.push({id:i.id,r:0,hb:JSON.parse(JSON.stringify(S)),hc:C.total,he:C.ess||0,bp:[...(C.hr?[`Rating ${C.hr}`]:[]),...(S.single?['single eye']:[]),...(C.rows.some(x=>x.fixed)?['helmet']:HB.kind(i.id)==='secarmor'?['no helmet']:[]),...ex]}); save(); renderKit(); e.target.textContent='Added'; setTimeout(()=>{const b=$('addHost'); if(b) b.textContent='Add to shopping list';},1200); return;}
   if(e.target.id==='clrVeh'){const i=BYID[st.sel]; delete st.vbuild[i.id]; save(); renderTag(); return;}
-  if(e.target.id==='addVeh'){const i=BYID[st.sel]; const {B,v}=vbFix(i); const R=VB.calc(v,B); st.kit.push({id:i.id});
-    if(R.rows.length) st.kit.push({n:`Mods for ${i.n}: ${R.rows.map(r=>r.d.n+(r.d.kind==='flag'?'':' '+r.l)).join(', ')}`,cost:R.cost,src:'r2'});
+  if(e.target.id==='addVeh'){const i=BYID[st.sel]; const {B,v}=vbFix(i); const R=VB.calc(v,B); st.kit.push({id:i.id,r:0,vb:JSON.parse(JSON.stringify(B)),pc:(costAt(i,0)||0)+(R.cost||0),bp:R.rows.map(r=>r.d.n+(r.d.kind==='flag'?'':' '+r.l))});
     save(); renderKit(); e.target.textContent='Added'; setTimeout(()=>{const b=$('addVeh'); if(b) b.textContent='Add vehicle and mods to shopping list';},1200); return;}
   if(e.target.id==='clrDeck'){const i=BYID[st.sel]; delete st.dbuild[i.id]; save(); renderTag(); return;}
   if(e.target.id==='addDeck'){const i=BYID[st.sel]; const C=deckCalc(i);
-    if(i.vr2deck) st.kit.push({n:`Custom cyberdeck (VR2), MPCP ${C.M}`,cost:C.cost-C.U.reduce((a,x)=>a+x.c,0),src:'vr2'});
-    else C.parts.filter(p=>!C.U.some(x=>p.n===`${x.it.n} ${x.u.r}`)).forEach((p,ix)=>st.kit.push(ix===0?{id:i.id,r:0}:{n:p.n+' ('+i.n+')',cost:p.c,src:'core'}));
-    C.U.forEach(x=>st.kit.push({id:x.it.id,r:x.u.r}));
+    const X=xferItem(i), uc=C.U.reduce((a,x)=>a+x.c,0);
+    if(i.vr2deck) st.kit.push({id:'deck:Custom cyberdeck (VR2 à la carte)',r:0,v2:X.vr2deck,pc:C.cost-uc,bp:[`MPCP ${C.M}`]});
+    else{const hw=X.items.filter(x=>!C.U.some(u=>u.it.id===x.key)); let rest=C.cost-uc;
+      hw.forEach((x,ix)=>{const it=BYID[x.key]; const q=x.qty||1; const pc=ix===0?null:(costAt(it,x.r)||0)*q; const line={id:x.key,r:x.r||0,q,noR:/Response Increase|Hitcher/.test(x.key)};
+        if(ix>0){line.pc=pc; rest-=pc;} st.kit.push(line);});
+      const base=st.kit[st.kit.length-hw.length]; if(base) base.pc=rest;}
+    C.U.forEach(x=>st.kit.push({id:x.it.id,r:x.u.r,loaded:!!x.u.loaded}));
     save(); renderKit(); e.target.textContent='Added'; setTimeout(()=>{const b=$('addDeck'); if(b) b.textContent='Add deck and programs to shopping list';},1200); return;}
   if(e.target.id==='clrBuild'){const g=BYID[st.sel]; const B=bstate(g); Object.keys(B).forEach(k=>{if(!['link','ammo'].includes(k)) delete B[k];}); save(); renderTag(); return;}
   if(e.target.dataset.rm!=null){st.kit.splice(+e.target.dataset.rm,1); save(); renderKit(); return;}

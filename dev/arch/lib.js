@@ -21,6 +21,7 @@ module.exports=function(page,log){
         if(spec){const ss=await p.$(`#s_s_${i}`); if(ss){if((await ss.evaluate(e=>e.tagName))==='SELECT') await p.selectOption(`#s_s_${i}`,{label:spec}).catch(()=>L(`spec "${spec}" not offered`)); else await p.fill(`#s_s_${i}`,spec);}}}
       return i;},
     async lang(name,r){await p.click('#addLang'); const i=(await p.$$('#sec-skills input[id^="lg_n_"]')).length-1; await p.fill(`#lg_n_${i}`,name); await p.fill(`#lg_r_${i}`,String(r)); await p.press(`#lg_r_${i}`,'Tab'); await p.waitForTimeout(420);},
+    async raisePower(type,level){const n=(await p.$$('#magicCard select[id^="p_ty_"]')).length; for(let i=0;i<n;i++){const t=await p.$eval(`#p_ty_${i}`,e=>e.options[e.selectedIndex].text).catch(()=>''); if(t.startsWith(type)){await p.selectOption(`#p_level_${i}`,{label:level}).catch(()=>L(`can't set ${type} to ${level}`)); await p.waitForTimeout(150); return;}} L(`no ${type} row to raise`);},
     async power(type,level,extra){await p.click('#addPower'); const i=(await p.$$('#magicCard select[id^="p_ty_"]')).length-1;
       await p.selectOption(`#p_ty_${i}`,{label:type}).catch(()=>L(`power "${type}" not offered`)); await p.waitForTimeout(60);
       if(level!=null){const s=await p.$(`#p_level_${i}`); if(s) await p.selectOption(`#p_level_${i}`,{label:level}).catch(async()=>{L(`power level "${level}" not offered for ${type}: ${(await s.evaluate(e=>[...e.options].map(o=>o.text).join('/')))}`);});}
@@ -60,3 +61,38 @@ module.exports=function(page,log){
   };
   return self;
 };
+
+// ---- established-runner steps and the Gear Locker (phase 2) ----
+module.exports.est=function(p,log){const L=m=>log.push(m); const T=420;
+ const type=async(sel,v)=>{await p.fill(sel,String(v)); await p.press(sel,'Tab'); await p.waitForTimeout(T);};
+ return {
+  async established(){await p.check('#established'); await p.waitForTimeout(200);},
+  async karma(n){await type('#kEarned',n);},
+  async startingCash(){const t=await p.$eval('#sec-gear',e=>{const m=e.innerText.match(/Starting cash\s+([\d,]+)¥\s*$/m)||e.innerText.match(/Starting cash[^\n]*\n?\s*([\d,]+)¥/); return m?m[1]:null;}); if(!t){L('could not read starting cash'); return 0;} const v=+t.replace(/,/g,''); await type('#nuyenNow',v); return v;},
+  async payout(amt,note){await p.fill('#nyAmt',String(amt)); await p.fill('#nyNote',note); await p.click('#nyAdd'); await p.waitForTimeout(200);},
+  async raise(start){const v=await p.$eval('#advPick',(s,st)=>{const o=[...s.options].find(o=>o.text.startsWith(st)); return o?o.value:null;},start); if(!v){L(`no Karma option "${start}"`); return false;} await p.selectOption('#advPick',v); await p.click('#advBuy'); await p.waitForTimeout(200); return true;},
+  async learn(name){await p.fill('#advNewName',name); await p.click('#advNew'); await p.waitForTimeout(200);},
+  async initiate(how){const box=await p.$('#initBox'); if(!box||await box.evaluate(e=>e.hidden)){L('no initiation option shown'); return false;} await p.selectOption('#initHow',how); await p.click('#initBuy'); await p.waitForTimeout(200); return true;},
+  async karmaLeft(){return p.$eval('#advAvail',e=>e.innerText).catch(()=>'?');},
+  async nuyen(){return p.$eval('#nuyenNow',e=>e.value);},
+ };};
+module.exports.locker=function(lp,log){const L=m=>log.push(m); const FILE='file://'+process.cwd()+'/SR2_Gear_Locker.html';
+ const slug=k=>k.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+ return {
+  async open(){await lp.goto(FILE); await lp.waitForTimeout(400); await lp.evaluate(()=>{});},
+  async item(key,o={}){await lp.goto(FILE+'#'+slug(key)); await lp.waitForTimeout(300);
+    const title=await lp.$eval('#tag h2,#tag h1,#tag .tt',e=>e.innerText).catch(()=>''); 
+    if(o.rating!=null){const r=await lp.$('#rsl'); if(r){await r.evaluate((e,v)=>{e.value=v; e.dispatchEvent(new Event('input',{bubbles:true})); e.dispatchEvent(new Event('change',{bubbles:true}));},String(o.rating)); await lp.waitForTimeout(120);} else L(`${key}: no rating slider`);}
+    if(o.slots){for(const [slot,lab] of Object.entries(o.slots)){const sel=`#tag select[data-gbs="L"][data-slot="${slot}"]`; const v=await lp.$$eval(sel+' option',(op,l)=>{const m=op.find(x=>!x.disabled&&x.text.includes(l)); return m?m.value:null;},lab).catch(()=>null); if(v==null){L(`${key}: no "${lab}" for the ${slot} slot`); continue;} await lp.selectOption(sel,v); await lp.waitForTimeout(120);}}
+    if(o.ticks){for(const n of o.ticks){const ok=await lp.evaluate(n=>{for(const b of document.querySelectorAll('#tag input[type=checkbox]')){const lab=b.closest('label'); if(lab&&lab.innerText.trim()===n){if(b.disabled) return 'disabled'; if(!b.checked) b.click(); return 'ok';}} return 'none';},n); if(ok!=='ok') L(`${key}: option "${n}" ${ok}`); await lp.waitForTimeout(120);}}
+    if(o.untick){for(const n of o.untick){await lp.evaluate(n=>{for(const b of document.querySelectorAll('#tag input[type=checkbox]')){const lab=b.closest('label'); if(lab&&lab.innerText.trim().startsWith(n)&&b.checked) b.click();}},n); await lp.waitForTimeout(120);}}
+    if(o.forGun){const v=await lp.$$eval('#tfg option',(op,l)=>{const m=op.find(x=>x.text.includes(l)); return m?m.value:null;},o.forGun).catch(()=>null); if(v) {await lp.selectOption('#tfg',v);} else L(`${key}: no gun "${o.forGun}" offered`);}
+    const btn=await lp.$('#addBuild')||await lp.$('#addHost')||await lp.$('#addVeh')||await lp.$('#addDeck')||await lp.$('#addKit'); if(!btn){L(`${key}: no add button (${title||'item not found'})`); return false;}
+    for(let i=0;i<(o.qty||1);i++){await btn.click(); await lp.waitForTimeout(120);} return true;},
+  async total(){return lp.$eval('#kit .tot',e=>e.innerText).catch(()=>'?');},
+  async send(){await lp.click('#kit [data-send="kit"]'); await lp.waitForTimeout(250);},
+  async clear(){const b=await lp.$('#clearKit'); if(b){await b.click(); await lp.waitForTimeout(150);}},
+ };};
+module.exports.pickup=async function(p,log){await p.reload(); await p.waitForTimeout(500); const bar=await p.$('#xferBar'); if(!bar||await bar.evaluate(e=>e.hidden)){log.push('Gear Locker send not offered in the Builder'); return null;}
+  const txt=await bar.innerText(); const pay=await p.$('#xferPay'); const payOn=pay?await pay.isChecked():null; await p.click('#xferAdd'); await p.waitForTimeout(400);
+  return {bar:txt.replace(/\s+/g,' ').slice(0,300),payOn,msg:await p.$eval('#saveState',e=>e.innerText).catch(()=>'')};};
