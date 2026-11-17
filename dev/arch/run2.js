@@ -26,7 +26,7 @@ for(const key of Object.keys(S2)){ if(want!=='all'&&want!==key) continue; const 
   await mark('final'); notes[notes.length-1].summary=await u.summary();
   await u.shot(`arch/out2/${key}.png`);
   for(const id of ['magicCard','deckCard','rigCard','sec-play','sec-gear']){const el=await page.$('#'+id); if(el&&await el.isVisible()) await el.screenshot({path:`arch/out2/${key}__${id}.png`}).catch(()=>{});}
-  try{await u.exportSheet(`arch/out2/${key}_sheet.html`);}catch(e){log.push('export failed');}
+  try{await u.exportSheet(`arch/out2/${key}_sheet.html`); await u.exportJson(`arch/out2/${key}.char.json`);}catch(e){log.push('export failed '+e.message.split('\n')[0]);}
   fs.writeFileSync(`arch/out2/${key}.json`,JSON.stringify({log,errs,notes},null,1));
   console.log('==',key,'| log:',log.join(' ; ')||'-','| errs:',errs.join(' ; ')||'-');
   for(const n of notes) console.log('  @'+n.at+': '+(n.check?n.check.slice(0,600):'')+(n.avail?' | KARMA '+n.avail:'')+(n.nuyen!==undefined&&n.nuyen!==''?' | ¥ '+n.nuyen:'')+(n.total?' TOTAL '+n.total:'')+(n.pk?' PICKUP '+JSON.stringify(n.pk).slice(0,400):''));

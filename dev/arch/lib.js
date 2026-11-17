@@ -56,6 +56,8 @@ module.exports=function(page,log){
     async check(){return p.$eval('#sec-check',e=>e.innerText.replace(/\n+/g,' | ')).catch(()=>'');},
     async summary(){return p.$eval('#sec-sum',e=>e.innerText.replace(/\n+/g,' | ')).catch(()=>'');},
     async inline(){return p.$$eval('.bad-text,.warn-text,.err',x=>x.filter(e=>e.offsetParent&&e.innerText.trim()).map(e=>e.innerText.trim().slice(0,160)));},
+    async exportJson(path){const [dl]=await Promise.all([p.waitForEvent('download'),p.click('#expJson')]); await dl.saveAs(path);},
+    async openJson(path){await p.setInputFiles('#openJson',path); await p.waitForTimeout(200); const ok=await p.$('#cfYes'); if(ok) await ok.click(); await p.waitForTimeout(300);},
     async exportSheet(path){const [dl]=await Promise.all([p.waitForEvent('download'),p.click('#expSheet')]); await dl.saveAs(path);},
     async shot(path){await p.screenshot({path,fullPage:true});},
   };

@@ -106,6 +106,8 @@ ul.issues li.info{border-left-color:var(--accent);background:var(--accent-soft)}
 .track{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:0.25rem}
 .track button{aspect-ratio:1;padding:0;font-family:var(--f-mono);font-size:0.6875rem;font-weight:500;background:var(--bg);max-width:100%}
 .track button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.track .ovf{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:0.25rem;align-items:center;margin-top:0.25rem}.track .ovf .small{width:100%;color:var(--muted)}.track .ovf button{width:2rem;aspect-ratio:auto;height:2rem}.track .ovf button.on{background:var(--bad,#b3261e);border-color:var(--bad,#b3261e);color:#fff}.track .ovf button.die{border-style:dashed}
+.injg{display:grid;grid-template-columns:repeat(auto-fill,minmax(7.5rem,1fr));gap:0.5rem}.injg input{width:4rem}
 .track button.mark{border-width:2px}
 .result{font-family:var(--f-mono);font-size:0.8125rem;color:var(--muted)}
 .bad-text{color:var(--bad)} .ok-text{color:var(--ok)}
@@ -380,6 +382,11 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
           <div><h3>Stun</h3><div class="track" id="trkStun"></div></div>
         </div>
         <p class="note" id="woundNote"></p>
+        <details id="injBox"><summary><b>Lasting injuries</b> <span class="note" id="injSum"></span></summary>
+          <p class="note">From a Deadly wound's Body Test (p. 113–114): each lost attribute point also lowers that attribute's racial maximum. Awakened runners who reach Deadly check for Magic loss (p. 115). Karma can buy lost points back (p. 190).</p>
+          <div class="injg" id="injFields"></div>
+          <label for="injNote">Other lasting damage (a lost limb or eye, a failing transplant)<input id="injNote" data-inj="note" placeholder="e.g. right arm mangled, cyberarm fitted"></label>
+        </details>
         <div class="grid2">
           <label for="kEarned">Good Karma earned<input id="kEarned" type="number" min="0"></label>
           <label for="kSpent">Other Karma spent<input id="kSpent" type="number" min="0"></label>
@@ -447,7 +454,7 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1794898961616","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwkchyge","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794898961596}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1794901523643","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwke0vc5","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1794901523632}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--paper',panel2:'--soft',ink:'--ink',muted:'--muted',line:'--line',accent:'--accent',accentInk:'--accent-ink',accentSoft:'--accent-soft',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skillweb*/
@@ -1033,7 +1040,9 @@ function stashPlaces(){const P=(Array.isArray(S.places)&&S.places.length?S.place
 const isVehG=g=>!!g&&(g.cat==='veh'||g.cat==='r2veh');
 const isVehPlace=n=>S.gear.some(g=>isVehG(g)&&GEARDB[g.key]&&GEARDB[g.key].n===n);
 function stashSync(){S.gear.forEach(g=>{if(g.at&&!stashable(g)) delete g.at; if(g.at&&isVehG(g)&&GEARDB[g.key]&&GEARDB[g.key].n===g.at) delete g.at;});}
-function stackable(g){const w=WSTAT[g.key]; return !!GEARDB[g.key]&&(!w||w[0]==='grenade')&&!MSTAT[g.key]&&!g.build&&!g.vb&&!g.hb&&!g.gel&&!g.loaded&&!g.note&&!g.grade&&g.cat!=='veh'&&!(g.at);}
+// implants never stack: a second set of pheromones is not a thing
+const IMPLANT_CATS=new Set(['head','body','bio','veh','r2veh','deck','prog','prog2','rc','magic','soft']); // implants, vehicles, decks, programs, foci
+function stackable(g){const w=WSTAT[g.key], it=GEARDB[g.key]; return !!it&&!IMPLANT_CATS.has(it.cat)&&!it.e&&(!w||w[0]==='grenade')&&!MSTAT[g.key]&&!g.build&&!g.vb&&!g.hb&&!g.gel&&!g.loaded&&!g.note&&!g.grade&&g.cat!=='veh'&&!(g.at);}
 function plainRow(g){return !!GEARDB[g.key]&&!WSTAT[g.key]&&!MSTAT[g.key]&&!g.build&&!g.vb&&!g.hb&&!g.gel&&!g.loaded&&!g.note&&!g.gid&&g.cat!=='veh'&&!g.grade;}
 function stashMove(i,to,one){const g=S.gear[i]; if(!g||!stashable(g)) return; to=to||'';
   if(one&&(+g.qty||1)>1){g.qty=(+g.qty||1)-1; const c=JSON.parse(JSON.stringify(g)); c.qty=1; delete c.gid; delete c.used; if(to) c.at=to; else delete c.at; S.gear.push(c); i=S.gear.length-1;}
@@ -1196,7 +1205,10 @@ CAT.soft.forEach(it=>{it.cat='soft';GEARDB['soft:'+it.n]=it;}); GEARDB['deck:Rem
 
 // ---------- karma advancement (p. 190) ----------
 function advFor(kind,key){return (S.adv||[]).filter(a=>a.kind===kind&&a.key===key).reduce((m,a)=>Math.max(m,+a.to||0),0);}
-function attrNow(k){return Math.max(attrFinal(k),advFor('attr',k));}
+// lasting damage from Deadly wounds (core p. 113-114) and Magic lost to them (p. 115): S.inj = {body,quick,str,int,wil,rea,magic,note}
+function natBody(){return Math.max(1,attrNow('body'));} // natural Body sets how far past Deadly a runner can go (core p. 111)
+function injLoss(k){return Math.max(0,Math.floor(+((S.inj||{})[k])||0));}
+function attrNow(k){return Math.max(attrFinal(k),advFor('attr',k))-injLoss(k);}
 function skillParts(s){ // returns [{part,label,r}] at current (advanced) ratings
   if(!s.name) return [];
   const r=+s.rating||0; const out=[];
@@ -1209,7 +1221,7 @@ function skillParts(s){ // returns [{part,label,r}] at current (advanced) rating
 function advSkills(){return (S.adv||[]).filter(a=>a.kind==='newskill').reduce((m,a)=>{m[a.label]=Math.max(m[a.label]||0,+a.to);return m;},{});}
 function advTargets(){
   const t=[];
-  ATTRS.forEach(([k,l])=>{const cur=attrNow(k);const to=cur+1;const over=to>attrMax(k);const way=to>Math.floor(attrMax(k)*1.5);t.push({id:'attr:'+k,label:`${l} ${cur} → ${to}${way?' ⚠ past 1.5 × racial max: the book says GMs should discourage this':over?' (above racial max, GM approval)':''}`,cost:over?2*to:to,entry:{kind:'attr',key:k,to,label:l}});});
+  ATTRS.forEach(([k,l])=>{const cur=attrNow(k);const to=cur+1;const over=to>attrMax(k);const way=to>Math.floor(attrMax(k)*1.5);t.push({id:'attr:'+k,label:`${l} ${cur} → ${to}${way?' ⚠ past 1.5 × racial max: the book says GMs should discourage this':over?' (above racial max, GM approval)':''}`,cost:over?2*to:to,entry:{kind:'attr',key:k,to:to+injLoss(k),label:l}});});
   S.skills.forEach(s=>{skillParts(s).forEach(p=>{const to=p.r+1;const mult=p.part==='gen'?2:p.part==='conc'?1.5:1;t.push({id:`sk:${s.name}:${p.part}:${p.label}`,label:`${p.label} (${p.part==='gen'?'skill':p.part==='conc'?'concentration':'specialization'}) ${p.r} → ${to}`,cost:Math.ceil(mult*to),entry:{kind:'skill',skill:s.name,part:p.part,label:p.label,to}});});});
   Object.entries(advSkills()).forEach(([n,r])=>t.push({id:'ns:'+n,label:`${n} ${r} → ${r+1}`,cost:2*(r+1),entry:{kind:'newskill',label:n,to:r+1}}));
   // a higher Force means re-learning the spell: Karma equal to the new Force, not step by step (p. 128, 133)
@@ -1222,7 +1234,7 @@ function advTargets(){
 const INIT_HOW={self:[3,'Self-initiation'],group:[2,'Group initiation'],selfOrd:[2.5,'Self-initiation with an ordeal'],groupOrd:[1.5,'Group initiation with an ordeal']};
 function initGrade(){return (S.adv||[]).filter(a=>a.kind==='init').reduce((m,a)=>Math.max(m,+a.grade),-1);}
 function initCost(g,how){return Math.floor((6+g)*INIT_HOW[how][0]);}
-function magicNow(){if(S.magic==='none') return 0; return Math.max(0,Math.floor(6-essenceUsed()))+Math.max(0,initGrade());}
+function magicNow(){if(S.magic==='none') return 0; return Math.max(0,Math.max(0,Math.floor(6-essenceUsed()))+Math.max(0,initGrade())-injLoss('magic'));}
 // foci: bonded with Force Points at creation, or with Karma later (p. 137)
 function canBondFocus(g){return !!BOND[g.key]&&(isMagician()||(S.magic==='adept'&&/Weapon Focus/.test(g.key)));} // adepts may use weapon foci (AW p. 114)
 function focusBonded(g){return !S.established||g.bondPaid==='fp'||(S.adv||[]).some(a=>a.kind==='bond'&&a.fid===g.fid);}
@@ -1633,9 +1645,14 @@ function renderExtras(){
   $('skillQuick').innerHTML=skillQuickHTML(); $('powerQuick').innerHTML=powerQuickHTML();
   // nuyen log
   $('nyLog').innerHTML=(S.nyLog||[]).map((e,i)=>({e,i})).reverse().map(({e,i})=>`<tr><td class="mono small">${esc(e.d||'')}</td><td>${esc(e.note||(e.amt>=0?'Added':'Spent'))}</td><td class="n mono ${e.amt<0?'bad-text':''}">${e.amt>=0?'+':'−'}${fmt(Math.abs(e.amt))}</td><td><button class="x" data-nyrm="${i}" aria-label="Undo this entry">×</button></td></tr>`).join('')||`<tr><td colspan="4" class="note">No entries yet.</td></tr>`;
+  // lasting injuries
+  {const J=S.inj||{}, F=[['body','Body'],['quick','Quickness'],['str','Strength'],['int','Intelligence'],['wil','Willpower'],['rea','Reaction'],...(S.magic!=='none'?[['magic','Magic']]:[])];
+    if(!$('injFields').contains(document.activeElement)) $('injFields').innerHTML=F.map(([k,l])=>`<label for="inj_${k}">${l} lost<input type="number" min="0" max="6" id="inj_${k}" data-inj="${k}" value="${+J[k]||0}"></label>`).join('');
+    if(document.activeElement!==$('injNote')) $('injNote').value=J.note||'';
+    const lst=F.filter(([k])=>+J[k]).map(([k,l])=>`${l} −${J[k]}`).concat(J.note?[J.note]:[]); $('injSum').textContent=lst.length?'· '+lst.join(', '):''; if(lst.length) $('injBox').open=true;}
   // wounds
   const wm=woundMods();
-  $('woundNote').innerHTML=wm.out?'<b>Out of action</b>: unconscious, or dying if the Physical track is full (p. 112).':wm.m?`<b>Wound modifier +${wm.m}</b> to target numbers and <b>−${wm.m}</b> to Reaction for Initiative. Stun and Physical add together (p. 112).${wm.pain?` Pain Resistance ignores the first ${wm.pain} boxes.`:''}`:'Uninjured. Boxes 1, 3, 6 and 10 mark Light (+1), Moderate (+2), Serious (+3) and Deadly. Stun and Physical modifiers add together.';
+  $('woundNote').innerHTML=S.phys>10+natBody()?`<b class="bad-text">Dead.</b> Physical damage went more than Body (${natBody()}) boxes past the track (p. 111).`:S.phys>10?`<b class="bad-text">Dying:</b> ${S.phys-10} of ${natBody()} overflow boxes. Unattended, +1 box every 10 minutes; first aid or a trauma patch stabilizes (p. 111, 115). A Deadly wound means a Body Test for lasting damage once treated (p. 113): record any under Lasting injuries.`:S.phys>=10?'<b>Deadly:</b> unconscious. Once treated, make the Body Test for lasting damage (p. 113) and, for the Awakened, the Magic loss check (p. 115).':wm.out?'<b>Out of action</b>: unconscious (p. 112).':wm.m?`<b>Wound modifier +${wm.m}</b> to target numbers and <b>−${wm.m}</b> to Reaction for Initiative. Stun and Physical add together (p. 112).${wm.pain?` Pain Resistance ignores the first ${wm.pain} boxes.`:''}`:'Uninjured. Boxes 1, 3, 6 and 10 mark Light (+1), Moderate (+2), Serious (+3) and Deadly. Stun and Physical modifiers add together.';
   // roster
   const ro=roster(); $('rosterSel').innerHTML=ro.map(c=>`<option value="${c.id}" ${c.id===S.id?'selected':''}>${esc(c.label)}</option>`).join('');
 }
@@ -3035,7 +3052,7 @@ function sessionSet(on,save){document.body.classList.toggle('session',on); const
 function reactionVal(){const q=attrEff('quick')+bioAug('quick'),i=attrNow('int')+bioAug('int'); const ad=adeptOn();
   const incR=ad?S.powers.filter(p=>p.type==='incReaction').reduce((a,p)=>a+(+p.n||0),0):0;
   const wired=S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0), boosted=gearLevel('body:Boosted Reflexes');
-  return Math.floor((q+i)/2)+(has('bio:Suprathyroid Gland')?1:0)+incR+2*wired+[0,0,1,2][boosted]+gearLevel('body:Reaction Enhancer')+(S.gear.some(g=>g.key==='bio:Enhanced Articulation')?1:0);}
+  return Math.floor((q+i)/2)-injLoss('rea')+(has('bio:Suprathyroid Gland')?1:0)+incR+2*wired+[0,0,1,2][boosted]+gearLevel('body:Reaction Enhancer')+(S.gear.some(g=>g.key==='bio:Enhanced Articulation')?1:0);}
 // ---------- Defaulting on the Skill Web (core p. 66, 68–70; adepts p. 125) ----------
 // Related skill: roll its general rating (never a concentration or specialization), +2 TN per circle passed.
 // Attribute: roll the attribute, +2 TN per circle. Arrows block. Improved Ability dice drop by 1 per circle.
@@ -3136,7 +3153,7 @@ function powerDetails(p,i){
       return `<div class="row"><input id="p_n_${i}" data-pw="${i}" data-f="name" value="${esc(p.name)}" placeholder="Power name"><input type="number" step="0.25" min="0" id="p_c_${i}" data-pw="${i}" data-f="cost" value="${p.cost||0}" aria-label="Cost"><input id="p_t_${i}" data-pw="${i}" data-f="note" value="${esc(p.note)}" placeholder="Effect, page"></div>`;
   }
 }
-function attrMax(k){const r=R();return (r.max&&r.max[k])||6+(r.mod[k]||0);}
+function attrMax(k){const r=R();return ((r.max&&r.max[k])||6+(r.mod[k]||0))-injLoss(k);}
 function skillRatings(s){
   if((S.adv||[]).some(a=>a.kind==='skill'&&a.skill===s.name)) return skillParts(s).map(p=>`${p.label} ${p.r}`).join(' / ');
   const r=+s.rating||0; if(!s.name) return '';
@@ -3204,7 +3221,7 @@ function render(){
   // magic
   const card=$('magicCard'); card.hidden=S.magic==='none';
   const magicRating=magicNow();
-  if(S.magic==='adept'){ $('magicTitle').textContent='Adept powers'; const ig=Math.max(0,initGrade()), el=S.magic==='none'?0:6-Math.max(0,Math.floor(6-essenceUsed())); $('magicNote').innerHTML=`Adepts get Power Points equal to their Magic Rating (${magicRating}${ig||el?`: 6${ig?` + ${ig} initiation`:''}${el?` − ${el} for Essence lost`:''}`:''}) <span class="pg">p. 125</span>.`; }
+  if(S.magic==='adept'){ $('magicTitle').textContent='Adept powers'; const ig=Math.max(0,initGrade()), el=S.magic==='none'?0:6-Math.max(0,Math.floor(6-essenceUsed())), ml=injLoss('magic'); $('magicNote').innerHTML=`Adepts get Power Points equal to their Magic Rating (${magicRating}${ig||el||ml?`: 6${ig?` + ${ig} initiation`:''}${el?` − ${el} for Essence lost`:''}${ml?` − ${ml} lost to wounds`:''}`:''}) <span class="pg">p. 125</span>.`; }
   else { $('magicTitle').textContent='Spells and foci'; $('magicNote').innerHTML=S.established?`Established runner: a new spell costs Good Karma equal to its Force <span class="pg">p. 133</span>, logged when you add it. Raise a spell’s Force or bond a new focus under Spend Good Karma <span class="pg">p. 137</span>.`:`Magicians spend Force Points from the Resources priority on spells and bonding foci <span class="pg">p. 46–47</span>.`; }
   let pSpent=0;
   if(S.magic==='adept'){
@@ -3268,7 +3285,7 @@ function render(){
   // summary
   renderDefaulting();
   summary(magicRating,rSpent,rBudget); jumpLinks();
-  S._calc={ess:+(6-essenceUsed()).toFixed(3),bi:+bodyIndexUsed().toFixed(3),biMax:bodyIndexMax(),awake:S.magic!=='none',adept:S.magic==='adept',init:Math.max(0,initGrade()),magic:S.magic==='none'?0:magicRating,nuyen:S.nuyenNow===''||S.nuyenNow==null?null:+S.nuyenNow,resLeft:rBudget?rBudget-rSpent:null,est:!!S.established,at:Date.now()};
+  S._calc={ess:+(6-essenceUsed()).toFixed(3),bi:+bodyIndexUsed().toFixed(3),biMax:bodyIndexMax(),awake:S.magic!=='none',adept:S.magic==='adept',init:Math.max(0,initGrade())-injLoss('magic'),magic:S.magic==='none'?0:magicRating,nuyen:S.nuyenNow===''||S.nuyenNow==null?null:+S.nuyenNow,resLeft:rBudget?rBudget-rSpent:null,est:!!S.established,at:Date.now()};
   $('exportBox').value=btoa(unescape(encodeURIComponent(JSON.stringify(S))));
   save();
 }
@@ -3278,6 +3295,7 @@ function budgetHTML(label,spent,budget,money,soft){
   return `<div class="row" style="justify-content:space-between"><span class="small"><b>${label}</b></span><span class="pill ${!budget?'':over?'bad':full?'ok':''}">${nf(spent)}${u} / ${budget?fmt(budget)+u:'pick a priority'}</span></div><div class="bar ${over?'over':full?'full':''}"><i style="width:${pct}%"></i></div>`;
 }
 function track(id,val,key){
+  if(key==='phys'){const B=natBody(); $(id).innerHTML=Array.from({length:10},(_,i)=>`<button class="${i<val?'on':''} ${[0,2,5,9].includes(i)?'mark':''}" data-trk="${key}" data-v="${i+1}" aria-label="${key} box ${i+1}">${i+1}</button>`).join('')+`<div class="ovf"><span class="small">Overflow (dying), up to Body ${B}:</span>${Array.from({length:B+1},(_,i)=>`<button class="${10+i<val?'on':''} ${i===B?'die':''}" data-trk="phys" data-v="${11+i}" aria-label="overflow box ${i+1}${i===B?': dead':''}">${i===B?'✝':'+'+(i+1)}</button>`).join('')}</div>`; return;}
   $(id).innerHTML=Array.from({length:10},(_,i)=>`<button class="${i<val?'on':''} ${[0,2,5,9].includes(i)?'mark':''}" data-trk="${key}" data-v="${i+1}" aria-label="${key} box ${i+1}">${i+1}</button>`).join('');
 }
 function summary(magicRating,rSpent,rBudget){
@@ -3305,6 +3323,7 @@ function summary(magicRating,rSpent,rBudget){
   if(isMagician()) rows.push(['Magic Pool',sorc]);
   if(S.magic!=='none'&&initGrade()>=0) rows.push(['Initiate grade',`${initGrade()} · Astral Pool ${initGrade()}`]);
   {const vcr=gearLevel('body:Vehicle Control Rig'); if(vcr) rows.push(['Control Pool',baseReact+2*vcr]);}
+  if(S.phys>10+natBody()) rows.unshift(['Status','Dead']); else if(S.phys>10) rows.unshift(['Status',`Past Deadly: ${S.phys-10} of ${natBody()} overflow`]); else if(S.phys>=10||S.stun>=10) rows.unshift(['Status','Unconscious']);
   if(wmod.m) rows.push(['Wound modifier',`+${wmod.m} TN`]);
   const mx=matrixInfo();
   if(mx&&(mx.vr2||mx.hasDeck||comp)) rows.push([mx.vr2||mx.hasDeck?'Hacking Pool':'Hacking Pool (with a deck)',mx.pool]);
@@ -3332,7 +3351,7 @@ function summary(magicRating,rSpent,rBudget){
   if(!S.optEF&&(S.ef||[]).length) iss.push(['warn','Edges and Flaws are switched off, so the ones picked are ignored.']);
   if(R().base&&!S.optMeta) iss.push(['warn',`${S.race} is a Companion metavariant, but metavariants are switched off.`]);
   if(nb&&!raceAllowed(S.race)) iss.push(['bad',`${S.race} isn't allowed at Race ${S.prio.race||'(none)'} under these rules.`]);
-  {const eU=essenceUsed(); if(S.magic!=='none'&&eU>0){const m=magicNow(); iss.push(['warn',`Essence ${+(6-eU).toFixed(2)} lowers Magic to ${m}${initGrade()>0?` (with initiation)`:''}${S.magic==='adept'?`, so ${m} power points`:''} (p. 42). Implants cost the Awakened magic.`]);}}
+  {const eU=essenceUsed(); if(S.magic!=='none'&&eU>0){const m=magicNow(); iss.push(['warn',`Essence ${+(6-eU).toFixed(2)} lowers Magic to ${m}${initGrade()>0?` (with initiation${injLoss('magic')?`, after ${injLoss('magic')} lost to wounds`:''})`:injLoss('magic')?` (after ${injLoss('magic')} lost to wounds)`:''}${S.magic==='adept'?`, so ${m} power points`:''} (p. 42). Implants cost the Awakened magic.`]);}}
   if(nb&&!magicAllowed(S.magic)) iss.push(['bad',`${MAGIC_TYPES.find(m=>m[0]===S.magic)[1]} needs Magic priority ${magicNeed(S.magic)}${S.prio.magic?` (you have ${S.prio.magic})`:''}.`]);
   if(nb&&S.magic==='none'&&S.prio.magic&&['A','B'].includes(S.prio.magic)) iss.push(['warn',`Magic ${S.prio.magic} is assigned but the character is mundane. That priority is wasted.`]);
   const aBudget=S.prio.attr?ATTR_PTS[S.prio.attr]:0; const aSpent=ATTRS.reduce((a,[k])=>a+(+S.attrs[k]||0),0);
@@ -3382,6 +3401,12 @@ function summary(magicRating,rSpent,rBudget){
   if(booksOn().r2&&gearLevel('body:Vehicle Control Rig')&&deckInfo()) iss.push(['warn',`Rigger decking: +1 to all Matrix target numbers and Hacking Pool −${gearLevel('body:Vehicle Control Rig')} (R2 p. 16).`]);
   if(adeptOn()){const seen=new Set(); S.powers.forEach(q=>{if(!q.type||PW_MULTI.has(q.type)) return; if(seen.has(q.type)){const L=(allPowers()[q.type]||{}).label||q.type; iss.push(['warn',`${L} is on the powers list twice. Take it once and set the level you want on that line; going up a level costs only the difference.`]);} seen.add(q.type);});}
   if(S.established&&isMagician()) S.powers.forEach(p=>{const f=spellPaid(p); if(f!=null&&(+p.cost||0)>f) iss.push(['warn',`${p.name||'A spell'} is at Force ${p.cost} but Karma was paid for Force ${f}. Raise it under Spend Good Karma so the Karma is counted (p. 133).`]);});
+  // factory weapon mounts on drones and vehicles come empty: "weapon not included" (R2 p. 156, 165)
+  {const mt=S.gear.filter(g=>g.key&&/^r2veh:/.test(g.key)&&!g.at).filter(g=>{const F=typeof VB!=='undefined'&&VB.FACT&&VB.FACT[GEARDB[g.key].n]; return F&&/(^|,)(fx_|rt_|tur_)/.test(F[1]||'');});
+   if(mt.length&&!S.gear.some(g=>g.key&&/^vweap:/.test(g.key)||(g.note&&/mount/i.test(g.note)))) iss.push(['warn',`${[...new Set(mt.map(g=>GEARDB[g.key].n))].join(', ')}: the factory weapon mounts come empty (“weapon not included”, R2). Buy a weapon and note which mount it sits in, or these drones are unarmed.`]);}
+  if(S.phys>10+natBody()) iss.unshift(['bad','This runner is dead: Physical damage went more than Body boxes past the track (p. 111). Keep the sheet for the record; a new runner starts fresh.']);
+  // guns with nothing to shoot
+  {const dry=feedGuns().filter(x=>carried(x.g)&&!amTypes(x.gid).length); if(dry.length) iss.push(['warn',`No ammunition for ${[...new Set(dry.map(x=>x.label))].join(', ')}. Guns come empty: buy ammo in Gear (Ammo and gun accessories, p. 256).`]);}
   if(karmaAvail()<0) iss.push(['bad',`Good Karma overspent by ${-karmaAvail()}: undo a purchase under Spend Good Karma or add the Karma earned.`]);
   if(!iss.some(x=>x[0]!=='ok'&&x[0]!=='info')) iss.unshift(['ok','Everything adds up.']);
   $('issues').innerHTML=iss.map(([t,m])=>`<li class="${t==='warn'?'':t}">${esc(m)}</li>`).join('');
@@ -3410,6 +3435,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('input',e=>{
   const t=e.target;
   if(t.dataset.attr){S.attrs[t.dataset.attr]=+t.value;rerenderSoon();return;}
+  if(t.dataset.inj){S.inj=S.inj||{}; S.inj[t.dataset.inj]=t.dataset.inj==='note'?t.value:Math.max(0,Math.floor(+t.value||0)); rerenderSoon(t); return;}
   if(t.dataset.sk!==undefined){if(t.tagName==='SELECT') return; const s=S.skills[+t.dataset.sk];s[t.dataset.f]=t.dataset.f==='rating'?+t.value:t.value;rerenderSoon(t);return;}
   if(t.dataset.pw!==undefined){const p=S.powers[+t.dataset.pw];const f=t.dataset.f; if(t.tagName==='SELECT') return; p[f]=['cost','n'].includes(f)?+t.value:t.value;rerenderSoon(t);return;}
   if(['gCat','gItem','gRate'].includes(t.id)){if(t.id==='gCat')fillGearItems();gearPreview();return;}
@@ -3576,6 +3602,7 @@ function sheetStats(){
   if(isMagician()) rows.push(['Magic Pool',sorc]);
   if(S.magic!=='none'&&initGrade()>=0) rows.push(['Initiate grade',`${initGrade()} · Astral Pool ${initGrade()}`]);
   {const vcr=gearLevel('body:Vehicle Control Rig'); if(vcr) rows.push(['Control Pool',baseReact+2*vcr]);}
+  if(S.phys>10+natBody()) rows.unshift(['Status','Dead']); else if(S.phys>10) rows.unshift(['Status',`Past Deadly: ${S.phys-10} of ${natBody()} overflow`]); else if(S.phys>=10||S.stun>=10) rows.unshift(['Status','Unconscious']);
   if(wmod.m) rows.push(['Wound modifier',`+${wmod.m} TN`]);
   const mx=matrixInfo();
   if(mx&&(mx.vr2||mx.hasDeck||comp)) rows.push([mx.vr2||mx.hasDeck?'Hacking Pool':'Hacking Pool (with a deck)',mx.pool]);
@@ -3650,7 +3677,7 @@ function sheetFile(){
   else if(isMagician()){const TT=TOTEMS[S.totem];
     magic=`${S.magic==='shamanic'&&TT?`<p><b>${esc(S.totem)} totem</b> (${esc(TT.env)} totem): ${Object.entries(TT.b).map(([c,v])=>`${v>0?'+':''}${v} dice ${c} spells`).join(', ')||'no spell modifiers'}; ${TT.c&&TT.c!=='none'?'+2 dice conjuring '+esc(TT.c):'no conjuring bonus'}. <span class="pg">p. 119–122</span></p>`:''}
     <table><thead><tr><th>Spell</th><th>Type</th><th class="n">Force</th><th>Drain</th><th>Notes</th></tr></thead><tbody>${S.powers.map(p=>{const sp=spellFind(p.name);const tb=sp&&S.magic==='shamanic'&&TT?(TT.b[sp.cat]||0):0;return `<tr><td><b>${esc(p.name)}</b>${sp&&sp.pg?` <span class="pg">${esc(sp.pg)}</span>`:''}</td><td>${sp?esc(sp.cat+(sp.ty?' · '+(sp.ty==='M'?'mana':'physical'):'')):''}</td><td class="n">${p.cost||0}</td><td class="mono">${sp?drainText(sp,+p.cost||1):''}</td><td>${tb?`totem ${tb>0?'+':''}${tb} dice. `:''}${esc(p.note||'')}</td></tr>`;}).join('')||'<tr><td colspan="5" class="mut">No spells</td></tr>'}</tbody></table>`;
-    const foci=S.gear.filter(g=>BOND[g.key]); if(foci.length) magic+=`<h3>Foci</h3><table><tbody>${foci.map(g=>`<tr><td>${esc(g.name)}${g.note?` · ${esc(g.note)}`:''}</td><td class="n">bonded for ${BOND[g.key](+g.r||1)} Karma</td></tr>`).join('')}</tbody></table><p class="ts">Up to ${attrNow('int')} foci active at once (Intelligence). <span class="pg">p. 137</span></p>`;}
+    const foci=S.gear.filter(g=>BOND[g.key]); if(foci.length) magic+=`<h3>Foci</h3><table><tbody>${foci.map(g=>`<tr><td>${esc(g.name)}${g.note?` · ${esc(g.note)}`:''}</td><td class="n">${focusBonded(g)?`bonded for ${BOND[g.key](+g.r||1)} Karma`:`<b>not bonded yet</b> (${BOND[g.key](+g.r||1)} Karma)`}</td></tr>`).join('')}</tbody></table><p class="ts">Up to ${attrNow('int')} foci active at once (Intelligence). <span class="pg">p. 137</span></p>`;}
   // ---- cyberdeck ----
   const dk=deckInfo(); let deck='';
   if(dk){const mx=T.mx||{pool:0,react:0,dice:1};
@@ -3693,7 +3720,8 @@ function sheetFile(){
   // ---- condition monitor ----
   const ML=['L','','M','','','S','','','','D'];
   const track=(lab,n)=>`<div class="mon"><span class="ml">${lab}</span><div class="mb">${Array.from({length:10},(_,i)=>`<span class="${i<n?'on':''}">${ML[i]}</span>`).join('')}</div></div>`;
-  const monitor=`${track('Physical',S.phys)}${track('Stun',S.stun)}
+  const J=S.inj||{}, injL=[['body','Body'],['quick','Quickness'],['str','Strength'],['int','Intelligence'],['wil','Willpower'],['rea','Reaction'],['magic','Magic']].filter(([k])=>+J[k]).map(([k,l])=>`${l} −${J[k]}`).concat(J.note?[esc(J.note)]:[]);
+  const monitor=`${S.phys>10+natBody()?`<p class="dead"><b>Deceased.</b> Physical damage went more than Body boxes past the track (p. 111).</p>`:''}${track('Physical',Math.min(10,S.phys))}${S.phys>10&&S.phys<=10+natBody()?`<p class="ts"><b>Dying:</b> ${S.phys-10} of ${natBody()} overflow boxes (p. 111).</p>`:''}${track('Stun',S.stun)}${injL.length?`<p class="ts"><b>Lasting injuries:</b> ${injL.join(' · ')} <span class="pg">p. 113–115</span></p>`:''}
     <p class="ts">Light +1 TN, −1 Initiative · Moderate +2 / −2 · Serious +3 / −3 · Deadly: unconscious. Stun and Physical modifiers add together. Stun past 10 boxes rolls into Physical. More than Body (${augAttr('body')}) boxes past the Physical track is death. <span class="pg">p. 111–112</span></p>`;
   const contacts=S.contacts.filter(c=>c.name||c.role).map(c=>`<li><b>${esc(c.name||'Unnamed')}</b> · ${esc(c.role||'')} <span class="ts">${esc(c.level||'')}</span></li>`).join('');
   const karma=[['Karma earned',S.kEarned||0],['Karma spent',(+S.kSpent||0)+karmaSpentLog()],['Good Karma left',(+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog()],['Nuyen on hand',S.nuyenNow!==''&&S.nuyenNow!=null?fmt(+S.nuyenNow)+'¥':'—']].map(([k,v])=>`<div class="kv"><span>${k}</span><b>${v}</b></div>`).join('');
@@ -3730,7 +3758,7 @@ p{margin:6px 0}p.trait{font-size:.8125rem}
 table{width:100%;border-collapse:collapse;font-size:.8125rem}td,th{padding:5px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}th{font:600 .625rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-top:0}
 .n{text-align:right;font-variant-numeric:tabular-nums}.mono{font-family:var(--mono)}.mut{color:var(--muted)}tr.on td:first-child{box-shadow:inset 3px 0 var(--accent)}
 .rng{margin-top:8px;table-layout:fixed}.rng th,.rng td{text-align:center;padding:4px 2px;font-family:var(--mono);font-size:.75rem}.rng tr.tn td{color:var(--muted);border-top:0;padding-top:0}
-.mon{display:flex;align-items:center;gap:10px;margin:6px 0}.ml{width:62px;font-weight:600;font-size:.8125rem}.mb{flex:1;display:grid;grid-template-columns:repeat(10,1fr);gap:3px}
+.dead{border:2px solid #b3261e;color:#b3261e;padding:6px 10px;border-radius:6px;margin:4px 0}.mon{display:flex;align-items:center;gap:10px;margin:6px 0}.ml{width:62px;font-weight:600;font-size:.8125rem}.mb{flex:1;display:grid;grid-template-columns:repeat(10,1fr);gap:3px}
 .mb span{height:30px;border:1.5px solid var(--ink);border-radius:3px;display:flex;align-items:flex-end;justify-content:center;font:600 .625rem var(--mono);color:var(--muted);padding-bottom:2px}.mb span.on{background:var(--hit);border-color:var(--hit);color:#fff}
 .mb span:nth-child(1),.mb span:nth-child(3),.mb span:nth-child(6),.mb span:nth-child(10){border-width:2.5px}
 .kv{display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid var(--line)}.kv:first-child{border-top:0}.kv b{font-family:var(--mono)}

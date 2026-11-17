@@ -14,3 +14,4 @@ echo "== locker chk26"; node gear/chk26.js | cut -c1-200
 echo "== builder chk_stash"; node chk_stash.js
 echo "== builder chk_arch"; node chk_arch.js
 echo "== chk_est"; node chk_est.js | cut -c1-200
+echo "== chk_inj"; node chk_inj.js | cut -c1-200
