@@ -33,6 +33,7 @@ h1 small{display:block;font:500 .75rem var(--body);letter-spacing:.08em;text-tra
 .skin{display:inline-flex;align-items:center;gap:6px;font-size:.8125rem;color:var(--muted)}.skin select{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 8px}
 .chip{font:600 .75rem var(--body);letter-spacing:.04em;border:1.5px solid var(--bc);color:var(--bc);background:transparent;border-radius:999px;padding:5px 11px;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--bc);color:var(--panel)}
+.lgl{display:inline-block;margin-left:6px;font:600 .625rem var(--mono);letter-spacing:.03em;border:1px solid currentColor;border-radius:4px;padding:0 4px;line-height:1.5;vertical-align:1px;white-space:nowrap}.lgl-permit{color:var(--muted)}.lgl-restricted{color:var(--warn)}.lgl-illegal{color:#c0392b}.lglnote{margin:6px 0}
 .src{display:inline-block;font:600 .6875rem var(--mono);letter-spacing:.03em;color:var(--bc);border:1px solid var(--bc);border-radius:4px;padding:0 5px;line-height:1.5;white-space:nowrap}
 .grid{display:grid;grid-template-columns:220px minmax(0,1fr) minmax(0,1.25fr);gap:14px;align-items:start}
 nav,.shelf,.tag{background:var(--panel);border:1px solid var(--line);border-radius:8px;min-width:0}
@@ -172,6 +173,7 @@ tr.on td{background:color-mix(in srgb,var(--accent) 14%,transparent)}
   <div class="tools">
     <input id="q" type="search" placeholder="Search gear, e.g. smartlink, Predator, drone" aria-label="Search gear" autocomplete="off">
     <div class="books" id="books" role="group" aria-label="Books"></div>
+    <label class="skin" for="legalSel">Show <select id="legalSel"><option value="all">Everything</option><option value="permit">Legal, with or without a permit</option><option value="legal">Legal, no permit needed</option></select></label>
     <a class="kitchip" id="kitchip" href="#kit">Shopping list: 0</a>
     <div class="charbar" id="charbar"></div>
     <label class="skin" for="skinSel">Colors <select id="skinSel"></select></label>
@@ -1086,8 +1088,8 @@ const BYSLUG=Object.fromEntries(ITEMS.map(i=>[slug(i.id),i]));
 let st={books:{core:1,ssc:1,r2:1,vr2:1,fof:1,st:1,ct:1,csh:1,gr:1,aw:1,co:1},cat:'all',q:'',sort:'book',dir:1,f:{},sel:null,rate:{},kit:[]};
 // Old item ids that were renamed or merged (e.g. vehicles superseded by Rigger 2); same table the builder uses.
 const KEYFIX=(DATA&&DATA.keyfix)||{};
-try{const s=JSON.parse(localStorage.getItem('sr2gear')||'null'); if(s){st.books=Object.assign(st.books,s.books||{}); st.kit=Array.isArray(s.kit)?s.kit.map(k=>{const f=KEYFIX[k.id]; return f?{...k,id:f}:k;}).filter(k=>BYID[k.id]||k.n):[]; if(s.build&&typeof s.build==='object') st.build=s.build; if(s.gel&&typeof s.gel==='object') st.gel=s.gel; if(s.dbuild&&typeof s.dbuild==='object') st.dbuild=s.dbuild; if(s.vbuild&&typeof s.vbuild==='object') st.vbuild=s.vbuild; if(s.hbuild&&typeof s.hbuild==='object') st.hbuild=s.hbuild; if(s.cbody&&typeof s.cbody==='object') st.cbody=s.cbody; if(typeof s.charId==='string') st.charId=s.charId; if(s.fgSel&&typeof s.fgSel==='object') st.fgSel=s.fgSel;}}catch(e){}
-const save=()=>{try{localStorage.setItem('sr2gear',JSON.stringify({books:st.books,kit:st.kit,build:st.build||{},dbuild:st.dbuild||{},vbuild:st.vbuild||{},hbuild:st.hbuild||{},gel:st.gel||{},cbody:st.cbody||null,charId:st.charId||'',fgSel:st.fgSel||{}}));}catch(e){}};
+try{const s=JSON.parse(localStorage.getItem('sr2gear')||'null'); if(s){if(['all','permit','legal'].includes(s.legal)) st.legal=s.legal; st.books=Object.assign(st.books,s.books||{}); st.kit=Array.isArray(s.kit)?s.kit.map(k=>{const f=KEYFIX[k.id]; return f?{...k,id:f}:k;}).filter(k=>BYID[k.id]||k.n):[]; if(s.build&&typeof s.build==='object') st.build=s.build; if(s.gel&&typeof s.gel==='object') st.gel=s.gel; if(s.dbuild&&typeof s.dbuild==='object') st.dbuild=s.dbuild; if(s.vbuild&&typeof s.vbuild==='object') st.vbuild=s.vbuild; if(s.hbuild&&typeof s.hbuild==='object') st.hbuild=s.hbuild; if(s.cbody&&typeof s.cbody==='object') st.cbody=s.cbody; if(typeof s.charId==='string') st.charId=s.charId; if(s.fgSel&&typeof s.fgSel==='object') st.fgSel=s.fgSel;}}catch(e){}
+const save=()=>{try{localStorage.setItem('sr2gear',JSON.stringify({books:st.books,kit:st.kit,build:st.build||{},dbuild:st.dbuild||{},vbuild:st.vbuild||{},hbuild:st.hbuild||{},gel:st.gel||{},cbody:st.cbody||null,charId:st.charId||'',fgSel:st.fgSel||{},legal:st.legal||'all'}));}catch(e){}};
 const srcTag=s=>`<span class="src" title="${BOOK[s][0]}" style="--bc:var(${BOOK[s][2]})">${BOOK[s][1]}</span>`;
 function pageRef(i){const p=i.pg||'';return /^(SSC|R2|VR2|FoF|ST|CT|CSH|GR|AW|SRC)\b/.test(p)?p:(p?'Core '+p:'');}
 function costAt(i,r){ if(i.cost!=null) return i.cost; if(i.costs) return i.costs[r]; if(i.mult!=null) return i.mult*r; return null;}
@@ -1344,6 +1346,94 @@ const SORTS=[
   {k:'mpcp',l:'MPCP',g:i=>i._.mpcp,d:-1,c:['deck']},{k:'active',l:'Active memory',g:i=>i._.active,d:-1,c:['deck']},
   {k:'mult',l:'Program size',g:i=>i._.mult,c:['prog','prog2']}
 ];
+// ---------- Legality (Shadowtech p. 103–104: restricted-item categories, Seattle/UCAS standard) ----------
+// Four levels: legal (no paperwork), permit (legal with a permit or registration), restricted (licences only for security,
+// law enforcement and the military), illegal (banned outright: items the books mark "(illegal)", warfare agents).
+// The books give categories, not a rating per item, so each item is placed by the category text; "gm" marks a judgment call.
+const LEGAL_LV={legal:[0,'Legal'],permit:[1,'Permit'],restricted:[2,'Restricted'],illegal:[3,'Illegal']};
+const LCAT={A:'small bladed weapon',B:'large bladed weapon',C:'blunt weapon',D:'projectile weapon',E:'pistol',F:'rifle or manual shotgun',G:'automatic weapon',
+  H:'heavy weapon',I:'explosive',J:'military weapon',K:'military or security armor',L:'military ammunition',BA:'Class A bioware',BB:'Class B bioware',BC:'Class C bioware',
+  CA:'Class A cyberware',CB:'Class B cyberware',CC:'Class C cyberware',CD:'cyberdeck or program (unregistered)',E1:'Class A equipment',E2:'Class B equipment',E3:'Class C equipment',
+  M1:'controlled chemical',M2:'controlled neural electronics',M3:'microbiological warfare agent'};
+const LPERMIT={A:'legal',B:'permit',C:'legal',D:'permit',E:'permit',F:'permit',G:'restricted',H:'restricted',I:'restricted',J:'restricted',K:'restricted',L:'restricted',
+  BA:'permit',BB:'permit',BC:'restricted',CA:'permit',CB:'permit',CC:'restricted',CD:'permit',E1:'permit',E2:'permit',E3:'restricted',M1:'restricted',M2:'restricted',M3:'illegal'};
+function lg(code,gm,lv){return {code,lv:lv||LPERMIT[code],gm:!!gm};}
+function legalOf(i,r){
+  const n=i.n, sub=(i._&&i._.sub)||'', c=i.cat, R=+r||((i.r&&i.r[0])||1);
+  if(['spell','power','ef','meta','soft','magic','med','tools','elec'].includes(c)) return null;
+  if(/\(illegal\)|Maglock Passkey|Cranial Bomb|Cortex Bomb|Retinal Duplication|Secondary Pattern/.test(n)) return {code:null,lv:'illegal',gm:false};
+  const auto=i.w&&/BF|FA/.test(i.w[3]||'');
+  if(c==='guns'){
+    if(/^(Light|Medium|Heavy) machine gun|Assault cannon/.test(sub)) return lg('H');
+    if(/launcher|Mortar|missile|Rockets|Laser/i.test(sub)) return lg(/launcher|Mortar|Rockets|missile/i.test(sub)?'I':'J');
+    if(auto||/Submachine|Assault rifle/.test(sub)) return lg('G');
+    if(/pistol|Taser|Dart gun/i.test(sub)) return lg('E');
+    if(/Net gun/i.test(sub)) return lg('D',1);
+    if(/Barret Model 121/.test(n)) return lg('J',1);
+    return lg('F');
+  }
+  if(c==='ranged') return lg('D');
+  if(c==='melee'){
+    if(/Laser Axe|Monofilament|Monosword/.test(n)) return lg('J',1);
+    if(/Clubs/.test(sub)||/Stun Baton|Shock Glove|Sap|Staff/.test(n)) return lg('C');
+    if(/Knife|Snap-Blades|Fineblade, short/.test(n)) return lg('A',/Survival/.test(n));
+    return lg('B');
+  }
+  if(c==='boom') return lg('I',/Smoke|Flash/.test(sub));
+  if(c==='ammo'){
+    if(/APDS|Explosive|Flechette|Tracer|Assault Cannon|Barret 121|Ballista|Mortar/.test(n)) return lg(/Ballista|Mortar/.test(n)?'I':'L');
+    return null;
+  }
+  if(c==='armor'){
+    if(/Heavy armor|Military armor|Shield/.test(sub)||/Security Armor|Security Helmet|Military Helmet/.test(n)) return lg('K');
+    if(/Security Tracking Signal|Security Signal Locator/.test(n)) return lg('E2');
+    return null;
+  }
+  if(c==='bio'){
+    if(/Damage Compensator|Orthoskin|Pain Editor|Trauma Damper/.test(n)) return lg('BA');
+    if(/Adrenal Pump|Synaptic Accelerator/.test(n)) return lg(R>=2?'BC':'BB');
+    if(/Muscle Augmentation/.test(n)) return lg(R>=3?'BC':'BB');
+    if(/Suprathyroid|Toxin Exhaler/.test(n)) return lg('BB');
+    return null;
+  }
+  if(c==='body'||c==='head'){
+    if(/Hand Razor|Spur$|Spur,|Hand Blade/.test(n)&&!/Oral/.test(n)) return lg('B');
+    if(/Cybergun|Shock Hand|Cyberarm Taser|CyberSquirt|Oral (Dart|Gun|Spur|Whip)|Eye (Dart|Gun)|Weapon Mount|Gyromount/.test(n)) return lg('CC');
+    if(/Bone Lacing, Titanium|Move-by-Wire|Cyber Body Plating, hard/.test(n)) return lg('CC',/Move|Plating/.test(n));
+    if(/Wired Reflexes$/.test(n)) return lg(R>=3?'CC':'CB');
+    if(/Muscle Replacement/.test(n)) return lg(R>=3?'CC':'CB');
+    if(/Tactical Computer/.test(n)) return lg(R>=2?'CC':'CB');
+    if(/Bone Lacing, Aluminum|Boosted Reflexes|Reaction Enhancer|Wired Reflexes Reflex Trigger/.test(n)) return lg('CB',/Reaction|Trigger/.test(n));
+    if(/Bone Lacing, Plastic|Dermal Plating|Dermal Sheath$|Smartlink|Vehicle Control Rig|VCR Reflex|Voice Mask|Cyber Body Plating, soft/.test(n)) return lg('CA',/Sheath|Plating|VCR Reflex/.test(n));
+    return null;
+  }
+  if(c==='deck'&&/Cyberdeck|Custom cyberdeck/i.test(sub+n)) return lg('CD');
+  if(c==='prog'||c==='prog2') return lg('CD');
+  if(c==='surv'){
+    if(/Jammer|Laser Microphone|Shotgun Microphone|White Noise|Voice Mask/.test(n)) return lg('E1',!/Jammer|Laser Microphone/.test(n));
+    if(/Data Codebreaker|Dataline Tap|Voice Identifier|Dataline Scanner/.test(n)) return lg('E2',/Scanner/.test(n));
+    if(/Designator|Sentry Weapon/.test(n)) return lg(/Sentry/.test(n)?'H':'E3',1);
+    if(/Scopolamine/.test(n)) return lg('M1');
+    return null;
+  }
+  if(c==='chem'){
+    if(/Doom|Anthrax/.test(n)) return lg('M3');
+    if(/Drugs and poisons/.test(sub)) return lg('M1');
+    return null;
+  }
+  if(c==='vweap'||/Weapons Pod/.test(n)) return lg(/Missile|Rocket|Launcher/i.test(sub+n)?'I':'H');
+  return null;
+}
+function legalLv(i){ // the best a buyer can do: the lowest restriction across its levels (for the list filter)
+  if(!i.r||i.mult!=null) {const L=legalOf(i); return L?LEGAL_LV[L.lv][0]:0;}
+  let best=9; for(let r=i.r[0];r<=Math.min(i.r[1],i.r[0]+6);r++){const L=legalOf(i,r); best=Math.min(best,L?LEGAL_LV[L.lv][0]:0);} return best;}
+function legalShows(i){const m=st.legal||'all'; if(m==='all') return true; const v=legalLv(i); return m==='permit'?v<=1:v===0;}
+function legalBadge(i,r){const L=legalOf(i,r); if(!L) return ''; const t=LEGAL_LV[L.lv][1];
+  return `<span class="lgl lgl-${L.lv}" title="${esc(t+(L.code?' · Category '+L.code+': '+LCAT[L.code]:'')+(L.gm?' (GM call)':''))}">${esc(t)}${L.code?' '+esc(L.code):''}</span>`;}
+function legalNote(i,r){const L=legalOf(i,r); if(!L) return '';
+  const what={permit:'Legal with a permit or registration.',restricted:'Licences go only to registered security, law enforcement and the military; anyone else is breaking the law.',illegal:'Banned outright.'}[L.lv]||'';
+  return `<p class="note lglnote">${legalBadge(i,r)} ${L.code?`Category ${esc(L.code)}, ${esc(LCAT[L.code])}. `:''}${esc(what)}${L.gm?' Where it falls is a GM call: the book names the category, not this item.':''} <span class="pg">ST p. 103–104</span></p>`;}
+
 function sortsFor(cat){return SORTS.filter(s=>!s.c||s.c.includes(cat));}
 // filters: each {k,label,type,cats,test(i,v)}
 const FILTERS=[
@@ -1452,7 +1542,7 @@ function openPaste(){ $('sendDlg').innerHTML=`<div class="sd-card" role="dialog"
 
 function baseList(){
   const q=norm(st.q.trim()); const words=q?q.split(/\s+/):[];
-  return ITEMS.filter(i=>(st.cat==='owned'?!!OWN[i.id]:visible(i)&&(st.cat==='all'||i.cat===st.cat))&&(!words.length||words.every(w=>norm(i.n+' '+i.s+' '+(i.efd||'')+' '+(i.desc||'')+' '+(CATN[i.cat]||'')+' '+i.pg+' '+BOOK[i.src][1]+' '+(i._.sub||'')).includes(w))));
+  return ITEMS.filter(i=>(st.cat==='owned'?!!OWN[i.id]:visible(i)&&(st.cat==='all'||i.cat===st.cat)&&legalShows(i))&&(!words.length||words.every(w=>norm(i.n+' '+i.s+' '+(i.efd||'')+' '+(i.desc||'')+' '+(CATN[i.cat]||'')+' '+i.pg+' '+BOOK[i.src][1]+' '+(i._.sub||'')).includes(w))));
 }
 function filtered(){
   let L=baseList();
@@ -1512,7 +1602,7 @@ function renderList(){
   for(const i of L){
     if(s&&s.group){const g=s.g(i)||'Other'; if(g!==last){out.push(`<div class="grp">${esc(g)}</div>`);last=g;}}
     const sv=statFor(i);
-    out.push(`<button class="item" role="option" data-id="${esc(i.id)}" aria-selected="${st.sel===i.id}"><span class="nm">${esc(i.n)}${ownBadge(i)}</span><span class="pr">${priceLabel(i)}</span><span class="sub">${srcTag(i.src)}${sv?`<span class="stat">${esc(sv)}</span>`:''}<span class="t">${esc(st.cat==='all'||st.cat==='owned'?CATN[i.cat]+' · ':'')}${esc(i.s||pageRef(i))}</span></span></button>`);
+    out.push(`<button class="item" role="option" data-id="${esc(i.id)}" aria-selected="${st.sel===i.id}"><span class="nm">${esc(i.n)}${ownBadge(i)}${legalBadge(i)}</span><span class="pr">${priceLabel(i)}</span><span class="sub">${srcTag(i.src)}${sv?`<span class="stat">${esc(sv)}</span>`:''}<span class="t">${esc(st.cat==='all'||st.cat==='owned'?CATN[i.cat]+' · ':'')}${esc(i.s||pageRef(i))}</span></span></button>`);
   }
   $('list').innerHTML=L.length?out.join(''):`<p class="empty">Nothing matches. Clear a filter, try fewer words, or switch more books on.</p>`;
 }
@@ -2024,6 +2114,7 @@ function renderTag(){
   $('tag').innerHTML=`<a class="back" href="#list" id="backList">↑ Back to the list</a><div class="kicker">${srcTag(i.src)}<span>${esc(BOOK[i.src][0])}</span><span>·</span><span>${esc(pageRef(i))}</span><span>·</span><span>${esc(CATN[i.cat])}</span></div>
    <h2>${esc(i.n)}</h2>
    <div class="price">${i.sp||i.ef||i.mt||i.cat==='power'||i.mult!=null?esc(priceLabel(i)):fmt(price)+'¥'}${i.r&&i.mult==null?` <span class="note">at ${esc(i.r[2].toLowerCase())} ${r}</span>`:''}</div>
+   ${legalNote(i,r)}
    ${ownNote(i)}
    ${wishNote(i,r)}
    ${i.s?`<p class="desc">${esc(i.s)}</p>`:''}
@@ -2196,6 +2287,8 @@ document.addEventListener('input',e=>{
 });
 function setCat(c){st.cat=c; st.f={}; renderCats(); renderSortFilter(); renderList();}
 $('catSel').addEventListener('change',e=>setCat(e.target.value));
+$('legalSel').value=st.legal||'all';
+$('legalSel').addEventListener('change',e=>{st.legal=e.target.value; save(); renderCats(); renderList();});
 $('sort').addEventListener('change',e=>{st.sort=e.target.value; const s=SORTS.find(x=>x.k===st.sort); st.dir=s&&s.d?s.d:1; renderSortFilter(); renderList();});
 $('list').addEventListener('keydown',e=>{
   if(!['ArrowDown','ArrowUp'].includes(e.key)) return; e.preventDefault();
