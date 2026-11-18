@@ -188,20 +188,20 @@ const M=[
  {id:'fx_if',g:'Weapon mounts',n:'Fixed mount, internal firmpoint',pg:'R2 p. 131–132',kind:'qty',min:1,max:()=>8,cost:(v,l)=>1500*l,cf:(v,l)=>5*l,load:(v,l)=>10*l,d:'Hidden small-arms mount behind the armor; Complex Action to extend or stow.'},
  {id:'pintle',g:'Weapon mounts',n:'Pintle mount',pg:'R2 p. 133',kind:'qty',min:1,max:()=>8,cost:(v,l)=>50*l,ok:v=>v.drone?'Can’t be run remotely, so not on drones':null,d:'A reinforced swivel for any firmpoint weapon: 60° side to side, 30° up and down, 2 points of recoil compensation. Counts as a firmpoint.'},
  {id:'ring',g:'Weapon mounts',n:'Ring mount',pg:'R2 p. 133–134',kind:'qty',min:1,max:()=>4,opt:v=>v.type==='rotor'?[['std','Roof ring'],['door','Door gun (16 CF)']]:null,cost:(v,l)=>3000*l,cf:(v,l,o)=>(o==='door'?16:1)*l,load:(v,l)=>25*l,ok:(v,c)=>v.drone?'Can’t be run remotely, so not on drones':(c.has('convtop')&&!c.has('rollbar')?'A rag-top needs roll bars first':null),d:'A full-circle ring for a gunner standing in the vehicle: man-portable heavy weapons and LMGs, 6 points of recoil compensation. Counts as a hardpoint; hardtops, or open tops with roll bars. On a helicopter it’s a door gun (16 CF, the door has to be open to fire).'},
- {id:'tur_mini',g:'Weapon mounts',n:'Turret, mini (manned)',pg:'R2 p. 134–135',kind:'qty',min:1,max:()=>4,opt:[['std','Standard'],['aa','Anti-aircraft'],['pop','Pop-up']],cost:(v,l,o)=>5000*l*(o==='aa'?1.5:1),cf:(v,l,o)=>l*(o==='aa'?8:o==='pop'?14:7),load:(v,l)=>25*l,ok:(v,c)=>v.drone?'Manned turrets need a gunner aboard':(!c.mil&&!c.has('rollbar')?'Civilian vehicles need roll bars first':null),
+ {id:'tur_mini',g:'Weapon mounts',n:'Turret, mini (manned)',pg:'R2 p. 134–135',kind:'qty',min:1,max:()=>4,opt:[['std','Standard'],['aa','Anti-aircraft'],['pop','Pop-up (hidden; Weapon Value −1)']],cost:(v,l,o)=>5000*l*(o==='aa'?1.5:1),cf:(v,l,o)=>l*(o==='aa'?8:o==='pop'?14:7),load:(v,l)=>25*l,ok:(v,c)=>v.drone?'Manned turrets need a gunner aboard':(!c.mil&&!c.has('rollbar')?'Civilian vehicles need roll bars first':null),
   d:'Armored, motorized ring mount: 360°, Weapon Value 2 (an SMG or rifle is 1, an LMG 1.5). Takes 1 hardpoint, cuts Signature by 1. Anti-aircraft costs × 1.5 and +1 CF; pop-up doubles CF.'},
- {id:'tur_small',g:'Weapon mounts',n:'Turret, small (manned)',pg:'R2 p. 134–135',kind:'qty',min:1,max:()=>4,opt:[['std','Standard'],['aa','Anti-aircraft'],['pop','Pop-up']],cost:(v,l,o)=>7500*l*(o==='aa'?1.5:1),cf:(v,l,o)=>l*(o==='aa'?9:o==='pop'?16:8),load:(v,l)=>100*l,ok:(v,c)=>v.drone?'Manned turrets need a gunner aboard':(!c.mil&&!c.has('rollbar')?'Civilian vehicles need roll bars first':null),
+ {id:'tur_small',g:'Weapon mounts',n:'Turret, small (manned)',pg:'R2 p. 134–135',kind:'qty',min:1,max:()=>4,opt:[['std','Standard'],['aa','Anti-aircraft'],['pop','Pop-up (hidden; Weapon Value −1)']],cost:(v,l,o)=>7500*l*(o==='aa'?1.5:1),cf:(v,l,o)=>l*(o==='aa'?9:o==='pop'?16:8),load:(v,l)=>100*l,ok:(v,c)=>v.drone?'Manned turrets need a gunner aboard':(!c.mil&&!c.has('rollbar')?'Civilian vehicles need roll bars first':null),
   d:'Weapon Value 3 (a medium or heavy machine gun is 2), 2 CF of extra space inside. Takes 2 hardpoints, cuts Signature by 1.'},
- {id:'tur_med',g:'Weapon mounts',n:'Turret, medium (manned)',pg:'R2 p. 134–135',kind:'qty',min:1,max:()=>4,opt:[['std','Standard'],['aa','Anti-aircraft'],['pop','Pop-up']],cost:(v,l,o)=>15000*l*(o==='aa'?1.5:1),cf:(v,l,o)=>l*(o==='aa'?25:o==='pop'?48:24),load:(v,l)=>1000*l,ok:(v,c)=>v.drone?'Manned turrets need a gunner aboard':(!c.mil?MIL:null),
+ {id:'tur_med',g:'Weapon mounts',n:'Turret, medium (manned)',pg:'R2 p. 134–135',kind:'qty',min:1,max:()=>4,opt:[['std','Standard'],['aa','Anti-aircraft'],['pop','Pop-up (hidden; Weapon Value −1)']],cost:(v,l,o)=>15000*l*(o==='aa'?1.5:1),cf:(v,l,o)=>l*(o==='aa'?25:o==='pop'?48:24),load:(v,l)=>1000*l,ok:(v,c)=>v.drone?'Manned turrets need a gunner aboard':(!c.mil?MIL:null),
   d:'Weapon Value 6 (an assault cannon is 3), 4 CF and seating for two inside. Takes 3 hardpoints, cuts Signature by 1. Military only.'},
- {id:'rt_micro',g:'Weapon mounts',n:'Remote turret, micro',pg:'R2 p. 135–136',kind:'qty',min:1,max:()=>4,opt:[['std','Standard'],['aa','Anti-aircraft'],['pop','Pop-up']],cost:(v,l,o)=>2500*l*(o==='aa'?1.5:1),cf:(v,l,o)=>l*(o==='aa'?2:o==='pop'?2:1),load:(v,l)=>10*l,
-  d:'Weapons-only turret run from inside or by a rigger: Weapon Value 1, takes 1 firmpoint, cuts Signature by 1. Standard on smaller drones.'},
- {id:'rt_mini',g:'Weapon mounts',n:'Remote turret, mini',pg:'R2 p. 135–136',kind:'qty',min:1,max:()=>4,opt:[['std','Standard'],['aa','Anti-aircraft'],['pop','Pop-up']],cost:(v,l,o)=>6000*l*(o==='aa'?1.5:1),cf:(v,l,o)=>l*(o==='aa'?5:o==='pop'?8:4),load:(v,l)=>25*l,
-  d:'Remote turret, Weapon Value 2, takes 1 hardpoint, cuts Signature by 1.'},
- {id:'rt_small',g:'Weapon mounts',n:'Remote turret, small',pg:'R2 p. 135–136',kind:'qty',min:1,max:()=>4,opt:[['std','Standard'],['aa','Anti-aircraft'],['pop','Pop-up']],cost:(v,l,o)=>9000*l*(o==='aa'?1.5:1),cf:(v,l,o)=>l*(o==='aa'?6:o==='pop'?10:5),load:(v,l)=>100*l,
-  d:'Remote turret, Weapon Value 3, takes 2 hardpoints, cuts Signature by 1.'},
- {id:'rt_med',g:'Weapon mounts',n:'Remote turret, medium',pg:'R2 p. 135–136',kind:'qty',min:1,max:()=>4,opt:[['std','Standard'],['aa','Anti-aircraft'],['pop','Pop-up']],cost:(v,l,o)=>17500*l*(o==='aa'?1.5:1),cf:(v,l,o)=>l*(o==='aa'?9:o==='pop'?16:8),load:(v,l)=>1000*l,ok:(v,c)=>!c.mil?MIL:null,
-  d:'Remote turret, Weapon Value 6, takes 3 hardpoints, cuts Signature by 1. Military only.'},
+ {id:'rt_micro',g:'Weapon mounts',n:'Remote turret, micro',pg:'R2 p. 135–136',kind:'qty',min:1,max:()=>4,opt:[['std','Standard'],['aa','Anti-aircraft'],['pop','Pop-up (hidden until used)']],cost:(v,l,o)=>2500*l*(o==='aa'?1.5:1),cf:(v,l,o)=>l*(o==='aa'?2:o==='pop'?2:1),load:(v,l)=>10*l,
+  d:'Weapons-only turret run from inside or by a rigger: Weapon Value 1 (one SMG or rifle; Weapon Values Table, R2 p. 135), takes 1 firmpoint, cuts Signature by 1. Standard on smaller drones.'},
+ {id:'rt_mini',g:'Weapon mounts',n:'Remote turret, mini',pg:'R2 p. 135–136',kind:'qty',min:1,max:()=>4,opt:[['std','Standard'],['aa','Anti-aircraft'],['pop','Pop-up (hidden; Weapon Value −1)']],cost:(v,l,o)=>6000*l*(o==='aa'?1.5:1),cf:(v,l,o)=>l*(o==='aa'?5:o==='pop'?8:4),load:(v,l)=>25*l,
+  d:'Remote turret, Weapon Value 2 (two SMGs or rifles, or one light, medium or heavy machine gun), takes 1 hardpoint, cuts Signature by 1.'},
+ {id:'rt_small',g:'Weapon mounts',n:'Remote turret, small',pg:'R2 p. 135–136',kind:'qty',min:1,max:()=>4,opt:[['std','Standard'],['aa','Anti-aircraft'],['pop','Pop-up (hidden; Weapon Value −1)']],cost:(v,l,o)=>9000*l*(o==='aa'?1.5:1),cf:(v,l,o)=>l*(o==='aa'?6:o==='pop'?10:5),load:(v,l)=>100*l,
+  d:'Remote turret, Weapon Value 3 (e.g. an assault cannon or autocannon, or an LMG plus an SMG), takes 2 hardpoints, cuts Signature by 1.'},
+ {id:'rt_med',g:'Weapon mounts',n:'Remote turret, medium',pg:'R2 p. 135–136',kind:'qty',min:1,max:()=>4,opt:[['std','Standard'],['aa','Anti-aircraft'],['pop','Pop-up (hidden; Weapon Value −1)']],cost:(v,l,o)=>17500*l*(o==='aa'?1.5:1),cf:(v,l,o)=>l*(o==='aa'?9:o==='pop'?16:8),load:(v,l)=>1000*l,ok:(v,c)=>!c.mil?MIL:null,
+  d:'Remote turret, Weapon Value 6 (e.g. two assault cannons), takes 3 hardpoints, cuts Signature by 1. Military only.'},
  {id:'mis_ext',g:'Weapon mounts',n:'Missile/rocket mount, external',pg:'R2 p. 133',kind:'qty',min:1,max:v=>Math.max(1,v.B),cost:(v,l)=>750*l,cf:(v,l)=>l,load:(v,l)=>10*l,
   ok:(v,c)=>v.B<1?'Body 1 or more':(GROUND.has(c.type)&&!c.mil&&!c.has('rollbar')?'Civilian ground vehicles need roll bars first':null),
   d:'On ground vehicles, a roof-rack launcher on one firmpoint carrying up to Body missiles, −1 Signature however many. Aircraft take up to Body pylons under the wings and fuselage (they don’t use firmpoints), each holding up to 300 kg, −1 Signature per two pylons. Add the missiles’ weight to Load yourself. Rigger 2 gives no separate price, so it’s priced as an external firmpoint (750¥, 1 CF, 10 kg); check with your GM.'},
@@ -331,6 +331,7 @@ function calc(v,b){
   // Speed: turbocharging and engine customization share the 1.5 × cap (R2 p. 120, 122); one level is always allowed
   const spGain=15*c.bought('turbo')+30*c.bought('eng_sp'), spCap=Math.max(Math.floor(Math.max(...v.Sp)*0.5),c.bought('eng_sp')?30:15);
   if(c.bought('turbo')&&c.bought('eng_sp')&&spGain>spCap) bad.push(`Speed: turbocharging and engine customization add ${spGain}; the cap is ${spCap} (1.5 × Speed, R2 p. 120–122)`);
+  s.mask=c.lv('mask')||0;   // active thermal masking only counts while switched on (R2 p. 130), so it's shown beside Signature, not in it
   const Cmax=v.C+s.Cplus, Lmax=v.L+s.Lbonus;
   if(cf>Cmax+1e-9) bad.push(`Cargo space: needs ${fmtN(cf)} CF, the vehicle has ${fmtN(Cmax)} (R2 p. 120)`);
   if(load>Lmax+1e-9) bad.push(`Load: needs ${fmtN(load)} kg, the vehicle has ${fmtN(Lmax)} (R2 p. 120)`);
@@ -345,14 +346,24 @@ function levels(v,b,i){const m=b.mods[i],d=BY[m.id]; if(d.kind==='flag') return 
   for(let l=minLv(d,v,c),mx=maxLv(d,v,c);l<=mx;l++){const t=clone(b); t.mods[i].lv=l; if(calc(v,t).ok) out.push(l);} return out;}
 function optChoices(v,b,i){const m=b.mods[i],d=BY[m.id],os=optsOf(d,v)||[]; return os.filter(o=>{const t=clone(b); t.mods[i].opt=o[0]; return calc(v,t).ok;});}
 // what can be added right now (at its lowest level / first option that fits)
-function addable(v,b){const c=ctxOf(v,b), yes=[], no=[];
+const ENG_GAIN={eng_sp:(v,l)=>`+${30*l} Speed`,eng_ac:(v,l)=>`+${2*l} Accel`,eng_ld:(v,l)=>`+${fmtN(v.B*50*l)} kg Load`};
+function roomWhy(v,b,base,r,d){ // turn a raw capacity failure into "needs X, Y left" plus what would make room
+  const last=r.bad[r.bad.length-1]||'';
+  if(/^Load:/.test(last)){const need=r.load-base.load, left=Math.max(0,base.Lmax-base.load);
+    const can=v.B>=1&&!b.mods.some(m=>m.id==='eng_ld');
+    return `Not enough Load: needs ${fmtN(need)} kg, ${fmtN(left)} kg left of ${fmtN(base.Lmax)}.${can?` Engine customization: Load adds ${fmtN(v.B*50)} kg a level (R2 p. 120).`:''}`;}
+  if(/^Cargo space:/.test(last)){const need=r.cf-base.cf, left=Math.max(0,base.Cmax-base.cf);
+    return `Not enough cargo space: needs ${fmtN(need)} CF, ${fmtN(left)} CF left of ${fmtN(base.Cmax)}.${v.seats?' Taking out seats frees space (Seats, R2 p. 142).':''}`;}
+  return last;}
+function addable(v,b){const c=ctxOf(v,b), yes=[], no=[]; const base=calc(v,b);
   M.forEach(d=>{ if(b.mods.some(m=>m.id===d.id)) return; let why=null,got=null;
     if(d.kind==='flag'&&hasFac(v,d.id)){no.push({d,why:'Already fitted at the factory',fac:true});return;}
     const os=optsOf(d,v); const tryOpts=os&&os.length?os.map(o=>o[0]):[undefined];
     const mn=minLv(d,v,c), pre=d.ok?d.ok(v,c,mn):null;
     if(pre&&!/^Level 1 uses/.test(pre)) why=pre;
-    else if(d.kind!=='flag'&&maxLv(d,v,c)<mn){why=hasFac(v,d.id)&&d.kind==='level'?'Already at the highest level (factory-fitted)':d.id==='sensor'||d.id==='autonav'||d.id==='pilot'?'Already at the best rating available':'Not possible on this vehicle';}
-    else for(const o of tryOpts){const t=clone(b); t.mods.push({id:d.id,lv:mn,opt:o}); const r=calc(v,t); if(r.ok){got={lv:mn,opt:o};break;} why=why||r.bad[r.bad.length-1];}
+    else if(d.kind!=='flag'&&maxLv(d,v,c)<mn){why=hasFac(v,d.id)?(d.kind==='qty'?'Factory-fitted, and it already has the most this vehicle can take':'Factory-fitted at the highest level it can take'):d.id==='sensor'||d.id==='autonav'||d.id==='pilot'?'Already at the best rating available':'Not possible on this vehicle';}
+    else for(const o of tryOpts){const t=clone(b); t.mods.push({id:d.id,lv:mn,opt:o}); const r=calc(v,t); if(r.ok){got={lv:mn,opt:o};break;} why=why||roomWhy(v,b,base,r,d);}
+    if(why&&hasFac(v,d.id)&&/^Not enough/.test(why)) why='Factory-fitted. Another level: '+why.replace(/^Not enough /,'not enough ');
     if(got) yes.push({d,...got}); else no.push({d,why:(why||'').replace(d.n+': ','')});
   }); return {yes,no};}
 // rebuild keeping every mod that is still legal, lowering levels where needed (handles stale saves and changed vehicle type)
@@ -370,7 +381,7 @@ function clamp1(v,b,list,keep){const nb={...b,mods:keep?b.mods.map(m=>({...m})):
 const GROUPS=['Control','Protection','Weapon mounts','Electronics','Signature','Engine','Seats','Accessories'];
 const typeName=t=>(TYPES.find(x=>x[0]===t)||[0,t])[1];
 function statLine(v,s){const sp=a=>a.join('/'); const H=s.Hoff!=null?`${s.H}/${s.Hoff}`:s.H, H0=v.Hoff!=null?`${v.H}/${v.Hoff}`:v.H;
-  return [['Handling',H0,H],['Speed',sp(v.Sp),sp(s.Sp)],['Accel',v.Ac,s.Ac],['Armor',v.A,s.A],['Signature',v.Si,s.Si],['Autonav',v.Au||'—',s.Au||'—'],['Pilot',v.P||'—',s.P||'—'],['Sensor',v.Se,s.Se]];}
+  return [['Handling',H0,H],['Speed',sp(v.Sp),sp(s.Sp)],['Accel',v.Ac,s.Ac],['Armor',v.A,s.A],(()=>{const b=s.mask?`${s.Si} (${s.Si+s.mask} masked)`:s.Si; return ['Signature',s.Si===v.Si?b:v.Si,b];})(),['Autonav',v.Au||'—',s.Au||'—'],['Pilot',v.P||'—',s.P||'—'],['Sensor',v.Se,s.Se]];}
 // ---- Checklist UI (shared by both tools): every mod listed by group; tick to add, then pick level/count and option ----
 const E=s=>String(s??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
 const UI={open:{},hide:false};
@@ -400,12 +411,12 @@ function checklist(v,b,key){
       const facTxt=fac?`<span class="vck-tag">Factory${d.kind==='qty'&&fl?` ×${fl}`:d.kind==='level'&&fl?` level ${fl}`:''}</span>`:'';
       let ctl='';
       if(h){const os=optChoices(v,b,h.i), all=optsOf(d,v)||[];
-        if(d.kind!=='flag') ctl+=`<label class="vck-s">${d.kind==='qty'?(fac?'Add':'How many'):(fac?'Upgrade to':'Level')} <select data-vblv="${k}" data-vbid="${id}" aria-label="${E(d.n)} ${d.kind==='qty'?'count':'level'}">${lvCost(v,b,h.i).map(([l,co])=>`<option value="${l}"${l===h.l?' selected':''}>${l}${d.gm||!co?'':' · '+money(co)}</option>`).join('')}</select></label>`;
+        if(d.kind!=='flag') ctl+=`<label class="vck-s">${d.kind==='qty'?(fac?'Add':'How many'):(fac&&facLv(v,id)>0?'Upgrade to':fac?'Add levels':'Level')} <select data-vblv="${k}" data-vbid="${id}" aria-label="${E(d.n)} ${d.kind==='qty'?'count':'level'}">${lvCost(v,b,h.i).map(([l,co])=>`<option value="${l}"${l===h.l?' selected':''}>${l}${ENG_GAIN[id]?' · '+ENG_GAIN[id](v,l):''}${d.gm||!co?'':' · '+money(co)}</option>`).join('')}</select></label>`;
         if(os.length>1) ctl+=`<label class="vck-s">Option <select data-vbop="${k}" data-vbid="${id}" aria-label="${E(d.n)} option">${os.map(o=>`<option value="${E(o[0])}"${o[0]===h.m.opt?' selected':''}>${E(o[1])}</option>`).join('')}</select></label>`;
         else if(all.length>1&&os.length===1) ctl+=`<span class="vck-w">${E(os[0][1])} (only option that fits)</span>`;
         ctl+=`<span class="vck-n">${price(d,h.cost)}${extra(h.cf,h.load)}</span>`;
       } else if(y){const t={...b,mods:b.mods.concat([{id:d.id,lv:y.lv,opt:y.opt}])}, row=calc(v,t).rows.slice(-1)[0];
-        ctl=`<span class="vck-n">${d.gm?'Price: GM sets it':!row.cost?'No parts cost':`${d.kind==='flag'?'':'from '}${money(row.cost)}${d.kind==='flag'?'':d.kind==='qty'?' each':' at level '+y.lv}`}${extra(row.cf,row.load)}</span>`;
+        ctl=`<span class="vck-n">${d.gm?(ENG_GAIN[d.id]?ENG_GAIN[d.id](v,1)+' a level · ':'')+'Price: GM sets it':!row.cost?'No parts cost':`${d.kind==='flag'?'':'from '}${money(row.cost)}${d.kind==='flag'?'':d.kind==='qty'?' each':' at level '+y.lv}`}${extra(row.cf,row.load)}</span>`;
       } else ctl=facFlag?'<span class="vck-w">Fitted at the factory</span>':`<span class="vck-w">${E(nx&&nx.why||'Doesn’t fit')}</span>`;
       const cls=h?'on':facFlag?'fac':y?'off':'no';
       return `<li class="vck ${cls}"><div class="vck-h"><label><input type="checkbox" data-vbck="${k}" data-vbid="${id}"${h||facFlag?' checked':''}${(!h&&!y)||facFlag?' disabled':''}> <b>${E(d.n)}</b>${facTxt}</label><span class="vck-p">${E(d.pg)}</span></div><div class="vck-c">${ctl}</div><details class="vck-d"><summary>What it does</summary><p>${E(d.d)}</p></details></li>`;}).join('');
