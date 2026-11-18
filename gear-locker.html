@@ -1340,7 +1340,7 @@ const SORTS=[
   {k:'speed',l:'Speed',g:i=>i._.speed,d:-1,c:['veh','r2veh']},{k:'hand',l:'Handling (lower is better)',g:i=>i._.hand,c:['veh','r2veh']},
   {k:'body',l:'Body',g:i=>i._.body,d:-1,c:['veh','r2veh']},{k:'varm',l:'Armor',g:i=>i._.varm,d:-1,c:['veh','r2veh']},
   {k:'sig',l:'Signature (higher is stealthier)',g:i=>i._.sig,d:-1,c:['veh','r2veh']},{k:'pilot',l:'Pilot',g:i=>i._.pilot,d:-1,c:['veh','r2veh']},
-  {k:'accel',l:'Acceleration',g:i=>i._.accel,d:-1,c:['r2veh']},{k:'sensor',l:'Sensor',g:i=>i._.sensor,d:-1,c:['r2veh']},{k:'load',l:'Load (kg)',g:i=>i._.load,d:-1,c:['r2veh']},
+  {k:'accel',l:'Acceleration',g:i=>i._.accel,d:-1,c:['r2veh']},{k:'sensor',l:'Sensor',g:i=>i._.sensor,d:-1,c:['r2veh']},{k:'load',l:'Load (kg)',g:i=>i._.load,d:-1,c:['r2veh']},{k:'cargo',l:'Cargo Factor (CF)',g:i=>i._.cargo,d:-1,c:['r2veh']},
   {k:'mpcp',l:'MPCP',g:i=>i._.mpcp,d:-1,c:['deck']},{k:'active',l:'Active memory',g:i=>i._.active,d:-1,c:['deck']},
   {k:'mult',l:'Program size',g:i=>i._.mult,c:['prog','prog2']}
 ];
@@ -1366,6 +1366,8 @@ const FILTERS=[
   {k:'minspeed',l:'Speed at least',type:'num',c:['veh','r2veh'],test:(i,v)=>i._.speed!=null&&i._.speed>=v},
   {k:'minpilot',l:'Pilot at least',type:'num',c:['veh','r2veh'],test:(i,v)=>i._.pilot!=null&&i._.pilot>=v},
   {k:'minload',l:'Load at least (kg)',type:'num',c:['r2veh'],test:(i,v)=>i._.load!=null&&i._.load>=v},
+  {k:'mincf',l:'CF at least',type:'num',c:['r2veh'],test:(i,v)=>i._.cargo!=null&&i._.cargo>=v},
+  {k:'maxcf',l:'CF at most',type:'num',c:['r2veh'],test:(i,v)=>i._.cargo!=null&&i._.cargo<=v},
   {k:'minmpcp',l:'MPCP at least',type:'num',c:['deck'],test:(i,v)=>i._.mpcp!=null&&i._.mpcp>=v},
   {k:'maxprice',l:'Price at most ¥',type:'num',step:100,c:['melee','ranged','guns','ammo','boom','armor','head','body','bio','deck','prog','prog2','elec','surv','med','chem','magic','veh','r2veh','rc','vweap','tools','soft','all'],test:(i,v)=>minPrice(i)<=v}
 ];
@@ -1482,7 +1484,7 @@ function renderCats(){
 function statFor(i){
   const s=st.sort, D=i._;
   if((s==='sev'||s==='pow')&&D.dmg) return D.dmg.txt+(D.dmg.stun?' stun':'');
-  const map={con:['Conceal',D.conceal],bal:['B',D.bal],imp:['I',D.imp],ess:['Ess',D.ess],bi:['BI',D.bi],speed:['Spd',D.speed],hand:['Hand',D.hand],body:['Body',D.body],varm:['Armor',D.varm],sig:['Sig',D.sig],pilot:['Pilot',D.pilot],accel:['Acc',D.accel],sensor:['Sens',D.sensor],load:['Load',D.load],mpcp:['MPCP',D.mpcp],active:['Mem',D.active],mult:['×',D.mult]};
+  const map={con:['Conceal',D.conceal],bal:['B',D.bal],imp:['I',D.imp],ess:['Ess',D.ess],bi:['BI',D.bi],speed:['Spd',D.speed],hand:['Hand',D.hand],body:['Body',D.body],varm:['Armor',D.varm],sig:['Sig',D.sig],pilot:['Pilot',D.pilot],accel:['Acc',D.accel],sensor:['Sens',D.sensor],load:['Load',D.load],cargo:['CF',D.cargo],mpcp:['MPCP',D.mpcp],active:['Mem',D.active],mult:['×',D.mult]};
   if(map[s]&&map[s][1]!=null) return map[s][0]+' '+map[s][1];
   return '';
 }
