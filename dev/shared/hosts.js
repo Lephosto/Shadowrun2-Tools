@@ -129,5 +129,5 @@ function act(key,S,el,E){const ds=el.dataset||{};
 const keyOf=el=>{const ds=el&&el.dataset||{}; for(const a of ['hbck','hbrt','hbf']) if(ds[a]!==undefined) return {a,k:ds[a],id:ds.hbid,f:ds.hbfield}; return null;};
 function refocus(info){ if(!info||typeof document==='undefined') return; const at=a=>a.replace(/[A-Z]/g,x=>'-'+x.toLowerCase());
   const sel=`[data-${at(info.a)}="${CSS.escape(info.k)}"]`+(info.id?`[data-hbid="${CSS.escape(info.id)}"]`:'')+(info.f?`[data-hbfield="${CSS.escape(info.f)}"]`:''); const el=document.querySelector(sel); if(el) el.focus({preventScroll:true});}
-return {kind,isHost,defaults,pool,calc,addable,levels,clamp,PAGES,INTRO,SEC_ARMOR,checklist,act,keyOf,refocus};
+return {kind,isHost,defaults,pool,calc,addable,levels,clamp,PAGES,INTRO,SEC_ARMOR,checklist,headHTML,act,keyOf,refocus};
 })();

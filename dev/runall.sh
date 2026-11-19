@@ -19,3 +19,7 @@ echo "== builder chk_stash"; node chk_stash.js
 echo "== builder chk_arch"; node chk_arch.js
 echo "== chk_est"; node chk_est.js | cut -c1-200
 echo "== chk_inj"; node chk_inj.js | cut -c1-200
+echo "== locker 2: new layout"; node v2/chk_v2.js | cut -c1-200
+echo "== locker 2: build-outs"; node v2/chk_v2b.js | cut -c1-200
+echo "== locker 2: decks, options, cyber body"; node v2/chk_v2c.js | cut -c1-200
+for c in 9 11 13 20 23 25 27 28; do echo "== locker 2 chk$c"; timeout 200 node v2/old/chk$c.js 2>&1 | grep -v -i "proxy\|TUNNEL\|Allowed domains\|For details" | tail -1 | cut -c1-160; done

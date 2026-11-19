@@ -19,6 +19,7 @@ for js in ['extract.js','mkstand.js']:
     r=subprocess.run(['node',js],env=env,capture_output=True,text=True)
     if r.returncode or 'errs [' in r.stdout and 'errs []' not in r.stdout: print(js,r.stdout[-400:],r.stderr[-400:]); sys.exit(1)
 subprocess.run(['python3','gear/mk.py'],check=True)
+subprocess.run(['python3','gear/mk2.py'],check=True,stdout=subprocess.DEVNULL)  # Gear Locker 2 (new layout), built from the same template
 # verify
 bad=[]
 for f in ['sr2-builder.html','gear/template.html','gear/sr2-gear-locker.html','SR2_Gear_Locker.html','SR2_Runner_Builder.html']:
@@ -29,5 +30,5 @@ for f in ['sr2-builder.html','gear/template.html','gear/sr2-gear-locker.html','S
 if bad: print('MISMATCH',bad); sys.exit(1)
 site='/home/claude/shadowrun2-tools'
 if os.path.isdir(site):
-    shutil.copy('SR2_Runner_Builder.html',site+'/builder.html'); shutil.copy('SR2_Gear_Locker.html',site+'/gear-locker.html')
+    shutil.copy('SR2_Runner_Builder.html',site+'/builder.html'); shutil.copy('SR2_Gear_Locker_2.html',site+'/gear-locker.html')  # the redesigned Locker is the live one
 print(f'built: shared blocks builder {nb}, locker {nl}; {len(SH)} shared modules; all blocks match')

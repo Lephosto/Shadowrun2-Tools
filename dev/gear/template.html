@@ -391,7 +391,7 @@ const M=[
   d:'Lets a rigger run the vehicle over a remote control network and gives it Pilot 1.'},
  {id:'pilot',g:'Control',n:'Remote pilot programming',pg:'R2 p. 126',kind:'level',min:v=>Math.max(2,v.P+1),max:()=>5,cost:(v,l)=>[0,0,5000,25000,500000,2500000][l],ok:(v,c,l)=>!c.hasRC?'Needs a remote control interface':(l>=4&&!c.mil?MIL:null),fx:(s,l)=>{s.P=l;},
   d:'Raises the Pilot rating: 2 is the best the public can buy, 3 is gray market, 4 security grade, 5 military grade (battle-savvy autonomy).'},
- {id:'rigger',g:'Control',n:'Rigger adaptation',pg:'R2 p. 126',kind:'flag',cost:()=>2800,cf:()=>1,load:()=>10,ok:(v,c)=>v.drone?'Drones already have it':c.facRig?'Already fitted (factory)':(!c.has('datajack')&&!c.hasRC?'Needs a datajack port or remote control interface':(c.sens<1?'Needs Sensor 1 or better':null)),
+ {id:'rigger',g:'Control',n:'Rigger adaptation',pg:'R2 p. 126',kind:'flag',cost:()=>2800,cf:()=>1,load:()=>10,ok:(v,c)=>v.drone?'Drones already have it':c.facRig?'Already fitted (factory)':(!c.has('datajack')&&!c.hasRC?'Needs a datajack port or remote control interface':(c.sens<1?'Needs Sensor 1 or better: add a Sensor upgrade first (Electronics; R2 p. 126)':null)),
   d:'The “black box” that lets a vehicle control rig drive it: full Control Pool and the rig’s Reaction and Initiative bonuses. Book lists 2,800¥ (and 2,500¥ again lower down); 2,800¥ used.'},
  {id:'secctl',g:'Control',n:'Secondary controls',pg:'R2 p. 126–127',kind:'flag',cost:()=>400,cf:()=>2,ok:(v,c)=>v.drone?'Drones have no cockpit':c.type==='bike'?'Not for motorcycles':null,d:'Co-pilot controls slaved to the main ones.'},
  // PROTECTION
@@ -408,7 +408,7 @@ const M=[
  {id:'seal_water',g:'Protection',n:'EnviroSeal: water seal',pg:'R2 p. 128',kind:'flag',cost:v=>750*v.B,ok:(v,c)=>c.type==='bike'?'Not for motorcycles':null,d:'Watertight cabin for submerged running. The engine needs its own seal for underwater operation.'},
  {id:'seal_eng',g:'Protection',n:'EnviroSeal: engine seal',pg:'R2 p. 128',kind:'flag',cost:v=>1000*v.B,ok:(v,c)=>c.type==='bike'?'Not for motorcycles':null,d:'Seals the engine compartment for submarine work.'},
  {id:'seal_op',g:'Protection',n:'Cabin overpressurization',pg:'R2 p. 128',kind:'flag',cost:v=>5000*v.B,cf:()=>1,load:()=>15,ok:(v,c)=>!(c.has('seal_gas')||c.has('seal_water'))?'Needs a gas or water seal':null,d:'Pumps keep outside contaminants out even with a door open or a light breach. Fails underwater or at Moderate damage.'},
- {id:'lifesup',g:'Protection',n:'Life support (10 man-hours each)',pg:'R2 p. 128–129',kind:'qty',min:1,max:()=>50,cost:(v,l)=>500+1000*l,cf:(v,l)=>l,load:(v,l)=>25*l,ok:(v,c)=>v.drone?'No passengers in a drone':!(c.has('seal_gas')||c.has('seal_water'))?'Needs a sealed cabin (EnviroSeal)':null,
+ {id:'lifesup',g:'Protection',n:'Life support (10 man-hours each)',pg:'R2 p. 128–129',kind:'qty',min:1,max:()=>50,cost:(v,l)=>500+1000*l,cf:(v,l)=>l,load:(v,l)=>25*l,ok:(v,c)=>v.drone?'No passengers in a drone':!(c.has('seal_gas')||c.has('seal_water'))?'Needs a sealed cabin: add an EnviroSeal (gas or water seal) first':null,
   d:'Oxygen and climate control for a sealed cabin: each block is 10 man-hours (10 hours for one, 5 for two…). 500¥ plus 100¥ per man-hour.'},
  {id:'rollbar',g:'Protection',n:'Roll bars',pg:'R2 p. 129',kind:'flag',cost:()=>2000,d:'Rigidity for crashes: removes the rag-top double damage penalty, or +3 dice for hard-top occupants. Required for some roof mounts on civilian vehicles.'},
  {id:'sas',g:'Protection',n:'Smart armor system (SAS)',pg:'R2 p. 129–130',kind:'flag',cost:()=>20000,cf:(v,l,o,c)=>3*c.armor,load:(v,l,o,c)=>v.B*50*c.armor,ok:(v,c)=>v.B<4?'Body 4 or more':(!c.mil?MIL:(c.armor<1?'Needs some Armor to back':null)),
@@ -572,7 +572,7 @@ function calc(v,b){
   if(cf>Cmax+1e-9) bad.push(`Cargo space: needs ${fmtN(cf)} CF, the vehicle has ${fmtN(Cmax)} (R2 p. 120)`);
   if(load>Lmax+1e-9) bad.push(`Load: needs ${fmtN(load)} kg, the vehicle has ${fmtN(Lmax)} (R2 p. 120)`);
   const facPts=Object.keys(MOUNTPTS).reduce((a,k)=>a+(k==='mis_ext'&&AIR.has(c.type)?0:MOUNTPTS[k]*facLv(v,k)),0), ptsMax=Math.max(v.B,facPts);
-  if(pts>ptsMax) bad.push(facPts>v.B?`Weapon mounts: its factory mounts already use ${facPts} points, over its Body of ${v.B}, so no more fit (R2 p. 131)`:`Mount points: this would use ${pts} of ${v.B} (Body); a hardpoint takes 2, a firmpoint 1 (R2 p. 131)`);
+  if(pts>ptsMax) bad.push(facPts>v.B?`Weapon mounts: its factory mounts already use ${facPts} points, over its Body of ${v.B}, so no more fit (R2 p. 131)`:`Mount points: this would use ${pts} of ${v.B} (Body)${facPts?`, counting ${facPts} for its factory mounts`:''}; a hardpoint takes 2, a firmpoint 1 (R2 p. 131)`);
   return {v,b,c,s,rows,cost,cf,load,pts,ptsMax,facPts,Cmax,Lmax,gm,bad,ok:!bad.length};
 }
 const clone=b=>({...b,mods:b.mods.map(m=>({...m}))});
@@ -684,7 +684,7 @@ if(typeof document!=='undefined'){
 .vck-d{margin:4px 0 0 1.6rem;font-size:.8125rem}.vck-d summary{cursor:pointer;color:var(--muted);width:max-content}.vck-d p{margin:4px 0 0;line-height:1.45;color:var(--ink)}`;
   (document.head||document.documentElement).appendChild(st);
 }
-return {TYPES,typeName,veh,M,BY,GROUPS,calc,clamp,levels,optChoices,addable,optsOf,ctxOf,statLine,minLv,maxLv,fmtN,AIR,GROUND,checklist,act,keyOf,refocus,UI,FACT,facList};
+return {TYPES,typeName,veh,M,BY,GROUPS,calc,clamp,levels,optChoices,addable,optsOf,ctxOf,statLine,minLv,maxLv,fmtN,AIR,GROUND,checklist,act,keyOf,refocus,UI,FACT,facList,ENG_GAIN};
 })();
 /*@end:vehicles*/
 
@@ -820,7 +820,7 @@ function act(key,S,el,E){const ds=el.dataset||{};
 const keyOf=el=>{const ds=el&&el.dataset||{}; for(const a of ['hbck','hbrt','hbf']) if(ds[a]!==undefined) return {a,k:ds[a],id:ds.hbid,f:ds.hbfield}; return null;};
 function refocus(info){ if(!info||typeof document==='undefined') return; const at=a=>a.replace(/[A-Z]/g,x=>'-'+x.toLowerCase());
   const sel=`[data-${at(info.a)}="${CSS.escape(info.k)}"]`+(info.id?`[data-hbid="${CSS.escape(info.id)}"]`:'')+(info.f?`[data-hbfield="${CSS.escape(info.f)}"]`:''); const el=document.querySelector(sel); if(el) el.focus({preventScroll:true});}
-return {kind,isHost,defaults,pool,calc,addable,levels,clamp,PAGES,INTRO,SEC_ARMOR,checklist,act,keyOf,refocus};
+return {kind,isHost,defaults,pool,calc,addable,levels,clamp,PAGES,INTRO,SEC_ARMOR,checklist,headHTML,act,keyOf,refocus};
 })();
 /*@end:hosts*/
 // ---------- Option build-out UI (Gear Locker): cybereyes, cyberears, security armor and helmet ----------

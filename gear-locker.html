@@ -29,48 +29,192 @@ h1 small{display:block;font:500 .75rem var(--body);letter-spacing:.08em;text-tra
 .tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;min-width:0}
 #q{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);width:min(440px,100%)}
 #q:focus,button:focus-visible,select:focus-visible,input:focus-visible,.item:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.books{display:flex;flex-wrap:wrap;gap:6px}
 .skin{display:inline-flex;align-items:center;gap:6px;font-size:.8125rem;color:var(--muted)}.skin select{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 8px}
-.chip{font:600 .75rem var(--body);letter-spacing:.04em;border:1.5px solid var(--bc);color:var(--bc);background:transparent;border-radius:999px;padding:5px 11px;cursor:pointer}
+.chip{display:none;font:600 .75rem var(--body);letter-spacing:.04em;border:1.5px solid var(--bc);color:var(--bc);background:transparent;border-radius:999px;padding:5px 11px;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--bc);color:var(--panel)}
 .lgl{display:inline-block;margin-left:6px;font:600 .625rem var(--mono);letter-spacing:.03em;border:1px solid currentColor;border-radius:4px;padding:0 4px;line-height:1.5;vertical-align:1px;white-space:nowrap}.lgl-permit{color:var(--muted)}.lgl-restricted{color:var(--warn)}.lgl-illegal{color:#c0392b}.lglnote{margin:6px 0}
 .src{display:inline-block;font:600 .6875rem var(--mono);letter-spacing:.03em;color:var(--bc);border:1px solid var(--bc);border-radius:4px;padding:0 5px;line-height:1.5;white-space:nowrap}
-.grid{display:grid;grid-template-columns:220px minmax(0,1fr) minmax(0,1.25fr);gap:14px;align-items:start}
-nav,.shelf,.tag{background:var(--panel);border:1px solid var(--line);border-radius:8px;min-width:0}
-nav{padding:8px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);max-height:calc(100vh - 32px);overflow:auto}
-nav button{display:flex;width:100%;justify-content:space-between;gap:8px;text-align:left;font:500 .875rem var(--body);color:var(--ink);background:none;border:0;border-radius:5px;padding:7px 9px;cursor:pointer}
-nav button:hover{background:var(--panel2)}
-nav button[aria-current="true"]{background:var(--accent);color:var(--accent-ink)}
-nav .n{font:500 .75rem var(--mono);opacity:.75}
-#catSel{display:none;font:inherit;padding:8px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%}
-.shelf{display:flex;flex-direction:column;max-height:calc(100vh - 32px);position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px)}
-.shelf .hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
-.shelf .hd b{font:600 1rem var(--display);letter-spacing:.02em}
-.shelf .hd span{font:.8125rem var(--mono);color:var(--muted)}
-.sort{font:.8125rem var(--body);border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:5px;padding:3px 6px}
-.sorts{display:flex;gap:6px;align-items:center}
-.ftog{display:none;font-family:var(--body)}
-.dir{font:600 .8125rem var(--mono);border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:5px;padding:3px 8px;cursor:pointer}
-.fbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:end;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--panel2)}
+.grid{display:grid;grid-template-columns:minmax(290px,370px) minmax(0,1fr) minmax(290px,350px);gap:14px;align-items:start}
+.grid.kitc{grid-template-columns:minmax(290px,370px) minmax(0,1fr) 64px}
+.shelf,.tag,.kit{background:var(--panel);border:1px solid var(--line);border-radius:8px;min-width:0}
+.shelf{display:flex;flex-direction:column;max-height:calc(100vh - 24px);position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);overflow:hidden}
+.bhd{display:flex;flex-direction:column;gap:8px;padding:12px;border-bottom:1px solid var(--line)}
+.lbl{font:600 .6875rem var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+#q{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:6px;background:var(--panel2);color:var(--ink);width:100%;min-height:44px}
+.brow{display:flex;gap:8px}
+.catbtn{flex:1;min-width:0;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;padding:4px 12px;border-radius:6px;border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--panel));color:var(--ink);font:inherit;cursor:pointer}
+.catbtn .cbt{display:flex;flex-direction:column;min-width:0}
+.catbtn .cbd{font:600 .6875rem var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--accent)}
+.catbtn .cbn{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.catbtn .cbn span{font:400 .8125rem var(--mono);color:var(--muted)}
+.catbtn svg,.srcbtn svg,.kbtn svg{flex:none}
+.ftog{min-height:48px;padding:0 12px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:600 .875rem var(--body);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.ftog .fn{background:var(--accent);color:var(--accent-ink);border-radius:999px;min-width:20px;height:20px;font-size:.75rem;display:inline-flex;align-items:center;justify-content:center;padding:0 5px}
+.fbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--panel2)}
 .fbar[hidden]{display:none}
 .fbar .fl{display:flex;flex-direction:column;gap:3px;min-width:0}
+.fbar .fl.wide{grid-column:1/-1}
 .fbar .fl>span{font:600 .6875rem var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
-.fbar select,.fbar input{font:.8125rem var(--body);border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:5px;padding:4px 6px;max-width:100%}
-.fbar input[type=number]{width:6.5rem}
+.fbar select,.fbar input{font:.875rem var(--body);border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:5px;padding:6px;max-width:100%;min-height:36px}
+.fbar input[type=number]{width:100%}
+.sortrow{display:flex;gap:6px}.sortrow select{flex:1;min-width:0}
+.dir{font:600 .8125rem var(--mono);border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:5px;padding:3px 10px;cursor:pointer;min-height:36px}
 .lv{display:flex;gap:4px}
-.lv button{font:600 .75rem var(--mono);width:2rem;padding:4px 0;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:4px;cursor:pointer}
+.lv button{font:600 .75rem var(--mono);width:2.25rem;min-height:32px;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:4px;cursor:pointer}
 .lv button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
-.fbar .clr{font:600 .75rem var(--body);background:none;border:0;color:var(--accent);cursor:pointer;padding:4px 0;margin-left:auto}
-.grp{padding:6px 12px;font:600 .6875rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--panel2);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1}
+.fbar .clr{grid-column:1/-1;justify-self:end;font:600 .8125rem var(--body);background:none;border:0;color:var(--accent);cursor:pointer;padding:4px 0}
+.achips{display:flex;flex-wrap:wrap;gap:6px}.achips:empty{display:none}
+.achip{min-height:32px;padding:0 10px;border-radius:999px;border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--panel));color:var(--ink);font:500 .8125rem var(--body);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.lhd{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 12px;font-size:.8125rem;color:var(--muted)}
+.linkb{background:none;border:0;color:var(--accent);font:600 .8125rem var(--body);cursor:pointer;min-height:32px;padding:0}
+#list{overflow:auto;flex:1;min-height:120px}
+.grph{position:sticky;top:0;z-index:1;width:100%;min-height:44px;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--panel2);border:0;border-top:1px solid var(--line);color:var(--ink);font:600 .875rem var(--body);cursor:pointer;text-align:left}
+.grph .gl{flex:1;min-width:0}.grph .gr{font:400 .75rem var(--mono);color:var(--muted);white-space:nowrap}
+.grph .gn{font:500 .75rem var(--mono);background:var(--line);border-radius:999px;padding:1px 8px}
+.grph svg{transition:transform .15s}.grph[aria-expanded="true"] svg{transform:rotate(90deg)}
 .item .stat{font:500 .75rem var(--mono);color:var(--ink);white-space:nowrap}
-#list{overflow:auto;flex:1}
-.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:9px 12px;border:0;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:3px solid transparent;width:100%;text-align:left;font:inherit;color:inherit}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:9px 12px 9px 30px;border:0;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:3px solid transparent;width:100%;text-align:left;color:var(--ink);font:inherit}
+.flat .item{padding-left:12px}
 .item:hover{background:var(--panel2)}
-.item[aria-selected="true"]{background:var(--panel2);border-left-color:var(--accent)}
+.item[aria-current="true"]{background:var(--panel2);border-left-color:var(--accent)}
 .item .nm{font-weight:600;overflow-wrap:anywhere}
 .item .pr{font:500 .875rem var(--mono);color:var(--price);text-align:right;white-space:nowrap}
 .item .sub{grid-column:1/-1;font-size:.8125rem;color:var(--muted);display:flex;gap:8px;align-items:center;min-width:0}
 .item .sub .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.picker{position:absolute;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);overflow:auto;padding:4px 12px 16px;z-index:5;display:flex;flex-direction:column;gap:12px}
+.picker[hidden]{display:none}
+.pk-d{display:flex;flex-direction:column;gap:6px}
+.pk-h{display:flex;justify-content:space-between;align-items:baseline;padding-top:8px;font:600 .9375rem var(--display)}.pk-h span{font:400 .75rem var(--mono);color:var(--muted)}
+.pk-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.pk-g button{min-height:44px;text-align:left;padding:6px 10px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font:500 .8125rem var(--body);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.pk-g button span:last-child{font:.75rem var(--mono);opacity:.8}
+.pk-g button[aria-current="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.srcbtn,.kbtn{min-height:40px;padding:0 12px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:600 .875rem var(--body);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.srcbtn[hidden]{display:none}
+.srcbtn .n{font:400 .8125rem var(--mono);color:var(--muted)}
+.srcp{background:var(--panel);border:1px solid var(--line);border-radius:8px;margin-bottom:14px}
+.srcp[hidden]{display:none}
+.srcp-h{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:1px solid var(--line)}
+.srcp-h .note{flex:1 1 260px}
+.srcp-a{display:flex;gap:6px}
+.chipb{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font:500 .8125rem var(--body);cursor:pointer}
+#books{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;padding:12px}
+.bk{min-height:52px;text-align:left;border-radius:6px;padding:8px 12px;display:flex;align-items:center;gap:10px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);cursor:pointer;font:inherit}
+.bk[aria-pressed="true"]{border-color:var(--bc);background:color-mix(in srgb,var(--bc) 14%,var(--panel))}
+.bk .bx{width:18px;height:18px;flex:none;border-radius:4px;border:2px solid var(--muted);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--panel)}
+.bk[aria-pressed="true"] .bx{background:var(--bc);border-color:var(--bc)}
+.bk .bt{display:flex;flex-direction:column;min-width:0}.bk .bt b{font-size:.8125rem}.bk .bt span{font:.75rem var(--mono);color:var(--muted)}
+.tag{display:flex;flex-direction:column;min-height:420px}
+.tag .thd{padding:18px 20px 8px}
+.tabs{display:flex;flex-wrap:wrap;gap:2px;padding:0 12px;border-bottom:1px solid var(--line)}
+.tabs button{min-height:44px;padding:0 14px;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);font:600 .875rem var(--body);cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs .tn{font:400 .75rem var(--mono);margin-left:4px}
+.tpanel{padding:14px 20px 20px;flex:1}
+.tbar{position:sticky;bottom:0;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--line);background:var(--panel2);border-radius:0 0 8px 8px}
+.tbar .tp{display:flex;flex-direction:column}.tbar .tp b{font:600 1.125rem var(--mono);color:var(--price)}.tbar .tp span{font-size:.75rem;color:var(--muted)}
+.tbar .ta{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn.big{min-height:44px;padding:0 16px;font-size:.875rem}
+.kit{position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);max-height:calc(100vh - 24px);display:flex;flex-direction:column;overflow:hidden}
+.kit .khd{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.kit .khd b{font:600 1rem var(--display);letter-spacing:.02em}
+.kit .kbody{overflow:auto;flex:1}
+.kit .kg{padding:10px 14px 4px;font:600 .6875rem var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.kl{padding:8px 14px 10px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px;font-size:.875rem}
+.kl .kt{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.kl .kt b{font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kl .c{font-family:var(--mono);color:var(--price);white-space:nowrap}
+.kl .kn{font-size:.75rem;color:var(--muted)}
+.kl .ka{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.qty{display:inline-flex;align-items:center;gap:6px}.qty span{font-family:var(--mono);min-width:22px;text-align:center}
+.sq{width:34px;height:34px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:1rem;cursor:pointer}
+.sq:disabled{opacity:.4;cursor:default}
+.xb{min-height:34px;padding:0 10px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:500 .75rem var(--body);cursor:pointer}
+.kfoot{border-top:1px solid var(--line);background:var(--panel2);padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.ktot{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.ktot div{display:flex;flex-direction:column}.ktot b{font:600 1.125rem var(--mono)}
+.klg{display:flex;flex-wrap:wrap;gap:6px}
+.kwarn{font-size:.75rem;color:var(--warn)}
+.kact{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.kact .btn{min-height:40px}.kact .full{grid-column:1/-1}
+.krail{flex:1;min-height:360px;width:100%;background:none;border:0;color:var(--ink);padding:14px 4px;display:flex;flex-direction:column;align-items:center;gap:14px;cursor:pointer;font:inherit}
+.krail .rn{background:var(--accent);color:var(--accent-ink);border-radius:999px;min-width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font:700 .8125rem var(--mono)}
+.krail .rv{writing-mode:vertical-rl;font:600 .9375rem var(--display);letter-spacing:.04em}
+.krail .rt{writing-mode:vertical-rl;font:.8125rem var(--mono);color:var(--muted)}
+.krail .rx{writing-mode:vertical-rl;font:700 .6875rem var(--body);padding:8px 2px;border-radius:999px;background:color-mix(in srgb,var(--price) 18%,var(--panel));color:var(--price)}
+.lgl-legal{color:var(--good)}
+.btn:disabled{opacity:.45;cursor:default}
+.gm-grid{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);gap:16px;margin:4px 0 14px}
+.gm-map{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;overflow:hidden;align-self:start}
+.gm-map>.lbl{padding:10px 12px 6px}
+.gm-s{min-height:56px;display:flex;align-items:center;gap:10px;padding:8px 12px;background:none;border:0;border-top:1px solid var(--line);border-left:3px solid transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.gm-s:hover{background:var(--panel2)}.gm-s[aria-current="true"]{background:var(--panel2);border-left-color:var(--accent)}
+.gm-dot,.gm-key i{width:10px;height:10px;border-radius:999px;flex:none;border:2px solid transparent;display:inline-block}
+.gm-st-fit .gm-dot,.gm-key .k-fit{background:var(--accent)}.gm-st-built .gm-dot,.gm-key .k-built{background:var(--warn)}.gm-st-open .gm-dot,.gm-key .k-open{border-color:var(--muted)}.gm-st-none .gm-dot,.gm-key .k-none{background:var(--line)}
+.gm-t{flex:1;min-width:0;display:flex;flex-direction:column}.gm-l{font:600 .75rem var(--body);color:var(--muted)}.gm-n{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gm-st-none .gm-n{color:var(--muted);font-weight:500}
+.gm-c{font:.75rem var(--mono);color:var(--muted);white-space:nowrap}
+.gm-key{display:flex;flex-wrap:wrap;gap:6px 12px;padding:10px 12px;border-top:1px solid var(--line);font-size:.75rem;color:var(--muted)}.gm-key span{display:inline-flex;align-items:center;gap:6px}
+.gm-map>.note{padding:0 12px 10px;margin:0}
+.gm-panel{display:flex;flex-direction:column;gap:10px;min-width:0}
+.gm-ph{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.gm-ph h4{margin:0;font:600 1.05rem var(--display)}
+.gm-built{margin:0;padding:8px 10px;border-radius:6px;border:1px solid color-mix(in srgb,var(--warn) 45%,var(--line));background:color-mix(in srgb,var(--warn) 10%,var(--panel));font-size:.875rem}
+.gm-panel>.xb{align-self:flex-start}
+.gm-os{display:flex;flex-direction:column;gap:8px}
+.gm-o{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:4px 12px;align-items:start;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.gm-o:hover{border-color:var(--accent)}.gm-o.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--panel))}
+.gm-o[aria-disabled="true"]{opacity:.55;cursor:not-allowed}
+.gm-r{margin-top:3px;width:16px;height:16px;border-radius:999px;border:2px solid var(--muted)}.gm-o.on .gm-r{border-color:var(--accent);box-shadow:inset 0 0 0 3px var(--panel);background:var(--accent)}
+.gm-ot{display:flex;flex-direction:column;gap:3px;min-width:0}.gm-ot>span{font-size:.8125rem;color:var(--muted);line-height:1.4}
+.gm-cs{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.gm-cs .note{font-size:.75rem}
+.gm-chip{font:600 .6875rem var(--body);padding:1px 7px;border-radius:999px;background:var(--line);color:var(--ink)}.gm-chip.ok{background:color-mix(in srgb,var(--good) 18%,var(--panel));color:var(--good)}.gm-chip.warn{background:color-mix(in srgb,var(--warn) 18%,var(--panel));color:var(--warn)}
+.gm-p{font:500 .875rem var(--mono);color:var(--price);white-space:nowrap}
+.gm-no{border:1px solid var(--line);border-radius:8px;padding:0 12px}.gm-no summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:600;color:var(--muted)}
+.gm-no ul{list-style:none;margin:0 0 8px;padding:0}.gm-no li{display:flex;flex-direction:column;gap:2px;padding:6px 0;border-top:1px solid var(--line);font-size:.8125rem}.gm-no li span{color:var(--muted)}
+.gm-setup{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:0 0 12px}.gm-setup .fl{display:flex;flex-direction:column;gap:4px}
+.gm-setup select{font:inherit;font-size:.875rem;padding:6px 8px;min-height:40px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
+.gm-res{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}
+.gm-res div{display:flex;flex-direction:column;gap:2px;min-width:0}.gm-res b{font:600 1rem var(--mono);overflow-wrap:anywhere}.gm-res .note{font-size:.75rem}
+.gm-more{margin:10px 0}.gm-more summary{cursor:pointer;font-weight:600;min-height:40px;display:flex;align-items:center}
+.gm-act{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:14px}
+.vw-pin{position:sticky;top:0;z-index:3;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;padding:12px 14px;margin:0 -6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);box-shadow:0 6px 14px -12px rgba(0,0,0,.5)}
+.vw-bars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.vw-bar{display:flex;flex-direction:column;gap:4px;min-width:0}.vw-bl{display:flex;flex-direction:column;gap:1px}.vw-bl b{font:600 .9375rem var(--mono);white-space:nowrap}
+.vw-bt{height:10px;border-radius:999px;background:var(--panel);border:1px solid var(--line);overflow:hidden}.vw-bt i{display:block;height:100%;background:var(--accent)}.vw-bt i.hi{background:var(--warn)}
+.vw-bar .note{font-size:.75rem}
+.vw-tot{display:flex;flex-direction:column;align-items:flex-end}.vw-tot b{font:600 1.125rem var(--mono);color:var(--price)}.vw-tot .note{font-size:.75rem}
+.vw-stats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.vw-st{display:inline-flex;gap:6px;align-items:baseline;padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:var(--panel)}.vw-st span{font:600 .6875rem var(--body);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}.vw-st b{font:500 .875rem var(--mono)}.vw-st em{font-size:.6875rem;color:var(--muted);font-style:normal}.vw-st.chg b{color:var(--accent)}
+.vw-fac{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;font-size:.8125rem;margin:0 0 10px}.vw-fac>span:not(.note){padding:1px 9px;border-radius:999px;border:1px solid color-mix(in srgb,var(--warn) 45%,var(--line));background:color-mix(in srgb,var(--warn) 10%,var(--panel))}.vw-fac .note{font-size:.75rem}
+.vw-setup{margin:0 0 10px;border:1px solid var(--line);border-radius:8px;padding:0 12px}.vw-setup summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:600;font-size:.875rem}
+.vw-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.vw-tabs button{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:600 .875rem var(--body);cursor:pointer}.vw-tabs button span{font:400 .75rem var(--mono);opacity:.85}
+.vw-tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.vw-list{display:flex;flex-direction:column;gap:8px}
+.vw-g{border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.vw-g>summary{min-height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;background:var(--panel2);cursor:pointer;list-style:none}.vw-g>summary::-webkit-details-marker{display:none}
+.vw-g>summary b{flex:1}.vw-g>summary svg{transition:transform .15s}.vw-g[open]>summary svg{transform:rotate(90deg)}
+.vw-gon{font-size:.75rem;color:var(--good)}.vw-g .gn{font:500 .75rem var(--mono);background:var(--line);border-radius:999px;padding:1px 8px}
+.vw-hd,.vw-r{display:grid;grid-template-columns:var(--wcols,minmax(0,1fr) 92px 48px 66px 150px);gap:8px;align-items:center;padding:8px 12px}
+.vw-hd{font:600 .6875rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--line);padding-block:6px}.vw-hd span:nth-child(n+2):not(:last-child){text-align:right}
+.vw-r{border-top:1px solid var(--line)}
+.vw-r.vw-r2{grid-template-columns:minmax(0,1fr) auto}.vw-r.vw-on{background:color-mix(in srgb,var(--accent) 8%,transparent)}.vw-r.vw-no .vw-n b,.vw-r.vw-fac .vw-n b{color:var(--muted)}
+.vw-n{display:flex;flex-direction:column;gap:2px;min-width:0}.vw-n>span{font-size:.75rem;color:var(--muted)}.vw-why{color:var(--warn)}
+.vw-d summary{font-size:.75rem;color:var(--muted);cursor:pointer;width:max-content}.vw-d p{margin:4px 0 0;font-size:.8125rem;line-height:1.45}
+.vw-num{font:500 .8125rem var(--mono);text-align:right;white-space:nowrap}
+.vw-c{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:6px}
+.vw-s{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;color:var(--muted)}.vw-s select{font:inherit;font-size:.8125rem;padding:3px 4px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--ink);max-width:9rem}
+.vw-t{display:inline-flex;align-items:center;justify-content:center;min-height:36px;min-width:84px;padding:0 12px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:600 .8125rem var(--body);cursor:pointer;position:relative}
+.vw-t input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}.vw-t:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.vw-t.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.vw-tag{font:600 .6875rem var(--body);padding:2px 9px;border-radius:999px;background:var(--line);color:var(--muted)}
+@media (max-width:900px){.gm-grid{grid-template-columns:minmax(0,1fr)} .vw-pin{grid-template-columns:minmax(0,1fr)} .vw-tot{align-items:flex-start}}
+@media (max-width:640px){.vw-r.vw-r2{grid-template-columns:minmax(0,1fr) auto} .vw-r2 .vw-n{grid-column:auto} .vw-r2 .vw-c{grid-column:auto} .vw-bars{grid-template-columns:minmax(0,1fr)} .vw-hd{display:none} .vw-r{grid-template-columns:repeat(3,minmax(0,1fr));} .vw-n,.vw-c{grid-column:1/-1} .vw-c{justify-content:flex-start} .vw-num{text-align:left} .vw-pin{position:static}}
+
+.vw-intro{margin:0;padding:8px 12px;font-size:.8125rem;color:var(--muted);border-top:1px solid var(--line)}
+.vw-t.dis{opacity:.5;cursor:not-allowed}.vw-t.dis input{cursor:not-allowed}
+.vw-setup>.bgrid,.vw-setup>.bchks,.vw-setup>.note,.vw-setup>.gm-setup{margin:0 0 12px}
+.hb-setup{padding:8px 12px}.hb-setup .vck-bar{margin:0}
+.cbv2 .cb-h,.cbv2 .cb-tiles,.cbv2 .cb-note:last-child{display:none}
+.cbv2 .cb-cards:not(:has(article:not([hidden]))),.cbv2 .cb-cards:not(:has(article:not([hidden])))+.cb-grid,.cbv2 .cb-cards:not(:has(article:not([hidden])))+.cb-note{display:none}
+.cbv2 .cb-cards{display:block}.cbv2 .cb-card.cb-pick{border-color:var(--accent)}
+.cbv2:not(.cb-at-la):not(.cb-at-ra) .cb>.cb-chks{display:none}
+.dk .vw-num{white-space:normal;text-align:right;line-height:1.35}
 .empty{padding:24px 14px;color:var(--muted)}
 .tag{padding:18px 20px 22px}
 .tag .kicker{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font:600 .75rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -120,21 +264,11 @@ tr.on td{background:color-mix(in srgb,var(--accent) 14%,transparent)}
 .rule{border-left:3px solid var(--warn);padding:6px 10px;background:var(--panel2);border-radius:0 5px 5px 0;font-size:.875rem;max-width:70ch;margin:6px 0}
 .btn{font:600 .8125rem var(--body);border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:7px 12px;cursor:pointer}
 .btn.ghost{background:transparent;color:var(--accent)}
-.kitchip{font:600 .8125rem var(--body);color:var(--accent);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:5px 12px;background:var(--panel);white-space:nowrap}.kitchip:hover{border-color:var(--accent)}
 .back{display:none;font:600 .8125rem var(--body);color:var(--accent);text-decoration:none;margin-bottom:6px}
-@media (max-width:760px){.back{display:inline-block}}
-.kit{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
-.kit .hd{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline}
-.kit .hd b{font:600 1rem var(--display);letter-spacing:.02em}
-.kit .tot{font:600 .9375rem var(--mono)}
-.kit ul{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px}
-.kit li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;font-size:.875rem;border-bottom:1px dashed var(--line);padding:4px 0}
-.kit li .x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:1rem}
-.kit li .c{font-family:var(--mono);color:var(--price)}
 .kfg{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:3px;font-size:.75rem;color:var(--muted)}.kfg select{font-size:.75rem;max-width:15rem;padding:2px 4px}.kfg .bad{color:var(--bad,#c33)}.tfg{margin-top:12px;display:grid;gap:4px}.tfg label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}.tfg select{font:inherit;font-size:.875rem;padding:6px 8px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--ink);max-width:100%}.tfg .bad{color:var(--bad,#c33);font-size:.8125rem}
 .foot{margin-top:18px;font-size:.75rem;color:var(--muted);max-width:90ch}
-@media (max-width:1100px){.grid{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)} nav{display:none} #catSel{display:block;margin-bottom:10px}}
-@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)} .shelf{position:static;max-height:60vh} .shelf:not(.fopen) .fbar{display:none} .ftog{display:inline-block} #catName{display:none} .tblw th,.tblw td{padding:6px 7px;font-size:.8125rem} .build{padding:4px 10px 12px}}
+@media (max-width:1180px){.grid,.grid.kitc{grid-template-columns:minmax(280px,340px) minmax(0,1fr)} .kit{grid-column:1/-1;position:static;max-height:none} .krail{min-height:0;flex-direction:row;justify-content:center;padding:12px} .krail .rv,.krail .rt,.krail .rx{writing-mode:horizontal-tb}}
+@media (max-width:760px){.grid,.grid.kitc{grid-template-columns:minmax(0,1fr)} .shelf{position:relative;top:0;max-height:70vh} .back{display:inline-block} .tbar{position:sticky;bottom:0} .tblw th,.tblw td{padding:5px 7px} .pk-g{grid-template-columns:minmax(0,1fr)}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 .ulist,.plist{list-style:none;margin:6px 0 10px;padding:0;display:grid;gap:8px}
 .ucard{border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:var(--panel)}
@@ -171,26 +305,36 @@ tr.on td{background:color-mix(in srgb,var(--accent) 14%,transparent)}
 <header>
   <h1>SR2 Gear Locker<small>Core and ten sourcebooks · gear, spells, adept powers, Edges and Flaws, metavariants</small></h1>
   <div class="tools">
-    <input id="q" type="search" placeholder="Search gear, e.g. smartlink, Predator, drone" aria-label="Search gear" autocomplete="off">
-    <div class="books" id="books" role="group" aria-label="Books"></div>
-    <label class="skin" for="legalSel">Show <select id="legalSel"><option value="all">Everything</option><option value="permit">Legal, with or without a permit</option><option value="legal">Legal, no permit needed</option></select></label>
-    <a class="kitchip" id="kitchip" href="#kit">Shopping list: 0</a>
+    <button type="button" class="srcbtn" id="srcBtn" aria-expanded="false" aria-controls="srcPanel"></button>
     <div class="charbar" id="charbar"></div>
     <label class="skin" for="skinSel">Colors <select id="skinSel"></select></label>
   </div>
 </header>
-<select id="catSel" aria-label="Category"></select>
-<div class="grid">
-  <nav id="cats" aria-label="Categories"></nav>
-  <section class="shelf" aria-label="Items">
-    <div class="hd"><b id="catName">All gear</b><span id="count"></span>
-      <span class="sorts"><select class="sort" id="sort" aria-label="Sort by"></select><button class="dir" id="dir" aria-label="Reverse sort order" title="Reverse order">↑</button><button class="dir ftog" id="ftog" aria-expanded="false">Filters</button></span></div>
-    <div class="fbar" id="fbar" aria-label="Filters"></div>
-    <div id="list" role="listbox" aria-label="Items"></div>
+<section class="srcp" id="srcPanel" aria-label="Sources" hidden>
+  <div class="srcp-h"><button type="button" class="srcbtn" id="srcClose" aria-expanded="true" aria-controls="srcPanel" style="border-color:transparent;background:none"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l5-5 5 5"/></svg>Sources <span class="n" id="srcCount"></span></button>
+    <span class="note">Only gear from the books you tick shows up. Your GM decides which books are in play.</span>
+    <span class="srcp-a"><button type="button" class="chipb" id="srcAll">All books</button><button type="button" class="chipb" id="srcCore">Core only</button></span></div>
+  <div id="books" role="group" aria-label="Books"></div>
+</section>
+<div class="grid" id="grid">
+  <section class="shelf" aria-label="Browse">
+    <div class="bhd">
+      <label class="lbl" for="q">Search all <span id="qn"></span> items</label>
+      <input id="q" type="search" placeholder="Name, maker, stat or book" autocomplete="off">
+      <div class="brow">
+        <button type="button" class="catbtn" id="catBtn" aria-expanded="false" aria-controls="picker"><span class="cbt"><span class="cbd" id="catDept"></span><span class="cbn"><b id="catName">All gear</b> <span id="count"></span></span></span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>
+        <button type="button" class="ftog" id="ftog" aria-expanded="false" aria-controls="fbar"></button>
+      </div>
+      <div class="fbar" id="fbar" aria-label="Filters" hidden></div>
+      <div class="achips" id="achips"></div>
+    </div>
+    <div class="lhd"><span id="lnote"></span><button type="button" class="linkb" id="grpAll"></button></div>
+    <div id="list" aria-label="Items"></div>
+    <div class="picker" id="picker" role="dialog" aria-label="Pick a category" hidden></div>
   </section>
   <article class="tag" id="tag" aria-live="polite"></article>
+  <aside class="kit" id="kit" aria-label="Shopping list"></aside>
 </div>
-<section class="kit" id="kit" aria-label="Shopping list"></section>
 <div id="sendDlg" class="sd" hidden></div>
 <p class="foot">Prices and stats are list values from your books; each item shows its book and printed page. Item notes are short summaries, not book text. Links between items come from the rules: what a weapon can mount, what cyberware needs, what a deck runs and so on. Check the page for the full rule.</p>
 </div>
@@ -686,7 +830,7 @@ if(typeof document!=='undefined'){
 .vck-d{margin:4px 0 0 1.6rem;font-size:.8125rem}.vck-d summary{cursor:pointer;color:var(--muted);width:max-content}.vck-d p{margin:4px 0 0;line-height:1.45;color:var(--ink)}`;
   (document.head||document.documentElement).appendChild(st);
 }
-return {TYPES,typeName,veh,M,BY,GROUPS,calc,clamp,levels,optChoices,addable,optsOf,ctxOf,statLine,minLv,maxLv,fmtN,AIR,GROUND,checklist,act,keyOf,refocus,UI,FACT,facList};
+return {TYPES,typeName,veh,M,BY,GROUPS,calc,clamp,levels,optChoices,addable,optsOf,ctxOf,statLine,minLv,maxLv,fmtN,AIR,GROUND,checklist,act,keyOf,refocus,UI,FACT,facList,ENG_GAIN};
 })();
 /*@end:vehicles*/
 
@@ -822,7 +966,7 @@ function act(key,S,el,E){const ds=el.dataset||{};
 const keyOf=el=>{const ds=el&&el.dataset||{}; for(const a of ['hbck','hbrt','hbf']) if(ds[a]!==undefined) return {a,k:ds[a],id:ds.hbid,f:ds.hbfield}; return null;};
 function refocus(info){ if(!info||typeof document==='undefined') return; const at=a=>a.replace(/[A-Z]/g,x=>'-'+x.toLowerCase());
   const sel=`[data-${at(info.a)}="${CSS.escape(info.k)}"]`+(info.id?`[data-hbid="${CSS.escape(info.id)}"]`:'')+(info.f?`[data-hbfield="${CSS.escape(info.f)}"]`:''); const el=document.querySelector(sel); if(el) el.focus({preventScroll:true});}
-return {kind,isHost,defaults,pool,calc,addable,levels,clamp,PAGES,INTRO,SEC_ARMOR,checklist,act,keyOf,refocus};
+return {kind,isHost,defaults,pool,calc,addable,levels,clamp,PAGES,INTRO,SEC_ARMOR,checklist,headHTML,act,keyOf,refocus};
 })();
 /*@end:hosts*/
 // ---------- Option build-out UI (Gear Locker): cybereyes, cyberears, security armor and helmet ----------
@@ -1096,11 +1240,12 @@ const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const fmt=n=>n==null||isNaN(n)?'—':Math.round(n).toLocaleString('en-US');
 const slug=id=>id.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const BYSLUG=Object.fromEntries(ITEMS.map(i=>[slug(i.id),i]));
-let st={books:{core:1,ssc:1,r2:1,vr2:1,fof:1,st:1,ct:1,csh:1,gr:1,aw:1,co:1},cat:'all',q:'',sort:'book',dir:1,f:{},sel:null,rate:{},kit:[]};
+let st={books:{core:1,ssc:1,r2:1,vr2:1,fof:1,st:1,ct:1,csh:1,gr:1,aw:1,co:1},cat:'all',q:'',sort:'book',dir:1,f:{},sel:null,rate:{},kit:[],tab:'overview',open:{},srcOpen:false,kitOpen:true};
+const SKEY='sr2gear2';
 // Old item ids that were renamed or merged (e.g. vehicles superseded by Rigger 2); same table the builder uses.
 const KEYFIX=(DATA&&DATA.keyfix)||{};
-try{const s=JSON.parse(localStorage.getItem('sr2gear')||'null'); if(s){if(['all','permit','legal'].includes(s.legal)) st.legal=s.legal; st.books=Object.assign(st.books,s.books||{}); st.kit=Array.isArray(s.kit)?s.kit.map(k=>{const f=KEYFIX[k.id]; return f?{...k,id:f}:k;}).filter(k=>BYID[k.id]||k.n):[]; if(s.build&&typeof s.build==='object') st.build=s.build; if(s.gel&&typeof s.gel==='object') st.gel=s.gel; if(s.dbuild&&typeof s.dbuild==='object') st.dbuild=s.dbuild; if(s.vbuild&&typeof s.vbuild==='object') st.vbuild=s.vbuild; if(s.hbuild&&typeof s.hbuild==='object') st.hbuild=s.hbuild; if(s.cbody&&typeof s.cbody==='object') st.cbody=s.cbody; if(typeof s.charId==='string') st.charId=s.charId; if(s.fgSel&&typeof s.fgSel==='object') st.fgSel=s.fgSel;}}catch(e){}
-const save=()=>{try{localStorage.setItem('sr2gear',JSON.stringify({books:st.books,kit:st.kit,build:st.build||{},dbuild:st.dbuild||{},vbuild:st.vbuild||{},hbuild:st.hbuild||{},gel:st.gel||{},cbody:st.cbody||null,charId:st.charId||'',fgSel:st.fgSel||{},legal:st.legal||'all'}));}catch(e){}};
+try{const s=JSON.parse(localStorage.getItem(SKEY)||localStorage.getItem('sr2gear')||'null'); if(s){if(typeof s.kitOpen==='boolean') st.kitOpen=s.kitOpen; if(typeof s.srcOpen==='boolean') st.srcOpen=s.srcOpen; if(typeof s.tab==='string') st.tab=s.tab; if(typeof s.cat==='string') st.cat=s.cat; if(['all','permit','legal'].includes(s.legal)) st.legal=s.legal; st.books=Object.assign(st.books,s.books||{}); st.kit=Array.isArray(s.kit)?s.kit.map(k=>{const f=KEYFIX[k.id]; return f?{...k,id:f}:k;}).filter(k=>BYID[k.id]||k.n):[]; if(s.build&&typeof s.build==='object') st.build=s.build; if(s.gel&&typeof s.gel==='object') st.gel=s.gel; if(s.dbuild&&typeof s.dbuild==='object') st.dbuild=s.dbuild; if(s.vbuild&&typeof s.vbuild==='object') st.vbuild=s.vbuild; if(s.hbuild&&typeof s.hbuild==='object') st.hbuild=s.hbuild; if(s.cbody&&typeof s.cbody==='object') st.cbody=s.cbody; if(typeof s.charId==='string') st.charId=s.charId; if(s.fgSel&&typeof s.fgSel==='object') st.fgSel=s.fgSel;}}catch(e){}
+const save=()=>{try{localStorage.setItem(SKEY,JSON.stringify({kitOpen:st.kitOpen,srcOpen:st.srcOpen,tab:st.tab,cat:st.cat,books:st.books,kit:st.kit,build:st.build||{},dbuild:st.dbuild||{},vbuild:st.vbuild||{},hbuild:st.hbuild||{},gel:st.gel||{},cbody:st.cbody||null,charId:st.charId||'',fgSel:st.fgSel||{},legal:st.legal||'all'}));}catch(e){}};
 const srcTag=s=>`<span class="src" title="${BOOK[s][0]}" style="--bc:var(${BOOK[s][2]})">${BOOK[s][1]}</span>`;
 function pageRef(i){const p=i.pg||'';return /^(SSC|R2|VR2|FoF|ST|CT|CSH|GR|AW|SRC)\b/.test(p)?p:(p?'Core '+p:'');}
 function costAt(i,r){ if(i.cost!=null) return i.cost; if(i.costs) return i.costs[r]; if(i.mult!=null) return i.mult*r; return null;}
@@ -1553,11 +1698,12 @@ function openPaste(){ $('sendDlg').innerHTML=`<div class="sd-card" role="dialog"
 
 function baseList(){
   const q=norm(st.q.trim()); const words=q?q.split(/\s+/):[];
-  return ITEMS.filter(i=>(st.cat==='owned'?!!OWN[i.id]:visible(i)&&(st.cat==='all'||i.cat===st.cat)&&legalShows(i))&&(!words.length||words.every(w=>norm(i.n+' '+i.s+' '+(i.efd||'')+' '+(i.desc||'')+' '+(CATN[i.cat]||'')+' '+i.pg+' '+BOOK[i.src][1]+' '+(i._.sub||'')).includes(w))));
+  const anyCat=!!words.length;
+  return ITEMS.filter(i=>(st.cat==='owned'&&!anyCat?!!OWN[i.id]:visible(i)&&(anyCat||st.cat==='all'||i.cat===st.cat)&&legalShows(i))&&(!words.length||words.every(w=>norm(i.n+' '+i.s+' '+(i.efd||'')+' '+(i.desc||'')+' '+(CATN[i.cat]||'')+' '+i.pg+' '+BOOK[i.src][1]+' '+(i._.sub||'')).includes(w))));
 }
 function filtered(){
   let L=baseList();
-  const fs=filtersFor(st.cat);
+  const fs=st.q.trim()?[]:filtersFor(st.cat);
   for(const [k,v] of activeFilters()){const f=fs.find(x=>x.k===k); if(f) L=L.filter(i=>f.test(i,v));}
   const s=sortsFor(st.cat).find(x=>x.k===st.sort)||SORTS[0];
   if(s.g){
@@ -1572,15 +1718,26 @@ function filtered(){
   return L;
 }
 function renderBooks(){
-  $('books').innerHTML=Object.entries(BOOK).map(([k,[full,ab,c]])=>`<button class="chip" style="--bc:var(${c})" data-book="${k}" aria-pressed="${!!st.books[k]}" title="${full}">${ab}</button>`).join('');
+  const n={}; ITEMS.forEach(i=>{n[i.src]=(n[i.src]||0)+1;});
+  $('books').innerHTML=Object.entries(BOOK).map(([k,[full,ab,c]])=>`<button type="button" class="bk" style="--bc:var(${c})" data-book="${k}" aria-pressed="${!!st.books[k]}"><span class="bx" aria-hidden="true">${st.books[k]?'✓':''}</span><span class="bt"><b>${esc(full)}</b><span>${esc(ab)} · ${fmt(n[k]||0)} items</span></span></button>`).join('');
+  const on=Object.keys(BOOK).filter(k=>st.books[k]).length, all=Object.keys(BOOK).length, txt=on===all?`all ${all} books`:`${on} of ${all} books`;
+  $('srcCount').textContent=txt; $('srcPanel').hidden=!st.srcOpen;
+  $('srcBtn').hidden=st.srcOpen; $('srcBtn').setAttribute('aria-expanded',String(st.srcOpen));
+  $('srcBtn').innerHTML=`<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5h4.5A1.5 1.5 0 0 1 8 5v8a1.5 1.5 0 0 0-1.5-1.5H2zM14 3.5H9.5A1.5 1.5 0 0 0 8 5v8a1.5 1.5 0 0 1 1.5-1.5H14z"/></svg>Sources <span class="n">${txt}</span>`;
 }
+// departments for the category picker; any category not listed lands under "Other"
+const DEPTS=[['Weapons',['melee','ranged','guns','ammo','boom']],['Armor',['armor']],['Cyberware and bioware',['head','body','bio']],['Matrix',['deck','prog','prog2','soft']],['Rigging',['r2veh','veh','rc','vweap']],['Magic',['magic','spell','power']],['Gear',['elec','surv','med','chem','tools']],['Character',['ef','meta']]];
+function deptOf(c){const d=DEPTS.find(x=>x[1].includes(c)); return d?d[0]:c==='all'||c==='owned'?'':'Other';}
+function catCounts(){const counts={}; ITEMS.forEach(i=>{if(visible(i)&&legalShows(i)) counts[i.cat]=(counts[i.cat]||0)+1;}); return counts;}
 function renderCats(){
-  const counts={}; ITEMS.forEach(i=>{if(visible(i)) counts[i.cat]=(counts[i.cat]||0)+1;});
-  const total=Object.values(counts).reduce((a,b)=>a+b,0);
+  const counts=catCounts(); const total=Object.values(counts).reduce((a,b)=>a+b,0);
   if(st.cat==='owned'&&!OWNC) st.cat='all';
-  const rows=[['all','All gear',total],...(OWNC?[['owned','Owned by '+shortName(OWNC),Object.keys(OWN).filter(k=>BYID[k]).length]]:[]),...DATA.cats.filter(([c])=>counts[c]).map(([c,l])=>[c,l,counts[c]])];
-  $('cats').innerHTML=rows.map(([c,l,n])=>`<button data-cat="${c}" aria-current="${st.cat===c}"><span>${esc(l)}</span><span class="n">${n}</span></button>`).join('');
-  $('catSel').innerHTML=rows.map(([c,l,n])=>`<option value="${c}" ${st.cat===c?'selected':''}>${esc(l)} (${n})</option>`).join('');
+  const btn=(c,l,n)=>`<button type="button" data-cat="${c}" aria-current="${st.cat===c}"><span>${esc(l)}</span><span>${fmt(n)}</span></button>`;
+  const known=new Set(DEPTS.flatMap(d=>d[1])), other=DATA.cats.map(c=>c[0]).filter(c=>!known.has(c));
+  const depts=DEPTS.concat(other.length?[['Other',other]]:[]).map(([d,cs])=>[d,cs.filter(c=>counts[c]||c===st.cat)]).filter(([,cs])=>cs.length);
+  $('picker').innerHTML=`<div class="pk-d"><div class="pk-g" style="padding-top:10px">${btn('all','All gear',total)}${OWNC?btn('owned','Owned by '+shortName(OWNC),Object.keys(OWN).filter(k=>BYID[k]).length):''}</div></div>`+
+    depts.map(([d,cs])=>`<div class="pk-d"><div class="pk-h">${esc(d)}<span>${fmt(cs.reduce((a,c)=>a+(counts[c]||0),0))}</span></div><div class="pk-g">${cs.map(c=>btn(c,CATN[c],counts[c]||0)).join('')}</div></div>`).join('');
+  $('qn').textContent=fmt(total);
 }
 function statFor(i){
   const s=st.sort, D=i._;
@@ -1589,33 +1746,64 @@ function statFor(i){
   if(map[s]&&map[s][1]!=null) return map[s][0]+' '+map[s][1];
   return '';
 }
+const LGL_TXT={all:'Everything',permit:'Legal, with or without a permit',legal:'Legal, no permit needed'};
 function renderSortFilter(){
   const S=sortsFor(st.cat); if(!S.some(s=>s.k===st.sort)){st.sort='book';st.dir=1;}
-  $('sort').innerHTML=S.map(s=>`<option value="${s.k}" ${s.k===st.sort?'selected':''}>${esc(s.l)}</option>`).join('');
-  $('dir').textContent=st.dir>0?'↑':'↓';
-  {const n=activeFilters().length; $('ftog').textContent=n?`Filters (${n})`:'Filters';}
-  const base=baseList(); const fs=filtersFor(st.cat);
-  const html=fs.map(f=>{
+  const searching=!!st.q.trim(); const base=baseList(); const fs=searching?[]:filtersFor(st.cat);
+  const parts=[`<label class="fl wide"><span>Show</span><select id="legalSel">${Object.entries(LGL_TXT).map(([k,l])=>`<option value="${k}" ${(st.legal||'all')===k?'selected':''}>${l}</option>`).join('')}</select></label>`,
+    `<div class="fl wide"><span>Sort</span><div class="sortrow"><select class="sort" id="sort" aria-label="Sort by">${S.map(s=>`<option value="${s.k}" ${s.k===st.sort?'selected':''}>${esc(s.l)}</option>`).join('')}</select><button type="button" class="dir" id="dir" aria-label="Reverse sort order">${st.dir>0?'↑':'↓'}</button></div></div>`];
+  fs.forEach(f=>{
     const v=st.f[f.k];
-    if(f.type==='sel'){const o=f.opts(base); if(o.length<2&&!v) return ''; const ordered=f.k==='sub'&&st.cat==='guns'?o.sort((a,b)=>(WORDER.indexOf(a)+100)%200-(WORDER.indexOf(b)+100)%200):o.sort();
-      return `<label class="fl"><span>${esc(f.l)}</span><select data-f="${f.k}" id="f-${f.k}"><option value="">All</option>${ordered.map(x=>`<option ${v===x?'selected':''}>${esc(x)}</option>`).join('')}</select></label>`;}
-    if(f.type==='lv'){const cur=v||[];return `<div class="fl"><span>${esc(f.l)}</span><div class="lv" role="group" aria-label="${esc(f.l)}">${[...LV].map(x=>`<button data-fk="${f.k}" data-lv="${x}" aria-pressed="${cur.includes(x)}" title="${{L:'Light',M:'Moderate',S:'Serious',D:'Deadly'}[x]}">${x}</button>`).join('')}</div></div>`;}
-    return `<label class="fl"><span>${esc(f.l)}</span><input type="number" data-f="${f.k}" id="f-${f.k}" step="${f.step||1}" min="0" value="${v??''}" inputmode="decimal"></label>`;
-  }).join('');
-  $('fbar').innerHTML=html+(activeFilters().length?`<button class="clr" id="clrF">Clear filters</button>`:'');
-  $('fbar').hidden=!html;
+    if(f.type==='sel'){const o=f.opts(base); if(o.length<2&&!v) return; const ordered=f.k==='sub'&&st.cat==='guns'?o.sort((a,b)=>(WORDER.indexOf(a)+100)%200-(WORDER.indexOf(b)+100)%200):o.sort();
+      parts.push(`<label class="fl"><span>${esc(f.l)}</span><select data-f="${f.k}" id="f-${f.k}"><option value="">All</option>${ordered.map(x=>`<option ${v===x?'selected':''}>${esc(x)}</option>`).join('')}</select></label>`); return;}
+    if(f.type==='lv'){const cur=v||[]; parts.push(`<div class="fl"><span>${esc(f.l)}</span><div class="lv" role="group" aria-label="${esc(f.l)}">${[...LV].map(x=>`<button type="button" data-fk="${f.k}" data-lv="${x}" aria-pressed="${cur.includes(x)}" title="${{L:'Light',M:'Moderate',S:'Serious',D:'Deadly'}[x]}">${x}</button>`).join('')}</div></div>`); return;}
+    parts.push(`<label class="fl"><span>${esc(f.l)}</span><input type="number" data-f="${f.k}" id="f-${f.k}" step="${f.step||1}" min="0" value="${v??''}" inputmode="decimal"></label>`);
+  });
+  if(searching) parts.push(`<p class="note fl wide" style="margin:0">Searching every category. Category filters come back when the search is empty.</p>`);
+  const act=searching?[]:activeFilters();
+  $('fbar').innerHTML=parts.join('')+(act.length||(st.legal||'all')!=='all'?`<button type="button" class="clr" id="clrF">Clear filters</button>`:'');
+  // active-filter chips under the buttons
+  const chips=[];
+  if((st.legal||'all')!=='all') chips.push(['legal',LGL_TXT[st.legal]]);
+  act.forEach(([k,v])=>{const f=FILTERS.find(x=>x.k===k); if(!f) return; chips.push([k,f.l+': '+(Array.isArray(v)?v.join(' '):v)]);});
+  $('achips').innerHTML=chips.map(([k,t])=>`<button type="button" class="achip" data-clrf="${esc(k)}" aria-label="Remove filter ${esc(t)}">${esc(t)} <span aria-hidden="true">×</span></button>`).join('');
+  $('ftog').innerHTML=`<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M4 8h8M6 12h4"/></svg>Filters${chips.length?`<span class="fn">${chips.length}</span>`:''}`;
 }
+// grouping: by sub-type inside a category, by category when searching or showing everything
+function gkey(i){const byCat=!!st.q.trim()||st.cat==='all'||st.cat==='owned'; return byCat?'c:'+i.cat:'s:'+i.cat+':'+(i._.sub||'Other');}
+function glabel(k){return k.startsWith('c:')?CATN[k.slice(2)]||k.slice(2):k.replace(/^s:[^:]*:/,'');}
+function numPrice(i){if(i.sp||i.ef||i.mt||i.cat==='power'||i.mult!=null) return null; const p=costAt(i,i.r?i.r[0]:0); return typeof p==='number'&&isFinite(p)?p:null;}
+function itemHTML(i){const sv=statFor(i); const byCat=gkey(i).startsWith('c:');
+  return `<button type="button" class="item" data-id="${esc(i.id)}" aria-current="${st.sel===i.id}"><span class="nm">${esc(i.n)}${ownBadge(i)}${legalBadge(i)}</span><span class="pr">${priceLabel(i)}</span><span class="sub">${srcTag(i.src)}${sv?`<span class="stat">${esc(sv)}</span>`:''}<span class="t">${esc(i.s||pageRef(i))}</span></span></button>`;}
 function renderList(){
-  const L=filtered(); const tot=baseList().length;
-  $('catName').textContent=st.cat==='all'?'All gear':st.cat==='owned'?'Owned by '+shortName(OWNC):CATN[st.cat];
-  $('count').textContent=L.length===tot?L.length+' items':L.length+' of '+tot;
-  const s=sortsFor(st.cat).find(x=>x.k===st.sort); let last=null; const out=[];
-  for(const i of L){
-    if(s&&s.group){const g=s.g(i)||'Other'; if(g!==last){out.push(`<div class="grp">${esc(g)}</div>`);last=g;}}
-    const sv=statFor(i);
-    out.push(`<button class="item" role="option" data-id="${esc(i.id)}" aria-selected="${st.sel===i.id}"><span class="nm">${esc(i.n)}${ownBadge(i)}${legalBadge(i)}</span><span class="pr">${priceLabel(i)}</span><span class="sub">${srcTag(i.src)}${sv?`<span class="stat">${esc(sv)}</span>`:''}<span class="t">${esc(st.cat==='all'||st.cat==='owned'?CATN[i.cat]+' · ':'')}${esc(i.s||pageRef(i))}</span></span></button>`);
-  }
+  const L=filtered(); const tot=baseList().length, searching=!!st.q.trim();
+  const counts=catCounts();
+  $('catName').textContent=searching?'All categories':st.cat==='all'?'All gear':st.cat==='owned'?'Owned by '+shortName(OWNC):CATN[st.cat];
+  $('catDept').textContent=searching?'Searching everywhere':deptOf(st.cat)||'Browse';
+  $('count').textContent=searching?fmt(Object.values(counts).reduce((a,b)=>a+b,0)):fmt(tot);
+  // groups in a stable order: guns by weapon class, everything else by first appearance in the books
+  const order=[], G={};
+  const seq=k=>{if(k.startsWith('c:')) return DATA.cats.findIndex(c=>c[0]===k.slice(2)); if(k.startsWith('s:guns:')){const w=WORDER.indexOf(glabel(k)); return w<0?99:w;} return -1;};
+  ITEMS.forEach(i=>{const k=gkey(i); if(!(k in G)&&L.includes(i)){G[k]=[]; order.push(k);}});
+  L.forEach(i=>G[gkey(i)].push(i));
+  order.sort((a,b)=>{const x=seq(a),y=seq(b); return x>=0&&y>=0?x-y:0;});
+  const sorted=st.sort!=='book'&&!(sortsFor(st.cat).find(x=>x.k===st.sort)||{}).group; // an explicit sort shows one sorted list
+  const flat=order.length<=1||sorted;
+  const auto=searching&&L.length<=40||L.length<=14;
+  const isOpen=k=>flat||auto||!!st.open[k]||!!window.__allOpen;
+  $('list').className=flat?'flat':'';
+  const out=[];
+  if(sorted&&order.length>1){order.length=0; order.push('*'); G['*']=L;}
+  order.forEach(k=>{const items=G[k]; if(!items||!items.length) return;
+    if(!flat){const ps=items.map(numPrice).filter(x=>x!=null); const lo=Math.min(...ps), hi=Math.max(...ps);
+      const rg=ps.length?(lo===hi?fmt(lo)+'¥':fmt(lo)+'–'+fmt(hi)+'¥'):'';
+      out.push(`<button type="button" class="grph" data-grp="${esc(k)}" aria-expanded="${isOpen(k)}"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg><span class="gl">${esc(glabel(k))}</span><span class="gr">${rg}</span><span class="gn">${items.length}</span></button>`);}
+    if(isOpen(k)) items.forEach(i=>out.push(itemHTML(i)));
+  });
   $('list').innerHTML=L.length?out.join(''):`<p class="empty">Nothing matches. Clear a filter, try fewer words, or switch more books on.</p>`;
+  const anyClosed=!flat&&!auto&&order.some(k=>!st.open[k]);
+  $('lnote').textContent=L.length?`${fmt(L.length)} item${L.length>1?'s':''}${flat?(sorted?' · sorted, groups off':''):` in ${order.length} groups`}`:'';
+  $('grpAll').hidden=flat||auto; $('grpAll').textContent=anyClosed?'Open all':'Close all'; $('grpAll').dataset.v=anyClosed?'1':'0';
 }
 function fact(k,v){return `<div><dt>${k}</dt><dd>${v}</dd></div>`}
 function statsHTML(i,r){
@@ -2112,6 +2300,261 @@ function deckHTML(i){
    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn" id="addDeck">Add deck and programs to shopping list</button><button class="btn ghost" data-send="item">Send to a character</button><button class="btn ghost" id="clrDeck">Start over</button></div>
   </section>`;
 }
+function deckParts(i,C){const B=C.B, M=C.M;
+  const sel=(f,lab,opts,cur,fmtO)=>`<label class="bslot" for="dk_${f}"><span class="bl">${lab}</span><select id="dk_${f}" data-dk="${f}">${opts.map(v=>`<option value="${v}" ${String(cur)===String(v)?'selected':''}>${fmtO?fmtO(v):v}</option>`).join('')}</select></label>`;
+  const num=(f,lab,cur,max,step)=>`<label class="bslot" for="dk_${f}"><span class="bl">${lab}</span><input id="dk_${f}" data-dk="${f}" type="number" min="0" ${max!=null?`max="${max}"`:''} step="${step||1}" value="${cur}"></label>`;
+  const chk=(f,lab,cur)=>`<label class="bchk"><input type="checkbox" data-dk="${f}" ${cur?'checked':''}> ${lab}</label>`;
+  let ctl='';
+  if(C.vr2){ const d=B.v, others=k=>PERS.reduce((a,[,x])=>a+(x===k?0:+d[x]||0),0);
+    ctl=`<h4 class="bh">Deck components <span class="note">VR2 p. 86–89</span></h4><div class="bgrid">
+      ${sel('v.mpcp','MPCP',rng(1,DECK.MPCP_MAX),d.mpcp)}
+      ${PERS.map(([n,k])=>sel('v.'+k,n+' chip',rng(0,Math.min(M,3*M-others(k))),d[k],v=>v||'None')).join('')}
+      ${sel('v.hard','Hardening',rng(0,DECK.HARD_MAX),d.hard,v=>v||'None')}
+      ${Math.floor(M/4)>=1?sel('v.ri','Response Increase',rng(0,DECK.riMax(M)),d.ri,v=>v?'Level '+v:'None'):''}
+      ${sel('v.asist','ASIST interface',['hot','cool','none'],d.asist,v=>({hot:'Hot',cool:'Cool',none:'None (tortoise)'})[v])}
+      ${num('v.am','Active memory (Mp)',d.am,null,10)}${num('v.sm','Storage memory (Mp)',d.sm,null,10)}
+      ${+d.sens?sel('v.io','I/O speed (MePS)',rng(0,(+d.sens)*M*10,10),d.io,v=>v||'None'):''}
+      ${sel('v.casing','Casing',[0,1,2,3],d.casing,v=>v?['','Level 1 (Impact 2, Ballistic 1)','Level 2 (Impact 3, Ballistic 2)','Level 3 (Impact 4, Ballistic 3)'][v]:'Basic')}
+      ${sel('v.hitch',`Hitcher jacks (up to ${M})`,rng(0,M),d.hitch,v=>v||'None')}${num('v.off','Off-line storage (Mp)',d.off,null,10)}
+    </div><div class="bchks">${chk('v.iccm','ICCM biofeedback filter',d.iccm)}${chk('v.sat','Satlink interface',d.sat)}${chk('v.vid','Vidscreen',d.vid)}${chk('v.filter','Reality filter (+1 Response level)',d.filter)}${d.asist==='hot'?chk('v.dni','Pure DNI, running hot (+1 Response level)',d.dni):''}${chk('v.pkg','10% package discount',d.pkg)}</div>`;
+  } else {
+    const riMax=DECK.riMax(M), amRoom=Math.max(0,DECK.amMax(M)-i.d[1]), others=n=>PERS.reduce((a,[x])=>a+(x===n?0:+B.per[x]||0),0);
+    ctl=`<h4 class="bh">Options</h4><div class="bgrid">
+      ${riMax?sel('ri','Response Increase',rng(0,riMax),B.ri,v=>v?`Level ${v} · ${fmt(BYID['deck:Response Increase '+v].costs[M])}¥`:'None'):''}
+      ${amRoom?sel('am',`Extra active memory (5¥/Mp, up to ${amRoom})`,rng(0,amRoom,amRoom>200?50:10),B.am,v=>v?`+${v} Mp · ${fmt(v*5)}¥`:'None'):''}
+      ${num('sm','Extra storage (2.5¥/Mp)',B.sm,null,10)}
+      ${sel('hitch',`Hitcher jacks (up to ${M})`,rng(0,M),B.hitch,v=>v?`${v} · ${fmt(BYID['deck:Hitcher Jack'].costs[M]*v)}¥`:'None')}
+      ${num('off','Off-line storage (1¥/Mp)',B.off,null,10)}
+    </div><div class="bchks">${chk('vid','Vidscreen display · 100¥',B.vid)}</div>`;
+  }
+  // programs: one checklist (persona chips on core decks, then utilities in the book's groups)
+  const free=C.sm-C.stored, aFree=C.am-C.used;
+  const urow=p=>{const u=B.utils.find(x=>x.id===p.id), copies=B.utils.filter(x=>x.id===p.id).length, era=p.src==='vr2'?'<span class="vck-tag">VR2 · 2056</span>':'';
+    const base={id:p.id,n:p.n,pg:descRef(p),desc:progDesc(p),tag:era};
+    if(u){const cur=p.size[u.r]||0;
+      const ropts=rng(1,C.cap).filter(r=>p.size[r]!=null&&p.costs[r]!=null&&((p.size[r]<=free+cur&&(!u.loaded||p.size[r]<=aFree+cur))||r===u.r)).map(r=>[r,`${r} · ${p.size[r]} Mp · ${fmt(p.costs[r])}¥`]);
+      return {...base,on:true,r:u.r,ropts,price:`${cur} Mp · ${fmt(p.costs[u.r]||0)}¥`,loaded:!!u.loaded,canLoad:!!u.loaded||cur<=aFree,loadTxt:C.ls?loadTime(cur,C.ls):'',more:copies>1?`+${copies-1} more cop${copies>2?'ies':'y'} on the deck`:''};}
+    const s1=p.size&&p.size[1];
+    return s1!=null&&s1<=free?{...base,on:false,from:`from ${s1} Mp · ${fmt(p.costs[1])}¥ at rating 1`}:{...base,on:false,why:s1==null?'No size listed':`Needs ${s1} Mp at rating 1; ${free} Mp of storage free`};};
+  const sets=PROGUI.split(progList(C.vr2),C.vr2,p=>p.n).map(g=>({title:g.title,rows:g.rows.map(urow)}));
+  if(!C.vr2){const others=n=>PERS.reduce((a,[x])=>a+(x===n?0:+B.per[x]||0),0);
+    sets.unshift({title:'Persona chips',intro:`Installed in chips, so they take no memory. Ratings can total ${3*M} (3 × MPCP); core p. 174.`,rows:PERS.map(([n])=>{const it=BYID['prog:Persona: '+n], v=+B.per[n]||0, room=Math.min(12,3*M-others(n));
+      const base={id:it.id,n:n,pg:descRef(it),desc:progDesc(it)};
+      if(v) return {...base,on:true,r:v,ropts:rng(1,Math.max(v,room)).map(r=>[r,`${r} · ${fmt(it.costs[r])}¥`]),price:`${fmt(it.costs[v])}¥`};
+      return room>=1?{...base,on:false,from:`from ${fmt(it.costs[1])}¥ at rating 1`}:{...base,on:false,why:`The chips already total ${3*M} (3 × MPCP)`};})});}
+  // matrix stats inputs
+  const who=C.vr2?`${sel('int','Your Intelligence',rng(0,12),B.int,v=>v||'—')}${sel('react','Your Reaction',rng(0,12),B.react,v=>v||'—')}`:`${sel('comp','Your Computer skill',rng(0,12),B.comp,v=>v||'—')}${sel('react','Your Reaction',rng(0,12),B.react,v=>v||'—')}`;
+  return {hw:ctl,sets,who};}
+
+// ---------- Gear Locker 2 build-outs: gun mount map and vehicle workshop (same rules code, new layout) ----------
+// Gun: a list of the gun's mounts on the left, the choices for the picked mount on the right, results along the bottom.
+function gunSlotState(g,B){const ints=integral(g), intBy={}; ints.forEach(x=>{if(x.slot)(intBy[x.slot]=intBy[x.slot]||[]).push(x.n);});
+  return gunSlots(g).map(s=>{const {out,no}=accFor(g,s); const cur=B[s]&&out.some(x=>x.k===B[s])?B[s]:'';
+    return {s,lab:SLOT_LABEL[s]||s,built:intBy[s]||null,out,no,cur};}).filter(x=>x.built||x.out.length||x.no.length);}
+function buildHTML2(g){
+  if(!canBuild(g)) return '';
+  const B=bstate(g), C=buildCalc(g), F=GUNFIT[g.id]||{}, S=gunSlotState(g,B);
+  if(!S.some(x=>x.s===st.gslot)){const f=S.find(x=>!x.built&&x.out.length)||S[0]; st.gslot=f?f.s:null;}
+  const cur=S.find(x=>x.s===st.gslot);
+  const where=k=>{const x=S.find(y=>y.cur===k); return x?x.s:null;};
+  const map=S.map(x=>{const state=x.cur?'fit':x.built?'built':x.out.length?'open':'none';
+    const now=x.cur?accName(x.cur):x.built?x.built.join(', ')+' (built in)':x.out.length?'Empty':'Nothing fits this gun';
+    return `<button type="button" class="gm-s gm-st-${state}" data-gslot="${esc(x.s)}" aria-current="${x.s===st.gslot}"><span class="gm-dot" aria-hidden="true"></span><span class="gm-t"><span class="gm-l">${esc(x.lab)}</span><span class="gm-n">${esc(now)}</span></span><span class="gm-c">${x.out.length?x.out.length+' fit':''}</span></button>`;}).join('');
+  let panel='';
+  if(cur){
+    const opts=cur.out.map(o=>{const on=cur.cur===o.k, other=!on&&where(o.k)&&where(o.k)!==cur.s; const a=ACC[o.k]||{};
+      const chips=[a.rc?`<span class="gm-chip ok">Recoil comp ${a.rc}</span>`:'',a.gyro?`<span class="gm-chip ok">Gyro ${a.gyro}</span>`:'',a.conc?`<span class="gm-chip warn">Conceal ${a.conc>0?'+':'−'}${Math.abs(a.conc)}</span>`:a.nocon?'<span class="gm-chip warn">Not concealable</span>':'<span class="gm-chip">No conceal penalty</span>'].join('');
+      return `<button type="button" class="gm-o${on?' on':''}" role="radio" aria-checked="${on}" ${other?'aria-disabled="true"':''} data-gpick="${esc(o.k)}" data-slot="${esc(cur.s)}"><span class="gm-r" aria-hidden="true"></span><span class="gm-ot"><b>${esc(accName(o.k))}</b><span>${esc(other?'Already on the '+(SLOT_LABEL[where(o.k)]||'').toLowerCase()+'.':(a.fx||'').replace(/^(.{0,150}[.;]).*$/,'$1'))}</span><span class="gm-cs">${chips}<span class="note">${esc(a.pg||'')}</span></span></span><span class="gm-p">+${fmt(accPrice(g,o.k))}¥</span></button>`;}).join('');
+    panel=`<div class="gm-ph"><h4>${esc(cur.lab)}</h4><span class="note">${cur.out.length?cur.out.length+' fit':'Nothing fits'}${cur.no.length?`, ${cur.no.length} don’t`:''}</span></div>
+      ${cur.built?`<p class="gm-built">Built in: ${esc(cur.built.join(', '))}.${cur.out.length?' Picking something here replaces it.':''}</p>`:''}
+      ${cur.cur?`<button type="button" class="xb" data-gpick="" data-slot="${esc(cur.s)}">Leave this mount empty</button>`:''}
+      <div class="gm-os" role="radiogroup" aria-label="${esc(cur.lab)}">${opts}</div>
+      ${cur.no.length?`<details class="gm-no"><summary>Doesn’t fit this gun (${cur.no.length})</summary><ul>${cur.no.map(x=>`<li><b>${esc(accName(x.k))}</b><span>${esc(x.why)}</span></li>`).join('')}</ul></details>`:''}`;}
+  const links=[['none','No smartlink'],['smartlink','Smartlink (cyber)'],['smartlink2','Smartlink II (cyber)'],['goggles','Smart goggles'],['goggles2','Smartgoggles II']];
+  const ammos=['ammo:Regular Ammo (10 rounds)','ammo:Explosive Rounds (10)','ammo:EX Explosive Rounds (10)','ammo:APDS Ammo (10 rounds)','ammo:Flechette Rounds (10)','ammo:Gel Rounds (10)','ammo:Stun Rounds (10)','ammo:Tracer Rounds (10)'].filter(k=>BYID[k]&&visible(BYID[k]));
+  const loose=C.ints.filter(x=>!x.slot);
+  const stat=(k,v,n)=>`<div><span class="lbl">${k}</span><b>${v}</b>${n?`<span class="note">${n}</span>`:''}</div>`;
+  const mods=[C.rc?`recoil comp ${C.rc}`:'',C.heavy?'heavy weapon: uncompensated recoil doubled':'',C.gyro?`gyro ${C.gyro}`:'',C.extraR?`includes this gun’s own +${C.extraR}`:''].filter(Boolean);
+  const rec=C.rows.length?`<details class="gm-more"><summary>Recoil per action</summary><div class="tblw"><table><thead><tr><th>Firing</th><th>Recoil</th><th>Final</th></tr></thead><tbody>${C.rows.map(r=>`<tr><td>${r[0]}</td><td>+${r[1]}</td><td><b>+${r[5]}</b></td></tr>`).join('')}</tbody></table></div><p class="note">${mods.length?'Applied: '+mods.join(', ')+'. ':''}Recoil comp cancels recoil only; gyros also cancel movement modifiers (core p. 89–90).</p></details>`:'';
+  const slotNote=wtype(g)==='holdout'?'Hold-out pistols can’t mount accessories (core p. 238), but a holster still works.':PISTOL.has(wtype(g))?'Pistols take top and barrel mounts only (core p. 238).':'';
+  return `<section class="gm" aria-label="Gun build-out">
+    ${F.note||slotNote?`<p class="note">${esc([F.note,slotNote].filter(Boolean).join(' '))}</p>`:''}
+    <div class="gm-grid"><div class="gm-map"><span class="lbl">Mounts on this gun</span>${map}<div class="gm-key"><span><i class="k-fit"></i>Fitted</span><span><i class="k-built"></i>Built in</span><span><i class="k-open"></i>Open</span><span><i class="k-none"></i>Nothing fits</span></div>${loose.length?`<p class="note">Also built in: ${loose.map(x=>esc(x.n)+(x.rc?` (recoil comp ${x.rc})`:'')).join(', ')}.</p>`:''}</div>
+    <div class="gm-panel">${panel}</div></div>
+    <div class="gm-setup"><label class="fl"><span class="lbl">Shooter’s link</span><select id="b_link" data-bopt="link">${links.map(([v,l])=>`<option value="${v}" ${B.link===v?'selected':''}>${l}</option>`).join('')}</select></label>
+      <label class="fl"><span class="lbl">Loaded ammo</span><select id="b_ammo" data-bopt="ammo">${ammos.map(k=>`<option value="${esc(k)}" ${B.ammo===k?'selected':''}>${esc(BYID[k].n.replace(/ \(10( rounds)?\)/,''))} · ${fmt(BYID[k].cost||0)}¥ per 10</option>`).join('')}</select></label></div>
+    <div class="gm-res">${stat('Price',fmt(C.cost)+'¥',`gun ${fmt(g.cost)}¥ + ${fmt(C.cost-g.cost)}¥ add-ons`)}${stat('Concealability',esc(C.conc),C.conc!==String(g.w[1])&&g.w[1]!=null&&C.conc!=='Not concealable'?'was '+g.w[1]:'')}${stat('Recoil comp',C.rc||0,C.gyro?'gyro '+C.gyro:'')}${stat('Aim',C.aim?String(C.aim).replace('-','−'):'0',C.mag?`range ${C.mag} step${C.mag>1?'s':''} closer`:'')}${stat('Damage',esc(C.dmg),C.notice?'+'+C.notice+' TN to notice':'')}</div>
+    ${C.aimTxt.length||C.ext.length?`<p class="bok">${C.aimTxt.concat(C.ext).map(esc).join(' · ')}</p>`:''}
+    ${C.dmgNote?`<p class="note">${esc(C.dmgNote)}</p>`:''}
+    ${C.warn.map(w=>`<p class="rule">${esc(w)}</p>`).join('')}
+    ${rec}
+    <div class="gm-act"><button type="button" class="btn ghost" id="clrBuild">Clear add-ons</button><button type="button" class="btn ghost big" data-send="item">Send to a character</button><button type="button" class="btn big" id="addBuild">Add gun and add-ons · ${fmt(C.cost)}¥</button></div>
+  </section>`;
+}
+// Vehicle: capacity pinned on top, mods sorted into Fits / Doesn't fit / On this build, grouped like the browse list.
+function vehHTML2(i){
+  if(!isVeh(i)) return vehHTML(i);
+  const {B,v}=vbFix(i); const R=VB.calc(v,B), s=R.s, A=VB.addable(v,B);
+  const have=new Map(R.rows.map((r,ix)=>[r.m.id,{...r,ix}])), yes=new Map(A.yes.map(x=>[x.d.id,x])), no=new Map(A.no.map(x=>[x.d.id,x]));
+  const fac=VB.facList(v);
+  const tab=['fits','no','on'].includes(st.vtab)?st.vtab:'fits';
+  const money=n=>fmt(n)+'¥';
+  const rowFor=d=>{const h=have.get(d.id), y=yes.get(d.id), nx=no.get(d.id), facFlag=v.fac&&v.fac[d.id]&&!v.fac[d.id].std&&d.kind==='flag';
+    if(h) return {kind:'on',d,h}; if(y) return {kind:'fits',d,y}; return {kind:facFlag?'fac':'no',d,why:facFlag?'Fitted at the factory':(nx&&nx.why)||'Doesn’t fit'};};
+  const all=VB.M.map(rowFor);
+  const lists={fits:all.filter(r=>r.kind==='fits'||r.kind==='on'),no:all.filter(r=>r.kind==='no'),on:all.filter(r=>r.kind==='on')};
+  const L=lists[tab];
+  const k='L';
+  const row=r=>{const d=r.d, id=esc(d.id);
+    let price='',cf='',ld='',ctl='',sub=esc(d.pg);
+    if(r.kind==='on'){const h=r.h, os=VB.optChoices(v,B,h.ix);
+      price=d.gm?'GM sets':h.cost?money(h.cost):'—'; if(VB.ENG_GAIN[d.id]) sub+=' · '+esc(VB.ENG_GAIN[d.id](v,h.l)); cf=h.cf?fmt(h.cf):'—'; ld=h.load?fmt(h.load)+' kg':'—';
+      if(d.kind!=='flag'){const lv=VB.levels(v,B,h.ix); ctl+=`<label class="vw-s"><span>${d.kind==='qty'?'How many':'Level'}</span><select data-vblv="${k}" data-vbid="${id}" aria-label="${esc(d.n)} ${d.kind==='qty'?'count':'level'}">${lv.map(l=>{const t={...B,mods:B.mods.map((m,j)=>j===h.ix?{...m,lv:l}:m)}; const c=VB.calc(v,t).rows[h.ix]; return `<option value="${l}"${l===h.l?' selected':''}>${l}${VB.ENG_GAIN[d.id]?' · '+VB.ENG_GAIN[d.id](v,l):''}${d.gm||!c||!c.cost?'':' · '+money(c.cost)}</option>`;}).join('')}</select></label>`;}
+      if(os.length>1) ctl+=`<label class="vw-s"><span>Option</span><select data-vbop="${k}" data-vbid="${id}" aria-label="${esc(d.n)} option">${os.map(o=>`<option value="${esc(o[0])}"${o[0]===h.m.opt?' selected':''}>${esc(o[1])}</option>`).join('')}</select></label>`;
+      ctl+=`<label class="vw-t on"><input type="checkbox" data-vbck="${k}" data-vbid="${id}" checked><span>Added</span></label>`;}
+    else if(r.kind==='fits'){const y=r.y, t={...B,mods:B.mods.concat([{id:d.id,lv:y.lv,opt:y.opt}])}, c=VB.calc(v,t).rows.slice(-1)[0];
+      if(VB.ENG_GAIN[d.id]) sub+=' · '+esc(VB.ENG_GAIN[d.id](v,1))+' a level'; price=d.gm?'GM sets':!c.cost?'—':(d.kind==='flag'?'':d.kind==='qty'?'':'from ')+money(c.cost)+(d.kind==='qty'?' each':''); cf=c.cf?fmt(c.cf):'—'; ld=c.load?fmt(c.load)+' kg':'—';
+      ctl=`<label class="vw-t"><input type="checkbox" data-vbck="${k}" data-vbid="${id}"><span>Add</span></label>`;}
+    else {sub=`<span class="vw-why">${esc(r.why)}</span> · ${esc(d.pg)}`; ctl=`<span class="vw-tag">${r.kind==='fac'?'Factory':'Won’t fit'}</span>`;}
+    if(r.kind==='no'||r.kind==='fac') return `<div class="vw-r vw-r2 vw-${r.kind}"><div class="vw-n"><b>${esc(d.n)}</b><span>${sub}</span><details class="vw-d"><summary>What it does</summary><p>${esc(d.d)}</p></details></div><div class="vw-c">${ctl}</div></div>`;
+    return `<div class="vw-r vw-${r.kind}"><div class="vw-n"><b>${esc(d.n)}</b><span>${sub}</span><details class="vw-d"><summary>What it does</summary><p>${esc(d.d)}</p></details></div><span class="vw-num">${price}</span><span class="vw-num">${cf}</span><span class="vw-num">${ld}</span><div class="vw-c">${ctl}</div></div>`;};
+  const groups=VB.GROUPS.map(g=>{const rs=L.filter(r=>r.d.g===g); if(!rs.length) return '';
+    const nOn=lists.on.filter(r=>r.d.g===g).length; const open=tab==='on'||(g in VB.UI.open?VB.UI.open[g]:nOn>0||g==='Control');
+    return `<details class="vw-g" data-vbgrp="${esc(g)}"${open?' open':''}><summary><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg><b>${esc(g)}</b>${nOn&&tab!=='on'?`<span class="vw-gon">${nOn} on this build</span>`:''}<span class="gn">${rs.length}</span></summary>
+      ${tab==='no'?'':'<div class="vw-hd" aria-hidden="true">'}${tab==='no'?'':'<span>Modification</span><span>Price</span><span>CF</span><span>Load</span><span></span></div>'}${rs.map(row).join('')}</details>`;}).join('');
+  const bar=(lab,used,max,unit,note)=>{const pct=max?Math.min(100,used/max*100):used?100:0; return `<div class="vw-bar"><div class="vw-bl"><span class="lbl">${lab}</span><b>${VB.fmtN(used)} of ${VB.fmtN(max)}${unit}</b></div><div class="vw-bt"><i style="width:${pct}%" class="${pct>85?'hi':''}"></i></div><span class="note">${note}</span></div>`;};
+  const stats=VB.statLine(v,s).map(([kk,a,b])=>`<span class="vw-st${String(a)!==String(b)?' chg':''}"><span>${kk}</span><b>${b}</b>${String(a)!==String(b)?`<em>was ${a}</em>`:''}</span>`).join('');
+  const drop=VB_DROPPED.length?`<p class="rule">No longer fit, so removed: ${esc(VB_DROPPED.join(', '))}.</p>`:''; VB_DROPPED=[];
+  const sel=(f,lab,opts,cur)=>`<label class="fl"><span class="lbl">${lab}</span><select id="vb_${f}" data-vb="${f}">${opts.map(([kk,l])=>`<option value="${esc(kk)}" ${String(cur)===String(kk)?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
+  const chk=(f,lab,cur)=>`<label class="bchk"><input type="checkbox" data-vb="${f}" ${cur?'checked':''}> ${lab}</label>`;
+  const tabs=[['fits','Fits',lists.fits.length],['no','Doesn’t fit',lists.no.length],['on','On this build',lists.on.length]];
+  return `<section class="vw" aria-label="Vehicle build-out">
+    <div class="vw-pin"><div class="vw-bars">${bar('Cargo space',R.cf,R.Cmax,' CF',`${VB.fmtN(Math.max(0,R.Cmax-R.cf))} CF left${s.Cext?` · +${s.Cext} CF on racks`:''}`)}${bar('Load',R.load,R.Lmax,' kg',`${VB.fmtN(Math.max(0,R.Lmax-R.load))} kg left`)}${bar('Weapon mount points',R.pts,R.ptsMax,'',`Body ${v.B}: hardpoint 2, firmpoint 1`)}</div>
+      <div class="vw-tot"><span class="lbl">Vehicle + mods</span><b>${money(i.cost+R.cost)}</b><span class="note">${money(i.cost)} + ${money(R.cost)}${R.gm.length?' + GM-priced work':''}</span></div></div>
+    <div class="vw-stats">${stats}</div>
+    ${fac.length?`<p class="vw-fac"><b>Factory-fitted</b>${fac.map(x=>`<span>${esc(x)}</span>`).join('')}<span class="note">Already in the listed stats: no space used, but counts toward mount points and level limits (R2 p. 120).</span></p>`:''}
+    <details class="vw-setup"><summary>Vehicle setup: ${esc(VSHORT[B.type]||'vehicle')}${B.mil?' · security or military':''}${B.facRC?' · RC interface already in':''}${B.facRig?' · rigger adaptation already in':''}</summary><div class="gm-setup">${sel('type','Vehicle type',VB.TYPES,B.type)}<div class="bchks">${chk('mil','Security or military vehicle (GM permission)',B.mil)}${v.drone?'':chk('facRC','Remote control interface already added (earlier work)',B.facRC)+chk('facRig','Rigger adaptation already added (earlier work)',B.facRig)}</div></div></details>
+    ${drop}
+    ${R.gm.length?`<p class="vck-gm">Not in the total: ${esc(R.gm.join(', '))}. Rigger 2 prices these from the original power plant’s cost, which the Vehicle List doesn’t give, so your GM sets the price (R2 p. 120, 130).</p>`:''}
+    <div class="vw-tabs" role="tablist" aria-label="Which modifications">${tabs.map(([kk,l,n])=>`<button type="button" role="tab" data-vtab="${kk}" aria-selected="${tab===kk}">${l} <span>${n}</span></button>`).join('')}</div>
+    <div class="vw-list">${groups||`<p class="note" style="padding:12px 0">${tab==='on'?'Nothing on this build yet. Switch to Fits and add something.':'Nothing here.'}</p>`}</div>
+    <p class="note">Install times, skills and target numbers are on each mod’s page; installed by a mechanic with the parts in hand (R2 p. 118).</p>
+    <div class="gm-act"><button type="button" class="btn ghost" id="clrVeh">Start over</button><button type="button" class="btn ghost big" data-send="item">Send to a character</button><button type="button" class="btn big" id="addVeh">Add vehicle and mods · ${money(i.cost+R.cost)}</button></div>
+  </section>`;
+}
+document.addEventListener('click',e=>{
+  const gs=e.target.closest('[data-gslot]'); if(gs){st.gslot=gs.dataset.gslot; renderTag(); const b=document.querySelector(`[data-gslot="${CSS.escape(st.gslot)}"]`); if(b) b.focus({preventScroll:true}); return;}
+  const gp=e.target.closest('[data-gpick]'); if(gp){if(gp.getAttribute('aria-disabled')==='true') return; const g=BYID[st.sel]; if(!g) return; const B=bstate(g), slot=gp.dataset.slot, k=gp.dataset.gpick;
+    B[slot]=k&&B[slot]!==k?k:undefined; save(); renderTag(); const f=document.querySelector(k?`[data-gpick="${CSS.escape(k)}"][data-slot="${CSS.escape(slot)}"]`:`[data-gslot="${CSS.escape(slot)}"]`); if(f) f.focus({preventScroll:true}); return;}
+  const vt=e.target.closest('[data-vtab]'); if(vt){st.vtab=vt.dataset.vtab; renderTag(); const b=document.querySelector(`[data-vtab="${st.vtab}"]`); if(b) b.focus({preventScroll:true}); return;}
+});
+// ---------- shared pieces for the list-style workshops (decks, cyberware options) ----------
+const wsTabs=(attr,tab,tabs)=>`<div class="vw-tabs" role="tablist">${tabs.map(([k,l,n])=>`<button type="button" role="tab" ${attr}="${k}" aria-selected="${tab===k}">${l} <span>${n}</span></button>`).join('')}</div>`;
+const wsBar=(lab,used,max,unit,note)=>{const pct=max?Math.min(100,used/max*100):used?100:0; return `<div class="vw-bar"><div class="vw-bl"><span class="lbl">${lab}</span><b>${fmt(used)} of ${fmt(max)}${unit}</b></div><div class="vw-bt"><i style="width:${pct}%" class="${pct>85?'hi':''}"></i></div><span class="note">${note||''}</span></div>`;};
+const wsTog=(attr,k,id,on,dis,lab,labOn)=>`<label class="vw-t${on?' on':''}${dis?' dis':''}"><input type="checkbox" ${attr}="${k}" ${attr==='data-pgck'||attr==='data-pgld'?'data-pgid':'data-hbid'}="${esc(id)}"${on?' checked':''}${dis?' disabled':''}><span>${on?labOn||'Added':lab}</span></label>`;
+const wsGroup=(attrOpen,title,rows,open,nOn,head)=>`<details class="vw-g" ${attrOpen}="${esc(title)}"${open?' open':''}><summary><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg><b>${esc(title)}</b>${nOn?`<span class="vw-gon">${nOn} added</span>`:''}<span class="gn">${rows.length}</span></summary>${head||''}${rows.join('')}</details>`;
+// ---------- Cyberdeck: memory pinned on top, hardware in one card, programs in Fits / Doesn't fit / On the deck ----------
+function deckHTML2(i){
+  if(!isDeck(i)) return '';
+  const C=deckCalc(i), B=C.B, M=C.M, D=deckParts(i,C);
+  const tab=['fits','no','on'].includes(st.dtab)?st.dtab:'fits';
+  const kind=r=>r.on?'on':r.why?'no':'fits';
+  const all=D.sets.map(s=>({...s,rows:s.rows.map(r=>({...r,k:kind(r)}))}));
+  const count=f=>all.reduce((a,s)=>a+s.rows.filter(f).length,0);
+  const pick={fits:r=>r.k!=='no',no:r=>r.k==='no',on:r=>r.k==='on'}[tab];
+  const row=r=>{const id=r.id;
+    if(r.k==='no') return `<div class="vw-r vw-r2 vw-no"><div class="vw-n"><b>${esc(r.n)}</b><span><span class="vw-why">${esc(r.why)}</span> · ${esc(r.pg||'')}</span>${r.desc?`<details class="vw-d"><summary>What it does</summary><p>${esc(r.desc)}</p></details>`:''}</div><div class="vw-c"><span class="vw-tag">Won’t fit</span></div></div>`;
+    let c='';
+    if(r.on){ if(r.ropts&&r.ropts.length) c+=`<label class="vw-s"><span>Rating</span><select data-pgr="L" data-pgid="${esc(id)}" aria-label="${esc(r.n)} rating">${r.ropts.map(([v,l])=>`<option value="${v}"${v===r.r?' selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
+      if(r.canLoad!=null) c+=wsTog('data-pgld','L',id,r.loaded,!r.canLoad&&!r.loaded,'Load','Loaded');}
+    c+=wsTog('data-pgck','L',id,r.on,false,'Add');
+    const info=r.on?r.price+(r.loaded&&r.loadTxt?` · loads ${r.loadTxt}`:'')+(r.more?` · ${r.more}`:''):r.from;
+    return `<div class="vw-r vw-${r.k}"><div class="vw-n"><b>${esc(r.n)}${r.tag||''}</b><span>${esc(r.pg||'')}${!r.on||r.canLoad!=null?'':''}</span>${r.desc?`<details class="vw-d"><summary>What it does</summary><p>${esc(r.desc)}</p></details>`:''}</div><span class="vw-num">${esc(info||'')}</span><div class="vw-c">${c}</div></div>`;};
+  const groups=all.map((s,ix)=>{const rs=s.rows.filter(pick); if(!rs.length) return ''; const nOn=s.rows.filter(r=>r.on).length;
+    const open=tab==='on'||(s.title in PROGUI.OPEN?PROGUI.OPEN[s.title]:nOn>0||ix===0);
+    return wsGroup('data-pggrp',s.title,rs.map(row),open,tab==='on'?0:nOn,s.intro&&tab!=='no'?`<p class="vw-intro">${esc(s.intro)}</p>`:'');}).join('');
+  const persona=PERS.reduce((a,[n])=>a+(+C.per[n]||0),0);
+  const stat=(k,v)=>`<span class="vw-st"><span>${k}</span><b>${v}</b></span>`;
+  return `<section class="vw dk" aria-label="Cyberdeck build-out">
+    <div class="vw-pin"><div class="vw-bars">${wsBar('Active memory',C.used,C.am,' Mp',`${fmt(Math.max(0,C.am-C.used))} Mp free for loaded programs`)}${wsBar('Storage',C.stored,C.sm,' Mp',`${fmt(Math.max(0,C.sm-C.stored))} Mp free`)}${wsBar('Persona ratings',persona,3*M,'',`up to 3 × MPCP ${M}`)}</div>
+      <div class="vw-tot"><span class="lbl">Deck + programs</span><b>${fmt(C.cost)}¥</b><span class="note">MPCP ${M}</span></div></div>
+    <div class="vw-stats">${stat('MPCP',M)}${stat('Hardening',C.hard)}${stat(C.vr2?'I/O speed':'Load speed',C.vr2?C.io+' MePS':C.ls+' Mp/turn')}${stat('Hacking Pool',(C.vr2?B.int:B.comp)?C.pool:'—')}${stat('Matrix Init',B.react?`${C.react} + ${C.dice}D6`:'—')}${C.lv?stat('Response level',C.lv):''}</div>
+    <details class="vw-setup" ${st.dhw===false?'':'open'} data-dhw="1"><summary>Deck hardware${C.vr2?': built from components (VR2 p. 86–89)':`: MPCP ${M}, options this deck can carry`}</summary>${D.hw}</details>
+    <details class="vw-setup" data-dwho="1"><summary>You at the deck: ${C.vr2?'Intelligence':'Computer skill'} and Reaction</summary><div class="bgrid">${D.who}</div><p class="note">Hacking Pool: ${esc(C.how)}.${C.lv?` Response level ${C.lv}: +${2*C.lv} Reaction and +${C.lv}D6 in the Matrix.`:''}</p></details>
+    ${C.warn.map(w=>`<p class="rule">${esc(w)}</p>`).join('')}
+    ${wsTabs('data-dtab',tab,[['fits','Fits',count(r=>r.k!=='no')],['no','Doesn’t fit',count(r=>r.k==='no')],['on','On the deck',count(r=>r.k==='on')]])}
+    <div class="vw-list" style="--wcols:minmax(0,1fr) 170px 230px">${groups||`<p class="note" style="padding:12px 0">${tab==='on'?'No programs yet. Switch to Fits and add some.':'Nothing here.'}</p>`}</div>
+    <p class="note">${C.vr2?`Ratings up to the MPCP (${M}), VR2 p. 16.`:'Programs: core p. 174–176.'} Loaded programs sit in active memory for the run; the rest wait in storage.</p>
+    <details class="gm-more"><summary>Price breakdown (${C.parts.length})</summary><ul class="bfx">${C.parts.map(p=>`<li>${esc(p.n)}: ${p.c<0?'−':''}${fmt(Math.abs(p.c))}¥</li>`).join('')}</ul></details>
+    ${C.no.length?`<details class="gm-more"><summary>Won’t fit this deck (${C.no.length})</summary><ul class="bfx">${C.no.map(([a,b])=>`<li>${esc(a)}: ${esc(b)}</li>`).join('')}</ul></details>`:''}
+    <div class="gm-act"><button type="button" class="btn ghost" id="clrDeck">Start over</button><button type="button" class="btn ghost big" data-send="item">Send to a character</button><button type="button" class="btn big" id="addDeck">Add deck and programs · ${fmt(C.cost)}¥</button></div>
+  </section>`;
+}
+// ---------- Cyberware and armor options (cybereyes, cyberears, RC deck, CRD, security armor) ----------
+function hostHTML2(i){ if(!HB.isHost(i.id)) return '';
+  const S=hbFix(i), C=HB.calc(i.id,S,HBENV), A=HB.addable(i.id,S,HBENV), k=C.k;
+  const have=new Map(C.rows.filter(x=>!x.fixed).map(x=>[x.id,x])), yes=new Map(A.yes.map(x=>[x.id,x])), no=new Map(A.no.map(x=>[x.id,x]));
+  const tab=['fits','no','on'].includes(st.htab)?st.htab:'fits';
+  const nm=it=>it.n.replace(/^Helmet option: /,'');
+  const rows=HB.pool(i.id,HBENV).map(id=>{const it=HBENV.item(id); if(!it) return null; const h=have.get(id), y=yes.get(id), nx=no.get(id); return {id,it,h,y,why:(nx&&nx.why||'Doesn’t fit').replace(it.n+' ',''),k:h?'on':y?'fits':'no'};}).filter(Boolean);
+  const pick={fits:r=>r.k!=='no',no:r=>r.k==='no',on:r=>r.k==='on'}[tab];
+  const es=e=>e?`${e}`:'—';
+  const row=r=>{const it=r.it, d=it.desc||it.s||'';
+    if(r.k==='no') return `<div class="vw-r vw-r2 vw-no"><div class="vw-n"><b>${esc(nm(it))}</b><span><span class="vw-why">${esc(r.why)}</span> · ${esc(it.pg||'')}</span>${d?`<details class="vw-d"><summary>What it does</summary><p>${esc(d)}</p></details>`:''}</div><div class="vw-c"><span class="vw-tag">Won’t fit</span></div></div>`;
+    let c='', price='', ess='';
+    if(r.h){const ix=(S.opts||[]).findIndex(o=>o.id===r.id); if(it.r){const lv=HB.levels(i.id,S,HBENV,ix); c+=`<label class="vw-s"><span>${esc(it.r[2])}</span><select data-hbrt="L" data-hbid="${esc(r.id)}" aria-label="${esc(it.n)} ${esc(it.r[2])}">${lv.map(x=>`<option value="${x}"${x===r.h.r?' selected':''}>${x}</option>`).join('')}</select></label>`;}
+      price=fmt(r.h.cost)+'¥'; ess=es(r.h.ess);}
+    else {price=(it.r?'from ':'')+fmt(r.y.row.cost)+'¥'; ess=es(r.y.row.ess);}
+    c+=wsTog('data-hbck','L',r.id,!!r.h,false,'Add');
+    return `<div class="vw-r vw-${r.k}"><div class="vw-n"><b>${esc(nm(it))}${r.h&&it.r?' '+r.h.r:''}</b><span>${esc(it.pg||'')}</span>${d?`<details class="vw-d"><summary>What it does</summary><p>${esc(d)}</p></details>`:''}</div><span class="vw-num">${price}</span><span class="vw-num">${ess}</span><div class="vw-c">${c}</div></div>`;};
+  const rs=rows.filter(pick);
+  const head=tab==='no'?'':`<div class="vw-hd" aria-hidden="true"><span>Option</span><span>Price</span><span>Essence</span><span></span></div>`;
+  const ttl=k==='secarmor'?'Armor options':k==='rcdeck'||k==='crd'?'Deck options':k==='eyes'?'Eye options':'Ear options';
+  const list=rs.length?wsGroup('data-hbgrp',ttl,rs.map(row),true,0,head):`<p class="note" style="padding:12px 0">${tab==='on'?'Nothing added yet. Switch to Fits and add something.':'Nothing here.'}</p>`;
+  const drop=HB_DROPPED.length?`<p class="rule">No longer fit, so removed: ${esc(HB_DROPPED.join(', '))}.</p>`:''; HB_DROPPED=[];
+  const bars=k==='eyes'?(S.ct&&C.cap?wsBar('Accessory capacity',C.accEss,C.cap,' Ess','Cybertechnology limit (CT p. 45)'):'')+wsBar('Free accessory Essence',Math.min(C.accEss,C.free),C.free,'','Over this, accessories cost Essence'):'';
+  const hostLab=k==='eyes'||k==='ears'?'Host':k==='rcdeck'||k==='crd'?`Deck (rating ${C.hr})`:'Armor';
+  const stat=(kk,v)=>`<span class="vw-st"><span>${kk}</span><b>${v}</b></span>`;
+  const setup=HB.headHTML(i.id,S,HBENV,'L');
+  return `<section class="vw hb" aria-label="Options build-out">
+    <div class="vw-pin">${bars?`<div class="vw-bars">${bars}</div>`:`<div class="vw-stats" style="margin:0">${stat(hostLab,fmt(C.hostCost)+'¥')}${stat('Options',fmt(C.sub-C.hostCost)+'¥')}${C.flux!=null?stat('Flux',C.flux):''}${C.wt!=null?stat('Weight',C.wt+' kg'):''}</div>`}
+      <div class="vw-tot"><span class="lbl">Total</span><b>${fmt(C.total)}¥</b><span class="note">${k==='eyes'||k==='ears'||k==='crd'?`${C.ess} Essence`:''}${C.disc?` · package −${fmt(C.disc)}¥`:''}</span></div></div>
+    <p class="note">${esc(HB.INTRO[k])} <span class="pref">${esc(HB.PAGES[k])}</span></p>
+    ${setup?`<div class="vw-setup hb-setup">${setup}</div>`:''}
+    ${drop}${C.notes.map(n=>`<p class="note">${esc(n)}</p>`).join('')}
+    ${wsTabs('data-htab',tab,[['fits','Fits',rows.filter(r=>r.k!=='no').length],['no','Doesn’t fit',rows.filter(r=>r.k==='no').length],['on','Added',rows.filter(r=>r.k==='on').length]])}
+    <div class="vw-list" style="--wcols:minmax(0,1fr) 110px 70px 190px">${list}</div>
+    <div class="gm-act"><button type="button" class="btn ghost" id="clrHost">Start over</button><button type="button" class="btn ghost big" data-send="item">Send to a character</button><button type="button" class="btn big" id="addHost">Add to shopping list · ${fmt(C.total)}¥</button></div>
+  </section>`;}
+// ---------- Cyber body: a body map, one location at a time, totals pinned ----------
+const CB_LOCS=[['la','Left arm'],['ra','Right arm'],['ll','Left leg'],['rl','Right leg'],['torso','Torso'],['skull','Skull']];
+function cbHTML2(i){ if(!CB_PAGES.has(i.id)) return '';
+  const S=cbFix(); const fc=cbFromChar(), P=S.P, R=CB.calc(P,S.C,CBENV);
+  const loc=CB_LOCS.some(x=>x[0]===st.cbloc)?st.cbloc:'ra';
+  const inp=(f,lab)=>`<label class="fl"><span class="lbl">${lab}</span><select data-cbc="${f}">${Array.from({length:15},(_,k)=>k+1).map(v=>`<option ${v===+S.C[f]?'selected':''}>${v}</option>`).join('')}</select></label>`;
+  const cap1=t=>t.charAt(0).toUpperCase()+t.slice(1);
+  const now=s=>cap1(s==='torso'||s==='skull'?(P[s].on?(s==='torso'?'Cybertorso':'Cyberskull')+(+P[s].plate?` · plating ${P[s].plate}`:''):'Natural'):CB.word(s,P.limbs[s])+(P.limbs[s].acc.length?` · ${P.limbs[s].acc.length} add-on${P.limbs[s].acc.length>1?'s':''}`:''));
+  const isOn=s=>s==='torso'||s==='skull'?P[s].on:CB.any(P.limbs[s]);
+  const map=CB_LOCS.map(([s,l])=>`<button type="button" class="gm-s gm-st-${isOn(s)?'fit':'open'}" data-cbloc="${s}" aria-current="${s===loc}"><span class="gm-dot" aria-hidden="true"></span><span class="gm-t"><span class="gm-l">${l}</span><span class="gm-n">${esc(now(s))}</span></span></button>`).join('');
+  // the shared view draws every location; show only the one picked here
+  let html=CBUI.view(P,S.C,CBENV,{intro:'',dropped:CB_DROP}); CB_DROP=[];
+  let n=0; const order=['la','ra','ll','rl','torso','skull'];
+  html=html.replace(/<article class="cb-card/g,()=>{const s=order[n++]; return s===loc?'<article class="cb-card cb-pick':'<article hidden class="cb-card';});
+  const tile=(k,v,sub,on)=>`<span class="vw-st${on?' chg':''}"><span>${k}</span><b>${v}</b>${sub?`<em>${sub}</em>`:''}</span>`;
+  return `<section class="vw cbv2 cb-at-${loc}" aria-label="Cyber body build-out">
+    <div class="vw-pin"><div class="vw-stats" style="margin:0">${tile('Strength',R.avgStr,`natural ${S.C.str}`,R.avgStr!==S.C.str)}${tile('Quickness',R.avgQui,`natural ${S.C.quick}`,R.avgQui!==S.C.quick)}${tile('Body',`+${R.bodyBonus}`,'',R.bodyBonus>0)}${tile('Plating armor',R.plateArmor?`${R.plateArmor}/${R.plateArmor}`:'—','',R.plateArmor>0)}${tile('Unarmed Power',R.power?`+${R.power}`:'—','',R.power>0)}</div>
+      <div class="vw-tot"><span class="lbl">Cyber body</span><b>${fmt(R.cost)}¥</b><span class="note">${R.ess} Essence</span></div></div>
+    <details class="vw-setup"><summary>Your runner: Body ${S.C.body}, Strength ${S.C.str}, Quickness ${S.C.quick}${S.C.troll?', troll':''}</summary><div class="gm-setup">${inp('body','Natural Body')}${inp('str','Natural Strength (incl. muscle replacement)')}${inp('quick','Natural Quickness')}</div><div class="bchks"><label class="bchk"><input type="checkbox" data-cbc="troll" ${S.C.troll?'checked':''}> Troll (cyberlimbs start at Strength 8)</label>${fc?`<button class="btn ghost" id="cbUseChar" type="button">Use ${esc(fc.label)}’s attributes</button>`:''}</div></details>
+    <p class="note">Limbs work in pairs and share averages, so plan the whole body here (Cybertechnology p. 30–37, 49–52). Only legal choices are offered.</p>
+    <div class="gm-grid"><div class="gm-map"><span class="lbl">Body</span>${map}</div><div class="gm-panel">${html}</div></div>
+    <div class="gm-act"><button type="button" class="btn ghost" id="clrCB">Start over</button><button type="button" class="btn ghost big" data-send="cbody" ${R.rows.length?'':'disabled'}>Send to a character</button><button type="button" class="btn big" id="addCB" ${R.rows.length?'':'disabled'}>Add to shopping list · ${fmt(R.cost)}¥</button></div>
+  </section>`;}
+document.addEventListener('click',e=>{
+  const dt=e.target.closest('[data-dtab]'); if(dt){st.dtab=dt.dataset.dtab; renderTag(); const b=document.querySelector(`[data-dtab="${st.dtab}"]`); if(b) b.focus({preventScroll:true}); return;}
+  const ht=e.target.closest('[data-htab]'); if(ht){st.htab=ht.dataset.htab; renderTag(); const b=document.querySelector(`[data-htab="${st.htab}"]`); if(b) b.focus({preventScroll:true}); return;}
+  const cl=e.target.closest('[data-cbloc]'); if(cl){st.cbloc=cl.dataset.cbloc; renderTag(); const b=document.querySelector(`[data-cbloc="${st.cbloc}"]`); if(b) b.focus({preventScroll:true}); return;}
+});
+document.addEventListener('toggle',e=>{const d=e.target; if(d&&d.dataset&&d.dataset.dhw) st.dhw=d.open;},true);
 
 function renderTag(){
   const i=BYID[st.sel];
@@ -2122,28 +2565,28 @@ function renderTag(){
     ?`<div class="rate"><label for="rnum">${esc(i.r[2])}</label><input id="rnum" type="number" min="${i.r[0]}" max="${i.r[1]}" value="${r||1000}" style="width:9rem;font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--ink)"><output>${fmt(costAt(i,r||1000))}¥ extra</output></div>`
     :`<div class="rate"><label for="rsl">${esc(i.r[2])}</label><input id="rsl" type="range" min="${i.r[0]}" max="${Math.min(i.r[1],i.costs?Math.max(...Object.keys(i.costs).map(Number)):i.r[1])}" value="${r}"><output>${r}</output></div>`):'';
   const G=related(i);
-  $('tag').innerHTML=`<a class="back" href="#list" id="backList">↑ Back to the list</a><div class="kicker">${srcTag(i.src)}<span>${esc(BOOK[i.src][0])}</span><span>·</span><span>${esc(pageRef(i))}</span><span>·</span><span>${esc(CATN[i.cat])}</span></div>
+  const isPrice=!(i.sp||i.ef||i.mt||i.cat==='power'||i.mult!=null);
+  const priceTxt=isPrice?fmt(price)+'¥':esc(priceLabel(i));
+  const build=[buildHTML2(i),deckHTML2(i),vehHTML2(i),hostHTML2(i)+gelHTML(i),cbHTML2(i)].join('').trim();
+  const canBuildIt=canBuild(i)||isDeck(i)||isVeh(i)||HB.isHost(i.id)||CB_PAGES.has(i.id);
+  const buyable=!(i.sp||i.ef||i.mt||i.cat==='power');
+  const runner=(ownNote(i)+wishNote(i,r)).trim();
+  const tabs=[['overview','Overview'],...(build?[['build','Build-out']]:[]),['runner','For your runner'],['goes','Goes with',G.reduce((a,g)=>a+(g.list?g.list.length:0),0)]];
+  const tab=tabs.some(t=>t[0]===st.tab)?st.tab:'overview';
+  const panels={
+    overview:`${i.s?`<p class="desc">${esc(i.s)}</p>`:''}${fxHTML(i)}${ratingCtl}${statsHTML(i,r)}${ratingTable(i,r)}${rangeHTML(i)}${gradeTable(i,r)}${spellTable(i)}${rulesFor(i)}${tagFgHTML(i)}${i.m1?'<p class="note">Matrix 1.0 item: VR2 replaces it if your table uses VR2.</p>':''}`,
+    build,
+    runner:runner||`<p class="note">${OWNC?'Nothing special to check against '+esc(shortName(OWNC))+' for this item.':'Pick a runner at the top (“Compare with”) to see nuyen, Essence and Body Index left, and whether they already own this.'}</p>`,
+    goes:G.length?`<div class="links">${G.map(g=>`<div class="lgrp"><h4>${esc(g.title)}</h4>${g.note?`<p>${esc(g.note)}</p>`:''}${g.text?`<p>${esc(g.text)}</p>`:`<div class="pills">${g.list.map(x=>`<button type="button" class="pill ${visible(x)?'':'off'}" data-id="${esc(x.id)}" title="${esc(BOOK[x.src][0]+' '+pageRef(x))}">${srcTag(x.src)}${esc(x.n)}<span class="pp">${priceLabel(x)}</span></button>`).join('')}</div>`}</div>`).join('')}</div>`:'<p class="note">No pairings listed for this item.</p>'};
+  const bar=!buyable?`<div class="tbar"><div class="tp"><b>${priceTxt}</b><span>${esc(CATN[i.cat])}: picked in the Runner Builder</span></div></div>`
+    :canBuildIt?(tab==='build'?'':`<div class="tbar"><div class="tp"><b>${priceTxt}</b><span>Before add-ons</span></div><div class="ta"><button type="button" class="btn big" data-tab="build">Build it out and add</button></div></div>`)
+    :`<div class="tbar"><div class="tp"><b>${priceTxt}</b><span>${i.r&&i.mult==null?esc(i.r[2])+' '+r:'Each'}</span></div><div class="ta"><button type="button" class="btn ghost big" data-send="item">Send to a character</button><button type="button" class="btn big" id="addKit">Add to shopping list</button></div></div>`;
+  $('tag').innerHTML=`<div class="thd"><a class="back" href="#list" id="backList">↑ Back to the list</a><div class="kicker">${srcTag(i.src)}<span>${esc(BOOK[i.src][0])}</span><span>·</span><span>${esc(pageRef(i))}</span><span>·</span><span>${esc(CATN[i.cat])}${i._.sub?' › '+esc(i._.sub):''}</span></div>
    <h2>${esc(i.n)}</h2>
-   <div class="price">${i.sp||i.ef||i.mt||i.cat==='power'||i.mult!=null?esc(priceLabel(i)):fmt(price)+'¥'}${i.r&&i.mult==null?` <span class="note">at ${esc(i.r[2].toLowerCase())} ${r}</span>`:''}</div>
-   ${legalNote(i,r)}
-   ${ownNote(i)}
-   ${wishNote(i,r)}
-   ${i.s?`<p class="desc">${esc(i.s)}</p>`:''}
-   ${fxHTML(i)}
-   ${ratingCtl}
-   ${statsHTML(i,r)}
-   ${ratingTable(i,r)}
-   ${rangeHTML(i)}
-   ${buildHTML(i)}
-   ${deckHTML(i)}
-   ${vehHTML(i)}
-   ${hostHTML(i)}${gelHTML(i)}
-   ${cbHTML(i)}
-   ${gradeTable(i,r)}
-   ${spellTable(i)}
-   ${rulesFor(i)}
-   ${tagFgHTML(i)}<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">${i.sp||i.ef||i.mt||i.cat==='power'||canBuild(i)||isDeck(i)||isVeh(i)||HB.isHost(i.id)||CB_PAGES.has(i.id)?'':'<button class="btn" id="addKit">Add to shopping list</button><button class="btn ghost" data-send="item">Send to a character</button>'}${i.m1?'<span class="note">Matrix 1.0 item: VR2 replaces it if your table uses VR2.</span>':''}</div>
-   ${G.length?`<h3>Goes with</h3><div class="links">${G.map(g=>`<div class="lgrp"><h4>${esc(g.title)}</h4>${g.note?`<p>${esc(g.note)}</p>`:''}${g.text?`<p>${esc(g.text)}</p>`:`<div class="pills">${g.list.map(x=>`<button class="pill ${visible(x)?'':'off'}" data-id="${esc(x.id)}" title="${esc(BOOK[x.src][0]+' '+pageRef(x))}">${srcTag(x.src)}${esc(x.n)}<span class="pp">${priceLabel(x)}</span></button>`).join('')}</div>`}</div>`).join('')}</div>`:''}`;
+   <div class="price">${priceTxt}${i.r&&i.mult==null?` <span class="note">at ${esc(i.r[2].toLowerCase())} ${r}</span>`:''}</div>
+   ${legalNote(i,r)}</div>
+   <div class="tabs" role="tablist" aria-label="Item sections">${tabs.map(([k,l,n])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${tab===k}">${l}${n?`<span class="tn">${n}</span>`:''}</button>`).join('')}</div>
+   <div class="tpanel" role="tabpanel">${panels[tab]}</div>${bar}`;
 }
 function kitPrice(k){if(k.pc!=null) return k.pc; const i=BYID[k.id]||{cost:k.cost}; return k.build&&k.bc!=null?k.bc:k.hb&&k.hc!=null?k.hc:(costAt(i,k.r)||0)*(k.gel?5:1)*(k.q||1);}
 function kitChip(){const el=$('kitchip'); if(!el) return; let c=0; st.kit.forEach(k=>{c+=kitPrice(k);}); el.textContent=st.kit.length?`Shopping list: ${st.kit.length} · ${fmt(c)}¥`:'Shopping list: empty';}
@@ -2198,30 +2641,64 @@ function kitFgHTML(k,ix,G){const t=G.find(o=>o.v===k.fg); if(!t) return '';
 function tagFgHTML(i){if(!kitForGun(i.id)) return ''; const G=kitGuns(); st.fgSel=st.fgSel||{}; let v=st.fgSel[i.id]||''; if(v&&!G.some(o=>o.v===v)){v=''; delete st.fgSel[i.id];}
   const t=G.find(o=>o.v===v), bad=t&&i.id==='ammo:Spare Clip'&&!/\(c\)/.test(String(t.i.w[2]));
   return `<div class="tfg"><label for="tfg">${i.id==='ammo:Spare Clip'?'Clip for':'Ammo for'}</label> ${G.length?`<select id="tfg" data-tfg="${esc(i.id)}"><option value="">Any gun</option>${G.map(o=>`<option value="${esc(o.v)}"${o.v===v?' selected':''}>${esc(o.label)} (${o.where})</option>`).join('')}</select>`:'<span class="note">Add a gun to your shopping list, or link a character, to pick one.</span>'}${bad?`<div class="bad">${esc(t.label)} doesn’t take clips (${esc(t.i.w[2])}). It loads ${/\(m\)/.test(t.i.w[2])?'from an internal magazine':'another way'} (core p. 95).</div>`:''}<div class="note">${i.id==='ammo:Spare Clip'?'Clips fit one specific gun.':'Ammo is shared by every gun of the same class.'} The Runner Builder links it to that gun when you send the list.</div></div>`;}
+function kitStackable(k){return !(k.build||k.hb||k.vb||k.v2||k.pc!=null||k.loaded!=null)&&!!BYID[k.id]&&!kitFeed(BYID[k.id]);}
 function renderKit(){ kitChip();
-  if(!st.kit.length){$('kit').innerHTML=`<div class="hd"><b>Shopping list</b><span class="note">Add items to total their price and Essence. Saved in this browser only.</span></div>`;return;}
-  let c=0,e=0,bt=0; const KG=kitGuns(); const rows=st.kit.map((k,ix)=>{const i=BYID[k.id]||{n:k.n,src:k.src||'core',cost:k.cost}; const p=kitPrice(k); const es=k.hb&&k.hc!=null?+(k.he||0):+(essAt(i,k.r)||0)*(k.q||1); c+=p; e+=es; bt+=+((i.bis?i.bis[k.r]:i.bi)||0);
-    return `<li><span>${srcTag(i.src)} ${esc(i.n)}${k.q>1?' × '+k.q:''}${k.gel?' + gel-packs':''}${i.r&&!k.hb&&!k.noR?` <span class="note">(${esc(i.r[2])} ${k.r})</span>`:''}${k.bp&&k.bp.length?`<div class="kfg">With ${esc(k.bp.join(', '))}</div>`:''}${BYID[k.id]&&kitForGun(k.id)?kitFgHTML(k,ix,KG):''}</span><span class="c">${fmt(p)}¥${es?` · ${es} Ess`:''}</span><button class="x" data-rm="${ix}" aria-label="Remove ${esc(i.n)}">×</button></li>`;}).join('');
-  $('kit').innerHTML=`<div class="hd"><b>Shopping list</b><span class="tot">${fmt(c)}¥${e?` · ${Math.round(e*100)/100} Essence`:''}</span><button class="btn ghost" data-send="kit">Send to a character</button><button class="btn ghost" id="clearKit">Clear</button></div>${(()=>{const W=wishLines(OWNC,c,e,bt); return W?`<div class="wish"><b>${W.head.replace('this','the whole list')}</b><ul>${W.lines.map(x=>`<li>${x}</li>`).join('')}</ul></div>`:'';})()}<ul>${rows}</ul>`;
+  $('grid').classList.toggle('kitc',!st.kitOpen);
+  let c=0,e=0,bt=0; const lg={legal:0,permit:0,restricted:0,illegal:0};
+  st.kit.forEach(k=>{const i=BYID[k.id]||{n:k.n,src:k.src||'core',cost:k.cost}; c+=kitPrice(k); e+=k.hb&&k.hc!=null?+(k.he||0):+(essAt(i,k.r)||0)*(k.q||1); bt+=+((i.bis?i.bis[k.r]:i.bi)||0);
+    const L=BYID[k.id]?legalOf(i,k.r):null; lg[L?L.lv:'legal']=(lg[L?L.lv:'legal']||0)+1;});
+  const cTxt=fmt(c)+'¥', eTxt=Math.round(e*100)/100;
+  const lines=st.kit.length+(st.kit.length===1?' line':' lines');
+  if(!st.kitOpen){
+    $('kit').innerHTML=`<button type="button" class="krail" id="kitOpen" aria-expanded="false" aria-label="Open the shopping list: ${lines}, ${cTxt}"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3L5 8l5 5"/></svg><span class="rn">${st.kit.length}</span><span class="rv">Shopping list</span><span class="rt">${cTxt}</span>${lg.restricted||lg.illegal?'<span class="rx">Restricted</span>':''}</button>`;
+    return;}
+  const KG=kitGuns(); const groups={};
+  st.kit.forEach((k,ix)=>{const i=BYID[k.id]; const g=i?CATN[i.cat]:'Other'; (groups[g]=groups[g]||[]).push([k,ix]);});
+  const order=DATA.cats.map(x=>x[1]).filter(g=>groups[g]).concat(groups.Other?['Other']:[]);
+  const body=st.kit.length?order.map(g=>`<div class="kg">${esc(g)}</div>`+groups[g].map(([k,ix])=>{const i=BYID[k.id]||{n:k.n,src:k.src||'core',cost:k.cost}; const p=kitPrice(k);
+      const es=k.hb&&k.hc!=null?+(k.he||0):+(essAt(i,k.r)||0)*(k.q||1);
+      const note=[i.r&&!k.hb&&!k.noR?`${i.r[2]} ${k.r}`:'',k.gel?'gel-packs':'',k.bp&&k.bp.length?'With '+k.bp.join(', '):'',k.loaded?'loaded':''].filter(Boolean).join(' · ');
+      return `<div class="kl"><div class="kt"><b>${srcTag(i.src)} ${esc(i.n)}</b><span class="c">${fmt(p)}¥${es?` · ${Math.round(es*100)/100} Ess`:''}</span></div>${note?`<span class="kn">${esc(note)}</span>`:''}${BYID[k.id]&&kitForGun(k.id)?kitFgHTML(k,ix,KG):''}
+        <div class="ka">${kitStackable(k)?`<span class="qty" role="group" aria-label="Quantity of ${esc(i.n)}"><button type="button" class="sq" data-kq="${ix}" data-d="-1" aria-label="One fewer ${esc(i.n)}" ${(k.q||1)<=1?'disabled':''}>−</button><span>${k.q||1}</span><button type="button" class="sq" data-kq="${ix}" data-d="1" aria-label="One more ${esc(i.n)}">+</button></span>`:'<span></span>'}
+        <span style="display:flex;gap:6px;align-items:center">${BYID[k.id]?legalBadge(i,k.r):''}${BYID[k.id]?`<button type="button" class="xb" data-kedit="${ix}">Open</button>`:''}<button type="button" class="xb" data-rm="${ix}" aria-label="Remove ${esc(i.n)}">Remove</button></span></div></div>`;}).join('')).join('')
+    :`<p class="note" style="padding:14px">Empty. Pick something on the left and add it. Saved in this browser only.</p>`;
+  const W=wishLines(OWNC,c,e,bt);
+  $('kit').innerHTML=`<div class="khd"><b>Shopping list</b><span style="display:flex;gap:8px;align-items:center"><span class="note">${lines}</span><button type="button" class="sq" id="kitClose" aria-expanded="true" aria-label="Tuck the shopping list away"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg></button></span></div>
+    <div class="kbody">${body}</div>
+    <div class="kfoot"><div class="ktot"><div><span class="lbl">Total</span><b>${cTxt}</b></div><div><span class="lbl">Essence</span><b>${eTxt?'−'+eTxt:'0'}</b></div></div>
+      ${st.kit.length?`<div class="klg">${['legal','permit','restricted','illegal'].filter(x=>lg[x]).map(x=>`<span class="lgl lgl-${x}" style="margin:0">${lg[x]} ${LEGAL_LV[x][1].toLowerCase()}</span>`).join('')}</div>`:''}
+      ${lg.restricted||lg.illegal?'<span class="kwarn">Restricted gear needs the GM’s OK and a fixer (Shadowtech p. 103–104).</span>':''}
+      ${W?`<div class="wish" style="margin:0"><b>${W.head.replace('this','the whole list')}</b><ul>${W.lines.map(x=>`<li>${x}</li>`).join('')}</ul></div>`:''}
+      <div class="kact"><button type="button" class="btn full" data-send="kit" ${st.kit.length?'':'disabled'}>Send to a character</button><button type="button" class="btn ghost" data-send="kit" ${st.kit.length?'':'disabled'}>Copy gear code</button><button type="button" class="btn ghost" id="clearKit" ${st.kit.length?'':'disabled'}>Clear list</button></div></div>`;
 }
 function select(id,scroll){
-  st.sel=id; const i=BYID[id];
+  st.sel=id; const i=BYID[id]; if(i) st.open[gkey(i)]=true;
   if(i&&!visible(i)){st.books[i.src]=1; renderBooks(); renderCats(); save();}
   if(i&&st.cat!=='all'&&!(st.cat==='owned'&&OWN[i.id])&&i.cat!==st.cat){st.cat=i.cat; st.f={}; renderCats(); renderSortFilter();}
   renderList(); renderTag();
   try{history.replaceState(null,'','#'+slug(id));}catch(e){}
   const el=$('list').querySelector(`[data-id="${CSS.escape(id)}"]`); if(el) el.scrollIntoView({block:'nearest'});
-  if(scroll&&window.innerWidth<=760) $('tag').scrollIntoView({block:'start'});
+  if(scroll&&window.innerWidth<=760) $('tag').scrollIntoView({block:'start'}); $('picker').hidden=true; $('catBtn').setAttribute('aria-expanded','false');
 }
 function all(){renderBooks();renderCats();renderSortFilter();renderList();renderTag();renderKit();}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-book]'); if(b){const k=b.dataset.book; st.books[k]=st.books[k]?0:1; save(); renderBooks(); renderCats(); renderSortFilter(); renderList(); if(st.sel) renderTag(); return;}
-  const c=e.target.closest('[data-cat]'); if(c){setCat(c.dataset.cat); return;}
+  const b=e.target.closest('[data-book]'); if(b){const k=b.dataset.book; st.books[k]=st.books[k]?0:1; save(); renderBooks(); renderCats(); renderSortFilter(); renderList(); if(st.sel) renderTag(); const f=$('books').querySelector(`[data-book="${k}"]`); if(f) f.focus(); return;}
+  const c=e.target.closest('[data-cat]'); if(c){if(st.q){st.q=''; $('q').value='';} setCat(c.dataset.cat); $('picker').hidden=true; $('catBtn').setAttribute('aria-expanded','false'); return;}
+  if(e.target.closest('#catBtn')){const p=$('picker'); p.hidden=!p.hidden; $('catBtn').setAttribute('aria-expanded',String(!p.hidden)); if(!p.hidden){p.style.top=($('catBtn').getBoundingClientRect().bottom-document.querySelector('.shelf').getBoundingClientRect().top+8)+'px'; const cur=p.querySelector('[aria-current="true"]'); if(cur) cur.focus();} return;}
+  if(e.target.closest('#ftog')){const f=$('fbar'); f.hidden=!f.hidden; $('ftog').setAttribute('aria-expanded',String(!f.hidden)); return;}
+  const gh=e.target.closest('[data-grp]'); if(gh){const k=gh.dataset.grp; st.open[k]=gh.getAttribute('aria-expanded')!=='true'; renderList(); const b=$('list').querySelector(`[data-grp="${CSS.escape(k)}"]`); if(b) b.focus(); return;}
+  if(e.target.closest('#grpAll')){const v=$('grpAll').dataset.v==='1'; filtered().forEach(i=>{st.open[gkey(i)]=v;}); renderList(); return;}
+  const cf=e.target.closest('[data-clrf]'); if(cf){const k=cf.dataset.clrf; if(k==='legal'){st.legal='all'; save(); renderCats();} else delete st.f[k]; renderSortFilter(); renderList(); return;}
+  const tb=e.target.closest('[data-tab]'); if(tb){st.tab=tb.dataset.tab; save(); renderTag(); const t=document.querySelector(`.tabs [data-tab="${st.tab}"]`); if(t) t.focus(); return;}
+  if(e.target.closest('#srcBtn')||e.target.closest('#srcClose')){st.srcOpen=!st.srcOpen; save(); renderBooks(); const f=st.srcOpen?$('srcClose'):$('srcBtn'); if(f) f.focus(); return;}
+  if(e.target.closest('#srcAll')||e.target.closest('#srcCore')){const core=!!e.target.closest('#srcCore'); Object.keys(BOOK).forEach(k=>{st.books[k]=core?(k==='core'?1:0):1;}); save(); renderBooks(); renderCats(); renderSortFilter(); renderList(); if(st.sel) renderTag(); return;}
+  if(e.target.closest('#kitClose')||e.target.closest('#kitOpen')){st.kitOpen=!st.kitOpen; save(); renderKit(); const f=st.kitOpen?$('kitClose'):$('kitOpen'); if(f) f.focus(); return;}
+  const kq=e.target.closest('[data-kq]'); if(kq){const k=st.kit[+kq.dataset.kq]; if(k){k.q=Math.max(1,(k.q||1)+(+kq.dataset.d)); save(); renderKit(); const b=$('kit').querySelector(`[data-kq="${kq.dataset.kq}"][data-d="${kq.dataset.d}"]`); if(b&&!b.disabled) b.focus();} return;}
+  const ke=e.target.closest('[data-kedit]'); if(ke){const k=st.kit[+ke.dataset.kedit]; if(k&&BYID[k.id]){if(k.build||k.vb||k.hb||k.v2) st.tab='build'; select(k.id,true);} return;}
   const lv=e.target.closest('[data-lv]'); if(lv){const fk=lv.dataset.fk||'lv'; const cur=st.f[fk]||[]; const x=lv.dataset.lv; st.f[fk]=cur.includes(x)?cur.filter(y=>y!==x):[...cur,x]; renderSortFilter(); renderList(); return;}
-  if(e.target.id==='clrF'){st.f={}; renderSortFilter(); renderList(); return;}
-  if(e.target.id==='ftog'){const sh=document.querySelector('.shelf'); const o=sh.classList.toggle('fopen'); e.target.setAttribute('aria-expanded',o); return;}
-  if(e.target.id==='dir'){st.dir=-st.dir; renderSortFilter(); renderList(); return;}
-  const it=e.target.closest('[data-id]'); if(it){select(it.dataset.id,true); return;}
+  if(e.target.id==='clrF'){st.f={}; st.legal='all'; save(); renderCats(); renderSortFilter(); renderList(); return;}
+  if(e.target.id==='dir'){st.dir=-st.dir; renderSortFilter(); renderList(); const d=$('dir'); if(d) d.focus(); return;}
+  const it=e.target.closest('[data-id]'); if(it){const fromList=!!it.closest('#list'); select(it.dataset.id,true); if(fromList){const el=$('list').querySelector(`[data-id="${CSS.escape(it.dataset.id)}"]`); if(el) el.focus({preventScroll:true});} return;}
   if(e.target.dataset&&e.target.dataset.send==='cbody'){const S=cbFix(); sendGear({items:[],cbody:JSON.parse(JSON.stringify(S.P)),label:'Cyber body'}); return;}
   if(e.target.dataset&&e.target.dataset.send){ if(e.target.dataset.send==='kit'){ if(st.kit.length) sendGear(xferKit()); } else {const i=BYID[st.sel]; if(i) sendGear(xferItem(i));} return;}
   if(e.target.id==='sendClose'||e.target.id==='sendClose2'||e.target.id==='sendDlg'){$('sendDlg').hidden=true; return;}
@@ -2263,7 +2740,6 @@ document.addEventListener('click',e=>{
   if(e.target.dataset.rm!=null){st.kit.splice(+e.target.dataset.rm,1); save(); renderKit(); return;}
   if(e.target.id==='clearKit'){st.kit=[]; save(); renderKit(); return;}
   if(e.target.closest('#backList')){e.preventDefault(); document.querySelector('.shelf').scrollIntoView({block:'start'}); return;}
-  if(e.target.closest('#kitchip')){e.preventDefault(); $('kit').scrollIntoView({block:'start'}); return;}
 });
 document.addEventListener('toggle',e=>{if(e.target.classList&&e.target.classList.contains('pguide')){if(e.target.closest('[aria-label="Vehicle build-out"]')) st.vguide=e.target.open; else if(e.target.closest('[aria-label="Options build-out"]')) st.hguide=e.target.open; else st.pguide=e.target.open;}},true);
 document.addEventListener('change',e=>{
@@ -2292,18 +2768,18 @@ document.addEventListener('change',e=>{
   if(t.dataset.bopt){const B=bstate(g); B[t.dataset.bopt]=t.value; save(); renderTag(); const el=$(t.id); if(el) el.focus(); return;}
 });
 document.addEventListener('input',e=>{
-  if(e.target.id==='q'){st.q=e.target.value; renderSortFilter(); renderList(); return;}
-  if(e.target.dataset&&e.target.dataset.f){const f=e.target.dataset.f; const v=e.target.value; st.f[f]=e.target.type==='number'?(v===''?'':+v):v; renderList(); if(e.target.tagName==='SELECT'){renderSortFilter();} return;}
+  if(e.target.id==='q'){st.q=e.target.value; $('picker').hidden=true; renderSortFilter(); renderList(); return;}
+  if(e.target.dataset&&e.target.dataset.f){const f=e.target.dataset.f; const v=e.target.value; st.f[f]=e.target.type==='number'?(v===''?'':+v):v; renderList(); if(e.target.tagName==='SELECT'){renderSortFilter(); const x=$('f-'+f); if(x) x.focus();} else {const n=$('achips'); renderSortFilter(); const x=$('f-'+f); if(x){x.focus(); try{x.setSelectionRange(99,99);}catch(_){}}} return;}
   if(e.target.id==='rsl'||e.target.id==='rnum'){const i=BYID[st.sel]; st.rate[i.id]=+e.target.value; renderTag(); const el=$(e.target.id); if(el){el.focus();} }
 });
-function setCat(c){st.cat=c; st.f={}; renderCats(); renderSortFilter(); renderList();}
-$('catSel').addEventListener('change',e=>setCat(e.target.value));
-$('legalSel').value=st.legal||'all';
-$('legalSel').addEventListener('change',e=>{st.legal=e.target.value; save(); renderCats(); renderList();});
-$('sort').addEventListener('change',e=>{st.sort=e.target.value; const s=SORTS.find(x=>x.k===st.sort); st.dir=s&&s.d?s.d:1; renderSortFilter(); renderList();});
+function setCat(c){st.cat=c; st.f={}; save(); renderCats(); renderSortFilter(); renderList(); $('list').scrollTop=0;}
+document.addEventListener('change',e=>{
+  if(e.target.id==='legalSel'){st.legal=e.target.value; save(); renderCats(); renderSortFilter(); renderList(); const s=$('legalSel'); if(s) s.focus(); return;}
+  if(e.target.id==='sort'){st.sort=e.target.value; const s=SORTS.find(x=>x.k===st.sort); st.dir=s&&s.d?s.d:1; renderSortFilter(); renderList(); const x=$('sort'); if(x) x.focus(); return;}});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape') return; if(!$('picker').hidden){$('picker').hidden=true; $('catBtn').setAttribute('aria-expanded','false'); $('catBtn').focus();}});
 $('list').addEventListener('keydown',e=>{
-  if(!['ArrowDown','ArrowUp'].includes(e.key)) return; e.preventDefault();
-  const btns=[...$('list').querySelectorAll('.item')]; let ix=btns.findIndex(b=>b.dataset.id===st.sel); ix=Math.max(0,Math.min(btns.length-1,ix+(e.key==='ArrowDown'?1:-1)));
+  if(!['ArrowDown','ArrowUp'].includes(e.key)||!e.target.classList.contains('item')) return; e.preventDefault();
+  const btns=[...$('list').querySelectorAll('.item')]; if(!btns.length) return; let ix=btns.findIndex(b=>b.dataset.id===st.sel); ix=Math.max(0,Math.min(btns.length-1,ix+(e.key==='ArrowDown'?1:-1)));
   if(btns[ix]){select(btns[ix].dataset.id); const el=$('list').querySelector(`[data-id="${CSS.escape(btns[ix].dataset.id)}"]`); el&&el.focus();}
 });
 function fromHash(){const h=location.hash.slice(1); const i=BYSLUG[h]; if(i) select(i.id); }
@@ -2320,6 +2796,7 @@ window.addEventListener('focus',ownRefresh); document.addEventListener('visibili
 {const st2=document.createElement('style'); st2.textContent=CBUI.CSS; document.head.appendChild(st2);}
 refreshOwned(); renderCharBar();
 all();
+$('q').value=st.q||'';
 if(location.hash) fromHash(); else select('guns:Ares Predator');
 </script>
 
