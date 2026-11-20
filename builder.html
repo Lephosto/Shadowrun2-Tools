@@ -197,6 +197,76 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
 .xfer{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:0.75rem;border:1px solid var(--accent);border-left-width:4px;border-radius:0.5rem;background:var(--paper);padding:0.75rem 1rem;margin:0 0 1rem}.xpay{display:flex;gap:0.375rem;align-items:center;font-size:0.875rem;margin:0.375rem 0;text-transform:none;letter-spacing:0;font-weight:500}.xfer[hidden]{display:none}.xfer .note{display:block}
 .glink{font-size:0.75rem;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap}.glink:hover{text-decoration:underline}#lockerTop{display:inline-block;margin-top:0.25rem}#lockerTop[hidden]{display:none}
 .notebtn{font:inherit;font-size:.75rem;margin-top:.25rem;padding:1px 8px;border:1px dashed var(--line);border-radius:4px;background:transparent;color:var(--muted);cursor:pointer}.notebtn:hover{color:var(--ink);border-color:var(--muted)}
+
+/*@b2css*/
+/* Runner Builder 2: mode tabs, budget strip, game night dashboard, after-session update. Uses the Builder's skin variables. */
+#b2tabs{display:flex;gap:0.25rem;flex-wrap:wrap;margin-right:0.5rem}
+#b2tabs button{min-height:2.5rem;padding:0 0.9rem;border-radius:999px;background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:600}
+#b2tabs button[aria-selected="true"]{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+#sesBtn{display:none!important}
+#b2strip{position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;gap:0.375rem;padding:0.5rem 0;background:var(--bg)}
+body.b2gn #b2strip,body.b2af #b2strip{display:none}
+.b2chip{display:inline-flex;flex-direction:column;gap:0;padding:0.25rem 0.7rem;border:1px solid var(--line);border-radius:0.5rem;background:var(--paper);min-height:2.5rem;justify-content:center;text-align:left;color:var(--ink);font-weight:400}
+.b2chip small{font-size:0.6875rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em}
+.b2chip b{font-family:var(--mono);font-size:0.9375rem}
+.b2chip.bad{border-color:var(--bad)}.b2chip.bad b{color:var(--bad)}.b2chip.warn{border-color:var(--warn)}.b2chip.ok b{color:var(--ok)}
+#b2drawer{border:1px solid var(--line);border-radius:0.625rem;background:var(--paper);padding:0.75rem 1rem;margin-bottom:0.75rem}
+.b2wrap{display:none;margin:0 0 1rem}
+body.b2gn #b2night{display:block}
+body.b2af #b2after{display:block}
+body.b2af .layout,body.b2af .sesnote,body.b2af .mbar{display:none!important}
+body.b2gn .sesnote{display:none!important}
+body.b2gn #sec-weap,body.b2gn #sec-sum,body.b2gn #sec-dice,body.b2gn #sec-skills,body.b2gn #magicCard{display:none!important}
+body.b2gn #sec-play h3:first-of-type,body.b2gn #trkPhys,body.b2gn #trkStun,body.b2gn #woundNote{display:none!important}
+.b2big{display:grid;grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr));gap:0.5rem;margin-bottom:0.75rem}
+.b2t{background:var(--paper);border:1px solid var(--line);border-radius:0.625rem;padding:0.6rem 0.8rem;display:flex;flex-direction:column}
+.b2k{font-size:0.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+.b2v{font-family:var(--mono);font-size:1.75rem;line-height:1.15}
+.b2s{font-size:0.75rem;color:var(--muted)}
+.b2warn{color:var(--warn)}.b2ok{color:var(--ok)}.b2bad{color:var(--bad)}
+.b2grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr));gap:0.75rem;align-items:start}
+.b2pan{background:var(--paper);border:1px solid var(--line);border-radius:0.75rem;padding:0.875rem 1rem;display:flex;flex-direction:column;gap:0.625rem;min-width:0}
+.b2full,.b2wide2{grid-column:1/-1}
+.b2h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:0.5rem}
+.b2h h3{margin:0;font-family:var(--display);font-size:1.125rem}
+.b2ini{display:flex;align-items:center;gap:0.875rem}.b2ini b{font-family:var(--mono);font-size:2.5rem;color:var(--warn)}
+.b2row{display:flex;flex-wrap:wrap;gap:0.375rem;align-items:center}
+.b2boxes{display:flex;flex-wrap:wrap;gap:0.25rem;align-items:center}
+.b2box{width:2rem;height:2rem;min-height:0;padding:0;border-radius:0.3rem;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font:600 0.6875rem var(--mono)}
+.b2box.mk{border-color:var(--muted)}.b2box.on{background:var(--bad);border-color:var(--bad);color:var(--paper)}.b2box.ov{width:1.25rem}.b2box.ov.on{background:var(--hit,var(--bad))}
+.b2ovl{font-size:0.6875rem;color:var(--muted);margin:0 0.25rem}
+.b2ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,11.5rem),1fr));gap:0.5rem}
+.b2f{display:flex;flex-direction:column;gap:0.25rem;min-width:0}
+.b2f select,.b2f input[type=text]{min-height:2.75rem;width:100%}
+.b2wide{grid-column:1/-1}
+.b2wsel{font-weight:600;font-size:1rem}
+.b2chk{flex-direction:row;align-items:center;gap:0.5rem;text-transform:none;letter-spacing:0}
+.b2step{display:flex;align-items:center;gap:0.375rem}.b2step button{width:2.75rem;min-height:2.75rem;padding:0}.b2step b{font-family:var(--mono);font-size:1.125rem;min-width:1.75rem;text-align:center}
+.b2step input{width:6.5rem;min-height:2.75rem;font-family:var(--mono)}
+.b2two{display:flex;flex-wrap:wrap;gap:0.75rem;align-items:flex-start}
+.b2two>*{flex:1 1 20rem;min-width:0}
+.b2rows{border:1px solid var(--line);border-radius:0.5rem;overflow:hidden}
+.b2r{display:flex;justify-content:space-between;align-items:center;gap:0.75rem;padding:0.45rem 0.75rem;border-top:1px solid var(--line)}
+.b2r:first-child{border-top:0}.b2r.alt{background:var(--panel2)}.b2r small{color:var(--muted);font-size:0.75rem}.b2r b{font-family:var(--mono)}
+.b2r.tot{background:var(--soft,var(--panel2))}.b2r.tot b{color:var(--warn);font-size:1.125rem}
+.b2res{display:flex;flex-direction:column;gap:0.5rem;border:1px solid var(--line);border-radius:0.5rem;padding:0.75rem}
+.b2nums{display:flex;flex-wrap:wrap;gap:1.25rem}.b2nums>div{display:flex;flex-direction:column;min-width:0}.b2nums b{font-family:var(--mono);font-size:1.75rem}.b2nums small{color:var(--muted);font-size:0.75rem;max-width:22rem}
+.b2dice{display:flex;flex-wrap:wrap;gap:0.25rem}
+.b2die{min-width:2rem;height:2rem;padding:0 0.375rem;border-radius:0.375rem;display:inline-flex;align-items:center;justify-content:center;background:var(--panel2);color:var(--muted);font:600 0.875rem var(--mono);border:2px solid transparent}
+.b2die.hit{background:var(--ok);color:var(--paper)}.b2die.pool{border-color:var(--accent)}
+.b2drain{border-top:1px solid var(--line);padding-top:0.5rem;font-size:0.875rem}
+.b2am{display:flex;flex-wrap:wrap;gap:0.375rem;align-items:center}.b2am select{width:auto;min-height:2.5rem}
+.b2copy{display:flex;flex-direction:column;gap:0.25rem}.b2copy input{width:100%;font-family:var(--mono);font-size:0.8125rem;min-height:2.75rem}
+.b2skills .b2r span:first-child{flex:1}
+.b2card{border:1px solid var(--line);border-radius:0.5rem;padding:0 0.75rem;background:var(--panel2)}
+.b2card summary{min-height:2.75rem;display:flex;justify-content:space-between;align-items:center;gap:0.5rem;cursor:pointer}
+.b2card summary small{color:var(--muted)}.b2card p{margin:0 0 0.75rem;font-size:0.875rem;line-height:1.5}
+.b2af{display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:center;justify-content:space-between;padding:0.5rem 0;border-top:1px solid var(--line)}
+.b2af>div:first-child{display:flex;flex-direction:column;flex:1 1 14rem}.b2af small{color:var(--muted)}
+.b2pan h4{margin:0.5rem 0 0;font-size:0.875rem}
+@media (max-width:40em){.b2v{font-size:1.375rem}.b2box{width:1.75rem;height:1.75rem}.b2nums b{font-size:1.375rem}}
+
+/*@end:b2css*/
 </style></head><body>
 <div class="wrap" id="appRoot">
   <header class="top">
@@ -454,7 +524,7 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1795068678140","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwn5jkko","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795068678129}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1795206276277","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwpfgryx","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795206276259}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--paper',panel2:'--soft',ink:'--ink',muted:'--muted',line:'--line',accent:'--accent',accentInk:'--accent-ink',accentSoft:'--accent-soft',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skillweb*/
@@ -3869,6 +3939,309 @@ render();
 {const st2=document.createElement('style'); st2.textContent=CBUI.CSS; document.head.appendChild(st2);}
 xferCheck(); {const h=lockerHref(), a=$('lockerTop'); if(h&&a){a.href=h; a.hidden=false;}}
 window.__sr2={get S(){return S;},KEYFIX,VB_OPEN,HB_OPEN,CB,CBENV,cbCalc,cbChar,augAttr,HB,HBENV,hbFixG,essenceUsed,armorTotals,gearImport,xferCheck,VB,R2OBJ,vbFixG,VTYPE,deckEnforce,deckRowMax,deckPickOk,vr2Clamp,syncGear,DESC,EDGES,FLAWS,RACES,EF_DESC,CAT,GCATS,GEARDB,WSTAT,VSTAT,MSTAT,ASTAT,DSTAT,RANGES,RT_SKILL,vr2DeckCost,vr2Default,itemVisible,render,sheetFile,deckInfo,matrixInfo,builderFile,SPELLS,POWERS,XPOWERS,IA_COST};
+/*@b2*/
+/* Runner Builder 2: three modes on top of the Builder (Build / Game night / After the session).
+   Reads the Builder's own state S and helpers, so every number matches the sheet. Rules cites are printed core pages. */
+(function(){
+'use strict';
+const E=s=>esc(s);
+const SIGN=x=>x>0?'+'+x:x<0?'−'+(-x):'+0';
+const L4='LMSD', BOXES={L:1,M:3,S:6,D:10};
+const d6x=()=>{let t=0,x;do{x=1+Math.floor(Math.random()*6);t+=x;}while(x===6&&t<60);return t;}; // Rule of Six (core p. 32)
+const r20=(n,tn)=>tn<=6?`[[${n}d6>${tn}]]`:`[[${n}d6!!6>${tn}]]`;
+// every damage code in the text (a gun can show two, e.g. flechette vs unarmored / armored): add Power, then levels (max D)
+const bump=(d,lv)=>String(d||'').replace(/(\d+)([LMSD])/g,(m,n,l)=>n+L4[Math.min(3,L4.indexOf(l)+lv)]);
+const pow=(d,p)=>String(d||'').replace(/(\d+)([LMSD])/g,(m,n,l)=>(+n+p)+l);
+let ST={}; try{ST=JSON.parse(localStorage.getItem('sr2-b2')||'{}')||{};}catch(e){ST={};}
+const keep=()=>{try{localStorage.setItem('sr2-b2',JSON.stringify({tab:B.tab}));}catch(e){}};
+// per-session table state (not saved with the character)
+const B={tab:ST.tab||'build',wid:'unarmed',mode:'s1',rng:0,amSel:'',sit:{},msit:{},gm:0,spend:0,force:0,dmgLv:'M',tnBase:4,fired:0,pool:null,poolMax:null,karma:null,roll:null,copy:null,
+  gh:{kind:'ball',pow:9,lvl:'M',fl:true,att:0,spend:0,roll:null}, sk:{tn:4,res:''}, ini:null, af:{gk:0,kp:0,nin:0,nout:0,note:'',phys:null,stun:null,use:{},saved:''}};
+// ---------- rules tables (core p. 89, 101) ----------
+const VIS=[['n','Clear',0,0,0],['full','Full darkness',8,8,2],['min','Minimal light',6,2,2],['part','Partial light',2,0,1],['glare','Glare',2,2,2],['mist','Mist',2,0,0],['ls','Light smoke, fog, rain',4,2,0],['hs','Heavy smoke, fog, rain',6,4,0],['ts','Thermal smoke, heavy',6,4,6]]; // normal, natural low-light, natural thermographic
+const SITS=[['tgt','Target is',[['n','Moving normally',0],['run','Running',2],['still','Stationary',-1]]],
+ ['cov','Target cover',[['n','In the open',0],['part','Partial cover',4],['blind','Can’t be seen (blind fire)',8]]],
+ ['me','You are',[['n','Standing',0],['walk','Walking',1],['walkd','Walking, difficult ground',2],['run','Running',4],['rund','Running, difficult ground',6]]],
+ ['melee','You’re in melee with',[['0','Nobody',0],['1','1 opponent',2],['2','2 opponents',4],['3','3 opponents',6]]],
+ ['two','Second firearm',[['n','No',0],['y','Firing a second gun',2]]],
+ ['multi','Other targets this phase',[['0','None',0],['1','1 more',2],['2','2 more',4]]]];
+const MSITS=[['fr','Friends in the melee',[['0','None',0],['1','1 friend',-1],['2','2 friends',-2],['3','3 friends',-3],['4','4 or more',-4]]],
+ ['of','Opponent’s friends',[['0','None',0],['1','1 friend',1],['2','2 friends',2],['3','3 friends',3],['4','4 or more',4]]],
+ ['reach','Opponent’s reach',[['0','0: unarmed, knife',0],['1','1: sword, club, troll barehanded',1],['2','2: pole arm, whip',2],['3','3: troll with a pole arm',3]]],
+ ['pos','Position',[['n','Even footing',0],['sup','Superior position',-1]]],
+ ['prone','Opponent is',[['n','Standing',0],['prone','Prone',-2]]],
+ ['mt','Other targets',[['0','None',0],['1','1 more',2],['2','2 more',4]]]];
+const HITS={ball:'Bullet (Ballistic armor)',imp:'Melee, unarmed or thrown (Impact armor)',flech:'Flechette',apds:'APDS',gel:'Gel round',mana:'Mana combat spell',phys:'Physical combat spell'};
+function visCol(){const r=baseRace(); return r==='Troll'||r==='Dwarf'?4:r==='Elf'||r==='Ork'?3:2;}
+function visName(){return ['','','normal vision','natural low-light','natural thermographic'][visCol()];}
+// ---------- what this runner can attack with ----------
+function attacks(){
+  const T=sheetStats(), str=augAttr('str'), out=[]; const troll=baseRace()==='Troll'?1:0;
+  // unarmed is always there (core p. 98-101)
+  {const sk=S.skills.find(x=>x.name==='Unarmed Combat'); const parts=sk?skillParts(sk):[]; const best=parts.reduce((m,p)=>p.r>m.r?p:m,{r:0,label:''});
+   const ia=adeptOn()?S.powers.filter(p=>p.type==='improvedAbility'&&p.skill==='Unarmed Combat').reduce((a,p)=>a+(+p.n||0),0):0;
+   const kh=adeptOn()?S.powers.find(p=>p.type==='killing'):null;
+   out.push({id:'unarmed',grp:'base',kind:'melee',n:'Unarmed'+(best.label&&best.label!=='Unarmed Combat'?' ('+best.label+')':''),dice:best.r?best.r+ia:null,skill:best.r||0,diceSrc:best.r?(best.label||'Unarmed Combat')+' '+best.r+(ia?' + Improved Ability '+ia:''):'no skill: defaulting (core p. 66–68)',
+     dmg:kh?str+(kh.level||'M'):str+'M Stun',note:kh?`Killing Hands: Physical, or ${str}M Stun if you choose (core p. 126)`:'(Strength)M Stun (core p. 101)',reach:troll});}
+  S.gear.forEach((g,i)=>{const it=GEARDB[g.key]; if(!it) return; const where=carried(g)?'on':'off';
+    if(MSTAT[g.key]){const [cc,reach,dmg,conc,msk]=MSTAT[g.key]; const sd=skillDiceFor(msk||'Armed Combat',conc,it.n);
+      out.push({id:'g'+i,g,grp:where,kind:'melee',n:it.n,dice:sd.dice==null?null:sd.dice+(sd.ia||0),skill:sd.dice||0,diceSrc:sd.dice==null?'no skill: defaulting (core p. 66–68)':sd.how+' '+sd.dice,dmg:strDmg(dmg,str),reach:reach+troll,note:(msk||'Armed Combat')+' · '+(it.pg||'')});}
+    else if(WSTAT[g.key]){const [rt,cc,ammo,mode,dmg]=WSTAT[g.key]; const [sk,conc]=RT_SKILL[rt]||['Firearms','']; const sd=skillDiceFor(sk,conc,it.n); const gc=(typeof gunCalc==='function')?gunCalc(g):null;
+      const fs=feedSpec(g.key); const fg=fs?feedGuns().find(x=>x.g===g):null;
+      out.push({id:'g'+i,g,grp:where,kind:'gun',rt,n:it.n+((+g.qty||1)>1?' ×'+g.qty:''),dice:sd.dice==null?null:sd.dice+(sd.ia||0),skill:sd.dice||0,diceSrc:sd.dice==null?'no skill: defaulting (core p. 66–68)':sd.how+' '+sd.dice,
+        dmg:(gc&&gc.C.dmg)||strDmg(dmg,str),mode:String(mode||''),bands:RANGES[rt]||['','','',''],aim:gc?gc.C.aim:0,aimTxt:gc?(gc.C.aimTxt||[]).filter(x=>!/pick the shooter/.test(x)).join(', '):'',rc:gc?(gc.C.rc||0):0,gid:fg?fg.gid:null,cap:fs?fs.cap:null,note:sk+' · '+(it.pg||'')});}});
+  if(isMagician()){const mp=bestRating(/^sorcery/i)+powerFoci();
+    S.powers.forEach((p,i)=>{const sp=spellFind(p.name); if(!sp||sp.cat!=='Combat') return;
+      out.push({id:'sp'+i,grp:'spell',kind:'spell',n:p.name+' (Force '+(+p.cost||1)+')',maxF:+p.cost||1,sp,dice:null,skill:mp,pool:mp,note:(sp.pg||'')+' · '+(sp.ty==='M'?'mana: target resists with Willpower':'physical: target resists with Body')});});}
+  return out;
+}
+const GRP={on:'Carried',off:'Not on you: stashed or in a vehicle',base:'Basic attacks',spell:'Combat spells'};
+// ---------- Game night ----------
+function nightHTML(){
+  const T=sheetStats(), ar=T.ar, w=T.wmod.m, A=attacks(); if(!A.find(a=>a.id===B.wid)) B.wid=A[0].id; const W=A.find(a=>a.id===B.wid);
+  const bodyR=augAttr('body')+hasDerm(), isMag=isMagician(), poolName=W.kind==='spell'?'Magic Pool':'Combat Pool';
+  if(B.poolMax!==T.cpool){B.poolMax=T.cpool; B.pool=T.cpool;} if(B.karma==null) B.karma=T.kpool;
+  const mpMax=isMag?bestRating(/^sorcery/i)+powerFoci():0; if(B.mpool==null||B.mpMax!==mpMax){B.mpMax=mpMax;B.mpool=mpMax;}
+  const big=[['Body',String(augAttr('body')),hasDerm()?'+1 dermal: '+bodyR+' to resist':bodyR+' dice to resist'],['Armor',ar.b+' / '+ar.i,'Ballistic / Impact worn'],['Reaction',String(T.reaction),''],['Initiative',`${T.reaction-w} + ${T.dice}D6`,w?'wounds −'+w:''],
+    ['Combat Pool',`${B.pool} / ${T.cpool}`,'refreshes each action'],['Karma Pool',`${B.karma} / ${T.kpool}`,''],...(S.magic!=='none'?[['Magic',String(magicNow()),'Essence '+(6-essenceUsed()).toFixed(2).replace(/\.?0+$/,'')]]:[]),...(isMag?[['Magic Pool',`${B.mpool} / ${mpMax}`,'']]:[]),['Wounds',w?'+'+w:'0','to every target number']];
+  const tile=([k,v,sub])=>`<div class="b2t"><span class="b2k">${E(k)}</span><b class="b2v${k==='Wounds'&&w?' b2warn':''}">${E(v)}</b><span class="b2s">${E(sub)}</span></div>`;
+  // condition monitor
+  const B10=natBody(); const boxes=(k,n,ov)=>Array.from({length:n},(_,j)=>{const v=ov?11+j:j+1, on=v<=S[k]; const lv={1:'L',3:'M',6:'S',10:'D'}[v]||'';
+    return `<button class="b2box${on?' on':''}${ov?' ov':''}${lv?' mk':''}" data-b2trk="${k}" data-v="${v}" aria-pressed="${on}" aria-label="${k==='phys'?'Physical':'Stun'} box ${v}${ov?' (overflow)':''}">${ov?'':lv}</button>`;}).join('');
+  const cond=S.phys>10+B10?'Dead':S.phys>10?`Dying: overflow ${S.phys-10} of ${B10}`:S.phys>=10||S.stun>=10?'Unconscious':w?`Wound modifier +${w}`:'Unhurt';
+  // attack
+  const groups=['on','base','spell','off'].map(gk=>{const L=A.filter(a=>a.grp===gk); return L.length?`<optgroup label="${E(GRP[gk])}">${L.map(a=>`<option value="${a.id}" ${a.id===B.wid?'selected':''}>${E(a.n)}</option>`).join('')}</optgroup>`:'';}).join('');
+  const rows=[]; let tn=4, ctl='', dmg=W.dmg, dmgNote='', rounds=0, dice=0, dSrc='', pmax=0, maxSp=0, spellF=0;
+  const sel=(id,lab,opts,val,extra)=>`<label class="b2f"><span class="b2k">${E(lab)}</span><select data-b2="${id}"${extra||''}>${opts.map(([v,t])=>`<option value="${E(v)}" ${String(v)===String(val)?'selected':''}>${E(t)}</option>`).join('')}</select></label>`;
+  const step=(id,lab,val)=>`<div class="b2f"><span class="b2k">${E(lab)}</span><div class="b2step"><button class="ghost" data-b2s="${id}" data-d="-1" aria-label="Lower ${E(lab)}">−</button><b>${E(val)}</b><button class="ghost" data-b2s="${id}" data-d="1" aria-label="Raise ${E(lab)}">+</button></div></div>`;
+  const vc=visCol();
+  if(W.kind==='gun'){
+    const M=W.mode; const modes=[]; if(/SS|SA/.test(M)||!/BF|FA/.test(M)) modes.push(['s1','Single shot',1]); if(/SA/.test(M)) modes.push(['s2','Second shot this action',1]); if(/BF/.test(M)) modes.push(['b1','Burst (3 rounds)',3],['b2','Second burst this action',3]); if(/FA/.test(M)) [3,4,5,6,7,8,9,10].forEach(n=>modes.push(['f'+n,`Full-auto burst, ${n} rounds`,n]));
+    if(!modes.find(m=>m[0]===B.mode)) B.mode=modes[0][0]; const md=modes.find(m=>m[0]===B.mode); rounds=md[2];
+    ctl+=sel('mode','Firing',modes.map(m=>[m[0],m[1]]),B.mode);
+    ctl+=sel('rng','Range',W.bands.map((b,j)=>[j,['Short','Medium','Long','Extreme'][j]+' '+b+' m']),B.rng);
+    tn=[4,5,6,9][B.rng]; rows.push(['Range',W.bands[B.rng]+' m · core p. 88',String(tn)]);
+    if(W.aim){rows.push(['Gun add-ons',W.aimTxt||'smartgun, laser · core p. 89–90',SIGN(W.aim)]); tn+=W.aim;}
+    let rec=0, why='';
+    if(B.mode==='s2'){rec=1;why='second shot +1';} else if(B.mode==='b1'){rec=3;why='burst +3';} else if(B.mode==='b2'){rec=6;why='second burst, +6 in all';} else if(B.mode[0]==='f'){rec=B.fired+rounds;why=`+1 per round this phase (${B.fired} before + ${rounds})`;}
+    if(rec){const net=Math.max(0,rec-W.rc); rows.push(['Recoil',why+(W.rc?', compensation −'+W.rc:'')+' · core p. 91',SIGN(net)]); tn+=net;}
+    if(B.mode==='b1'||B.mode==='b2'){dmg=bump(pow(W.dmg,3),1); dmgNote='burst: +3 Power, +1 level (core p. 92)';}
+    if(B.mode[0]==='f'){dmg=bump(pow(W.dmg,rounds),Math.floor(rounds/3)); dmgNote=`full auto: +${rounds} Power, +${Math.floor(rounds/3)} level (core p. 92–93); Complex Action`;}
+    SITS.forEach(([id,lab,opts])=>{ctl+=sel('sit:'+id,lab,opts.map(o=>[o[0],o[1]+(o[2]?' ('+SIGN(o[2])+')':'')]),B.sit[id]||opts[0][0]); const o=opts.find(x=>x[0]===B.sit[id]); if(o&&o!==opts[0]){rows.push([o[1],lab.toLowerCase()+' · core p. 89',SIGN(o[2])]); tn+=o[2];}});
+    ctl+=step('aim','Take Aim actions (max '+Math.floor((W.skill||0)/2)+')',B.aim||0);
+    if(B.aim){rows.push(['Aimed shot',B.aim+' Simple Action'+(B.aim>1?'s':'')+' · core p. 82',SIGN(-B.aim)]); tn-=B.aim;}
+    if(W.gid){const at=(S.ammoT||{})[W.gid]; if(at){const types=amTypes(W.gid); ctl+=`<div class="b2f b2wide"><span class="b2k">Loaded</span><div class="b2am"><b>${at.in.n}${W.cap!=null?'/'+W.cap:''}</b> ${E(at.in.n?AMSHORT(at.in.t):'empty')}${at.clips.length?' · spare clips '+at.clips.map(c=>c.n).join(', '):''}
+        ${types.length?`<select data-b2="amsel" aria-label="Ammo to load">${types.map(t=>`<option value="${E(t)}" ${t===at.sel?'selected':''}>${E(AMSHORT(t))} (${amPool(W.gid,t)} left)</option>`).join('')}</select><button class="ghost" data-b2a="load">Load</button>`:''}${at.clips.some(c=>c.n>0)?'<button class="ghost" data-b2a="swap">Change clip</button>':''}</div></div>`;
+        if(at.in.n<rounds) dmgNote=(dmgNote?dmgNote+' · ':'')+'not enough rounds loaded';}}
+  } else if(W.kind==='melee'){
+    tn=4; rows.push(['Melee','opposed: the defender rolls too · core p. 100','4']);
+    const vo=VIS.find(v=>v[0]===B.sit.vis);
+    MSITS.forEach(([id,lab,opts])=>{ctl+=sel('msit:'+id,id==='reach'?lab+' (yours: '+W.reach+')':lab,opts.map(o=>{const v=id==='reach'?o[2]-W.reach:o[2]; return [o[0],o[1]+(v?' ('+SIGN(v)+')':'')];}),B.msit[id]||opts[0][0]);
+      const o=opts.find(x=>x[0]===(B.msit[id]||opts[0][0])); if(id==='reach'){const v=o[2]-W.reach; if(v){rows.push(['Reach '+W.reach+' vs '+o[2],'core p. 101',SIGN(v)]); tn+=v;} return;} if(o!==opts[0]){rows.push([lab+': '+o[1].toLowerCase(),'core p. 101',SIGN(o[2])]); tn+=o[2];}});
+    if(W.dice==null){ctl+=step('dfd','Defaulting dice (GM)',B.dfd||4); ctl+=step('tnb','Base target number (GM)',B.tnBase);}
+  } else if(W.kind==='spell'){
+    spellF=Math.max(1,Math.min(B.force||W.maxF,W.maxF)); B.force=spellF; ctl+=step('force','Force (up to '+W.maxF+')',spellF);
+    ctl+=step('tnb',`Target’s ${W.sp.ty==='M'?'Willpower':'Body'} (GM)`,B.tnBase); tn=B.tnBase; rows.push([`Target’s ${W.sp.ty==='M'?'Willpower':'Body'}`,'combat spell · core p. 129',String(tn)]);
+    ctl+=sel('dmglv','Spell’s damage level',[['L','Light'],['M','Moderate'],['S','Serious'],['D','Deadly']],B.dmgLv); dmg=B.dmgLv+' · Force '+spellF; dmgNote='target resists against the Force; armor doesn’t help (core p. 129, 149)';
+  }
+  // visibility (all but Matrix): the column for this runner's eyes
+  if(W.kind!=='spell'||true){ctl+=sel('sit:vis','Light and air ('+visName()+')',VIS.map(v=>[v[0],v[1]+(v[vc]?' ('+SIGN(v[vc])+')':'')]),B.sit.vis||'n'); const v=VIS.find(x=>x[0]===B.sit.vis); if(v&&v[0]!=='n'){rows.push([v[1],visName()+' · core p. 89',SIGN(v[vc])]); tn+=v[vc];}}
+  ctl+=step('gm','GM modifier',B.gm?SIGN(B.gm):'0'); if(B.gm){rows.push(['GM modifier','anything the tables don’t cover',SIGN(B.gm)]); tn+=B.gm;}
+  if(w){rows.push(['Wounds','core p. 112','+'+w]); tn+=w;}
+  if(W.kind==='melee'&&W.dice==null) tn+=B.tnBase-4;
+  tn=Math.max(2,tn);
+  // dice
+  const aimLock=W.kind==='gun'&&(B.aim||0)>=2;
+  if(W.kind==='spell'){maxSp=B.mpool; const sp=Math.min(B.spend,maxSp); dice=spellF+sp; dSrc='Force '+spellF+(sp?' + '+sp+' Magic Pool':'');}
+  else {maxSp=aimLock?0:Math.min(B.pool,W.skill||0); const sp=Math.min(B.spend,maxSp); dice=(W.dice==null?(B.dfd||4):W.dice)+sp; dSrc=(W.dice==null?'defaulting, GM-set':W.diceSrc)+(sp?' + '+sp+' Combat Pool':'');}
+  const spend=Math.min(B.spend,maxSp);
+  ctl+=step('spend',poolName+' ('+(W.kind==='spell'?B.mpool:B.pool)+' left'+(W.kind!=='spell'?', max '+maxSp+' on this attack':'')+')',spend);
+  if(aimLock) rows.push(['No Combat Pool dice','aiming over more than one Combat Phase · core p. 82','—']);
+  const rowsHTML=rows.map(([k,s,v],j)=>`<div class="b2r${j%2?' alt':''}"><span>${E(k)} <small>${E(s)}</small></span><b class="${/^\+[1-9]/.test(v)?'b2warn':/^−/.test(v)?'b2ok':''}">${E(v)}</b></div>`).join('')+`<div class="b2r tot"><span>Target number</span><b>${tn}</b></div>`;
+  let drain='';
+  if(W.kind==='spell'){const sp=W.sp, dt=Math.max(2,Math.floor(spellF/2)+(sp.m||0)), dl=sp.lv, phys=spellF>magicNow(); drain=`<div class="b2drain"><b>Drain</b> ${E(drainText(sp,spellF))}${phys?' Physical (Force over Magic)':' Stun'} · resist with Willpower ${attrNow('wil')} plus Magic Pool held back; every 2 successes drop it a level (core p. 129). <button class="ghost" data-b2a="drain">Roll Drain</button> <span aria-live="polite">${E(B.drainRes||'')}</span></div>`;}
+  const rolled=B.roll?B.roll.r.map((v,j)=>`<span class="b2die${v>=B.roll.tn?' hit':''}${j>=B.roll.r.length-B.roll.pool?' pool':''}">${v}</span>`).join(''):'';
+  const succ=B.roll?B.roll.r.filter(v=>v>=B.roll.tn).length:0;
+  const res=B.warn?B.warn:!B.roll?'Sixes roll again and add (Rule of Six, core p. 32).':B.roll.r.every(v=>v===1)?'All ones: Rule of One (core p. 32).':`${succ} success${succ===1?'':'es'} vs TN ${B.roll.tn}`;
+  B._cur={W,tn,dice,dSrc,dmg,rounds,spend,rows,spellF}; // used by the buttons
+  // got hit
+  const G=B.gh, spellHit=G.kind==='mana'||G.kind==='phys', derm=hasDerm()||gearLevel('body:Dermal Plating');
+  const armV=G.kind==='ball'?ar.b:G.kind==='imp'||G.kind==='gel'?ar.i:G.kind==='flech'?Math.max(2*ar.i,ar.b):G.kind==='apds'?Math.floor(ar.b/2):0;
+  const armWhy=G.kind==='ball'?'Ballistic '+ar.b:G.kind==='imp'?'Impact '+ar.i:G.kind==='gel'?'Impact '+ar.i+' (gel)':G.kind==='flech'?`higher of double Impact (${2*ar.i}) or Ballistic (${ar.b})`:G.kind==='apds'?`Ballistic ${ar.b} halved, rounded down (GM call)`:'armor doesn’t help against spells';
+  const gPow=G.kind==='gel'?G.pow-2:G.pow, gTn=spellHit?G.pow:Math.max(2,gPow-armV);
+  let gLv=G.lvl; if(G.kind==='flech'&&G.fl&&derm) gLv=L4[Math.max(0,L4.indexOf(G.lvl)-1)];
+  const gBase=G.kind==='mana'?attrNow('wil'):bodyR, gSp=spellHit?0:Math.min(G.spend,B.pool);
+  let gRes=''; if(G.roll){const R=G.roll,k=R.r.filter(x=>x>=R.tn).length,pk=R.r.slice(R.r.length-R.pool).filter(x=>x>=R.tn).length;
+    if(R.pool&&pk>G.att) gRes=`${k} successes; Combat Pool alone beat the attacker’s ${G.att}: a complete miss (core p. 91).`;
+    else {const d=k-G.att, idx=L4.indexOf(R.lvl)+(d<0?Math.floor(-d/2):-Math.floor(d/2)); R.final=idx<0?null:L4[Math.min(3,idx)]; gRes=`${k} success${k===1?'':'es'} vs the attacker’s ${G.att}: `+(R.final?`takes ${R.final} ${R.stun?'Stun':'Physical'} (${BOXES[R.final]} box${BOXES[R.final]>1?'es':''}).`:'no damage.');}}
+  B._gh={gTn,gBase,gSp,gLv,armV,gPow,spellHit};
+  const ghRolled=G.roll?G.roll.r.map((v,j)=>`<span class="b2die${v>=G.roll.tn?' hit':''}${j>=G.roll.r.length-G.roll.pool?' pool':''}">${v}</span>`).join(''):'';
+  // skills
+  const skl=[]; S.skills.filter(x=>x.name).forEach(x=>skillParts(x).forEach(p=>{if(p.r) skl.push([p.label,p.r]);}));
+  Object.entries(advSkills()).forEach(([n,r])=>skl.push([n,r]));
+  const ia=adeptOn()?S.powers.filter(p=>p.type==='improvedAbility'):[];
+  // powers and spells
+  let pw='';
+  if(S.magic==='adept') pw=S.powers.map(p=>{const c=powerCost(p); const P=allPowers()[p.type||'custom']||POWERS.custom; return `<details class="b2card"><summary><b>${E(p.type==='custom'?p.name:P.label)}</b><small>${c.cost} PP${P.pg?' · '+E(P.pg):''}</small></summary><p>${E(c.desc||'')}</p></details>`;}).join('');
+  else if(isMag) pw=S.powers.map(p=>{const sp=spellFind(p.name); return `<details class="b2card"><summary><b>${E(p.name)}</b><small>Force ${+p.cost||1}${sp?' · '+E(sp.cat)+' · '+(sp.ty==='M'?'mana':'physical')+(sp.pg?' · '+E(sp.pg):''):''}</small></summary><p>${sp?'Drain '+E(drainText(sp,+p.cost||1)):''}${p.note?' · '+E(p.note):''}</p></details>`;}).join('');
+  const copyBox=B.copy?`<div class="b2copy"><label for="b2r20" class="b2k">${E(B.copy.msg)}</label><input id="b2r20" readonly value="${E(B.copy.text)}"></div>`:'';
+  return `<div class="b2big">${big.map(tile).join('')}</div>
+  <div class="b2grid">
+   <section class="b2pan"><div class="b2h"><h3>Initiative</h3><span class="mono">${T.reaction} + ${T.dice}D6${w?' − '+w:''}</span></div>
+     <div class="b2ini"><b>${B.ini==null?'—':Math.max(0,B.ini-w)}</b><span>${B.ini==null?'Roll to see your passes':'Acts on '+(()=>{const o=[];for(let x=Math.max(0,B.ini-w);x>0;x-=10)o.push(x);return o.join(', ')||'—';})()}</span></div>
+     <div class="b2row"><button data-b2a="ini">Roll Initiative</button><button class="ghost" data-b2a="cini">Copy for Roll20</button></div><p class="note">Each pass is 10 lower; wounds come off the total (core p. 78).</p></section>
+   <section class="b2pan"><div class="b2h"><h3>Condition</h3><span class="${w||S.phys>10?'b2warn':'b2ok'}">${E(cond)}</span></div>
+     <span class="b2k">Physical</span><div class="b2boxes">${boxes('phys',10)}<span class="b2ovl">overflow</span>${boxes('phys',B10,true)}</div>
+     <span class="b2k">Stun</span><div class="b2boxes">${boxes('stun',10)}</div>${T.wmod.pain?`<p class="note">Pain Resistance ${T.wmod.pain} is already taken off the wound modifier.</p>`:''}</section>
+   <section class="b2pan b2full"><div class="b2h"><h3>Attack</h3><span class="note">weapon, mode, ammo and modifiers in one place; rolling or copying spends rounds and pool dice</span></div>
+     <label class="b2f b2wide"><span class="b2k">Attack with</span><select data-b2="wid" class="b2wsel">${groups}</select></label>
+     ${W.grp==='off'?'<p class="note b2warn">This one isn’t on you: move it to your carried gear in Stash before you can use it.</p>':''}
+     <div class="b2ctl">${ctl}<div class="b2f"><span class="b2k">&nbsp;</span><button class="ghost" data-b2a="clear">Clear modifiers</button></div></div>
+     <div class="b2two"><div class="b2rows">${rowsHTML}</div>
+      <div class="b2res"><div class="b2nums"><div><span class="b2k">Dice</span><b>${dice}</b><small>${E(dSrc)}</small></div><div><span class="b2k">Target number</span><b class="b2warn">${tn}</b></div><div><span class="b2k">Damage</span><b>${E(dmg)}</b><small>${E(dmgNote||W.note||'')}</small></div></div>
+       <div class="b2row"><button data-b2a="roll" ${W.grp==='off'?'disabled':''}>Roll ${dice} dice${rounds?' · '+rounds+' round'+(rounds>1?'s':''):''}</button><button class="ghost" data-b2a="copy" ${W.grp==='off'?'disabled':''}>Copy for Roll20</button><button class="ghost" data-b2a="karma" ${B.karma&&B.roll?'':'disabled'}>Karma Pool reroll (${B.karma})</button><button class="ghost" data-b2a="newact">New action: refresh pools</button>${W.kind==='gun'&&/FA/.test(W.mode)?'<button class="ghost" data-b2a="newphase">New Combat Phase</button>':''}</div>
+       <div class="b2dice" aria-live="polite">${rolled}</div><b class="${succ?'b2ok':''}">${E(res)}</b>${drain}</div></div>${copyBox}</section>
+   <section class="b2pan"><div class="b2h"><h3>Got hit</h3><span class="note">armor follows what you wear</span></div>
+     <div class="b2ctl">${sel('gh:kind','What hit you',Object.entries(HITS),G.kind)}${step('gh:pow',spellHit?'Spell Force':'Incoming Power',G.pow)}${sel('gh:lvl','Damage level',[['L','Light'],['M','Moderate'],['S','Serious'],['D','Deadly']],G.lvl)}${step('gh:att','Attacker’s successes',G.att)}${spellHit?'':step('gh:spend','Combat Pool ('+B.pool+' left)',gSp)}
+     ${G.kind==='flech'&&derm?`<label class="b2f b2wide b2chk"><input type="checkbox" data-b2c="gh:fl" ${G.fl?'checked':''}> The code already has flechette’s extra level (an “(f)” code)</label>`:''}</div>
+     <div class="b2rows"><div class="b2r"><span>${spellHit?'Spell Force':'Power'+(G.kind==='gel'?' ('+G.pow+' − 2 for gel)':'')}</span><b>${spellHit?G.pow:gPow}</b></div><div class="b2r alt"><span>Armor: ${E(armWhy)}</span><b>${spellHit?'—':'−'+armV}</b></div><div class="b2r tot"><span>Target number${spellHit?'':' (never below 2)'}</span><b>${gTn}</b></div></div>
+     <div class="b2nums"><div><span class="b2k">Dice</span><b>${gBase+gSp}</b><small>${G.kind==='mana'?'Willpower '+gBase:'Body '+bodyR+(hasDerm()?' with dermal armor':'')}${gSp?' + '+gSp+' Combat Pool':''}</small></div><div><span class="b2k">If successes tie</span><b>${gLv}${G.kind==='gel'?' Stun':''}</b><small>${G.kind==='flech'&&G.fl&&derm?'dermal armor cancels flechette’s extra level (core p. 93)':G.kind==='gel'?'gel: Power −2, Stun (core p. 95)':G.kind==='apds'?'core p. 277':'core p. 91'}</small></div></div>
+     <div class="b2row"><button data-b2a="ghroll">Roll ${gBase+gSp} dice</button><button class="ghost" data-b2a="ghcopy">Copy for Roll20</button><button class="ghost" data-b2a="ghmark" ${G.roll&&G.roll.final?'':'disabled'}>Mark it on the monitor</button></div>
+     <div class="b2dice" aria-live="polite">${ghRolled}</div><b>${E(gRes||'Pool dice have an outline: if they alone beat the attacker, it’s a complete miss.')}</b></section>
+   <section class="b2pan"><div class="b2h"><h3>Skill checks</h3>${step('sk:tn','Target number',B.sk.tn)}</div>
+     <div class="b2skills">${skl.map(([n,r])=>{const x=ia.filter(p=>n===p.skill||n.startsWith(p.skill)).reduce((a,p)=>a+(+p.n||0),0); return `<div class="b2r"><span>${E(n)}</span><b>${r}${x?'+'+x:''}</b><span class="b2row"><button class="ghost" data-b2k="${E(n)}" data-d="${r+x}">Roll</button><button class="ghost" data-b2k="${E(n)}" data-d="${r+x}" data-copy="1" aria-label="Copy ${E(n)} for Roll20">Roll20</button></span></div>`;}).join('')||'<p class="note">No skills.</p>'}</div>
+     <p class="note" aria-live="polite">${E(B.sk.res||'Wound modifiers are added to the target number for you.')}</p></section>
+   ${pw?`<section class="b2pan"><div class="b2h"><h3>${S.magic==='adept'?'Adept powers':'Spells'}</h3></div>${pw}</section>`:''}
+  </div>`;
+}
+function rollN(n){const r=[];for(let i=0;i<n;i++) r.push(d6x()); return r;}
+function copyOut(text,msg){let ok=false; try{if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>{},()=>{}); ok=true;}}catch(e){}
+  B.copy={text,msg:ok?msg+': copied. Paste it into the Roll20 chat.':msg+': select this and copy it.'};}
+function who(){return S.handle||S.name||'Runner';}
+function act(a){const C=B._cur, W=C&&C.W; B.warn='';
+  if(a==='ini'){const T=sheetStats(); B.ini=T.reaction+rollN(T.dice).reduce((x,y)=>x+y,0);}
+  else if(a==='cini'){const T=sheetStats(); copyOut(`&{template:default} {{name=${who()}: Initiative}} {{Initiative=[[${T.reaction-T.wmod.m}+${T.dice}d6]]}}`,'Initiative');}
+  else if(a==='roll'||a==='copy'){
+    if(W.kind==='gun'&&W.gid){const at=(S.ammoT||{})[W.gid]; if(at){if(at.in.n<C.rounds){B.warn='Not enough rounds loaded: load or change the clip first.'; return redraw();} ammoAct(W.gid,'fire',C.rounds);}}
+    if(W.kind==='gun') B.fired+=C.rounds;
+    if(W.kind==='spell') B.mpool-=C.spend; else B.pool-=C.spend; B.spend=0;
+    if(a==='roll'){B.roll={r:rollN(C.dice),tn:C.tn,pool:C.spend}; B.copy=null;}
+    else {const why=C.rows.map(r=>r[0].toLowerCase()+' '+r[2]).join(', '); let t=`&{template:default} {{name=${who()}: ${W.n}}} {{Dice=${C.dice} (${C.dSrc})}} {{Target number=${C.tn} (${why})}} {{Successes=${r20(C.dice,C.tn)}}} {{Damage=${C.dmg}}}`;
+      if(W.kind==='gun'&&W.gid){const at=S.ammoT[W.gid]; t+=` {{Rounds=${C.rounds} fired, ${at.in.n} left}}`;}
+      if(W.kind==='spell'){const dt=Math.max(2,Math.floor(C.spellF/2)+(W.sp.m||0)); t+=` {{Drain=${r20(attrNow('wil')+B.mpool,dt)} vs ${drainText(W.sp,C.spellF)}${C.spellF>magicNow()?' Physical':' Stun'}}}`;}
+      copyOut(t,'Attack'); B.roll=null;}
+    if(W.kind==='gun'&&W.gid){render(); return;}}
+  else if(a==='karma'){if(B.karma&&B.roll){B.roll.r=B.roll.r.map(v=>v>=B.roll.tn?v:d6x()); B.karma--;}}
+  else if(a==='newact'){const T=sheetStats(); B.pool=T.cpool; B.mpool=B.mpMax; B.roll=null;}
+  else if(a==='newphase'){B.fired=0;}
+  else if(a==='clear'){B.sit={};B.msit={};B.gm=0;B.aim=0;}
+  else if(a==='load'||a==='swap'){if(W.gid){if(a==='load'&&B.amSel) S.ammoT[W.gid].sel=B.amSel; ammoAct(W.gid,a); render(); return;}}
+  else if(a==='drain'){const sp=W.sp, F=C.spellF, dt=Math.max(2,Math.floor(F/2)+(sp.m||0)), n=attrNow('wil')+B.mpool, r=rollN(n), k=r.filter(x=>x>=dt).length; const lv0=sp.lv==='W'||sp.lv==='X'?null:sp.lv;
+    if(!lv0) B.drainRes=`${r.join(' ')} → ${k} successes vs TN ${dt}; the Drain level depends on the target (core p. 129).`; else {const idx=L4.indexOf(lv0)-Math.floor(k/2); B.drainRes=`${r.join(' ')} → ${k} success${k===1?'':'es'}: `+(idx<0?'no Drain.':`${L4[idx]} ${F>magicNow()?'Physical':'Stun'} Drain.`);}}
+  else if(a==='ghroll'){const g=B._gh; B.gh.roll={r:rollN(g.gBase+g.gSp),pool:g.gSp,tn:g.gTn,lvl:g.gLv,stun:B.gh.kind==='gel'}; B.pool-=g.gSp; B.gh.spend=0;}
+  else if(a==='ghcopy'){const g=B._gh; B.pool-=g.gSp; copyOut(`&{template:default} {{name=${who()} resists ${B.gh.pow}${B.gh.lvl}, ${HITS[B.gh.kind].toLowerCase()}}} {{Target number=${g.gTn}${g.spellHit?' (the Force)':' (Power '+g.gPow+' − armor '+g.armV+')'}}} {{Resist dice=${r20(g.gBase,g.gTn)}}}`+(g.gSp?` {{Combat Pool=${r20(g.gSp,g.gTn)}}}`:'')+` {{If successes tie=${g.gLv}${B.gh.kind==='gel'?' Stun':''}; every 2 more than the attacker drops a level}}`,'Damage resistance'); B.gh.spend=0;}
+  else if(a==='ghmark'){const R=B.gh.roll; if(R&&R.final){const n=BOXES[R.final]; if(R.stun) S.stun=Math.min(10,S.stun+n); else S.phys=Math.min(10+natBody()+1,S.phys+n); B.gh.roll=null; render(); return;}}
+  redraw();}
+function stepper(id,d){
+  if(id==='aim'){const W=B._cur.W; B.aim=Math.max(0,Math.min(Math.floor((W.skill||0)/2),(B.aim||0)+d));}
+  else if(id==='gm') B.gm+=d; else if(id==='spend') B.spend=Math.max(0,B.spend+d); else if(id==='force') B.force=Math.max(1,(B.force||1)+d);
+  else if(id==='tnb') B.tnBase=Math.max(2,B.tnBase+d); else if(id==='dfd') B.dfd=Math.max(1,(B.dfd||4)+d);
+  else if(id==='gh:pow'){B.gh.pow=Math.max(1,B.gh.pow+d);B.gh.roll=null;} else if(id==='gh:att') B.gh.att=Math.max(0,B.gh.att+d); else if(id==='gh:spend') B.gh.spend=Math.max(0,B.gh.spend+d);
+  else if(id==='sk:tn') B.sk.tn=Math.max(2,B.sk.tn+d);
+  else if(id.startsWith('af:')){const k=id.slice(3), stepv={nin:1000,nout:1000}[k]||1; if(k.startsWith('u:')){const u=k.slice(2); B.af.use[u]=Math.max(0,(B.af.use[u]||0)+d);} else B.af[k]=Math.max(0,(B.af[k]==null?(k==='phys'?S.phys:k==='stun'?S.stun:0):B.af[k])+d*stepv); B.af.saved=''; return redrawAfter();}
+  redraw();}
+// ---------- After the session ----------
+function snaps(){try{return JSON.parse(localStorage.getItem('sr2-b2-snaps-'+(S.id||'x'))||'[]');}catch(e){return [];}}
+function consumables(){return S.gear.map((g,i)=>[g,i]).filter(([g])=>GEARDB[g.key]&&(g.cat==='med'||g.cat==='boom'||(/^ammo:.*(Ammo|Rounds)/.test(g.key))));}
+function afterHTML(){const a=B.af, ny=S.nuyenNow===''||S.nuyenNow==null?0:+S.nuyenNow, ka=karmaAvail(), T=sheetStats();
+  const ph=a.phys==null?S.phys:a.phys, st=a.stun==null?S.stun:a.stun;
+  const field=(k,lab,help,v,unit)=>`<div class="b2af"><div><b>${E(lab)}</b><small>${E(help)}</small></div><div class="b2step"><button class="ghost" data-b2s="af:${k}" data-d="-1" aria-label="Less ${E(lab)}">−</button><input type="number" inputmode="numeric" data-b2n="af:${k}" value="${v}" aria-label="${E(lab)}"><button class="ghost" data-b2s="af:${k}" data-d="1" aria-label="More ${E(lab)}">+</button><span class="mono">${E(unit)}</span></div></div>`;
+  const cons=consumables(); const left=([g])=>/^ammo:/.test(g.key)?(+g.qty||1)*10-(+g.used||0):(+g.qty||1);
+  const diff=[['Good Karma available',ka,ka+a.gk],['Karma Pool',T.kpool,T.kpool+a.kp],['Nuyen on hand',fmt(ny)+'¥',fmt(ny+a.nin-a.nout)+'¥'],['Physical / Stun',S.phys+' / '+S.stun,ph+' / '+st],
+    ...cons.filter(([g])=>a.use['c'+S.gear.indexOf(g)]).map(([g,i])=>[g.name||GEARDB[g.key].n,left([g,i]),left([g,i])-(a.use['c'+i]||0)])];
+  const neg=ny+a.nin-a.nout<0||cons.some(([g,i])=>left([g,i])-(a.use['c'+i]||0)<0);
+  const notes=[]; if(neg) notes.push(['bad','Something would go below zero. Check the numbers.']); if(a.gk) notes.push(['','After saving, spend the Karma under Spend Good Karma in Build.']);
+  notes.push(['','Practice or test sessions don’t belong here: this updates the real sheet.']);
+  const sn=snaps();
+  return `<div class="b2grid"><section class="b2pan b2wide2"><div class="b2h"><h3>What happened at the table</h3></div>
+   ${field('gk','Good Karma earned','what the GM awarded (core p. 190–191)',a.gk,'K')}${field('kp','Added to the Karma Pool','if the GM gave a Karma Pool point',a.kp,'K')}
+   ${field('nin','Nuyen in','pay, loot sold',a.nin,'¥')}${field('nout','Nuyen out','bribes, bills, gifts',a.nout,'¥')}
+   <label class="b2f b2wide"><span class="b2k">Note for the nuyen log</span><input type="text" data-b2t="af:note" value="${E(a.note)}" placeholder="the run, who paid, what the GM ruled"></label>
+   ${field('phys','Physical boxes still marked','carried to next session',ph,'box')}${field('stun','Stun boxes still marked','usually rested off',st,'box')}
+   ${cons.length?`<h4>Used up</h4>`+cons.map(([g,i])=>field('u:c'+i,(g.name||GEARDB[g.key].n),(/^ammo:/.test(g.key)?'rounds':'items')+' left: '+left([g,i]),a.use['c'+i]||0,/^ammo:/.test(g.key)?'rd':'ea')).join(''):''}
+   <p class="note">Ammo in guns and clips is counted in the ammo tracker; here count rounds that came out of the boxes.</p></section>
+  <section class="b2pan"><div class="b2h"><h3>What changes on the sheet</h3></div><div class="b2rows">${diff.map(([k,x,y],j)=>`<div class="b2r${j%2?' alt':''}"><span>${E(k)}</span><span class="mono">${E(x)} → <b>${E(y)}</b></span></div>`).join('')}</div>
+   ${notes.map(([c,t])=>`<p class="note ${c==='bad'?'b2bad':''}">${E(t)}</p>`).join('')}
+   <button data-b2a="afsave" ${neg?'disabled':''}>Save a snapshot and update the sheet</button><p class="note" role="status">${E(a.saved)}</p>
+   <h4>Snapshots</h4>${sn.length?sn.map((x,j)=>`<div class="b2r"><span>${E(x.t)}</span><button class="ghost" data-b2snap="${j}">Restore</button></div>`).join(''):'<p class="note">None yet. Each save keeps the sheet as it was, so a session can be undone.</p>'}</section></div>`;}
+function afSave(){const a=B.af; const sn=snaps(); const d=new Date(), ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  sn.unshift({t:ds+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' · before this update',s:JSON.stringify(S)}); try{localStorage.setItem('sr2-b2-snaps-'+(S.id||'x'),JSON.stringify(sn.slice(0,10)));}catch(e){}
+  S.kEarned=(+S.kEarned||0)+a.gk; S.kPoolBonus=(+S.kPoolBonus||0)+a.kp;
+  const ny=S.nuyenNow===''||S.nuyenNow==null?0:+S.nuyenNow; S.nyLog=S.nyLog||[];
+  if(a.nin){S.nyLog.push({d:ds,amt:a.nin,note:a.note||'After the session'});} if(a.nout){S.nyLog.push({d:ds,amt:-a.nout,note:a.note||'After the session'});} if(a.nin||a.nout) S.nuyenNow=ny+a.nin-a.nout;
+  if(a.phys!=null) S.phys=a.phys; if(a.stun!=null) S.stun=a.stun;
+  consumables().forEach(([g,i])=>{const u=a.use['c'+i]||0; if(!u) return; if(/^ammo:/.test(g.key)) g.used=(+g.used||0)+u; else {g.qty=(+g.qty||1)-u;}});
+  S.gear=S.gear.filter(g=>!(GEARDB[g.key]&&(g.cat==='med'||g.cat==='boom')&&(+g.qty)<=0));
+  B.af={gk:0,kp:0,nin:0,nout:0,note:'',phys:null,stun:null,use:{},saved:'Saved. The sheet is updated and the old version is kept as a snapshot.'}; render();}
+// ---------- Build: pinned budget strip and issues ----------
+function stripHTML(){const c=S._calc||{}; const iss=[...document.querySelectorAll('#issues li')].filter(li=>!li.classList.contains('ok')&&!li.classList.contains('info')); const bad=iss.filter(li=>li.classList.contains('bad')).length;
+  const chip=(k,v,cls)=>`<span class="b2chip ${cls||''}"><small>${E(k)}</small><b>${E(v)}</b></span>`;
+  return chip('Resources left',c.resLeft==null?'—':fmt(c.resLeft)+'¥',c.resLeft<0&&!S.established?'bad':'')+chip('Essence',c.ess==null?'—':String(c.ess))+(c.awake?chip('Magic',String(c.magic)):'')+chip('Good Karma',String(karmaAvail()),karmaAvail()<0?'bad':'')+chip('Nuyen',c.nuyen==null?'—':fmt(c.nuyen)+'¥')
+   +`<button class="b2chip ${bad?'bad':iss.length?'warn':'ok'}" data-b2a="drawer" aria-expanded="${!!B.drawer}"><small>Checklist</small><b>${iss.length?iss.length+' to check':'all good'}</b></button>`;}
+// the GM screen can read these few numbers from this browser (Initiative order); nothing else leaves the sheet
+function shareGM(){const T=sheetStats(); const g={r:T.reaction,d:T.dice,cp:T.cpool,b:augAttr('body')+hasDerm(),a:[T.ar.b,T.ar.i]}; const o=S._gm||{};
+  if(o.r!==g.r||o.d!==g.d||o.cp!==g.cp||o.b!==g.b||String(o.a)!==String(g.a)){S._gm=g; save();}}
+// ---------- mount ----------
+function redraw(){const n=$('b2night'); if(n&&B.tab==='night'){const f=document.activeElement, id=f&&f.dataset?(f.dataset.b2||f.dataset.b2s+'|'+f.dataset.d||f.dataset.b2a):null; n.innerHTML=nightHTML(); if(id){const q=n.querySelector(`[data-b2="${id}"]`)||n.querySelector(`[data-b2a="${id}"]`); if(q) q.focus();}}}
+function redrawAfter(){const n=$('b2after'); if(n&&B.tab==='after') n.innerHTML=afterHTML();}
+function redrawStrip(){const s=$('b2strip'); if(s) s.innerHTML=stripHTML(); const d=$('b2drawer'); if(d){d.hidden=!B.drawer||B.tab!=='build'; if(B.drawer) d.innerHTML=`<div class="b2h"><h3>Checklist</h3><button class="ghost" data-b2a="drawer">Close</button></div><ul class="issues">${$('issues').innerHTML}</ul>`;}}
+function setTab(t){B.tab=t; keep(); document.body.classList.toggle('b2gn',t==='night'); document.body.classList.toggle('b2af',t==='after');
+  if(typeof sessionSet==='function') sessionSet(t==='night',true);
+  document.querySelectorAll('#b2tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
+  if(t==='night') redraw(); if(t==='after') redrawAfter(); redrawStrip(); window.scrollTo(0,0);}
+function mount(){
+  const nav=$('jump'); if(!nav||$('b2tabs')) return;
+  const tabs=document.createElement('div'); tabs.id='b2tabs'; tabs.setAttribute('role','tablist'); tabs.setAttribute('aria-label','Mode');
+  tabs.innerHTML=[['build','Build'],['night','Game night'],['after','After the session']].map(([k,l])=>`<button role="tab" data-tab="${k}" aria-selected="${B.tab===k}">${l}</button>`).join('');
+  nav.insertBefore(tabs,nav.firstChild);
+  // on the public site, link the GM screen and the classic layout next to the Gear Locker link
+  {const f=(location.pathname.split('/').pop()||'').toLowerCase(); if(/^https?:$/.test(location.protocol)&&!/claude/.test(location.hostname)&&/builder\.html$/.test(f)){const lt=$('lockerTop'); if(lt){const x=document.createElement('span'); x.className='note'; x.innerHTML=' · <a href="gm-screen.html" target="_blank" rel="noopener">GM screen ↗</a> · <a href="builder-classic.html">Classic layout</a>'; lt.after(x);}}}
+  const strip=document.createElement('div'); strip.id='b2strip'; strip.setAttribute('aria-label','Budget'); nav.after(strip);
+  const drawer=document.createElement('div'); drawer.id='b2drawer'; drawer.hidden=true; strip.after(drawer);
+  const lay=document.querySelector('.layout'); const night=document.createElement('section'); night.id='b2night'; night.className='b2wrap'; night.setAttribute('aria-label','Game night');
+  const after=document.createElement('section'); after.id='b2after'; after.className='b2wrap'; after.setAttribute('aria-label','After the session'); lay.before(night); lay.before(after);
+  document.addEventListener('click',e=>{const t=e.target.closest('[data-tab],[data-b2a],[data-b2s],[data-b2trk],[data-b2k],[data-b2snap]'); if(!t||!t.closest('#b2tabs,#b2night,#b2after,#b2strip,#b2drawer')) return;
+    if(t.dataset.tab) return setTab(t.dataset.tab);
+    if(t.dataset.b2a==='drawer'){B.drawer=!B.drawer; return redrawStrip();}
+    if(t.dataset.b2a==='afsave') return afSave();
+    if(t.dataset.b2a) return act(t.dataset.b2a);
+    if(t.dataset.b2s) return stepper(t.dataset.b2s,+t.dataset.d);
+    if(t.dataset.b2trk){const k=t.dataset.b2trk, v=+t.dataset.v; S[k]=S[k]===v?v-1:v; render(); return;}
+    if(t.dataset.b2k){const n=+t.dataset.d, w=woundMods().m, tn=B.sk.tn+w, nm=t.dataset.b2k;
+      if(t.dataset.copy){copyOut(`&{template:default} {{name=${who()}: ${nm}}} {{Target number=${tn}${w?' (wounds +'+w+')':''}}} {{Successes=${r20(n,tn)}}}`,nm);}
+      else {const r=rollN(n), k=r.filter(x=>x>=tn).length; B.sk.res=`${nm}: ${r.join(' ')} → ${k} success${k===1?'':'es'} vs TN ${tn}${r.every(x=>x===1)?' (Rule of One)':''}`; B.copy=null;}
+      return redraw();}
+    if(t.dataset.b2snap!=null){const sn=snaps()[+t.dataset.b2snap]; if(sn&&confirm('Put the sheet back to “'+sn.t+'”? The current sheet becomes a snapshot first.')){const cur=JSON.stringify(S); const L=snaps(); L.unshift({t:'Before restoring '+sn.t,s:cur}); try{localStorage.setItem('sr2-b2-snaps-'+(S.id||'x'),JSON.stringify(L.slice(0,10)));}catch(e){} S=Object.assign(blank(),JSON.parse(sn.s)); render();}}});
+  document.addEventListener('change',e=>{const t=e.target; if(!t.closest||!t.closest('#b2night,#b2after')) return;
+    const k=t.dataset.b2, c=t.dataset.b2c, n=t.dataset.b2n, tx=t.dataset.b2t;
+    if(k==='wid'){B.wid=t.value;B.mode='s1';B.rng=0;B.roll=null;B.spend=0;B.aim=0;B.force=0;}
+    else if(k==='mode') B.mode=t.value; else if(k==='rng') B.rng=+t.value; else if(k==='dmglv') B.dmgLv=t.value; else if(k==='amsel') B.amSel=t.value;
+    else if(k&&k.startsWith('sit:')) B.sit[k.slice(4)]=t.value; else if(k&&k.startsWith('msit:')) B.msit[k.slice(5)]=t.value;
+    else if(k==='gh:kind'){B.gh.kind=t.value;B.gh.roll=null;} else if(k==='gh:lvl'){B.gh.lvl=t.value;B.gh.roll=null;}
+    else if(c==='gh:fl'){B.gh.fl=t.checked;B.gh.roll=null;}
+    else if(n){const f=n.slice(3), v=Math.max(0,Math.round(+t.value||0)); if(f.startsWith('u:')) B.af.use[f.slice(2)]=v; else B.af[f]=v; B.af.saved=''; return redrawAfter();}
+    else if(tx){B.af.note=t.value; return;}
+    else return;
+    redraw();});
+  const _render=render; render=function(){_render.apply(this,arguments); try{shareGM();}catch(e){} try{redraw(); redrawAfter(); redrawStrip();}catch(e){console.error(e);}};
+  try{ if(localStorage.getItem('sr2-builder-session')==='1'&&!ST.tab) B.tab='night'; }catch(e){}
+  setTab(B.tab);
+}
+window.SR2B2={B,attacks,nightHTML,afterHTML,setTab};
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mount); else mount();
+})();
+
+/*@end:b2*/
 })();
 </script>
 </body></html>

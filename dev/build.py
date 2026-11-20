@@ -20,6 +20,8 @@ for js in ['extract.js','mkstand.js']:
     if r.returncode or 'errs [' in r.stdout and 'errs []' not in r.stdout: print(js,r.stdout[-400:],r.stderr[-400:]); sys.exit(1)
 subprocess.run(['python3','gear/mk.py'],check=True)
 subprocess.run(['python3','gear/mk2.py'],check=True,stdout=subprocess.DEVNULL)  # Gear Locker 2 (new layout), built from the same template
+subprocess.run(['python3','builder2/mkb2.py'],check=True,stdout=subprocess.DEVNULL)  # Runner Builder 2 (Build / Game night / After the session) on top of the Builder
+subprocess.run(['python3','gm/mkgm.py'],check=True,stdout=subprocess.DEVNULL)  # GM screen, with Gear Locker items embedded
 # verify
 bad=[]
 for f in ['sr2-builder.html','gear/template.html','gear/sr2-gear-locker.html','SR2_Gear_Locker.html','SR2_Runner_Builder.html']:
@@ -30,5 +32,6 @@ for f in ['sr2-builder.html','gear/template.html','gear/sr2-gear-locker.html','S
 if bad: print('MISMATCH',bad); sys.exit(1)
 site='/home/claude/shadowrun2-tools'
 if os.path.isdir(site):
-    shutil.copy('SR2_Runner_Builder.html',site+'/builder.html'); shutil.copy('SR2_Gear_Locker_2.html',site+'/gear-locker.html')  # the redesigned Locker is the live one
+    shutil.copy('SR2_Runner_Builder_2.html',site+'/builder.html'); shutil.copy('SR2_Runner_Builder.html',site+'/builder-classic.html')  # the redesigned Builder is live; the classic layout stays as a backup
+    shutil.copy('SR2_Gear_Locker_2.html',site+'/gear-locker.html'); shutil.copy('SR2_GM_Screen.html',site+'/gm-screen.html')
 print(f'built: shared blocks builder {nb}, locker {nl}; {len(SH)} shared modules; all blocks match')

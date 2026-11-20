@@ -1,0 +1,66 @@
+/* Runner Builder 2: mode tabs, budget strip, game night dashboard, after-session update. Uses the Builder's skin variables. */
+#b2tabs{display:flex;gap:0.25rem;flex-wrap:wrap;margin-right:0.5rem}
+#b2tabs button{min-height:2.5rem;padding:0 0.9rem;border-radius:999px;background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:600}
+#b2tabs button[aria-selected="true"]{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+#sesBtn{display:none!important}
+#b2strip{position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;gap:0.375rem;padding:0.5rem 0;background:var(--bg)}
+body.b2gn #b2strip,body.b2af #b2strip{display:none}
+.b2chip{display:inline-flex;flex-direction:column;gap:0;padding:0.25rem 0.7rem;border:1px solid var(--line);border-radius:0.5rem;background:var(--paper);min-height:2.5rem;justify-content:center;text-align:left;color:var(--ink);font-weight:400}
+.b2chip small{font-size:0.6875rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em}
+.b2chip b{font-family:var(--mono);font-size:0.9375rem}
+.b2chip.bad{border-color:var(--bad)}.b2chip.bad b{color:var(--bad)}.b2chip.warn{border-color:var(--warn)}.b2chip.ok b{color:var(--ok)}
+#b2drawer{border:1px solid var(--line);border-radius:0.625rem;background:var(--paper);padding:0.75rem 1rem;margin-bottom:0.75rem}
+.b2wrap{display:none;margin:0 0 1rem}
+body.b2gn #b2night{display:block}
+body.b2af #b2after{display:block}
+body.b2af .layout,body.b2af .sesnote,body.b2af .mbar{display:none!important}
+body.b2gn .sesnote{display:none!important}
+body.b2gn #sec-weap,body.b2gn #sec-sum,body.b2gn #sec-dice,body.b2gn #sec-skills,body.b2gn #magicCard{display:none!important}
+body.b2gn #sec-play h3:first-of-type,body.b2gn #trkPhys,body.b2gn #trkStun,body.b2gn #woundNote{display:none!important}
+.b2big{display:grid;grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr));gap:0.5rem;margin-bottom:0.75rem}
+.b2t{background:var(--paper);border:1px solid var(--line);border-radius:0.625rem;padding:0.6rem 0.8rem;display:flex;flex-direction:column}
+.b2k{font-size:0.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+.b2v{font-family:var(--mono);font-size:1.75rem;line-height:1.15}
+.b2s{font-size:0.75rem;color:var(--muted)}
+.b2warn{color:var(--warn)}.b2ok{color:var(--ok)}.b2bad{color:var(--bad)}
+.b2grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr));gap:0.75rem;align-items:start}
+.b2pan{background:var(--paper);border:1px solid var(--line);border-radius:0.75rem;padding:0.875rem 1rem;display:flex;flex-direction:column;gap:0.625rem;min-width:0}
+.b2full,.b2wide2{grid-column:1/-1}
+.b2h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:0.5rem}
+.b2h h3{margin:0;font-family:var(--display);font-size:1.125rem}
+.b2ini{display:flex;align-items:center;gap:0.875rem}.b2ini b{font-family:var(--mono);font-size:2.5rem;color:var(--warn)}
+.b2row{display:flex;flex-wrap:wrap;gap:0.375rem;align-items:center}
+.b2boxes{display:flex;flex-wrap:wrap;gap:0.25rem;align-items:center}
+.b2box{width:2rem;height:2rem;min-height:0;padding:0;border-radius:0.3rem;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font:600 0.6875rem var(--mono)}
+.b2box.mk{border-color:var(--muted)}.b2box.on{background:var(--bad);border-color:var(--bad);color:var(--paper)}.b2box.ov{width:1.25rem}.b2box.ov.on{background:var(--hit,var(--bad))}
+.b2ovl{font-size:0.6875rem;color:var(--muted);margin:0 0.25rem}
+.b2ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,11.5rem),1fr));gap:0.5rem}
+.b2f{display:flex;flex-direction:column;gap:0.25rem;min-width:0}
+.b2f select,.b2f input[type=text]{min-height:2.75rem;width:100%}
+.b2wide{grid-column:1/-1}
+.b2wsel{font-weight:600;font-size:1rem}
+.b2chk{flex-direction:row;align-items:center;gap:0.5rem;text-transform:none;letter-spacing:0}
+.b2step{display:flex;align-items:center;gap:0.375rem}.b2step button{width:2.75rem;min-height:2.75rem;padding:0}.b2step b{font-family:var(--mono);font-size:1.125rem;min-width:1.75rem;text-align:center}
+.b2step input{width:6.5rem;min-height:2.75rem;font-family:var(--mono)}
+.b2two{display:flex;flex-wrap:wrap;gap:0.75rem;align-items:flex-start}
+.b2two>*{flex:1 1 20rem;min-width:0}
+.b2rows{border:1px solid var(--line);border-radius:0.5rem;overflow:hidden}
+.b2r{display:flex;justify-content:space-between;align-items:center;gap:0.75rem;padding:0.45rem 0.75rem;border-top:1px solid var(--line)}
+.b2r:first-child{border-top:0}.b2r.alt{background:var(--panel2)}.b2r small{color:var(--muted);font-size:0.75rem}.b2r b{font-family:var(--mono)}
+.b2r.tot{background:var(--soft,var(--panel2))}.b2r.tot b{color:var(--warn);font-size:1.125rem}
+.b2res{display:flex;flex-direction:column;gap:0.5rem;border:1px solid var(--line);border-radius:0.5rem;padding:0.75rem}
+.b2nums{display:flex;flex-wrap:wrap;gap:1.25rem}.b2nums>div{display:flex;flex-direction:column;min-width:0}.b2nums b{font-family:var(--mono);font-size:1.75rem}.b2nums small{color:var(--muted);font-size:0.75rem;max-width:22rem}
+.b2dice{display:flex;flex-wrap:wrap;gap:0.25rem}
+.b2die{min-width:2rem;height:2rem;padding:0 0.375rem;border-radius:0.375rem;display:inline-flex;align-items:center;justify-content:center;background:var(--panel2);color:var(--muted);font:600 0.875rem var(--mono);border:2px solid transparent}
+.b2die.hit{background:var(--ok);color:var(--paper)}.b2die.pool{border-color:var(--accent)}
+.b2drain{border-top:1px solid var(--line);padding-top:0.5rem;font-size:0.875rem}
+.b2am{display:flex;flex-wrap:wrap;gap:0.375rem;align-items:center}.b2am select{width:auto;min-height:2.5rem}
+.b2copy{display:flex;flex-direction:column;gap:0.25rem}.b2copy input{width:100%;font-family:var(--mono);font-size:0.8125rem;min-height:2.75rem}
+.b2skills .b2r span:first-child{flex:1}
+.b2card{border:1px solid var(--line);border-radius:0.5rem;padding:0 0.75rem;background:var(--panel2)}
+.b2card summary{min-height:2.75rem;display:flex;justify-content:space-between;align-items:center;gap:0.5rem;cursor:pointer}
+.b2card summary small{color:var(--muted)}.b2card p{margin:0 0 0.75rem;font-size:0.875rem;line-height:1.5}
+.b2af{display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:center;justify-content:space-between;padding:0.5rem 0;border-top:1px solid var(--line)}
+.b2af>div:first-child{display:flex;flex-direction:column;flex:1 1 14rem}.b2af small{color:var(--muted)}
+.b2pan h4{margin:0.5rem 0 0;font-size:0.875rem}
+@media (max-width:40em){.b2v{font-size:1.375rem}.b2box{width:1.75rem;height:1.75rem}.b2nums b{font-size:1.375rem}}

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SR2 GM Screen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>/*@css*/</style>
+</head>
+<body>
+<div class="wrap">
+ <header class="top"><div><div class="tag">Shadowrun · 2nd Edition · for the GM</div><h1>SR2 GM Screen</h1></div>
+  <div class="row"><a href="builder.html">Runner Builder</a> · <a href="gear-locker.html">Gear Locker</a>
+   <label class="sr" for="theme">Colors</label><select id="theme"><option value="">Match my device</option><option value="light">Light</option><option value="dark">Dark</option></select></div></header>
+ <nav id="tabs" role="tablist" aria-label="GM screen"><button role="tab" data-tab="cat">Baddies</button><button role="tab" data-tab="enc" id="tabEnc">Encounter</button><button role="tab" data-tab="tbl">At the table</button></nav>
+ <main id="view"></main>
+ <p class="note">Stats come from the Shadowrun 2nd Edition core rulebook and the Corporate Security Handbook, with printed page numbers. Gear comes from the Gear Locker. Saved in this browser only.</p>
+</div>
+<script>/*@data*/</script>
+<script>(function(){const s=document.getElementById('theme');let t='';try{t=localStorage.getItem('sr2-gm-theme')||'';}catch(e){} const ap=v=>{if(v) document.documentElement.dataset.theme=v; else delete document.documentElement.dataset.theme;}; ap(t); s.value=t; s.onchange=()=>{ap(s.value);try{localStorage.setItem('sr2-gm-theme',s.value);}catch(e){}};})();</script>
+<script>/*@js*/</script>
+</body>
+</html>
