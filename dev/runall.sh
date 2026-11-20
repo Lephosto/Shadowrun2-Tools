@@ -25,3 +25,4 @@ echo "== locker 2: decks, options, cyber body"; node v2/chk_v2c.js | cut -c1-200
 for c in 9 11 13 20 23 25 27 28; do echo "== locker 2 chk$c"; timeout 200 node v2/old/chk$c.js 2>&1 | grep -v -i "proxy\|TUNNEL\|Allowed domains\|For details" | tail -1 | cut -c1-160; done
 echo "== builder 2: modes"; timeout 200 node builder2/chk_b2.js | tail -3
 echo "== gm screen"; timeout 200 node gm/chk_gm.js | tail -3
+echo "== builder 2: drones, Matrix, spirits"; timeout 200 node builder2/chk_b2b.js | tail -1
