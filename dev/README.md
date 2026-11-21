@@ -40,3 +40,10 @@ The build runs these steps in order:
 
 ## Fixer (Gear Locker)
 `gear/fixer.js` and `gear/fixer.css` add the Fixer panel: street price = Cost x Street Index, then Negotiation (5% per net success) and an optional house markup and order fee; Acquisition Test odds and delivery time from each item's Availability (core p. 184-185). `gear/avail_data.json` holds Availability and Street Index per item id, checked against the printed tables (kinds: ok, always, gm, none, note, pay; `lv` for per-level rows). `mk2.py` embeds it. The Runner Builder charges `street.total` from a gear code when one is sent. Checks: `gear/chk_fx.js`, `gear/chk_fxb.js`.
+
+## Added after the crew test run
+- **Builder, Karma:** the initiation picker takes an ordeal (GR p. 39-41), a magical group and a Centering Skill, and lists each initiation with its grade, ordeal and Karma. A "Racial maximums" box shows each attribute's racial max, the 1.5x cap the book suggests, and the next point's Karma cost (core p. 190). Karma past the racial max stays the GM's call.
+- **Builder, Game night:** "Practice" snapshots the runner; ending practice puts the sheet back, or you can keep the changes. Damage the GM sends from the GM screen shows as a banner the player can apply or dismiss. After the session shows a healing guide from the Healing Table (core p. 112-113). It suggests times only and changes nothing.
+- **GM screen:** imported runners get +1 P / +1 S buttons on the table and "Send to their Builder", which writes `sr2-gm-hits` in this browser's storage.
+- **Gear Locker:** the Fixer panel can use the core Fixer contact (core p. 207) or a fixer from the linked runner's contacts; plain items take a quantity when added; a vehicle's "Goes with" tab lists the weapons that fit each of its mounts, with fixer prices and odds (R2 p. 131-135).
+

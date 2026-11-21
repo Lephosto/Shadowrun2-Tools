@@ -64,3 +64,11 @@ body.b2gn #sec-play h3:first-of-type,body.b2gn #trkPhys,body.b2gn #trkStun,body.
 .b2af>div:first-child{display:flex;flex-direction:column;flex:1 1 14rem}.b2af small{color:var(--muted)}
 .b2pan h4{margin:0.5rem 0 0;font-size:0.875rem}
 @media (max-width:40em){.b2v{font-size:1.375rem}.b2box{width:1.75rem;height:1.75rem}.b2nums b{font-size:1.375rem}}
+.b2pracb{min-height:2.5rem;padding:0 .9rem;border-radius:999px}
+.b2pracb[aria-pressed="true"]{border-color:var(--warn);color:var(--warn)}
+.b2pracbar{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;padding:.6rem .9rem;margin:.5rem 0;border:2px dashed var(--warn);border-radius:.625rem;background:var(--paper)}
+.b2pracbar span{flex:1 1 16rem}
+body.b2prac #b2strip{outline:2px dashed var(--warn);outline-offset:2px}
+.b2heal{border-top:1px solid var(--line);margin-top:.5rem;padding-top:.5rem}
+.b2heal p{margin:.25rem 0}
+.b2gmhit{border-color:var(--warn)}

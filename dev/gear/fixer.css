@@ -30,3 +30,5 @@
 .fxfoot{display:flex;flex-direction:column;gap:4px;font-size:.8125rem}
 .ktot .note{display:block;font-size:.75rem}
 #fxPanel .fxgrid,#fxPanel .fxsum{padding-left:14px;padding-right:14px}#fxPanel .fxsum{padding-bottom:12px}
+.fxsel{min-height:2.5rem;font:inherit;padding:4px 8px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--ink);max-width:100%}
+.addq{display:inline-flex;align-items:center;gap:6px;font-weight:600}.addq input{width:4.5rem;min-height:44px;font:inherit;font-family:var(--mono);padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel2);color:var(--ink)}

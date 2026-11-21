@@ -194,7 +194,7 @@ function nightHTML(){
   if(S.magic==='adept') pw=S.powers.map(p=>{const c=powerCost(p); const P=allPowers()[p.type||'custom']||POWERS.custom; return `<details class="b2card"><summary><b>${E(p.type==='custom'?p.name:P.label)}</b><small>${c.cost} PP${P.pg?' · '+E(P.pg):''}</small></summary><p>${E(c.desc||'')}</p></details>`;}).join('');
   else if(isMag) pw=S.powers.map(p=>{const sp=spellFind(p.name); return `<details class="b2card"><summary><b>${E(p.name)}</b><small>Force ${+p.cost||1}${sp?' · '+E(sp.cat)+' · '+(sp.ty==='M'?'mana':'physical')+(sp.pg?' · '+E(sp.pg):''):''}</small></summary><p>${sp?'Drain '+E(drainText(sp,+p.cost||1)):''}${p.note?' · '+E(p.note):''}</p></details>`;}).join('');
   const copyBox=B.copy?`<div class="b2copy"><label for="b2r20" class="b2k">${E(B.copy.msg)}</label><input id="b2r20" readonly value="${E(B.copy.text)}"></div>`:'';
-  return `<div class="b2big">${big.map(tile).join('')}</div>
+  return `${gmHitsHTML()}<div class="b2big">${big.map(tile).join('')}</div>
   <div class="b2grid">
    <section class="b2pan"><div class="b2h"><h3>Initiative</h3><span class="mono">${T.reaction} + ${T.dice}D6${w?' − '+w:''}</span></div>
      <div class="b2ini"><b>${B.ini==null?'—':Math.max(0,B.ini-w)}</b><span>${B.ini==null?'Roll to see your passes':'Acts on '+(()=>{const o=[];for(let x=Math.max(0,B.ini-w);x>0;x-=10)o.push(x);return o.join(', ')||'—';})()}</span></div>
@@ -289,13 +289,14 @@ function afterHTML(){const a=B.af, ny=S.nuyenNow===''||S.nuyenNow==null?0:+S.nuy
   const neg=ny+a.nin-a.nout<0, over=cons.some(([g,i])=>left([g,i])-(a.use['c'+i]||0)<0);
   const notes=[]; if(neg) notes.push(['bad','Nuyen would go below zero. Check the numbers.']); if(over) notes.push(['bad','More used up than the sheet shows. Saving sets those to zero.']);
   const sus=isMagician()?(S.sus||[]):[]; if(sus.length) diff.push(['Sustained spells',sus.map(x=>x.n).join(', '),a.keepSus?'kept':'dropped']); notes.push(['','After saving, spend any new Karma under Spend Good Karma in Build.']); // always shown, so the Save button doesn't move while someone is reaching for it
-  notes.push(['','Practice or test sessions don’t belong here: this updates the real sheet.']);
+  notes.push(['',practicing()?'Practice session: this is undone when you end practice.':'This updates the real sheet. For a practice run, start a practice session at the top first.']);
   const sn=snaps();
   return `<div class="b2grid"><section class="b2pan b2wide2"><div class="b2h"><h3>What happened at the table</h3></div>
    ${field('gk','Good Karma earned','what the GM awarded (core p. 190–191)',a.gk,'K')}${field('kp','Added to the Karma Pool','if the GM gave a Karma Pool point',a.kp,'K')}
    ${field('nin','Nuyen in','pay, loot sold',a.nin,'¥')}${field('nout','Nuyen out','bribes, bills, gifts',a.nout,'¥')}
    <label class="b2f b2wide"><span class="b2k">Note for the nuyen log</span><input type="text" data-b2t="af:note" value="${E(a.note)}" placeholder="the run, who paid, what the GM ruled"></label>
    ${field('phys','Physical boxes still marked','carried to next session',ph,'box')}${field('stun','Stun boxes still marked','usually rested off',st,'box')}
+   <div id="b2heal">${healHTML(S.phys,S.stun)}</div>
    ${cons.length?`<h4>Used up</h4>`+cons.map(([g,i])=>field('u:c'+i,(g.name||GEARDB[g.key].n),(/^ammo:/.test(g.key)?'rounds':'items')+' left: '+left([g,i]),a.use['c'+i]||0,/^ammo:/.test(g.key)?'rd':'ea')).join(''):''}
    <p class="note">Ammo in guns and clips is counted in the ammo tracker; here count rounds that came out of the boxes.</p></section>
   <section class="b2pan"><div class="b2h"><h3>What changes on the sheet</h3></div><div id="b2afd"><div class="b2rows">${diff.map(([k,x,y],j)=>`<div class="b2r${j%2?' alt':''}"><span>${E(k)}</span><span class="mono">${E(x)} → <b>${E(y)}</b></span></div>`).join('')}</div>
@@ -313,6 +314,35 @@ function afSave(){const a=B.af; const sn=snaps(); const d=new Date(), ds=d.getFu
   if(!a.keepSus&&isMagician()) S.sus=[];
   S.gear=S.gear.filter(g=>!(GEARDB[g.key]&&(g.cat==='med'||g.cat==='boom')&&(+g.qty)<=0));
   B.af={gk:0,kp:0,nin:0,nout:0,note:'',phys:null,stun:null,use:{},keepSus:false,saved:'Saved. The sheet is updated and the old version is kept as a snapshot.'}; render();}
+
+// ---------- healing: a suggestion only, the player still sets the boxes (core p. 112–113) ----------
+const HEAL=[null,{n:'Light',wtn:2,tn:4,base:[24,'hrs'],min:[2,'hrs'],life:'Low'},{n:'Moderate',wtn:4,tn:6,base:[10,'days'],min:[1,'day'],life:'Middle'},{n:'Serious',wtn:6,tn:8,base:[20,'days'],min:[2,'days'],life:'High'},{n:'Deadly',wtn:null,tn:10,base:[30,'days'],min:[3,'days'],life:'Hospitalized'}];
+const lvOf=b=>b>=10?4:b>=6?3:b>=3?2:b>=1?1:0;
+const p1=t=>t<=1?1:t<=6?(7-Math.max(2,t))/6:p1(t-6)/6;
+function healHTML(phys,stun){phys=+phys||0; stun=+stun||0; if(!phys&&!stun) return '';
+  const body=natBody(), wil=attrNow('wil'), wm=lvOf(Math.min(10,phys))>0?Math.min(3,lvOf(phys)):0, sm=lvOf(Math.min(10,stun))>0?Math.min(3,lvOf(stun)):0, mods=wm+sm;
+  const out=[];
+  if(stun){const d=Math.max(body,wil), t=2+mods, e=Math.max(0.5,d*p1(t)); out.push(`<b>Stun ${stun}:</b> rest and roll ${d===wil?'Willpower':'Body'} (${d}) against ${t}${mods?` (2 + ${mods} for wounds)`:''}. Each box takes 60 minutes ÷ successes; with about ${Math.round(e*10)/10} successes that's roughly ${Math.round(stun*60/Math.max(1,Math.round(e)))} minutes for all ${stun} (core p. 112).`);}
+  if(phys){const L=lvOf(Math.min(10,phys)); const H=HEAL[L]; const e=t=>Math.max(1,Math.round(body*p1(t)));
+    const first=H.wtn==null?'Deadly wounds always need a doctor.':`First a Body (${body}) test against ${H.wtn}: any success means it heals without a doctor; none means it needs medical attention.`;
+    const steps=[]; for(let l=L;l>=1;l--){const h=HEAL[l]; const s=e(h.tn); const raw=h.base[0]/s, unit=h.base[1]; steps.push(`${h.n} → ${l>1?HEAL[l-1].n:'healed'}: ${h.base[0]} ${h.base[1]} ÷ ${s} success${s>1?'es':''} ≈ ${Math.round(raw*10)/10} ${unit} (never under ${h.min[0]} ${h.min[1]}; ${h.life} lifestyle or better)`);}
+    out.push(`<b>Physical ${phys} (${H.n}):</b> ${first} Each level then heals in stages, natural Body (${body}) against the Healing Table (core p. 113):<br>${steps.join('<br>')}`);}
+  return `<div class="b2heal"><h4>Healing, as a guide</h4>${out.map(x=>`<p class="note">${x}</p>`).join('')}<p class="note">Rough numbers from average dice. Roll it at the table, add First Aid, a doctor or magic as the GM rules, then set the boxes above.</p></div>`;}
+// ---------- hits sent from the GM screen on this device: the player chooses to apply them ----------
+const HITKEY='sr2-gm-hits';
+function gmHits(){try{const L=JSON.parse(localStorage.getItem(HITKEY)||'[]'); return Array.isArray(L)?L:[];}catch(e){return [];}}
+function gmHitsMine(){return gmHits().filter(h=>h&&h.id===S.id);}
+function gmHitsHTML(){const H=gmHitsMine(); if(!H.length) return ''; const p=H.reduce((a,h)=>a+(+h.p||0),0), s=H.reduce((a,h)=>a+(+h.s||0),0);
+  return `<section class="b2pan b2gmhit"><div class="b2h"><h3>From the GM screen</h3><span class="note">${H.length} hit${H.length>1?'s':''}</span></div><p>The GM marked <b>${p?p+' Physical':''}${p&&s?' and ':''}${s?s+' Stun':''}</b> on ${E(S.handle||S.name||'this runner')}. Apply it to your monitor?</p><div class="b2row"><button data-b2a="gmhit:yes">Apply</button><button class="ghost" data-b2a="gmhit:no">Dismiss</button></div></section>`;}
+function gmHitsDone(apply){const H=gmHitsMine(); if(apply){const p=H.reduce((a,h)=>a+(+h.p||0),0), s=H.reduce((a,h)=>a+(+h.s||0),0); S.phys=Math.max(0,(+S.phys||0)+p); S.stun=Math.min(10,Math.max(0,(+S.stun||0)+s));}
+  try{localStorage.setItem(HITKEY,JSON.stringify(gmHits().filter(h=>!(h&&h.id===S.id))));}catch(e){} render();}
+// ---------- practice session: work on the runner, then put the sheet back ----------
+const PKEY=()=>'sr2-b2-practice-'+(S.id||'x');
+function practicing(){try{return !!localStorage.getItem(PKEY());}catch(e){return false;}}
+function practiceStart(){try{localStorage.setItem(PKEY(),JSON.stringify(S));}catch(e){alert('This browser won’t let the page save a copy, so a practice session can’t start.'); return;} render();}
+function practiceEnd(keep){let snap=null; try{snap=localStorage.getItem(PKEY()); localStorage.removeItem(PKEY());}catch(e){} if(snap&&!keep){S=Object.assign(blank(),JSON.parse(snap));} render();}
+function practiceBar(){const b=$('b2prac'); if(!b) return; const on=practicing(); document.body.classList.toggle('b2prac',on); const btn=$('b2pracBtn'); if(btn){btn.textContent=on?'End practice':'Practice session'; btn.setAttribute('aria-pressed',String(on));}
+  b.hidden=!on; if(on) b.innerHTML=`<b>Practice session.</b> <span>Roll, take damage, log Karma and spend it: when you end practice, the sheet goes back to how it was.</span><button data-b2a="prac:end">End practice and put the sheet back</button><button class="ghost" data-b2a="prac:keep">Keep these changes</button>`;}
 // ---------- Build: pinned budget strip and issues ----------
 function stripHTML(){const c=S._calc||{}; const iss=[...document.querySelectorAll('#issues li')].filter(li=>!li.classList.contains('ok')&&!li.classList.contains('info')); const bad=iss.filter(li=>li.classList.contains('bad')).length;
   const chip=(k,v,cls)=>`<span class="b2chip ${cls||''}"><small>${E(k)}</small><b>${E(v)}</b></span>`;
@@ -323,9 +353,10 @@ function shareGM(){const T=sheetStats(); const g={r:T.reaction,d:T.dice,cp:T.cpo
   if(o.r!==g.r||o.d!==g.d||o.cp!==g.cp||o.b!==g.b||String(o.a)!==String(g.a)){S._gm=g; save();}}
 // ---------- mount ----------
 function redraw(){const n=$('b2night'); if(n&&B.tab==='night'){const f=document.activeElement, id=f&&f.dataset?(f.dataset.b2||f.dataset.b2s+'|'+f.dataset.d||f.dataset.b2a):null; n.innerHTML=nightHTML(); if(id){const q=n.querySelector(`[data-b2="${id}"]`)||n.querySelector(`[data-b2a="${id}"]`); if(q) q.focus();}}}
-function afTotals(){const n=$('b2after'); if(!n||B.tab!=='after') return; const tmp=document.createElement('div'); tmp.innerHTML=afterHTML(); const a=n.querySelector('#b2afd'), b=tmp.querySelector('#b2afd'); if(a&&b) a.innerHTML=b.innerHTML; const s1=n.querySelector('[data-b2a="afsave"]'), s2=tmp.querySelector('[data-b2a="afsave"]'); if(s1&&s2) s1.disabled=s2.disabled; n.querySelectorAll('[data-b2n]').forEach(i=>{const j=tmp.querySelector(`[data-b2n="${i.dataset.b2n}"]`); if(j&&i!==document.activeElement) i.value=j.value;});}
+function afTotals(){const n=$('b2after'); if(!n||B.tab!=='after') return; const tmp=document.createElement('div'); tmp.innerHTML=afterHTML(); {const h1=n.querySelector('#b2heal'), h2=tmp.querySelector('#b2heal'); if(h1&&h2) h1.innerHTML=h2.innerHTML;} const a=n.querySelector('#b2afd'), b=tmp.querySelector('#b2afd'); if(a&&b) a.innerHTML=b.innerHTML; const s1=n.querySelector('[data-b2a="afsave"]'), s2=tmp.querySelector('[data-b2a="afsave"]'); if(s1&&s2) s1.disabled=s2.disabled; n.querySelectorAll('[data-b2n]').forEach(i=>{const j=tmp.querySelector(`[data-b2n="${i.dataset.b2n}"]`); if(j&&i!==document.activeElement) i.value=j.value;});}
 function redrawAfter(){const n=$('b2after'); if(n&&B.tab==='after') n.innerHTML=afterHTML();}
-function redrawStrip(){const s=$('b2strip'); if(s) s.innerHTML=stripHTML(); const d=$('b2drawer'); if(d){d.hidden=!B.drawer||B.tab!=='build'; if(B.drawer) d.innerHTML=`<div class="b2h"><h3>Checklist</h3><button class="ghost" data-b2a="drawer">Close</button></div><ul class="issues">${$('issues').innerHTML}</ul>`;}}
+function redrawStrip(){try{practiceBar();}catch(e){}
+const s=$('b2strip'); if(s) s.innerHTML=stripHTML(); const d=$('b2drawer'); if(d){d.hidden=!B.drawer||B.tab!=='build'; if(B.drawer) d.innerHTML=`<div class="b2h"><h3>Checklist</h3><button class="ghost" data-b2a="drawer">Close</button></div><ul class="issues">${$('issues').innerHTML}</ul>`;}}
 function setTab(t){B.tab=t; keep(); document.body.classList.toggle('b2gn',t==='night'); document.body.classList.toggle('b2af',t==='after');
   if(typeof sessionSet==='function') sessionSet(t==='night',true);
   document.querySelectorAll('#b2tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
@@ -335,16 +366,24 @@ function mount(){
   const tabs=document.createElement('div'); tabs.id='b2tabs'; tabs.setAttribute('role','tablist'); tabs.setAttribute('aria-label','Mode');
   tabs.innerHTML=[['build','Build'],['night','Game night'],['after','After the session']].map(([k,l])=>`<button role="tab" data-tab="${k}" aria-selected="${B.tab===k}">${l}</button>`).join('');
   nav.insertBefore(tabs,nav.firstChild);
+  {const pb=document.createElement('button'); pb.id='b2pracBtn'; pb.type='button'; pb.className='ghost b2pracb'; pb.dataset.b2a='prac'; pb.textContent='Practice session'; tabs.after(pb);
+   const bar=document.createElement('div'); bar.id='b2prac'; bar.className='b2pracbar'; bar.hidden=true; bar.setAttribute('role','status'); nav.after(bar);}
+  window.addEventListener('storage',e=>{if(e.key===HITKEY&&B.tab==='night') redraw();});
   // on the public site, link the GM screen and the classic layout next to the Gear Locker link
   {const f=(location.pathname.split('/').pop()||'').toLowerCase(); if(/^https?:$/.test(location.protocol)&&!/claude/.test(location.hostname)&&/builder\.html$/.test(f)){const lt=$('lockerTop'); if(lt){const x=document.createElement('span'); x.className='note'; x.innerHTML=' · <a href="gm-screen.html" target="_blank" rel="noopener">GM screen ↗</a> · <a href="builder-classic.html">Classic layout</a>'; lt.after(x);}}}
   const strip=document.createElement('div'); strip.id='b2strip'; strip.setAttribute('aria-label','Budget'); nav.after(strip);
   const drawer=document.createElement('div'); drawer.id='b2drawer'; drawer.hidden=true; strip.after(drawer);
   const lay=document.querySelector('.layout'); const night=document.createElement('section'); night.id='b2night'; night.className='b2wrap'; night.setAttribute('aria-label','Game night');
   const after=document.createElement('section'); after.id='b2after'; after.className='b2wrap'; after.setAttribute('aria-label','After the session'); lay.before(night); lay.before(after);
-  document.addEventListener('click',e=>{const t=e.target.closest('[data-tab],[data-b2a],[data-b2s],[data-b2trk],[data-b2k],[data-b2snap],[data-b2sv],[data-b2sprm],[data-b2sus]'); if(!t||!t.closest('#b2tabs,#b2night,#b2after,#b2strip,#b2drawer')) return;
+  document.addEventListener('click',e=>{const t=e.target.closest('[data-tab],[data-b2a],[data-b2s],[data-b2trk],[data-b2k],[data-b2snap],[data-b2sv],[data-b2sprm],[data-b2sus]'); if(!t||!t.closest('#b2tabs,#b2night,#b2after,#b2strip,#b2drawer,#b2pracBtn,#b2prac')) return;
     if(t.dataset.tab) return setTab(t.dataset.tab);
     if(t.dataset.b2a==='drawer'){B.drawer=!B.drawer; return redrawStrip();}
     if(t.dataset.b2a==='afsave') return afSave();
+    if(t.dataset.b2a==='prac'){if(practicing()){if(confirm('End practice and put the sheet back the way it was?')) practiceEnd(false);} else practiceStart(); return;}
+    if(t.dataset.b2a==='prac:end') return practiceEnd(false);
+    if(t.dataset.b2a==='prac:keep'){if(confirm('Keep everything from this practice session on the real sheet?')) practiceEnd(true); return;}
+    if(t.dataset.b2a==='gmhit:yes') return gmHitsDone(true);
+    if(t.dataset.b2a==='gmhit:no') return gmHitsDone(false);
     if(t.dataset.b2a==='susadd'){const nm=B.susp||(S.powers.find(p=>p&&p.name)||{}).name; const p=S.powers.find(x=>x&&x.name===nm); if(p&&(S.sus||[]).length<bestRating(/^sorcery/i)){S.sus=(S.sus||[]).concat([{n:p.name,f:+p.cost||1}]);} render(); return;}
     if(t.dataset.b2sus!=null){S.sus.splice(+t.dataset.b2sus,1); render(); return;}
     if(t.dataset.b2a==='spadd'){S.spirits=(S.spirits||[]).concat([{t:B.spt||(S.magic==='hermetic'?'earth':'nature'),f:B.spf||3,sv:B.spsv==null?1:B.spsv}]); render(); return;}
