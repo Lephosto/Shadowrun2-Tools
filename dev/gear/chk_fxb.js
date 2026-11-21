@@ -1,0 +1,16 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch(); const p=await b.newPage(); const errs=[]; p.on('pageerror',e=>errs.push(e.message));
+await p.addInitScript(()=>{ if(sessionStorage.getItem('done')) return; sessionStorage.setItem('done','1');
+ localStorage.setItem('sr2-builder-v1',JSON.stringify({name:'Testy',nuyenNow:10000,established:true}));
+ localStorage.setItem('sr2-transfer',JSON.stringify({items:[{key:'boom:Smoke Grenade',qty:1},{key:'ammo:Ultrasound Sight',qty:1}],label:'Shopping list (2)',total:1330,street:{total:990,list:1330,fee:0,terms:'x'},v:1,at:Date.now()+5000,from:'Gear Locker'}));});
+await p.goto('file://'+process.cwd()+'/SR2_Runner_Builder_2.html'); await p.waitForTimeout(1200);
+await p.evaluate(()=>{const e=document.getElementById('nuyenNow'); e.value='10000'; e.dispatchEvent(new Event('input',{bubbles:true})); e.dispatchEvent(new Event('change',{bubbles:true}));});
+await p.waitForTimeout(300);
+await p.evaluate(()=>{const v=JSON.parse(localStorage.getItem('sr2-transfer')); v.at=Date.now()+9000; localStorage.setItem('sr2-transfer',JSON.stringify(v)); window.dispatchEvent(new StorageEvent('storage',{key:'sr2-transfer'})); window.dispatchEvent(new Event('focus'));});
+await p.waitForTimeout(500);
+const bar=(await p.textContent('#xferBar')).replace(/\s+/g,' ').slice(0,500);
+const pay=await p.$('#xferPay'); if(pay) await pay.check();
+await p.click('#xferAdd'); await p.waitForTimeout(400);
+const msg=await p.textContent('#saveState');
+const st={nuyenNow:await p.inputValue('#nuyenNow')};
+console.log(JSON.stringify({bar,msg,now:st.nuyenNow,log:(st.nyLog||[]).slice(-1)},null,1), errs); await b.close();})();

@@ -37,3 +37,6 @@ The build runs these steps in order:
 | `chk*.js`, `gear/chk*.js`, `v2/` | Regression tests. `runall.sh` runs them; `v2/` checks the live Gear Locker, including the older Locker checks run against it. |
 | `books_tools/` | Scripts that turn the rulebook PDFs into per-page text with printed page numbers, and search them. They need the PDFs; no book text is stored here. |
 | (Skill Web map) | Draft lives as a claude.ai artifact, waiting for review. |
+
+## Fixer (Gear Locker)
+`gear/fixer.js` and `gear/fixer.css` add the Fixer panel: street price = Cost x Street Index, then Negotiation (5% per net success) and an optional house markup and order fee; Acquisition Test odds and delivery time from each item's Availability (core p. 184-185). `gear/avail_data.json` holds Availability and Street Index per item id, checked against the printed tables (kinds: ok, always, gm, none, note, pay; `lv` for per-level rows). `mk2.py` embeds it. The Runner Builder charges `street.total` from a gear code when one is sent. Checks: `gear/chk_fx.js`, `gear/chk_fxb.js`.

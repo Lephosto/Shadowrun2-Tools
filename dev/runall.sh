@@ -26,3 +26,5 @@ for c in 9 11 13 20 23 25 27 28; do echo "== locker 2 chk$c"; timeout 200 node v
 echo "== builder 2: modes"; timeout 200 node builder2/chk_b2.js | tail -3
 echo "== gm screen"; timeout 200 node gm/chk_gm.js | tail -3
 echo "== builder 2: drones, Matrix, spirits"; timeout 200 node builder2/chk_b2b.js | tail -1
+echo "== locker 2: fixer prices"; timeout 200 node gear/chk_fx.js 2>&1 | grep -o '"street": {[^}]*}' | head -1; timeout 200 node gear/chk_fx.js 2>&1 | grep ERRS
+echo "== builder pays the fixer total"; timeout 200 node gear/chk_fxb.js 2>&1 | grep -o '"msg": "[^"]*"'
