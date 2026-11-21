@@ -418,6 +418,10 @@ rep("if(same) same.q=(same.q||1)+1; else st.kit.push(nl); save(); renderKit(); e
 # feature: drone weapon finder on the vehicle's Goes with tab (R2 p. 131–135)
 rep("    if(/Wasp|Yellowjacket/.test(n)) add('Upgrades'", "    if(i.cat==='r2veh'){try{droneFinder(i).forEach(g=>G.push(g));}catch(e){}}\n    if(/Wasp|Yellowjacket/.test(n)) add('Upgrades'")
 rep('${g.text?`<p>${esc(g.text)}</p>`:`<div class="pills">', '${g.html?g.html:g.text?`<p>${esc(g.text)}</p>`:`<div class="pills">')
+# crew run 2 fixes: the Fixer's contact list follows the linked runner; a sent list can be cleared from the send dialog; guns with build-outs can go on the list as they come
+rep("renderSortFilter(); renderList(); renderKit(); if(st.sel) renderTag();});", "renderSortFilter(); renderList(); renderKit(); if(st.sel) renderTag(); if(typeof fxPanel===\'function\') fxPanel();});")
+rep('<div class="sd-a"><button class="btn" id="sendCopy">Copy code</button><button class="btn ghost" id="sendClose2">Done</button></div>', '<p class="note">Sent lists stay on the shopping list. Clear it once this is in the Builder so nothing goes out twice.</p><div class="sd-a"><button class="btn" id="sendCopy">Copy code</button><button class="btn ghost" id="sendClear">Clear the shopping list</button><button class="btn ghost" id="sendClose2">Done</button></div>')
+rep('<button type="button" class="btn big" data-tab="build">Build it out and add</button>', '<button type="button" class="btn ghost big" id="addKit">Add as it comes</button><button type="button" class="btn big" data-tab="build">Build it out and add</button>')
 open('gear/template2.html','w').write(s)
 d=open('gear_data.json').read()
 page=s.replace('/*DATA*/null',d.replace('</','<\\/'),1)

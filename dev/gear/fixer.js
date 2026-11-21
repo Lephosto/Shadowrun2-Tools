@@ -100,6 +100,7 @@ function fxPanel(){const p=$('fxPanel'); if(!p) return; fxBtn(); p.hidden=!FXS.o
     <p class="note fxsum">${FXS.on?`Prices show the fixer price with the list price under it. ${esc(fxTerms())}.`:'Prices show list prices. Tick <b>Use fixer prices</b> to switch every price to the street price.'} Availability and Street Index are guidelines: the GM can change them for the campaign (core p. 184).</p>`;}
 function fxAll(){fxSave(); fxPanel(); all();}
 document.addEventListener('click',e=>{const t=e.target; if(!t||!t.closest) return;
+  if(t.id==='sendClear'){st.kit=[]; save(); renderKit(); const d=$('sendDlg'); if(d) d.hidden=true; return;}
   if(t.closest('#fxBtn')||t.closest('#fxClose')){FXS.open=!FXS.open; fxSave(); fxPanel(); if(FXS.open){const p=$('fxPanel'); if(p&&p.scrollIntoView) p.scrollIntoView({block:'nearest'});} return;}
   const s=t.closest('[data-fxs]'); if(s){const id=s.dataset.fxs, d=+s.dataset.d; if(id==='dice') FXS.who=''; const lim={dice:[1,20,1],neg:[-10,10,1],mark:[-50,200,5]}[id]; FXS[id]=Math.max(lim[0],Math.min(lim[1],(+FXS[id]||0)+d*lim[2])); fxAll(); const b=document.querySelector(`[data-fxs="${id}"][data-d="${d}"]`); if(b&&!b.disabled) b.focus(); return;}});
 document.addEventListener('change',e=>{const t=e.target; if(!t) return;

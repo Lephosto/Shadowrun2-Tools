@@ -72,3 +72,7 @@ body.b2prac #b2strip{outline:2px dashed var(--warn);outline-offset:2px}
 .b2heal{border-top:1px solid var(--line);margin-top:.5rem;padding-top:.5rem}
 .b2heal p{margin:.25rem 0}
 .b2gmhit{border-color:var(--warn)}
+.b2karma{display:flex;flex-direction:column;gap:4px;margin-top:8px;padding:8px 10px;border:1px dashed var(--line);border-radius:6px}
+.b2karma small{color:var(--muted)}
+.b2dying{margin-top:8px;padding:8px 10px;border-left:3px solid var(--bad,#b3261e);background:var(--panel2,transparent);font-size:.875rem}
+.b2more summary{cursor:pointer;color:var(--muted);font-size:.875rem;margin-top:6px}

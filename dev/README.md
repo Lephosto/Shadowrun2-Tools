@@ -47,3 +47,21 @@ The build runs these steps in order:
 - **GM screen:** imported runners get +1 P / +1 S buttons on the table and "Send to their Builder", which writes `sr2-gm-hits` in this browser's storage.
 - **Gear Locker:** the Fixer panel can use the core Fixer contact (core p. 207) or a fixer from the linked runner's contacts; plain items take a quantity when added; a vehicle's "Goes with" tab lists the weapons that fit each of its mounts, with fixer prices and odds (R2 p. 131-135).
 
+## Added after crew test run 2 (2026-11-20)
+- **GM screen:** Initiative dice no longer explode. Each group line has its own key (`m.k`), so new copies start with clean monitors. Attacks with no successes miss. Resist has a Physical/Stun choice and separate Physical (Body) and Mana (Willpower) spell kinds, with Magic Pool spell defense for magicians. Guns have firing modes (recoil, burst and full-auto damage). Humanoid critters attack with Reaction. The stat block form has a "Drone or vehicle" kind.
+- **Builder, Game night:**
+  - Karma Pool rerolls are rolled by hand: the tool charges 1, 2, 3 and takes the extra successes (core p. 191).
+  - Got hit: misses on 0 successes, spell resistance by core p. 131, Stun choice, spell defense, IC on persona (persona monitor `S.mxDmg`), and black IC. Stun past 10 carries into Physical.
+  - Steps for bleeding out, an "Other spells" group with Drain, a Conjure roll with the Conjuring Drain Table, and spirit services spent on attack.
+  - Sustaining is limited to Sustained spells, with a target name.
+  - Matrix utilities roll against the node (core p. 174). "Load it" never unloads other programs.
+  - Drones can target people. A Vehicle tests panel covers the Position and Crash Tests (core p. 106-107).
+  - Skill checks add a defaulting roll (Skill Web) and an "Ask a contact" roll.
+- **Builder, Build:**
+  - Asceticism asks for the attribute given up (`asc` on the initiation entry; `ascLoss` lowers the rating and racial max, and raises cost one more).
+  - Stowed guns count as mounted. A deck with no persona chips is flagged.
+  - Starting cash rolled after Established goes into nuyen on hand. Builder gear purchases can be paid from nuyen.
+  - The transfer bar follows the open runner and warns before overspending.
+  - Blank sheets stay out of the roster. "Resources left" is hidden once Established.
+- **Gear Locker:** the Fixer contact list follows the linked runner; the send dialog has "Clear the shopping list"; guns with build-outs get "Add as it comes".
+

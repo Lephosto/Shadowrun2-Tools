@@ -8,13 +8,14 @@ const IT=Object.fromEntries(GMITEMS.map(x=>[x.id,x]));
 const L4='LMSD', BOXES={L:1,M:3,S:6,D:10}, SIGN=x=>x>0?'+'+x:x<0?'−'+(-x):'0';
 const d6x=()=>{let t=0,x;do{x=1+Math.floor(Math.random()*6);t+=x;}while(x===6&&t<60);return t;};
 const rollN=n=>Array.from({length:Math.max(0,n)},d6x);
+const d6=()=>1+Math.floor(Math.random()*6); const iniRoll=n=>Array.from({length:Math.max(0,n)},d6).reduce((a,x)=>a+x,0); // Initiative dice are added up; the Rule of Six is only for tests (core p. 32, 78)
 const r20=(n,tn)=>tn<=6?`[[${n}d6>${tn}]]`:`[[${n}d6!!6>${tn}]]`;
 const KEY='sr2-gm-v1';
 const ROLES=[['security','Security'],['corporate','Corporate'],['police','Police'],['gang','Gangs'],['street','Street'],['hired gun','Hired guns'],['magic','Magic users'],['decker','Deckers'],['rigger','Riggers'],['normal','Animals'],['para','Paranormal critters'],['dragon','Dragons']];
 const TIER=['Easy','Medium','Hard','Difficult'];
 const blank=()=>({custom:[],groups:[{id:'g1',name:'Group 1',on:true,m:[]}],enc:'New encounter',runners:[],dmg:{},ini:{},pools:{},threat:{},q:'',f:{kind:'all',roles:[],tier:[],src:[],flags:[]},sort:'name',sel:null,tab:'cat',load:{},tsel:null,mode:'atk'});
 let G; try{G=Object.assign(blank(),JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){G=blank();}
-const T={roll:null,copy:null,warn:'',atk:0,rng:0,gm:0,spend:0,tnb:4,dfd:4,gh:{kind:'ball',pow:9,lvl:'M',att:0},msg:''}; // per-session
+const T={fm:'ss',roll:null,copy:null,warn:'',atk:0,rng:0,gm:0,spend:0,tnb:4,dfd:4,gh:{kind:'ball',pow:9,lvl:'M',att:0},msg:''}; // per-session
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(G));}catch(e){}};
 // ---------- catalog ----------
 const ALL=()=>GMDATA.concat(G.custom);
@@ -46,8 +47,9 @@ function build(b,key,custom){ // armor, attacks
   if(isCrit(b)&&b.armC){ab=Math.max(ab,b.armC);ai=Math.max(ai,b.armC);}
   const arm=[ab+hb,ai+hi]; const str=+b.a[2]||0; const troll=b.race==='Troll'?1:0; const atks=[];
   const sd=s=>String(s||'').replace(/\(Str(?:\s*Min)?\s*([+-]\s*\d+)?\)/i,(m,k)=>String(str+(k?+k.replace(/\s/g,''):0)));
-  if(isCrit(b)&&b.atk!=='Humanoid') atks.push({n:'Natural attack',dice:+b.a[7],skill:0,dmg:b.atk,kind:'melee',reach:b.reach||0,why:'Reaction '+b.a[7]+' (core p. 86)'});
-  else {const u=sk(b,'Unarmed Combat'); atks.push({n:'Unarmed',dice:u||null,skill:u,dmg:str+'M Stun',kind:'melee',reach:troll,why:u?'Unarmed Combat '+u:'no skill: defaulting'});}
+  if(b.cls==='veh') atks.push({n:'Mounted weapon',dice:+b.a[7]+Math.floor((+b.sen||0)/2),skill:0,dmg:b.atk,kind:'melee',reach:0,why:'Pilot '+b.a[7]+' + half Sensor '+Math.floor((+b.sen||0)/2)+' (R2 p. 58); against a vehicle the TN is its Signature'});
+  else if(isCrit(b)&&b.atk!=='Humanoid') atks.push({n:'Natural attack',dice:+b.a[7],skill:0,dmg:b.atk,kind:'melee',reach:b.reach||0,why:'Reaction '+b.a[7]+' (core p. 86)'});
+  else {const u=sk(b,'Unarmed Combat'); const cr=isCrit(b)&&!u; atks.push({n:'Unarmed',dice:u||(cr?+b.a[7]:null),skill:u,dmg:str+'M Stun',kind:'melee',reach:troll,why:u?'Unarmed Combat '+u:cr?'critter: Reaction '+b.a[7]+' (core p. 86); Stun unless the GM rules claws or bite':'no skill: defaulting'});}
   items.forEach(({id,note})=>{const x=IT[id];
     if(x.m){const s=x.m[4]||'Armed Combat'; const r=sk(b,s); atks.push({n:x.n,dice:r||null,skill:r,dmg:sd(x.m[2]),kind:'melee',reach:(x.m[1]||0)+troll,why:r?s+' '+r:'no '+s+': defaulting',note});}
     else if(x.w){const s=(x.skill||['Firearms'])[0]; const r=sk(b,s)||(s==='Firearms'&&x.w[0]==='lmg'?sk(b,'Gunnery'):0);
@@ -72,7 +74,7 @@ function catHTML(){const L=ALL().filter(matches).sort(sorts[G.sort]||sorts.name)
      <div class="fl"><span class="lbl">Book</span><div class="chips">${[['core','Core rulebook'],['csh','Corporate Security Handbook'],['mine','Mine']].map(([v,l])=>chip('src',v,l,f.src.includes(v))).join('')}</div></div>
      ${nf?'<button class="ghost sm" data-act="clearf">Clear filters</button>':''}</div>
     <span class="note">${L.length} of ${ALL().length}</span></div>
-   <div class="items">${L.map(b=>`<button class="it" data-sel="${b.id}" aria-pressed="${G.sel===b.id}"><span class="itn"><b>${E(b.n)}</b><small>${E(isCrit(b)?(b.cls==='normal'?'Animal':b.cls==='dragon'?'Dragon':'Paranormal critter'):b.role)} · Body ${b.a[0]} · Init ${b.ini[0]}+${b.ini[1]}D6</small></span><span class="tier t${tier(b)}">${TIER[tier(b)]}</span></button>`).join('')||'<p class="note pad">Nothing matches. Loosen a filter.</p>'}</div></section>
+   <div class="items">${L.map(b=>`<button class="it" data-sel="${b.id}" aria-pressed="${G.sel===b.id}"><span class="itn"><b>${E(b.n)}</b><small>${E(isCrit(b)?(b.cls==='veh'?'Drone or vehicle':b.cls==='normal'?'Animal':b.cls==='dragon'?'Dragon':'Paranormal critter'):b.role)} · Body ${b.a[0]} · Init ${b.ini[0]}+${b.ini[1]}D6</small></span><span class="tier t${tier(b)}">${TIER[tier(b)]}</span></button>`).join('')||'<p class="note pad">Nothing matches. Loosen a filter.</p>'}</div></section>
    <section class="panel detail" aria-label="Stat block">${sel?detailHTML(sel):`<div class="pad"><h2>Pick a baddie</h2><p class="note">Pick one on the left to see the stat block, choose a loadout and add copies to a group. Or make your own with the button below.</p><button data-act="newblock">New stat block</button>${newFormHTML()}</div>`}</section></div>`;}
 function detailHTML(b){const lk=loadoutKeys(b); const key=G.load[b.id]||(b.gear?'book':isCrit(b)?'none':'medium'); const X=build(b,key,(G.load[b.id+':c']||[]));
   const stat=(k,v)=>`<div class="st"><span class="lbl">${k}</span><b>${E(v)}</b></div>`;
@@ -97,14 +99,14 @@ function newFormHTML(){const N=T.nf||(T.nf={n:'',kind:'npc',role:'security',a:[4
   const num=(i,l)=>`<label class="fl"><span class="lbl">${l}</span><input type="number" data-nf="a${i}" value="${N.a[i]}"></label>`;
   return `<details class="newb" ${T.nfOpen?'open':''}><summary>Type in a stat block</summary><div class="grid2">
    <label class="fl wide"><span class="lbl">Name</span><input data-nf="n" value="${E(N.n)}" placeholder="Renraku red samurai"></label>
-   <label class="fl"><span class="lbl">Kind</span><select data-nf="kind"><option value="npc" ${N.kind==='npc'?'selected':''}>Person (uses Combat Pool)</option><option value="crit" ${N.kind==='crit'?'selected':''}>Critter (Threat dice, no pools)</option></select></label>
+   <label class="fl"><span class="lbl">Kind</span><select data-nf="kind"><option value="npc" ${N.kind==='npc'?'selected':''}>Person (uses Combat Pool)</option><option value="crit" ${N.kind==='crit'?'selected':''}>Critter (Threat dice, no pools)</option><option value="veh" ${N.kind==='veh'?'selected':''}>Drone or vehicle (Pilot, Sensor, Body and Armor)</option></select></label>
    <label class="fl"><span class="lbl">Who they are</span><select data-nf="role">${ROLES.map(([v,l])=>`<option value="${v}" ${N.role===v?'selected':''}>${l}</option>`).join('')}</select></label>
    ${num(0,'Body')}${num(1,'Quickness')}${num(2,'Strength')}${num(3,'Charisma')}${num(4,'Intelligence')}${num(5,'Willpower')}${num(7,'Reaction')}
    <label class="fl"><span class="lbl">Initiative dice</span><input type="number" data-nf="iniD" value="${N.iniD}"></label>
    <label class="fl"><span class="lbl">Professional Rating 1–4</span><input type="number" data-nf="pro" value="${N.pro}"></label>
    <label class="fl wide"><span class="lbl">Skills (name and rating, commas between)</span><input data-nf="sk" value="${E(N.sk)}"></label>
-   <label class="fl"><span class="lbl">Critter attack code</span><input data-nf="atk" value="${E(N.atk)}"></label><label class="fl"><span class="lbl">Critter armor</span><input type="number" data-nf="armC" value="${N.armC}"></label>
-   </div><p class="note">Combat Pool works itself out: (Quickness + Intelligence + Willpower) ÷ 2 (core p. 84). Critters attack with Reaction (p. 86).</p><button data-act="saveblock">Save stat block</button></details>`;}
+   <label class="fl"><span class="lbl">Critter or drone attack code</span><input data-nf="atk" value="${E(N.atk)}"></label><label class="fl"><span class="lbl">Critter or vehicle armor</span><input type="number" data-nf="armC" value="${N.armC}"></label><label class="fl"><span class="lbl">Drone Sensor</span><input type="number" data-nf="sen" value="${N.sen||0}"></label>
+   </div><p class="note">Combat Pool works itself out: (Quickness + Intelligence + Willpower) ÷ 2 (core p. 84). Critters attack with Reaction (p. 86). For a drone or vehicle, put its Pilot in Reaction and its Body in Body; it fires with Pilot + half Sensor and resists with Body against Power minus Armor (R2 p. 58; core p. 107–108). The attack code is its weapon’s, such as 7S for an LMG.</p><button data-act="saveblock">Save stat block</button></details>`;}
 // ---------- groups and encounter ----------
 function groupsHTML(){return `<div class="enc"><section class="panel pad"><div class="dh"><h2>Groups</h2><button class="ghost sm" data-act="newgroup">New group</button></div>
   <label class="fl"><span class="lbl">Encounter name</span><input id="encName" value="${E(G.enc)}"></label>
@@ -117,7 +119,11 @@ function groupsHTML(){return `<div class="enc"><section class="panel pad"><div c
    ${T.imp?`<div class="imp">${T.imp.length?(T.imp.filter(c=>!G.runners.some(r=>r.from===c.id)).length>1?`<div class="row"><button class="ghost sm" data-act="impall">Add all</button></div>`:'')+T.imp.map((c,i)=>{const on=G.runners.some(r=>r.from===c.id); return `<div class="mrow"><span>${E(c.n)} <small>${c.r!=null?'Reaction '+c.r+' + '+c.d+'D6':'open it once in the new Builder to share stats'}</small></span>${on?'<span class="note">Added</span>':`<button class="ghost sm" data-imp="${i}">Add</button>`}</div>`;}).join(''):'<p class="note">No saved characters found on this device. The Builder must be open from the same site.</p>'}</div>`:''}
    ${G.runners.map((r,i)=>`<div class="mrow"><span><b>${E(r.n)}</b> <small>${r.r!=null?'Reaction '+r.r+' + '+r.d+'D6':''}</small></span><span class="note">Init</span><button class="ghost sq" data-ri="${i}|-1" aria-label="Lower ${E(r.n)} Initiative">−</button><b class="mono">${r.ini||'—'}</b><button class="ghost sq" data-ri="${i}|1" aria-label="Raise ${E(r.n)} Initiative">+</button>${r.r!=null?`<button class="ghost xs" data-rroll="${i}">Roll</button>`:''}<button class="ghost xs" data-rdel="${i}" aria-label="Remove ${E(r.n)}">×</button></div>`).join('')}</section></div>`;}
 // ---------- the table ----------
-function copies(){const out=[]; G.groups.filter(g=>g.on).forEach(g=>g.m.forEach((x,mi)=>{const b=B(x.b); if(!b) return; for(let i=1;i<=x.n;i++) out.push({id:g.id+'-'+mi+'-'+i,b,g,lo:x.lo,cl:x.cl,name:b.n+' '+i+(g.m.filter(y=>y.b===x.b).length>1?' ('+(loadoutKeys(b).find(k=>k[0]===x.lo)||['',''])[1]+')':'')});})); return out;}
+// each group member has its own key, so a copy keeps its damage when other lines are removed, and a new line never inherits an old one's damage
+const newKey=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+G.groups.forEach(g=>g.m.forEach((x,mi)=>{if(x.k==null) x.k=String(mi);}));
+function purge(prefix){['dmg','ini','pools'].forEach(k=>Object.keys(G[k]).forEach(id=>{if(id.startsWith(prefix)) delete G[k][id];})); if(G.tsel&&G.tsel.startsWith(prefix)) G.tsel=null;}
+function copies(){const out=[]; G.groups.filter(g=>g.on).forEach(g=>g.m.forEach((x,mi)=>{const b=B(x.b); if(!b) return; for(let i=1;i<=x.n;i++) out.push({id:g.id+'-'+x.k+'-'+i,b,g,lo:x.lo,cl:x.cl,name:b.n+' '+i+(g.m.filter(y=>y.b===x.b).length>1?' ('+(loadoutKeys(b).find(k=>k[0]===x.lo)||['',''])[1]+')':'')});})); return out;}
 const D=id=>G.dmg[id]||{p:0,s:0};
 const lv=n=>n>=10?4:n>=6?3:n>=3?2:n>=1?1:0;
 const wm=id=>Math.min(3,lv(Math.min(10,D(id).p)))+Math.min(3,lv(D(id).s));
@@ -142,7 +148,12 @@ function actHTML(c){const b=c.b, X=build(b,c.lo,c.cl), w=wm(c.id), th=G.threat[b
   let ctl='',rows=[],tn=0,dice=0,src='',dmg='',res='';
   if(atk){const A=X.atks[Math.min(T.atk,X.atks.length-1)]; T.cur={A};
     ctl+=`<label class="fl wide"><span class="lbl">Attack with</span><select id="atkSel">${X.atks.map((a,i)=>`<option value="${i}" ${i===T.atk?'selected':''}>${E(a.n)} · ${a.dice==null?'GM':a.dice} dice · ${E(a.dmg)}</option>`).join('')}</select></label>`;
-    if(A.kind==='gun'&&A.range){ctl+=`<label class="fl"><span class="lbl">Range</span><select id="rngSel">${A.range.map((r,i)=>`<option value="${i}" ${T.rng===i?'selected':''}>${['Short','Medium','Long','Extreme'][i]} ${typeof r==='number'?(i?'to ':'0-')+r*(+b.a[2]||1):E(r)} m</option>`).join('')}</select></label>`; tn=[4,5,6,9][T.rng]; rows.push(['Range','core p. 88',tn]);}
+    if(A.kind==='gun'&&A.range){ctl+=`<label class="fl"><span class="lbl">Range</span><select id="rngSel">${A.range.map((r,i)=>`<option value="${i}" ${T.rng===i?'selected':''}>${['Short','Medium','Long','Extreme'][i]} ${typeof r==='number'?(i?'to ':'0-')+r*(+b.a[2]||1):E(r)} m</option>`).join('')}</select></label>`; tn=[4,5,6,9][T.rng]; rows.push(['Range','core p. 88',tn]);
+      const ms=String(A.mode||''), fm=[['ss',ms.includes('SA')?'Single shot':'Single shot / semi-auto']].concat(ms.includes('SA')?[['sa2','Second shot this phase (+1 recoil)']]:[],ms.includes('BF')?[['bf','Burst, 3 rounds']]:[],ms.includes('FA')?[3,4,5,6,7,8,9,10].map(n=>['fa'+n,'Full auto, '+n+' rounds']):[]);
+      if(fm.length>1){if(!fm.some(x=>x[0]===T.fm)) T.fm=fm[0][0]; ctl+=`<label class="fl"><span class="lbl">Firing</span><select id="fmSel">${fm.map(([v,l])=>`<option value="${v}" ${T.fm===v?'selected':''}>${l}</option>`).join('')}</select></label>`;
+        const rounds=T.fm==='bf'?3:T.fm.startsWith('fa')?+T.fm.slice(2):T.fm==='sa2'?1:0; const heavy=/mmg|hmg|cannon/i.test(IT[A.id]&&IT[A.id].w?IT[A.id].w[0]:'');
+        if(rounds){const rec=rounds*(heavy?2:1); rows.push(['Recoil, uncompensated'+(heavy?' (heavy weapon, doubled)':''),'core p. 89, 92; the GM takes off any recoil compensation',rec]); tn+=rec;}
+        if(T.fm==='bf'||T.fm.startsWith('fa')){const n=T.fm==='bf'?3:rounds, m=String(A.dmg).match(/^(\d+)([LMSD])(.*)$/); if(m){const up=T.fm==='bf'?1:Math.floor(n/3); A._dmg=(+m[1]+n)+'LMSD'[Math.min(3,'LMSD'.indexOf(m[2])+up)]+m[3]; A._why=(T.fm==='bf'?'burst: +3 Power, +1 level':'full auto: +'+n+' Power, +'+up+' level'+(up===1?'':'s'))+' (core p. 92–93)';}}}}
     else if(A.kind==='spell'){ctl+=step('tnb','Target’s '+(A.ty==='mana'?'Willpower':'Body')+' (GM)',T.tnb); tn=T.tnb; rows.push(['Target’s '+(A.ty==='mana'?'Willpower':'Body'),'core p. 129',tn]);}
     else if(A.kind==='thrown'){ctl+=step('tnb','Base target number (GM)',T.tnb); tn=T.tnb; rows.push(['Base target number','thrown, core p. 96–97',tn]);}
     else {tn=4; rows.push(['Melee','opposed: the defender rolls too · core p. 100',4]);}
@@ -152,16 +163,21 @@ function actHTML(c){const b=c.b, X=build(b,c.lo,c.cl), w=wm(c.id), th=G.threat[b
     if(A.dice==null) ctl+=step('dfd','Defaulting dice (GM)',T.dfd);
     const maxSp=isCrit(b)||th?0:Math.min(pl,A.spell?0:A.skill||0), sp=Math.min(T.spend,maxSp);
     if(!isCrit(b)&&!th&&!A.spell) ctl+=step('spend','Combat Pool ('+pl+' left, max '+maxSp+')',sp);
-    dice=(A.dice==null?T.dfd:A.dice)+sp+th; src=A.why+(sp?' + '+sp+' Combat Pool':'')+(th?' + Threat '+th:''); dmg=A.dmg; T.cur={A,dice,tn,sp,th,src};
-  } else {const g=T.gh, armB=g.kind==='ball'?X.arm[0]:g.kind==='imp'||g.kind==='gel'?X.arm[1]:g.kind==='flech'?Math.max(2*X.arm[1],X.arm[0]):g.kind==='apds'?Math.floor(X.arm[0]/2):0; const spellHit=g.kind==='spell';
+    dice=(A.dice==null?T.dfd:A.dice)+sp+th; src=A.why+(sp?' + '+sp+' Combat Pool':'')+(th?' + Threat '+th:''); dmg=A._dmg||A.dmg; if(A._why) rows.push(['Damage: '+A._why,'',A._dmg]); T.cur={A,dice,tn,sp,th,src,dmg};
+  } else {const g=T.gh; if(g.kind==='spell') g.kind='spellP'; const armB=g.kind==='ball'?X.arm[0]:g.kind==='imp'||g.kind==='gel'?X.arm[1]:g.kind==='flech'?Math.max(2*X.arm[1],X.arm[0]):g.kind==='apds'?Math.floor(X.arm[0]/2):0; const spellHit=g.kind==='spellP'||g.kind==='spellM'; const stunHit=g.kind==='gel'||!!g.stun;
     const pow=g.kind==='gel'?g.pow-2:g.pow; tn=spellHit?g.pow:Math.max(2,pow-armB);
-    ctl+=`<label class="fl wide"><span class="lbl">What hit them</span><select id="ghKind">${[['ball','Bullet (Ballistic armor)'],['imp','Melee, unarmed or thrown (Impact armor)'],['flech','Flechette'],['apds','APDS'],['gel','Gel round'],['spell','Combat spell (no armor)']].map(([v,l])=>`<option value="${v}" ${g.kind===v?'selected':''}>${l}</option>`).join('')}</select></label>`;
-    ctl+=step('pow',spellHit?'Spell Force':'Incoming Power',g.pow)+`<label class="fl"><span class="lbl">Damage level</span><select id="ghLvl">${['L','M','S','D'].map(v=>`<option ${g.lvl===v?'selected':''}>${v}</option>`).join('')}</select></label>`+step('att','Attacker’s successes',g.att);
-    const maxSp=isCrit(b)||th?0:pl, sp=Math.min(T.spend,maxSp); if(maxSp) ctl+=step('spend','Combat Pool ('+pl+' left)',sp);
+    ctl+=`<label class="fl wide"><span class="lbl">What hit them</span><select id="ghKind">${[['ball','Bullet (Ballistic armor)'],['imp','Melee, unarmed or thrown (Impact armor)'],['flech','Flechette'],['apds','APDS'],['gel','Gel round'],['spellP','Physical combat spell (Body, no armor)'],['spellM','Mana combat spell (Willpower, no armor)']].map(([v,l])=>`<option value="${v}" ${g.kind===v?'selected':''}>${l}</option>`).join('')}</select></label>`;
+    ctl+=step('pow',spellHit?'Spell Force':'Incoming Power',g.pow)+`<label class="fl"><span class="lbl">Damage level</span><select id="ghLvl">${['L','M','S','D'].map(v=>`<option ${g.lvl===v?'selected':''}>${v}</option>`).join('')}</select></label>`+step('att',spellHit?'Caster’s successes':'Attacker’s successes',g.att)+(g.kind==='gel'?'':`<label class="fl"><span class="lbl">Damage</span><select id="ghDt"><option value="p" ${g.stun?'':'selected'}>Physical</option><option value="s" ${g.stun?'selected':''}>Stun (Stun spells, pulled blows, stun batons)</option></select></label>`);
+    const mp=spellHit&&b.m?(b.mpool||sk(b,'Sorcery')):0; const maxSp=spellHit?mp:isCrit(b)||th?0:pl, sp=Math.min(T.spend,maxSp); if(maxSp) ctl+=step('spend',spellHit?'Spell defense: Magic Pool dice ('+mp+')':'Combat Pool ('+pl+' left)',sp);
+    if(spellHit&&!b.m) ctl+=`<p class="note">Only magicians can add Magic Pool dice for spell defense (core p. 131).</p>`;
     rows=[[spellHit?'Spell Force':'Power'+(g.kind==='gel'?' (−2 for gel)':''),'',pow],['Armor '+(g.kind==='flech'?'(higher of double Impact or Ballistic)':g.kind==='apds'?'(Ballistic halved, GM rounds)':g.kind==='imp'||g.kind==='gel'?'(Impact)':spellHit?'(none)':'(Ballistic)'),'core p. 91–93, 277',-armB]];
-    dice=X.bodyR+sp+th; src='Body '+X.bodyR+(sp?' + '+sp+' Combat Pool':'')+(th?' + Threat '+th:''); dmg=g.lvl+(g.kind==='gel'?' Stun':''); T.cur={dice,tn,sp,th,src,lvl:g.lvl,stun:g.kind==='gel'};}
+    const resA=g.kind==='spellM'?+b.a[5]:X.bodyR, resN=g.kind==='spellM'?'Willpower':'Body';
+    dice=resA+sp+th; src=resN+' '+resA+(sp?' + '+sp+(spellHit?' Magic Pool':' Combat Pool'):'')+(th?' + Threat '+th:''); dmg=g.lvl+(stunHit?' Stun':''); T.cur={dice,tn,sp,th,src,lvl:g.lvl,stun:stunHit,spell:spellHit};}
   if(T.roll&&T.roll.cid===c.id){const R=T.roll,k=R.r.filter(x=>x>=R.tn).length;
-    if(R.res){const pk=R.r.slice(R.r.length-R.pool).filter(x=>x>=R.tn).length; if(R.pool&&pk>T.gh.att) res=`${k} successes; pool or Threat dice alone beat the attacker’s ${T.gh.att}: a complete miss (core p. 91, 187).`; else {const d=k-T.gh.att, idx=L4.indexOf(R.lvl)+(d<0?Math.floor(-d/2):-Math.floor(d/2)); R.final=idx<0?null:L4[Math.min(3,idx)]; res=`${k} success${k===1?'':'es'} vs the attacker’s ${T.gh.att}: `+(R.final?`takes ${R.final} ${R.stun?'Stun':'Physical'} (${BOXES[R.final]} box${BOXES[R.final]>1?'es':''}).`:'no damage.');}}
+    if(R.res&&T.gh.att===0){R.final=null; res=R.spell?'The caster had no successes: the spell has no effect (core p. 131).':'The attacker had no successes: a miss, no damage (core p. 90–91).';}
+    else if(R.res&&R.spell&&k>T.gh.att){R.final=null; res=`${k} success${k===1?'':'es'} vs the caster’s ${T.gh.att}: the target wins, the spell has no effect (core p. 131).`;}
+    else if(R.res&&!R.spell&&R.pool&&R.r.slice(R.r.length-R.pool).filter(x=>x>=R.tn).length>T.gh.att) res=`${k} successes; pool or Threat dice alone beat the attacker’s ${T.gh.att}: a complete miss (core p. 91, 187).`;
+    else if(R.res){const pk=0; if(false) res=`${k} successes; pool or Threat dice alone beat the attacker’s ${T.gh.att}: a complete miss (core p. 91, 187).`; else {const d=k-T.gh.att, idx=L4.indexOf(R.lvl)+(d<0?Math.floor(-d/2):-Math.floor(d/2)); R.final=idx<0?null:L4[Math.min(3,idx)]; res=`${k} success${k===1?'':'es'} vs the attacker’s ${T.gh.att}: `+(R.final?`takes ${R.final} ${R.stun?'Stun':'Physical'} (${BOXES[R.final]} box${BOXES[R.final]>1?'es':''}).`:'no damage.');}}
     else res=R.r.every(x=>x===1)?'All ones: Rule of One (core p. 32).':`${k} success${k===1?'':'es'} vs TN ${R.tn}`;}
   const rowsH=rows.map(([k,s,v],i)=>`<div class="r ${i%2?'alt':''}"><span>${E(k)} <small>${E(s)}</small></span><b class="mono">${typeof v==='number'&&i>0?SIGN(v):v}</b></div>`).join('')+`<div class="r tot"><span>Target number</span><b class="mono">${tn}</b></div>`;
   return `<section class="panel pad act"><div class="dh"><h2>${E(c.name)} ${atk?'attacks':'gets hit'}</h2><div class="chips" role="tablist">${[['atk','Attack'],['res','Resist damage']].map(([m,l])=>`<button class="chip" role="tab" data-mode="${m}" aria-selected="${G.mode===m}">${l}</button>`).join('')}</div></div>
@@ -176,7 +192,7 @@ function render(){save(); const t=G.tab; document.querySelectorAll('#tabs button
   const C=copies(); $('tabEnc').textContent=`Encounter (${C.length})`;
   if(fid){const el=$(fid); if(el){el.focus(); try{if(pos!=null&&el.setSelectionRange) el.setSelectionRange(pos,pos);}catch(e){}}}}
 function copyOut(text,msg){let ok=false; try{if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>{},()=>{}); ok=true;}}catch(e){} T.copy={text,msg:ok?msg+': copied. Paste it into the Roll20 chat.':msg+': select this and copy it.'};}
-function importList(){const out=[], seen=new Set(); const add=(d)=>{if(!d||seen.has(d.id)) return; seen.add(d.id); const g=d._gm; out.push({id:d.id,n:d.handle||d.name||'Runner',r:g?g.r:null,d:g?g.d:null});};
+function importList(){const out=[], seen=new Set(); const add=(d)=>{if(!d||seen.has(d.id)||(!d.name&&!d.handle&&!(d.gear||[]).length&&!(d.skills||[]).some(x=>x&&x.name))) return; seen.add(d.id); const g=d._gm; out.push({id:d.id,n:d.handle||d.name||'Runner',r:g?g.r:null,d:g?g.d:null});};
   try{const cur=JSON.parse(localStorage.getItem('sr2-builder-v1')||'null'); add(cur);}catch(e){}
   try{(JSON.parse(localStorage.getItem('sr2-builder-roster')||'[]')||[]).forEach(x=>add(x.data));}catch(e){} return out;}
 document.addEventListener('click',e=>{const t=e.target.closest('button'); if(!t) return; const d=t.dataset;
@@ -188,12 +204,12 @@ document.addEventListener('click',e=>{const t=e.target.closest('button'); if(!t)
   if(d.rmitem!=null){const k=G.sel+':c'; (G.load[k]=G.load[k]||[]).splice(+d.rmitem,1); return render();}
   if(d.thr){G.threat[G.sel]=Math.max(0,(G.threat[G.sel]||0)+(+d.thr)); return render();}
   if(d.gon){const g=G.groups.find(x=>x.id===d.gon); if(g) g.on=!g.on; return render();}
-  if(d.gdel){if(G.groups.length>1) G.groups=G.groups.filter(x=>x.id!==d.gdel); else {G.groups[0].m=[]; T.msg='Emptied '+G.groups[0].name+'.';} return render();}
-  if(d.mn){const [gid,i,dl]=d.mn.split('|'); const g=G.groups.find(x=>x.id===gid); const m=g.m[+i]; m.n+=(+dl); if(m.n<=0) g.m.splice(+i,1); return render();}
+  if(d.gdel){purge(d.gdel+'-'); if(G.groups.length>1) G.groups=G.groups.filter(x=>x.id!==d.gdel); else {G.groups[0].m=[]; T.msg='Emptied '+G.groups[0].name+'.';} return render();}
+  if(d.mn){const [gid,i,dl]=d.mn.split('|'); const g=G.groups.find(x=>x.id===gid); const m=g.m[+i]; m.n+=(+dl); if(dl<0) purge(g.id+'-'+m.k+'-'+(m.n+1)); if(m.n<=0){purge(g.id+'-'+m.k+'-'); g.m.splice(+i,1);} return render();}
   if(d.ri){const [i,dl]=d.ri.split('|'); const r=G.runners[+i]; r.ini=Math.max(0,(r.ini||0)+(+dl)); return render();}
   if(d.rh){T.rhMsg=''; const [i,k,v]=d.rh.split('|'); G.rh=G.rh||{}; const h=G.rh[i]=G.rh[i]||{p:0,s:0}; if(k==='x'){delete G.rh[i];} else h[k]=Math.min(20,h[k]+(+v)); return render();}
   if(d.rhsend){const i=+d.rhsend, r=G.runners[i], h=(G.rh||{})[i]; if(r&&r.from&&h&&(h.p||h.s)){let L=[]; try{L=JSON.parse(localStorage.getItem('sr2-gm-hits')||'[]'); if(!Array.isArray(L)) L=[];}catch(e){} L.push({id:r.from,p:h.p,s:h.s,at:Date.now()}); try{localStorage.setItem('sr2-gm-hits',JSON.stringify(L)); T.rhI=i; T.rhMsg=`Sent ${h.p?h.p+' Physical':''}${h.p&&h.s?' and ':''}${h.s?h.s+' Stun':''} to ${r.n}. It shows in their Builder's Game night, and they choose to apply it.`;}catch(e){T.rhI=i; T.rhMsg='This browser won’t save it, so it can’t reach the Builder.';} delete G.rh[i];} return render();}
-  if(d.rroll){const r=G.runners[+d.rroll]; r.ini=r.r+rollN(r.d).reduce((a,x)=>a+x,0); return render();}
+  if(d.rroll){const r=G.runners[+d.rroll]; r.ini=r.r+iniRoll(r.d); return render();}
   if(d.rdel){G.runners.splice(+d.rdel,1); return render();}
   if(d.imp){const c=T.imp[+d.imp]; if(!G.runners.some(r=>r.from===c.id)) G.runners.push({n:c.n,r:c.r,d:c.d,ini:0,from:c.id}); return render();}
   if(d.bx){const [cid,k,i]=d.bx.split('|'); const cur=D(cid); const v=+i; G.dmg[cid]={...cur,[k]:cur[k]===v?v-1:v}; return render();}
@@ -206,31 +222,31 @@ document.addEventListener('click',e=>{const t=e.target.closest('button'); if(!t)
   else if(a==='add'){const b=B(G.sel); let gid=$('addTo').value; const n=Math.max(1,Math.min(30,+$('addN').value||1)); T.addN=n;
     if(gid==='new'){gid='g'+Date.now().toString(36); G.groups.push({id:gid,name:'Group '+(G.groups.length+1),on:true,m:[]});}
     const g=G.groups.find(x=>x.id===gid); const lo=G.load[b.id]||(b.gear?'book':isCrit(b)?'none':'medium'); const cl=lo==='custom'?(G.load[b.id+':c']||[]).slice():null;
-    const ex=g.m.find(x=>x.b===b.id&&x.lo===lo&&JSON.stringify(x.cl||null)===JSON.stringify(cl)); if(ex) ex.n+=n; else g.m.push({b:b.id,n,lo,cl}); T.addTo=gid; T.addN=1; T.msg=`Added ${n} × ${b.n} to ${g.name}.`;}
+    const ex=g.m.find(x=>x.b===b.id&&x.lo===lo&&JSON.stringify(x.cl||null)===JSON.stringify(cl)); if(ex) ex.n+=n; else g.m.push({b:b.id,n,lo,cl,k:newKey()}); T.addTo=gid; T.addN=1; T.msg=`Added ${n} × ${b.n} to ${g.name}.`;}
   else if(a==='newgroup'){G.groups.push({id:'g'+Date.now().toString(36),name:'Group '+(G.groups.length+1),on:true,m:[]});}
   else if(a==='newblock'){T.nfOpen=true;}
   else if(a==='saveblock'){const N=T.nf; if(!N.n.trim()){T.msg='Give it a name first.'; return render();} const skm={}; String(N.sk).split(',').forEach(x=>{const m=x.trim().match(/^(.*?)\s+(\d+)$/); if(m) skm[m[1]]=+m[2];});
-    const a8=N.a.map((v,i)=>i===6?v:+v||0); const crit=N.kind==='crit'; const id='u'+Date.now().toString(36);
-    G.custom.push({id,n:N.n.trim(),src:'mine',pg:'typed in by the GM',role:crit?'para':N.role,cls:crit?'para':undefined,crit:crit?1:0,custom:1,a:a8,ini:[a8[7],Math.max(1,+N.iniD||1)],pool:crit?0:Math.floor((a8[1]+a8[4]+a8[5])/2),pro:crit?'critter':String(Math.min(4,Math.max(1,+N.pro||2))),sk:skm,atk:crit?N.atk:undefined,armC:+N.armC||0});
+    const a8=N.a.map((v,i)=>i===6?v:+v||0); const veh=N.kind==='veh', crit=N.kind==='crit'||veh; const id='u'+Date.now().toString(36);
+    G.custom.push({id,n:N.n.trim(),src:'mine',pg:'typed in by the GM',role:veh?'rigger':crit?'para':N.role,cls:veh?'veh':crit?'para':undefined,sen:veh?+N.sen||0:undefined,crit:crit?1:0,custom:1,a:a8,ini:[a8[7],Math.max(1,+N.iniD||1)],pool:crit?0:Math.floor((a8[1]+a8[4]+a8[5])/2),pro:crit?'critter':String(Math.min(4,Math.max(1,+N.pro||2))),sk:skm,atk:crit?N.atk:undefined,armC:+N.armC||0});
     G.sel=id; T.nf=null; T.nfOpen=false;}
-  else if(a==='delblock'){G.custom=G.custom.filter(x=>x.id!==G.sel); G.groups.forEach(g=>g.m=g.m.filter(x=>x.b!==G.sel)); G.sel=null;}
+  else if(a==='delblock'){G.custom=G.custom.filter(x=>x.id!==G.sel); G.groups.forEach(g=>{g.m.filter(x=>x.b===G.sel).forEach(x=>purge(g.id+'-'+x.k+'-')); g.m=g.m.filter(x=>x.b!==G.sel);}); G.sel=null;}
   else if(a==='import'){T.imp=importList();}
   else if(a==='impall'){(T.imp||[]).forEach(c=>{if(!G.runners.some(r=>r.from===c.id)) G.runners.push({n:c.n,r:c.r,d:c.d,ini:0,from:c.id});});}
   else if(a==='addrunner'){const n=$('rnName').value.trim(); if(!n) return $('rnName').focus(); G.runners.push({n,ini:+$('rnIni').value||0,r:null,d:null});}
-  else if(a==='rollini'){C.forEach(x=>{G.ini[x.id]=x.b.ini[0]+rollN(x.b.ini[1]).reduce((s,y)=>s+y,0);});}
+  else if(a==='rollini'){C.forEach(x=>{G.ini[x.id]=x.b.ini[0]+iniRoll(x.b.ini[1]);});}
   else if(a==='copyini'){copyOut(`&{template:default} {{name=${G.enc}: enemy Initiative}} `+C.map(x=>`{{${x.name}=[[${x.b.ini[0]}+${x.b.ini[1]}d6${wm(x.id)?'-'+wm(x.id):''}]]}}`).join(' '),'Initiative');}
   else if(a==='newturn'){G.ini={}; G.pools={}; G.runners.forEach(r=>r.ini=0); T.roll=null;}
-  else if(c&&(a==='roll'||a==='rres')){const K=T.cur; G.pools[c.id]=poolLeft(c)-K.sp; T.roll={cid:c.id,r:rollN(K.dice),tn:K.tn,pool:K.sp+K.th,res:a==='rres',lvl:K.lvl,stun:K.stun}; T.spend=0; T.copy=null;}
-  else if(c&&a==='copyatk'){const K=T.cur; G.pools[c.id]=poolLeft(c)-K.sp; copyOut(`&{template:default} {{name=${c.name}: ${K.A.n}}} {{Dice=${K.dice} (${K.src})}} {{Target number=${K.tn}}} {{Successes=${r20(K.dice,K.tn)}}} {{Damage=${K.A.dmg}}}`,'Attack'); T.spend=0;}
-  else if(c&&a==='copyres'){const K=T.cur; G.pools[c.id]=poolLeft(c)-K.sp; copyOut(`&{template:default} {{name=${c.name} resists ${T.gh.pow}${T.gh.lvl}}} {{Target number=${K.tn}}} {{Body=${r20(c.b.a[0]+(c.b.derm||0),K.tn)}}}`+(K.sp+K.th?` {{Pool or Threat=${r20(K.sp+K.th,K.tn)}}}`:'')+` {{If successes tie=${T.gh.lvl}}}`,'Damage resistance'); T.spend=0;}
+  else if(c&&(a==='roll'||a==='rres')){const K=T.cur; G.pools[c.id]=poolLeft(c)-K.sp; T.roll={cid:c.id,r:rollN(K.dice),tn:K.tn,pool:K.sp+K.th,res:a==='rres',lvl:K.lvl,stun:K.stun,spell:K.spell}; T.spend=0; T.copy=null;}
+  else if(c&&a==='copyatk'){const K=T.cur; G.pools[c.id]=poolLeft(c)-K.sp; copyOut(`&{template:default} {{name=${c.name}: ${K.A.n}}} {{Dice=${K.dice} (${K.src})}} {{Target number=${K.tn}}} {{Successes=${r20(K.dice,K.tn)}}} {{Damage=${K.dmg||K.A.dmg}}}`,'Attack'); T.spend=0;}
+  else if(c&&a==='copyres'){const K=T.cur; G.pools[c.id]=poolLeft(c)-K.sp; copyOut(`&{template:default} {{name=${c.name} resists ${T.gh.pow}${T.gh.lvl}}} {{Target number=${K.tn}}} {{${T.gh.kind==='spellM'?'Willpower':'Body'}=${r20(T.gh.kind==='spellM'?+c.b.a[5]:c.b.a[0]+(c.b.derm||0),K.tn)}}}`+(K.sp+K.th?` {{Pool or Threat=${r20(K.sp+K.th,K.tn)}}}`:'')+` {{If successes tie=${T.gh.lvl}}}`,'Damage resistance'); T.spend=0;}
   else if(c&&a==='mark'){const R=T.roll; if(R&&R.final){const cur=D(c.id), k=R.stun?'s':'p'; G.dmg[c.id]={...cur,[k]:Math.min(k==='p'?11+c.b.a[0]:10,cur[k]+BOXES[R.final])}; T.roll=null;}}
   else if(c&&a==='refresh'){delete G.pools[c.id];}
   render();});
 document.addEventListener('change',e=>{const t=e.target;
   if(t.id==='sort'){G.sort=t.value;} else if(t.id==='addItem'&&t.value){const k=G.sel+':c'; (G.load[k]=G.load[k]||[]).push(t.value);}
   else if(t.dataset.gname){const g=G.groups.find(x=>x.id===t.dataset.gname); g.name=t.value||g.name;}
-  else if(t.id==='encName'){G.enc=t.value||'Encounter';} else if(t.id==='atkSel'){T.atk=+t.value; T.rng=0; T.roll=null;} else if(t.id==='rngSel'){T.rng=+t.value;}
-  else if(t.id==='ghKind'){T.gh.kind=t.value; T.roll=null;} else if(t.id==='ghLvl'){T.gh.lvl=t.value; T.roll=null;}
+  else if(t.id==='encName'){G.enc=t.value||'Encounter';} else if(t.id==='atkSel'){T.atk=+t.value; T.rng=0; T.fm='ss'; T.roll=null;} else if(t.id==='fmSel'){T.fm=t.value; T.roll=null;} else if(t.id==='rngSel'){T.rng=+t.value;}
+  else if(t.id==='ghKind'){T.gh.kind=t.value; T.roll=null;} else if(t.id==='ghLvl'){T.gh.lvl=t.value; T.roll=null;} else if(t.id==='ghDt'){T.gh.stun=t.value==='s'; T.roll=null;}
   else if(t.dataset.nf){const k=t.dataset.nf; if(k[0]==='a'&&/^a\d$/.test(k)) T.nf.a[+k[1]]=+t.value; else T.nf[k]=t.value; T.nfOpen=true; return;}
   else if(t.id==='addTo'||t.id==='addN'){T.addTo=$('addTo').value; T.addN=+$('addN').value||1; return;}
   else return; render();});
