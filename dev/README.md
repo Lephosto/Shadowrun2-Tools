@@ -65,3 +65,8 @@ The build runs these steps in order:
   - Blank sheets stay out of the roster. "Resources left" is hidden once Established.
 - **Gear Locker:** the Fixer contact list follows the linked runner; the send dialog has "Clear the shopping list"; guns with build-outs get "Add as it comes".
 
+
+## Added 2026-11-21
+- **Owned vehicles (Gear Locker → Builder):** the vehicle workshop's "Working on" menu (`data-vown`) loads a vehicle the linked runner owns; `B.own` keeps the gear index and the mods it already had. The list line carries `up:{cid,gi,who}` and `pc` = only the new work (no Street Index in the Fixer). The Builder's `gearImport` puts the build-out on that line instead of adding a vehicle and charges what the line's cost went up by.
+- **Magical groups (Builder, Initiation, GR p. 54–58):** `S.mg` (`mgState`) tracks role (joining or founding), members, astral contact, strictures (`STRICT`), broken strictures and the contact test log. Joining (`kind:'mgjoin'`, 3 Karma) and extra contact dice (`kind:'mgdie'`, 3 Karma) go in the Karma log. Group initiation needs `S.mg.contact`; sheets that already have a group initiation start with it set.
+- **Contacts (Builder, Game night):** `CTBOOK` holds the 22 core contacts' Charisma, Intelligence and Etiquette (core p. 203–213). A contact can match one (`c.cb`, guessed from the role) or take typed numbers (`c.ce`, `c.cc`, `c.ci`). "They check around" rolls the contact's Etiquette at TN +2 (Charisma +4 with none); your own roll shows the baseline fee (core p. 202).

@@ -57,9 +57,10 @@ function fxAvailHTML(i,r){ if(i.sp||i.ef||i.mt||i.cat==='power') return ''; cons
   return `<section class="fxbox"><h4>Buying it on the street ${cite}</h4><dl class="facts">${rows.join('')}</dl>${body}${price}</section>`;}
 // shopping list
 function fxKitItem(k){return BYID[k.id]||null;}
-function fxKitPrice(k,p){const i=fxKitItem(k); if(!FXS.on) return p; if(!i) return Math.round(p*fxMult()); return fxPrice(i,p,k.r);}
+function fxKitPrice(k,p){const i=fxKitItem(k); if(!FXS.on||k.up) return p; // work on an owned vehicle is a workshop job: no Street Index on the vehicle
+  if(!i) return Math.round(p*fxMult()); return fxPrice(i,p,k.r);}
 function fxKitC(k,p){ if(!FXS.on) return fmt(p)+'¥'; return `${fmt(fxKitPrice(k,p))}¥ <small class="fxl">list ${fmt(p)}¥</small>`;}
-function fxKitAv(k){const i=fxKitItem(k); if(!i) return ''; const a=fxRec(i,k.r); if(!a||a.k==='none') return `<span class="kn fxav">Availability not listed</span>`;
+function fxKitAv(k){const i=fxKitItem(k); if(!i||k.up) return k.up?`<span class="kn fxav">Work on an owned vehicle: the vehicle’s Availability doesn’t apply. Parts are the GM’s call</span>`:''; const a=fxRec(i,k.r); if(!a||a.k==='none') return `<span class="kn fxav">Availability not listed</span>`;
   if(a.k!=='ok') return `<span class="kn fxav">${esc(fxAvText(a))}</span>`;
   const t=fxTN(i,a,k.r); let s=`Avail ${esc(fxAvText(a))} · SI ${fxSiText(a)}`;
   if(FXS.on&&t!=null){const o=fxOdds(t,FXS.dice); s+=` · ${Math.round(o.find*100)}% · ~${fxTime(a.n,a.u,o.mode)}`;}

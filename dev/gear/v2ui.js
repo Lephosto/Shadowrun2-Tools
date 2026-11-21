@@ -47,6 +47,7 @@ function buildHTML2(g){
 function vehHTML2(i){
   if(!isVeh(i)) return vehHTML(i);
   const {B,v}=vbFix(i); const R=VB.calc(v,B), s=R.s, A=VB.addable(v,B);
+  const OWN=vOwned(i), OC=B.own?vOwnCost(i,B):null, ON=B.own?vOwnNew(i,B):null;
   const have=new Map(R.rows.map((r,ix)=>[r.m.id,{...r,ix}])), yes=new Map(A.yes.map(x=>[x.d.id,x])), no=new Map(A.no.map(x=>[x.d.id,x]));
   const fac=VB.facList(v);
   const tab=['fits','no','on'].includes(st.vtab)?st.vtab:'fits';
@@ -80,9 +81,12 @@ function vehHTML2(i){
   const sel=(f,lab,opts,cur)=>`<label class="fl"><span class="lbl">${lab}</span><select id="vb_${f}" data-vb="${f}">${opts.map(([kk,l])=>`<option value="${esc(kk)}" ${String(cur)===String(kk)?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
   const chk=(f,lab,cur)=>`<label class="bchk"><input type="checkbox" data-vb="${f}" ${cur?'checked':''}> ${lab}</label>`;
   const tabs=[['fits','Fits',lists.fits.length],['no','Doesn’t fit',lists.no.length],['on','On this build',lists.on.length]];
+  const ownSel=OWN.length||B.own?`<div class="vw-own"><label class="fl"><span class="lbl">Working on</span><select data-vown="${esc(i.id)}"><option value="">A new ${esc(i.n)}</option>${OWN.map((o,k)=>`<option value="${esc(o.C.id+'|'+o.gi)}" ${B.own&&B.own.cid===o.C.id&&B.own.gi===o.gi?'selected':''}>${esc(o.who)}’s ${esc(i.n)}${OWN.length>1?' #'+(k+1):''} (owned${o.n?', '+o.n+' mod'+(o.n>1?'s':''):''})</option>`).join('')}${B.own&&!OWN.some(o=>o.C.id===B.own.cid&&o.gi===B.own.gi)?`<option value="keep" selected>${esc(B.own.who)}’s ${esc(i.n)} (not on the linked runner now)</option>`:''}</select></label>
+      ${B.own?`<p class="note">The mods already on ${esc(B.own.who)}’s ${esc(i.n)} start ticked. Only the new work goes on the list, at the mods’ prices; the vehicle itself isn’t bought again.${OC.refund?' <b>You took off a mod it already had: that refunds nothing here; sort it out with your GM.</b>':''}</p>`:''}</div>`:'';
   return `<section class="vw" aria-label="Vehicle build-out">
+    ${ownSel}
     <div class="vw-pin"><div class="vw-bars">${bar('Cargo space',R.cf,R.Cmax,' CF',`${VB.fmtN(Math.max(0,R.Cmax-R.cf))} CF left${s.Cext?` · +${s.Cext} CF on racks`:''}`)}${bar('Load',R.load,R.Lmax,' kg',`${VB.fmtN(Math.max(0,R.Lmax-R.load))} kg left`)}${bar('Weapon mount points',R.pts,R.ptsMax,'',`Body ${v.B}: hardpoint 2, firmpoint 1`)}</div>
-      <div class="vw-tot"><span class="lbl">Vehicle + mods</span><b>${money(i.cost+R.cost)}</b><span class="note">${money(i.cost)} + ${money(R.cost)}${R.gm.length?' + GM-priced work':''}</span></div></div>
+      ${B.own?`<div class="vw-tot"><span class="lbl">New work</span><b>${money(OC.diff)}</b><span class="note">${ON.add.length?esc(ON.add.join(', ')):'Nothing new yet'}${R.gm.length?' + GM-priced work':''}</span></div>`:`<div class="vw-tot"><span class="lbl">Vehicle + mods</span><b>${money(i.cost+R.cost)}</b><span class="note">${money(i.cost)} + ${money(R.cost)}${R.gm.length?' + GM-priced work':''}</span></div>`}</div>
     <div class="vw-stats">${stats}</div>
     ${fac.length?`<p class="vw-fac"><b>Factory-fitted</b>${fac.map(x=>`<span>${esc(x)}</span>`).join('')}<span class="note">Already in the listed stats: no space used, but counts toward mount points and level limits (R2 p. 120).</span></p>`:''}
     <details class="vw-setup"><summary>Vehicle setup: ${esc(VSHORT[B.type]||'vehicle')}${B.mil?' · security or military':''}${B.facRC?' · RC interface already in':''}${B.facRig?' · rigger adaptation already in':''}</summary><div class="gm-setup">${sel('type','Vehicle type',VB.TYPES,B.type)}<div class="bchks">${chk('mil','Security or military vehicle (GM permission)',B.mil)}${v.drone?'':chk('facRC','Remote control interface already added (earlier work)',B.facRC)+chk('facRig','Rigger adaptation already added (earlier work)',B.facRig)}</div></div></details>
@@ -91,7 +95,7 @@ function vehHTML2(i){
     <div class="vw-tabs" role="tablist" aria-label="Which modifications">${tabs.map(([kk,l,n])=>`<button type="button" role="tab" data-vtab="${kk}" aria-selected="${tab===kk}">${l} <span>${n}</span></button>`).join('')}</div>
     <div class="vw-list">${groups||`<p class="note" style="padding:12px 0">${tab==='on'?'Nothing on this build yet. Switch to Fits and add something.':'Nothing here.'}</p>`}</div>
     <p class="note">Install times, skills and target numbers are on each mod’s page; installed by a mechanic with the parts in hand (R2 p. 118).</p>
-    <div class="gm-act"><button type="button" class="btn ghost" id="clrVeh">Start over</button><button type="button" class="btn ghost big" data-send="item">Send to a character</button><button type="button" class="btn big" id="addVeh">Add vehicle and mods · ${money(i.cost+R.cost)}</button></div>
+    <div class="gm-act"><button type="button" class="btn ghost" id="clrVeh">Start over</button><button type="button" class="btn ghost big" data-send="item">Send to a character</button>${B.own?`<button type="button" class="btn big" id="addVeh" ${ON.add.length?'':'disabled'}>Add the new work · ${money(OC.diff)}</button>`:`<button type="button" class="btn big" id="addVeh">Add vehicle and mods · ${money(i.cost+R.cost)}</button>`}</div>
   </section>`;
 }
 document.addEventListener('click',e=>{
@@ -207,3 +211,25 @@ document.addEventListener('click',e=>{
   const cl=e.target.closest('[data-cbloc]'); if(cl){st.cbloc=cl.dataset.cbloc; renderTag(); const b=document.querySelector(`[data-cbloc="${st.cbloc}"]`); if(b) b.focus({preventScroll:true}); return;}
 });
 document.addEventListener('toggle',e=>{const d=e.target; if(d&&d.dataset&&d.dataset.dhw) st.dhw=d.open;},true);
+
+// ---------- Owned vehicles: build out one the linked runner already has ----------
+// Picking "Rook's GMC Bulldog (owned)" loads that vehicle's mods; the list then carries only the new work, and the
+// Runner Builder puts it on the same gear line (up.gi) instead of adding a second vehicle.
+function vOwned(i){const C=linkedChar(); if(!C) return []; const out=[]; (C.S.gear||[]).forEach((g,gi)=>{if(g&&(KEYFIX[g.key]||g.key)===i.id) out.push({gi,g,C,who:C.S.handle||C.S.name||'Runner',n:g.vb&&Array.isArray(g.vb.mods)?g.vb.mods.length:0});}); return out;}
+function vOwnPick(i,val){st.vbuild=st.vbuild||{};
+  if(val==='keep') return;
+  if(!val){delete st.vbuild[i.id]; save(); return;}
+  const cut=val.lastIndexOf('|'), cid=val.slice(0,cut), gi=+val.slice(cut+1); const o=vOwned(i).find(x=>x.C.id===cid&&x.gi===gi); if(!o) return;
+  const t=vtype(i); const b=o.g.vb&&typeof o.g.vb==='object'?JSON.parse(JSON.stringify(o.g.vb)):{type:t[0],mil:false,facRC:false,facRig:false,mods:[]}; if(!Array.isArray(b.mods)) b.mods=[];
+  b.own={cid,gi,who:o.who,base:JSON.parse(JSON.stringify(b.mods))}; st.vbuild[i.id]=b; save();}
+function vOwnBase(B){const b=JSON.parse(JSON.stringify(B)); b.mods=JSON.parse(JSON.stringify(B.own.base||[])); delete b.own; return b;}
+function vOwnCost(i,B){const now=VB.calc(vehOf(i,B),B).cost; let was=0; try{const b=vOwnBase(B); was=VB.calc(vehOf(i,b),b).cost;}catch(e){} return {now,was,diff:Math.max(0,now-was),refund:now<was};}
+function vOwnNew(i,B){const v=vehOf(i,B), R=VB.calc(v,B), base=B.own.base||[], same=(a,b)=>a.id===b.id&&(+a.lv||0)===(+b.lv||0)&&(a.opt||'')===(b.opt||'');
+  const add=R.rows.filter(r=>!base.some(m=>same(m,r.m))).map(r=>r.d.n+(r.d.kind==='flag'?'':' '+r.l)+(base.some(m=>m.id===r.m.id)?' (changed)':''));
+  const gone=base.filter(m=>!(B.mods||[]).some(x=>x.id===m.id)).map(m=>(VB.M.find(d=>d.id===m.id)||{n:m.id}).n); return {add,gone};}
+function vOwnSend(i,B){const vb=JSON.parse(JSON.stringify(B)); delete vb.own; return {key:i.id,qty:1,vb,up:{cid:B.own.cid,gi:B.own.gi,who:B.own.who}};}
+document.addEventListener('change',e=>{const t=e.target.closest&&e.target.closest('[data-vown]'); if(!t) return; const i=BYID[t.dataset.vown]; if(!i) return; vOwnPick(i,t.value); st.vtab=t.value?'on':st.vtab; renderTag();});
+// runs before the template's own #addVeh handler (capture), and only for owned vehicles
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#addVeh'); if(!b) return; const i=BYID[st.sel]; if(!i||!isVeh(i)) return; const {B}=vbFix(i); if(!B.own) return;
+  e.stopImmediatePropagation(); const C=vOwnCost(i,B), N=vOwnNew(i,B); if(!N.add.length) return; const x=vOwnSend(i,B);
+  st.kit.push({id:i.id,r:0,vb:x.vb,up:x.up,pc:C.diff,bp:N.add}); save(); renderKit(); b.textContent='Added'; setTimeout(()=>{const bb=$('addVeh'); if(bb) renderTag();},1200);},true);

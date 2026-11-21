@@ -298,6 +298,9 @@ rerx(r"  const G=related\(i\);\n  \$\('tag'\)\.innerHTML=`<a class=\"back\".*?\n
 }
 function kitPrice''')
 
+# ---------- owned vehicles: the list carries only new work, the Builder puts it on the owned line ----------
+rep("else if(isVeh(i)){const {B}=vbFix(i); items.push({key:i.id,qty:1,vb:JSON.parse(JSON.stringify(B))});}", "else if(isVeh(i)){const {B}=vbFix(i); items.push(B.own?vOwnSend(i,B):{key:i.id,qty:1,vb:JSON.parse(JSON.stringify(B))});}")
+rep("k.vb?{vb:JSON.parse(JSON.stringify(k.vb))}:{},", "k.vb?{vb:JSON.parse(JSON.stringify(k.vb))}:{},k.up?{up:Object.assign({},k.up)}:{},")
 # ---------- shopping list: grouped, quantities, collapsible ----------
 rerx(r"function renderKit\(\)\{ kitChip\(\);.*?\n\}\nfunction select", r'''function kitStackable(k){return !(k.build||k.hb||k.vb||k.v2||k.pc!=null||k.loaded!=null)&&!!BYID[k.id]&&!kitFeed(BYID[k.id]);}
 function renderKit(){ kitChip();
@@ -315,7 +318,7 @@ function renderKit(){ kitChip();
   const order=DATA.cats.map(x=>x[1]).filter(g=>groups[g]).concat(groups.Other?['Other']:[]);
   const body=st.kit.length?order.map(g=>`<div class="kg">${esc(g)}</div>`+groups[g].map(([k,ix])=>{const i=BYID[k.id]||{n:k.n,src:k.src||'core',cost:k.cost}; const p=kitPrice(k);
       const es=k.hb&&k.hc!=null?+(k.he||0):+(essAt(i,k.r)||0)*(k.q||1);
-      const note=[i.r&&!k.hb&&!k.noR?`${i.r[2]} ${k.r}`:'',k.gel?'gel-packs':'',k.bp&&k.bp.length?'With '+k.bp.join(', '):'',k.loaded?'loaded':''].filter(Boolean).join(' · ');
+      const note=[i.r&&!k.hb&&!k.noR?`${i.r[2]} ${k.r}`:'',k.gel?'gel-packs':'',k.up?'Work on '+k.up.who+'’s own, not a new one':'',k.bp&&k.bp.length?(k.up?'Adds ':'With ')+k.bp.join(', '):'',k.loaded?'loaded':''].filter(Boolean).join(' · ');
       return `<div class="kl"><div class="kt"><b>${srcTag(i.src)} ${esc(i.n)}</b><span class="c">${fmt(p)}¥${es?` · ${Math.round(es*100)/100} Ess`:''}</span></div>${note?`<span class="kn">${esc(note)}</span>`:''}${BYID[k.id]&&kitForGun(k.id)?kitFgHTML(k,ix,KG):''}
         <div class="ka">${kitStackable(k)?`<span class="qty" role="group" aria-label="Quantity of ${esc(i.n)}"><button type="button" class="sq" data-kq="${ix}" data-d="-1" aria-label="One fewer ${esc(i.n)}" ${(k.q||1)<=1?'disabled':''}>−</button><span>${k.q||1}</span><button type="button" class="sq" data-kq="${ix}" data-d="1" aria-label="One more ${esc(i.n)}">+</button></span>`:'<span></span>'}
         <span style="display:flex;gap:6px;align-items:center">${BYID[k.id]?legalBadge(i,k.r):''}${BYID[k.id]?`<button type="button" class="xb" data-kedit="${ix}">Open</button>`:''}<button type="button" class="xb" data-rm="${ix}" aria-label="Remove ${esc(i.n)}">Remove</button></span></div></div>`;}).join('')).join('')
