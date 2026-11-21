@@ -1243,6 +1243,7 @@ function magicNow(){if(S.magic==='none') return 0; return Math.max(0,Math.max(0,
 // foci: bonded with Force Points at creation, or with Karma later (p. 137)
 function canBondFocus(g){return !!BOND[g.key]&&(isMagician()||(S.magic==='adept'&&/Weapon Focus/.test(g.key)));} // adepts may use weapon foci (AW p. 114)
 function focusBonded(g){return !S.established||g.bondPaid==='fp'||(S.adv||[]).some(a=>a.kind==='bond'&&a.fid===g.fid);}
+let STARTCASH=0;
 function karmaAvail(){return (+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog();}
 function karmaShort(c){const a=karmaAvail(); if(c<=a) return false; const n=$('advNote'); if(n){n.textContent=`That costs ${c} Karma and only ${a} is available.`; n.hidden=false;} return true;}
 function spellPaid(p){let f=p.lid?((S.adv||[]).find(a=>a.kind==='spell'&&a.lid===p.lid)||{}).cost:p.base; if(f==null) return null; (S.adv||[]).forEach(a=>{if(a.kind==='spellF'&&a.name===p.name) f=Math.max(+f,+a.to);}); return +f;}
@@ -3291,7 +3292,7 @@ function render(){
   gearPreview();
   $('resBudget').innerHTML=budgetHTML('Resources',rSpent,rBudget,true,!!S.established);
   $('lifestyleOff').checked=!!S.lifestyleOff; $('established').checked=!!S.established;
-  const left=Math.max(0,rBudget-rSpent); const fromLeft=Math.floor(left/10);
+  const left=Math.max(0,rBudget-rSpent); const fromLeft=Math.floor(left/10); STARTCASH=fromLeft+(S.cashRoll?S.cashRoll.total:0);
   $('cashFromLeft').textContent=fmt(fromLeft)+'¥';
   $('cashRoll').textContent=S.cashRoll?`${S.cashRoll.dice.join(' + ')} = ${fmt(S.cashRoll.total)}¥`:'not rolled';
   $('cashTotal').textContent=fmt(fromLeft+(S.cashRoll?S.cashRoll.total:0))+'¥';
@@ -3426,6 +3427,8 @@ function summary(magicRating,rSpent,rBudget){
   {const mt=S.gear.filter(g=>g.key&&/^r2veh:/.test(g.key)&&!g.at).filter(g=>{const F=typeof VB!=='undefined'&&VB.FACT&&VB.FACT[GEARDB[g.key].n]; return (F&&/(^|,)(fx_|rt_|tur_)/.test(F[1]||''))||(g.vb&&(g.vb.mods||[]).some(m=>/^(fx_|rt_|tur_|ring|pintle|mis_)/.test(m.id)));});
    if(mt.length&&!S.gear.some(g=>g.key&&/^vweap:/.test(g.key)||(g.note&&/mount/i.test(g.note)))) iss.push(['warn',`${[...new Set(mt.map(g=>GEARDB[g.key].n))].join(', ')}: the weapon mounts are empty: factory mounts come “weapon not included” (R2), and a mount added in a build-out holds no gun either. Buy a weapon that fits (Weapon Values Table, R2 p. 135) and note which mount it sits in.`]);}
   if(S.phys>10+natBody()) iss.unshift(['bad','This runner is dead: Physical damage went more than Body boxes past the track (p. 111). Keep the sheet for the record; a new runner starts fresh.']);
+  // cyberware and bioware are installed once; a quantity above 1 multiplies the Essence
+  {const many=S.gear.filter(g=>g.key&&/^(head|body|bio):/.test(g.key)&&(+g.qty||1)>1); if(many.length) iss.push(['bad',`${many.map(g=>GEARDB[g.key].n+' ×'+g.qty).join(', ')}: cyberware and bioware are installed once, so the quantity should be 1 (Essence and Body Index count every copy). For two of something, like a pair of cyberarms, use the build-out.`]);}
   // guns with nothing to shoot
   {const dry=feedGuns().filter(x=>carried(x.g)&&!amTypes(x.gid).length); if(dry.length) iss.push(['warn',`No ammunition for ${[...new Set(dry.map(x=>x.label))].join(', ')}. Guns come empty: buy ammo in Gear (Ammo and gun accessories, p. 256).`]);}
   if(karmaAvail()<0) iss.push(['bad',`Good Karma overspent by ${-karmaAvail()}: undo a purchase under Spend Good Karma or add the Karma earned.`]);
@@ -3479,7 +3482,7 @@ document.addEventListener('change',e=>{
   if(t.id==='optEF'){S.optEF=t.checked;render();return;}
   if(t.id==='fMagic'){S.magic=t.value;render();return;}
   if(t.id==='lifestyleOff'){S.lifestyleOff=t.checked;render();return;}
-  if(t.id==='established'){S.established=t.checked; if(t.checked){S.gear.forEach(g=>{if(BOND[g.key]&&!g.bondPaid) g.bondPaid='fp';}); S.powers.forEach(p=>{if(p.name!=null&&p.base==null&&!p.lid) p.base=+p.cost||0;});} render();return;}
+  if(t.id==='established'){S.established=t.checked; if(t.checked&&(S.nuyenNow===''||S.nuyenNow==null)&&STARTCASH>0){const d=new Date(); S.nuyenNow=STARTCASH; S.nyLog=S.nyLog||[]; S.nyLog.push({d:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),amt:STARTCASH,note:'Starting cash, from the Resources section'});} if(t.checked){S.gear.forEach(g=>{if(BOND[g.key]&&!g.bondPaid) g.bondPaid='fp';}); S.powers.forEach(p=>{if(p.name!=null&&p.base==null&&!p.lid) p.base=+p.cost||0;});} render();return;}
   if(t.id==='swSel'){SWSEL=t.value;renderDefaulting();return;}
   if(t.id==='swBase'){SWBASE=Math.max(2,Math.min(12,+t.value||4));renderDefaulting();return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='cat'){S.gear[+t.dataset.gr].cat=t.value;render();return;}

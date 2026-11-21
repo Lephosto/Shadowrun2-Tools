@@ -78,7 +78,7 @@ const SPIRITS={
 const GRP={on:'Carried',off:'Not on you: stashed or in a vehicle',base:'Basic attacks',spell:'Combat spells',spirit:'Spirits',drone:'Drones and vehicles',matrix:'Matrix (while jacked in)'};
 // ---------- Game night ----------
 function nightHTML(){
-  const T=sheetStats(), ar=T.ar, w=T.wmod.m, A=attacks(); if(!A.find(a=>a.id===B.wid)) B.wid=A[0].id; const W=A.find(a=>a.id===B.wid);
+  const T=sheetStats(), ar=T.ar, w=T.wmod.m, A=attacks(); if(!A.find(a=>a.id===B.wid)){const by=(B.widBy||{})[S.id]; B.wid=(by&&A.find(a=>a.id===by)?by:(A.find(a=>a.grp==='on'&&a.id!=='unarmed')||A.find(a=>a.id!=='unarmed')||A[0]).id);} const W=A.find(a=>a.id===B.wid);
   const bodyR=augAttr('body')+hasDerm(), isMag=isMagician(), poolName=W.kind==='spell'?'Magic Pool':'Combat Pool';
   if(B.poolMax!==T.cpool){B.poolMax=T.cpool; B.pool=T.cpool;} if(B.karma==null) B.karma=T.kpool;
   const mpMax=isMag?bestRating(/^sorcery/i)+powerFoci():0; if(B.mpool==null||B.mpMax!==mpMax){B.mpMax=mpMax;B.mpool=mpMax;}
@@ -286,8 +286,9 @@ function afterHTML(){const a=B.af, ny=S.nuyenNow===''||S.nuyenNow==null?0:+S.nuy
   const cons=consumables(); const left=([g])=>/^ammo:/.test(g.key)?(+g.qty||1)*10-(+g.used||0):(+g.qty||1);
   const diff=[['Good Karma available',ka,ka+a.gk],['Karma Pool',T.kpool,T.kpool+a.kp],['Nuyen on hand',fmt(ny)+'¥',fmt(ny+a.nin-a.nout)+'¥'],['Physical / Stun',S.phys+' / '+S.stun,ph+' / '+st],
     ...cons.filter(([g])=>a.use['c'+S.gear.indexOf(g)]).map(([g,i])=>[g.name||GEARDB[g.key].n,left([g,i]),left([g,i])-(a.use['c'+i]||0)])];
-  const neg=ny+a.nin-a.nout<0||cons.some(([g,i])=>left([g,i])-(a.use['c'+i]||0)<0);
-  const notes=[]; if(neg) notes.push(['bad','Something would go below zero. Check the numbers.']); if(a.gk) notes.push(['','After saving, spend the Karma under Spend Good Karma in Build.']);
+  const neg=ny+a.nin-a.nout<0, over=cons.some(([g,i])=>left([g,i])-(a.use['c'+i]||0)<0);
+  const notes=[]; if(neg) notes.push(['bad','Nuyen would go below zero. Check the numbers.']); if(over) notes.push(['bad','More used up than the sheet shows. Saving sets those to zero.']);
+  const sus=isMagician()?(S.sus||[]):[]; if(sus.length) diff.push(['Sustained spells',sus.map(x=>x.n).join(', '),a.keepSus?'kept':'dropped']); notes.push(['','After saving, spend any new Karma under Spend Good Karma in Build.']); // always shown, so the Save button doesn't move while someone is reaching for it
   notes.push(['','Practice or test sessions don’t belong here: this updates the real sheet.']);
   const sn=snaps();
   return `<div class="b2grid"><section class="b2pan b2wide2"><div class="b2h"><h3>What happened at the table</h3></div>
@@ -297,8 +298,9 @@ function afterHTML(){const a=B.af, ny=S.nuyenNow===''||S.nuyenNow==null?0:+S.nuy
    ${field('phys','Physical boxes still marked','carried to next session',ph,'box')}${field('stun','Stun boxes still marked','usually rested off',st,'box')}
    ${cons.length?`<h4>Used up</h4>`+cons.map(([g,i])=>field('u:c'+i,(g.name||GEARDB[g.key].n),(/^ammo:/.test(g.key)?'rounds':'items')+' left: '+left([g,i]),a.use['c'+i]||0,/^ammo:/.test(g.key)?'rd':'ea')).join(''):''}
    <p class="note">Ammo in guns and clips is counted in the ammo tracker; here count rounds that came out of the boxes.</p></section>
-  <section class="b2pan"><div class="b2h"><h3>What changes on the sheet</h3></div><div class="b2rows">${diff.map(([k,x,y],j)=>`<div class="b2r${j%2?' alt':''}"><span>${E(k)}</span><span class="mono">${E(x)} → <b>${E(y)}</b></span></div>`).join('')}</div>
-   ${notes.map(([c,t])=>`<p class="note ${c==='bad'?'b2bad':''}">${E(t)}</p>`).join('')}
+  <section class="b2pan"><div class="b2h"><h3>What changes on the sheet</h3></div><div id="b2afd"><div class="b2rows">${diff.map(([k,x,y],j)=>`<div class="b2r${j%2?' alt':''}"><span>${E(k)}</span><span class="mono">${E(x)} → <b>${E(y)}</b></span></div>`).join('')}</div>
+   ${notes.map(([c,t])=>`<p class="note ${c==='bad'?'b2bad':''}">${E(t)}</p>`).join('')}</div>
+   ${sus.length?`<label class="b2f b2chk"><input type="checkbox" data-b2c="af:keepSus" ${a.keepSus?'checked':''}> Keep sustaining ${E(sus.map(x=>x.n).join(', '))} into the next session</label>`:''}
    <button data-b2a="afsave" ${neg?'disabled':''}>Save a snapshot and update the sheet</button><p class="note" role="status">${E(a.saved)}</p>
    <h4>Snapshots</h4>${sn.length?sn.map((x,j)=>`<div class="b2r"><span>${E(x.t)}</span><button class="ghost" data-b2snap="${j}">Restore</button></div>`).join(''):'<p class="note">None yet. Each save keeps the sheet as it was, so a session can be undone.</p>'}</section></div>`;}
 function afSave(){const a=B.af; const sn=snaps(); const d=new Date(), ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -307,9 +309,10 @@ function afSave(){const a=B.af; const sn=snaps(); const d=new Date(), ds=d.getFu
   const ny=S.nuyenNow===''||S.nuyenNow==null?0:+S.nuyenNow; S.nyLog=S.nyLog||[];
   if(a.nin){S.nyLog.push({d:ds,amt:a.nin,note:a.note||'After the session'});} if(a.nout){S.nyLog.push({d:ds,amt:-a.nout,note:a.note||'After the session'});} if(a.nin||a.nout) S.nuyenNow=ny+a.nin-a.nout;
   if(a.phys!=null) S.phys=a.phys; if(a.stun!=null) S.stun=a.stun;
-  consumables().forEach(([g,i])=>{const u=a.use['c'+i]||0; if(!u) return; if(/^ammo:/.test(g.key)) g.used=(+g.used||0)+u; else {g.qty=(+g.qty||1)-u;}});
+  consumables().forEach(([g,i])=>{const u=a.use['c'+i]||0; if(!u) return; if(/^ammo:/.test(g.key)) g.used=Math.min((+g.qty||1)*10,(+g.used||0)+u); else {g.qty=Math.max(0,(+g.qty||1)-u);}});
+  if(!a.keepSus&&isMagician()) S.sus=[];
   S.gear=S.gear.filter(g=>!(GEARDB[g.key]&&(g.cat==='med'||g.cat==='boom')&&(+g.qty)<=0));
-  B.af={gk:0,kp:0,nin:0,nout:0,note:'',phys:null,stun:null,use:{},saved:'Saved. The sheet is updated and the old version is kept as a snapshot.'}; render();}
+  B.af={gk:0,kp:0,nin:0,nout:0,note:'',phys:null,stun:null,use:{},keepSus:false,saved:'Saved. The sheet is updated and the old version is kept as a snapshot.'}; render();}
 // ---------- Build: pinned budget strip and issues ----------
 function stripHTML(){const c=S._calc||{}; const iss=[...document.querySelectorAll('#issues li')].filter(li=>!li.classList.contains('ok')&&!li.classList.contains('info')); const bad=iss.filter(li=>li.classList.contains('bad')).length;
   const chip=(k,v,cls)=>`<span class="b2chip ${cls||''}"><small>${E(k)}</small><b>${E(v)}</b></span>`;
@@ -320,6 +323,7 @@ function shareGM(){const T=sheetStats(); const g={r:T.reaction,d:T.dice,cp:T.cpo
   if(o.r!==g.r||o.d!==g.d||o.cp!==g.cp||o.b!==g.b||String(o.a)!==String(g.a)){S._gm=g; save();}}
 // ---------- mount ----------
 function redraw(){const n=$('b2night'); if(n&&B.tab==='night'){const f=document.activeElement, id=f&&f.dataset?(f.dataset.b2||f.dataset.b2s+'|'+f.dataset.d||f.dataset.b2a):null; n.innerHTML=nightHTML(); if(id){const q=n.querySelector(`[data-b2="${id}"]`)||n.querySelector(`[data-b2a="${id}"]`); if(q) q.focus();}}}
+function afTotals(){const n=$('b2after'); if(!n||B.tab!=='after') return; const tmp=document.createElement('div'); tmp.innerHTML=afterHTML(); const a=n.querySelector('#b2afd'), b=tmp.querySelector('#b2afd'); if(a&&b) a.innerHTML=b.innerHTML; const s1=n.querySelector('[data-b2a="afsave"]'), s2=tmp.querySelector('[data-b2a="afsave"]'); if(s1&&s2) s1.disabled=s2.disabled; n.querySelectorAll('[data-b2n]').forEach(i=>{const j=tmp.querySelector(`[data-b2n="${i.dataset.b2n}"]`); if(j&&i!==document.activeElement) i.value=j.value;});}
 function redrawAfter(){const n=$('b2after'); if(n&&B.tab==='after') n.innerHTML=afterHTML();}
 function redrawStrip(){const s=$('b2strip'); if(s) s.innerHTML=stripHTML(); const d=$('b2drawer'); if(d){d.hidden=!B.drawer||B.tab!=='build'; if(B.drawer) d.innerHTML=`<div class="b2h"><h3>Checklist</h3><button class="ghost" data-b2a="drawer">Close</button></div><ul class="issues">${$('issues').innerHTML}</ul>`;}}
 function setTab(t){B.tab=t; keep(); document.body.classList.toggle('b2gn',t==='night'); document.body.classList.toggle('b2af',t==='after');
@@ -354,14 +358,20 @@ function mount(){
       else {const r=rollN(n), k=r.filter(x=>x>=tn).length; B.sk.res=`${nm}: ${r.join(' ')} → ${k} success${k===1?'':'es'} vs TN ${tn}${r.every(x=>x===1)?' (Rule of One)':''}`; B.copy=null;}
       return redraw();}
     if(t.dataset.b2snap!=null){const sn=snaps()[+t.dataset.b2snap]; if(sn&&confirm('Put the sheet back to “'+sn.t+'”? The current sheet becomes a snapshot first.')){const cur=JSON.stringify(S); const L=snaps(); L.unshift({t:'Before restoring '+sn.t,s:cur}); try{localStorage.setItem('sr2-b2-snaps-'+(S.id||'x'),JSON.stringify(L.slice(0,10)));}catch(e){} S=Object.assign(blank(),JSON.parse(sn.s)); render();}}});
+  // After the session inputs: handled here first, so the page-wide change handler doesn't re-render and swallow the next click
+  document.addEventListener('change',e=>{const t=e.target; if(!t||!t.closest||!t.closest('#b2after')) return; const n=t.dataset.b2n, c=t.dataset.b2c, tx=t.dataset.b2t; if(!n&&!c&&!tx) return; e.stopPropagation();
+    if(n){const f=n.slice(3), v=Math.max(0,Math.round(+t.value||0)); if(f.startsWith('u:')) B.af.use[f.slice(2)]=v; else B.af[f]=v; B.af.saved=''; keep(); return afTotals();}
+    if(c==='af:keepSus'){B.af.keepSus=t.checked; return afTotals();}
+    if(tx){B.af.note=t.value; return;}},true);
   document.addEventListener('change',e=>{const t=e.target; if(!t.closest||!t.closest('#b2night,#b2after')) return;
     const k=t.dataset.b2, c=t.dataset.b2c, n=t.dataset.b2n, tx=t.dataset.b2t;
-    if(k==='wid'){B.wid=t.value;B.mode='s1';B.rng=0;B.roll=null;B.spend=0;B.aim=0;B.force=0;B.mount=null;}
+    if(k==='wid'){B.wid=t.value; B.widBy=B.widBy||{}; B.widBy[S.id]=t.value;B.mode='s1';B.rng=0;B.roll=null;B.spend=0;B.aim=0;B.force=0;B.mount=null;}
     else if(k==='mode') B.mode=t.value; else if(k==='dmode'){B.dmode=t.value; B.spend=0;} else if(k==='mount') B.mount=t.value; else if(k==='urb') B.urb=t.value; else if(k==='los') B.los=t.value; else if(k==='spt') B.spt=t.value; else if(k==='susp') B.susp=t.value; else if(k==='rng') B.rng=+t.value; else if(k==='dmglv') B.dmgLv=t.value; else if(k==='amsel') B.amSel=t.value;
     else if(k&&k.startsWith('sit:')) B.sit[k.slice(4)]=t.value; else if(k&&k.startsWith('msit:')) B.msit[k.slice(5)]=t.value;
     else if(k==='gh:kind'){B.gh.kind=t.value;B.gh.roll=null;} else if(k==='gh:lvl'){B.gh.lvl=t.value;B.gh.roll=null;}
     else if(c==='gh:fl'){B.gh.fl=t.checked;B.gh.roll=null;}
-    else if(n){const f=n.slice(3), v=Math.max(0,Math.round(+t.value||0)); if(f.startsWith('u:')) B.af.use[f.slice(2)]=v; else B.af[f]=v; B.af.saved=''; return redrawAfter();}
+    else if(n){const f=n.slice(3), v=Math.max(0,Math.round(+t.value||0)); if(f.startsWith('u:')) B.af.use[f.slice(2)]=v; else B.af[f]=v; B.af.saved=''; return afTotals();}
+    else if(c==='af:keepSus'){B.af.keepSus=t.checked; return afTotals();}
     else if(tx){B.af.note=t.value; return;}
     else return;
     redraw();});

@@ -74,7 +74,7 @@ function catHTML(){const L=ALL().filter(matches).sort(sorts[G.sort]||sorts.name)
     <span class="note">${L.length} of ${ALL().length}</span></div>
    <div class="items">${L.map(b=>`<button class="it" data-sel="${b.id}" aria-pressed="${G.sel===b.id}"><span class="itn"><b>${E(b.n)}</b><small>${E(isCrit(b)?(b.cls==='normal'?'Animal':b.cls==='dragon'?'Dragon':'Paranormal critter'):b.role)} · Body ${b.a[0]} · Init ${b.ini[0]}+${b.ini[1]}D6</small></span><span class="tier t${tier(b)}">${TIER[tier(b)]}</span></button>`).join('')||'<p class="note pad">Nothing matches. Loosen a filter.</p>'}</div></section>
    <section class="panel detail" aria-label="Stat block">${sel?detailHTML(sel):`<div class="pad"><h2>Pick a baddie</h2><p class="note">Pick one on the left to see the stat block, choose a loadout and add copies to a group. Or make your own with the button below.</p><button data-act="newblock">New stat block</button>${newFormHTML()}</div>`}</section></div>`;}
-function detailHTML(b){const lk=loadoutKeys(b); const key=G.load[b.id]||(b.gear?'book':isCrit(b)&&b.atk!=='Humanoid'?'none':'medium'); const X=build(b,key,(G.load[b.id+':c']||[]));
+function detailHTML(b){const lk=loadoutKeys(b); const key=G.load[b.id]||(b.gear?'book':isCrit(b)?'none':'medium'); const X=build(b,key,(G.load[b.id+':c']||[]));
   const stat=(k,v)=>`<div class="st"><span class="lbl">${k}</span><b>${E(v)}</b></div>`;
   const a=b.a; const street=['gang','street'].includes(b.role); const LD=street?STREET_LOADOUTS:LOADOUTS;
   return `<div class="pad"><div class="dh"><div><h2>${E(b.n)}</h2><span class="note">${E(b.src==='csh'?'Corporate Security Handbook':b.src==='core'?'Core rulebook':'Your stat block')} · ${E(b.pg||'')}${b.pro&&!isCrit(b)?' · Professional Rating '+E(b.pro):''}</span></div><span class="tier t${tier(b)}">${TIER[tier(b)]}</span></div>
@@ -114,7 +114,7 @@ function groupsHTML(){return `<div class="enc"><section class="panel pad"><div c
   <section class="panel pad"><div class="dh"><h2>Runners</h2><button class="ghost sm" data-act="import">From the Runner Builder</button></div>
    <p class="note">Add the players’ runners by hand, or pull characters saved in the online Runner Builder on this device. Players can roll their own Initiative and call it out.</p>
    <div class="row"><label class="sr" for="rnName">Runner name</label><input id="rnName" placeholder="Runner name"><label class="sr" for="rnIni">Initiative</label><input id="rnIni" type="number" placeholder="Init" inputmode="numeric" style="width:6rem"><button data-act="addrunner">Add</button></div>
-   ${T.imp?`<div class="imp">${T.imp.length?T.imp.map((c,i)=>`<div class="mrow"><span>${E(c.n)} <small>${c.r!=null?'Reaction '+c.r+' + '+c.d+'D6':'open it once in the new Builder to share stats'}</small></span><button class="ghost sm" data-imp="${i}">Add</button></div>`).join(''):'<p class="note">No saved characters found on this device. The Builder must be open from the same site.</p>'}</div>`:''}
+   ${T.imp?`<div class="imp">${T.imp.length?(T.imp.filter(c=>!G.runners.some(r=>r.from===c.id)).length>1?`<div class="row"><button class="ghost sm" data-act="impall">Add all</button></div>`:'')+T.imp.map((c,i)=>{const on=G.runners.some(r=>r.from===c.id); return `<div class="mrow"><span>${E(c.n)} <small>${c.r!=null?'Reaction '+c.r+' + '+c.d+'D6':'open it once in the new Builder to share stats'}</small></span>${on?'<span class="note">Added</span>':`<button class="ghost sm" data-imp="${i}">Add</button>`}</div>`;}).join(''):'<p class="note">No saved characters found on this device. The Builder must be open from the same site.</p>'}</div>`:''}
    ${G.runners.map((r,i)=>`<div class="mrow"><span><b>${E(r.n)}</b> <small>${r.r!=null?'Reaction '+r.r+' + '+r.d+'D6':''}</small></span><span class="note">Init</span><button class="ghost sq" data-ri="${i}|-1" aria-label="Lower ${E(r.n)} Initiative">−</button><b class="mono">${r.ini||'—'}</b><button class="ghost sq" data-ri="${i}|1" aria-label="Raise ${E(r.n)} Initiative">+</button>${r.r!=null?`<button class="ghost xs" data-rroll="${i}">Roll</button>`:''}<button class="ghost xs" data-rdel="${i}" aria-label="Remove ${E(r.n)}">×</button></div>`).join('')}</section></div>`;}
 // ---------- the table ----------
 function copies(){const out=[]; G.groups.filter(g=>g.on).forEach(g=>g.m.forEach((x,mi)=>{const b=B(x.b); if(!b) return; for(let i=1;i<=x.n;i++) out.push({id:g.id+'-'+mi+'-'+i,b,g,lo:x.lo,cl:x.cl,name:b.n+' '+i+(g.m.filter(y=>y.b===x.b).length>1?' ('+(loadoutKeys(b).find(k=>k[0]===x.lo)||['',''])[1]+')':'')});})); return out;}
@@ -135,7 +135,7 @@ function tableHTML(){const C=copies(); const order=C.map(c=>{const raw=G.ini[c.i
    <p class="note">Highest goes first; each extra pass is 10 lower (core p. 78). Wounds come off Initiative and are added to every target number (core p. 112).</p>
    ${C.length||G.runners.length?`<div class="order">${order.map(o=>o.c?(()=>{const c=o.c,[st,cls]=status(c),pl=poolLeft(c); return `<div class="orow ${G.tsel===c.id?'sel':''}"><b class="ini">${o.v==null?'—':o.v}</b><span class="on"><b>${E(c.name)}</b><small>${E(c.g.name)} · ${c.b.ini[0]}+${c.b.ini[1]}D6${o.v?' · acts on '+passes(o.v):''}${isCrit(c.b)?(G.threat[c.b.id]?' · Threat '+G.threat[c.b.id]:''):' · Combat Pool '+pl+'/'+c.b.pool}</small></span>
       <span class="trk"><span class="lbl">P</span>${Array.from({length:10},(_,i)=>box(c,'p',i+1)).join('')}</span><span class="trk"><span class="lbl">S</span>${Array.from({length:10},(_,i)=>box(c,'s',i+1)).join('')}</span>
-      <span class="stt ${cls}">${E(st)}</span><button class="ghost sm" data-tsel="${c.id}" aria-pressed="${G.tsel===c.id}">${G.tsel===c.id?'Selected':'Act or resist'}</button></div>`;})():`<div class="orow runner"><b class="ini">${o.v||'—'}</b><span class="on"><b>${E(o.r.n)}</b><small>runner</small></span></div>`).join('')}</div>`:'<p class="note">No one in the fight yet. Tick a group under Encounter and add the runners.</p>'}
+      <span class="stt ${cls}">${E(st)}</span><button class="ghost sm" data-tsel="${c.id}" aria-pressed="${G.tsel===c.id}">${G.tsel===c.id?'Selected':'Act or resist'}</button></div>`;})():`<div class="orow runner"><b class="ini">${o.v||'—'}</b><span class="on"><b>${E(o.r.n)}</b><small>runner${o.r.r!=null?' · '+o.r.r+'+'+o.r.d+'D6':''}${o.v?' · acts on '+passes(o.v):''}</small></span><span class="rini"><button class="ghost sq" data-ri="${o.i}|-1" aria-label="Lower ${E(o.r.n)} Initiative">−</button><button class="ghost sq" data-ri="${o.i}|1" aria-label="Raise ${E(o.r.n)} Initiative">+</button>${o.r.r!=null?`<button class="ghost xs" data-rroll="${o.i}">Roll</button>`:''}</span></div>`).join('')}</div>`:'<p class="note">No one in the fight yet. Tick a group under Encounter and add the runners.</p>'}
    </section>${sel?actHTML(sel):''}${T.copy?`<div class="panel pad copy"><label for="r20" class="lbl">${E(T.copy.msg)}</label><input id="r20" readonly value="${E(T.copy.text)}"></div>`:''}`;}
 function actHTML(c){const b=c.b, X=build(b,c.lo,c.cl), w=wm(c.id), th=G.threat[b.id]||0, pl=poolLeft(c); const atk=G.mode==='atk';
   const step=(id,l,v)=>`<div class="fl"><span class="lbl">${l}</span><div class="row"><button class="ghost sq" data-st="${id}|-1" aria-label="Lower ${E(l)}">−</button><b class="mono big">${E(v)}</b><button class="ghost sq" data-st="${id}|1" aria-label="Raise ${E(l)}">+</button></div></div>`;
@@ -188,12 +188,12 @@ document.addEventListener('click',e=>{const t=e.target.closest('button'); if(!t)
   if(d.rmitem!=null){const k=G.sel+':c'; (G.load[k]=G.load[k]||[]).splice(+d.rmitem,1); return render();}
   if(d.thr){G.threat[G.sel]=Math.max(0,(G.threat[G.sel]||0)+(+d.thr)); return render();}
   if(d.gon){const g=G.groups.find(x=>x.id===d.gon); if(g) g.on=!g.on; return render();}
-  if(d.gdel){if(G.groups.length>1) G.groups=G.groups.filter(x=>x.id!==d.gdel); return render();}
+  if(d.gdel){if(G.groups.length>1) G.groups=G.groups.filter(x=>x.id!==d.gdel); else {G.groups[0].m=[]; T.msg='Emptied '+G.groups[0].name+'.';} return render();}
   if(d.mn){const [gid,i,dl]=d.mn.split('|'); const g=G.groups.find(x=>x.id===gid); const m=g.m[+i]; m.n+=(+dl); if(m.n<=0) g.m.splice(+i,1); return render();}
   if(d.ri){const [i,dl]=d.ri.split('|'); const r=G.runners[+i]; r.ini=Math.max(0,(r.ini||0)+(+dl)); return render();}
   if(d.rroll){const r=G.runners[+d.rroll]; r.ini=r.r+rollN(r.d).reduce((a,x)=>a+x,0); return render();}
   if(d.rdel){G.runners.splice(+d.rdel,1); return render();}
-  if(d.imp){const c=T.imp[+d.imp]; G.runners.push({n:c.n,r:c.r,d:c.d,ini:0,from:c.id}); return render();}
+  if(d.imp){const c=T.imp[+d.imp]; if(!G.runners.some(r=>r.from===c.id)) G.runners.push({n:c.n,r:c.r,d:c.d,ini:0,from:c.id}); return render();}
   if(d.bx){const [cid,k,i]=d.bx.split('|'); const cur=D(cid); const v=+i; G.dmg[cid]={...cur,[k]:cur[k]===v?v-1:v}; return render();}
   if(d.tsel){G.tsel=d.tsel; T.roll=null; T.spend=0; T.atk=0; T.rng=0; return render();}
   if(d.mode){G.mode=d.mode; T.roll=null; T.spend=0; return render();}
@@ -203,8 +203,8 @@ document.addEventListener('click',e=>{const t=e.target.closest('button'); if(!t)
   else if(a==='clearf'){G.f={kind:'all',roles:[],tier:[],src:[],flags:[]};}
   else if(a==='add'){const b=B(G.sel); let gid=$('addTo').value; const n=Math.max(1,Math.min(30,+$('addN').value||1)); T.addN=n;
     if(gid==='new'){gid='g'+Date.now().toString(36); G.groups.push({id:gid,name:'Group '+(G.groups.length+1),on:true,m:[]});}
-    const g=G.groups.find(x=>x.id===gid); const lo=G.load[b.id]||(b.gear?'book':isCrit(b)&&b.atk!=='Humanoid'?'none':'medium'); const cl=lo==='custom'?(G.load[b.id+':c']||[]).slice():null;
-    const ex=g.m.find(x=>x.b===b.id&&x.lo===lo&&JSON.stringify(x.cl||null)===JSON.stringify(cl)); if(ex) ex.n+=n; else g.m.push({b:b.id,n,lo,cl}); T.addTo=gid; T.msg=`Added ${n} × ${b.n} to ${g.name}.`;}
+    const g=G.groups.find(x=>x.id===gid); const lo=G.load[b.id]||(b.gear?'book':isCrit(b)?'none':'medium'); const cl=lo==='custom'?(G.load[b.id+':c']||[]).slice():null;
+    const ex=g.m.find(x=>x.b===b.id&&x.lo===lo&&JSON.stringify(x.cl||null)===JSON.stringify(cl)); if(ex) ex.n+=n; else g.m.push({b:b.id,n,lo,cl}); T.addTo=gid; T.addN=1; T.msg=`Added ${n} × ${b.n} to ${g.name}.`;}
   else if(a==='newgroup'){G.groups.push({id:'g'+Date.now().toString(36),name:'Group '+(G.groups.length+1),on:true,m:[]});}
   else if(a==='newblock'){T.nfOpen=true;}
   else if(a==='saveblock'){const N=T.nf; if(!N.n.trim()){T.msg='Give it a name first.'; return render();} const skm={}; String(N.sk).split(',').forEach(x=>{const m=x.trim().match(/^(.*?)\s+(\d+)$/); if(m) skm[m[1]]=+m[2];});
@@ -213,6 +213,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('button'); if(!t)
     G.sel=id; T.nf=null; T.nfOpen=false;}
   else if(a==='delblock'){G.custom=G.custom.filter(x=>x.id!==G.sel); G.groups.forEach(g=>g.m=g.m.filter(x=>x.b!==G.sel)); G.sel=null;}
   else if(a==='import'){T.imp=importList();}
+  else if(a==='impall'){(T.imp||[]).forEach(c=>{if(!G.runners.some(r=>r.from===c.id)) G.runners.push({n:c.n,r:c.r,d:c.d,ini:0,from:c.id});});}
   else if(a==='addrunner'){const n=$('rnName').value.trim(); if(!n) return $('rnName').focus(); G.runners.push({n,ini:+$('rnIni').value||0,r:null,d:null});}
   else if(a==='rollini'){C.forEach(x=>{G.ini[x.id]=x.b.ini[0]+rollN(x.b.ini[1]).reduce((s,y)=>s+y,0);});}
   else if(a==='copyini'){copyOut(`&{template:default} {{name=${G.enc}: enemy Initiative}} `+C.map(x=>`{{${x.name}=[[${x.b.ini[0]}+${x.b.ini[1]}d6${wm(x.id)?'-'+wm(x.id):''}]]}}`).join(' '),'Initiative');}

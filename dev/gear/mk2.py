@@ -409,6 +409,9 @@ rep("el.textContent=st.kit.length?`Shopping list: ${st.kit.length} · ${fmt(c)}�
 rep("total:st.kit.reduce((a,k)=>a+kitPrice(k),0)},v2?", "total:st.kit.reduce((a,k)=>a+kitPrice(k),0)},fxStreet(),v2?")
 rep('<p><b>Builder on the same website</b>', '${p.street?`<p><b>Fixer total: ${fmt(p.street.total)}¥</b> (list ${fmt(p.street.list)}¥${p.street.fee?`, including a ${fmt(p.street.fee)}¥ fee`:\'\'}). If you tick “Pay for it” in the Runner Builder, it takes the fixer total.</p>`:\'\'}<p><b>Builder on the same website</b>')
 rep("function all(){renderBooks();", "function all(){fxPanel();renderBooks();")
+# crew run fixes: the list's nuyen check uses the fixer total; plain items stack in the Builder
+rep("const W=wishLines(OWNC,c,e,bt);", "const W=wishLines(OWNC,FXS.on?fxKitTotal():c,e,bt);")
+rep("already has ${esc([...new Set(d)].join(', '))}. Adding it again gives them a second one.", "already has ${esc([...new Set(d)].join(', '))}. Ammo, grenades and other plain items add to the count they have; anything with a build-out comes in as a second one.")
 open('gear/template2.html','w').write(s)
 d=open('gear_data.json').read()
 page=s.replace('/*DATA*/null',d.replace('</','<\\/'),1)
