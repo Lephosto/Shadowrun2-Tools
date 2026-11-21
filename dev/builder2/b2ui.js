@@ -37,6 +37,48 @@ function ctGuess(c){const t=((c.role||'')+' '+(c.name||'')).toLowerCase(); const
 function ctStats(c){if(!c) return null; if(c.cb==='own') return {n:'their own numbers',et:[['Etiquette',Math.max(0,+c.ce||0)]],cha:Math.max(0,+c.cc||0),int:Math.max(0,+c.ci||0),own:true};
   const id=c.cb==null?ctGuess(c):c.cb; const b=CTBOOK.find(x=>x[0]===id); return b?{n:b[1]+' (core '+b[2]+')',et:b[5],cha:b[3],int:b[4],id:b[0],guess:c.cb==null}:null;}
 function ctEtq(st,c){if(!st) return null; if(!st.et.length||!st.et.some(x=>x[1]>0)) return {l:'no Etiquette: defaults to Charisma',r:st.cha,def:true}; const i=Math.min(st.et.length-1,Math.max(0,+c.cei||0)); const pick=c.cei!=null?st.et[i]:st.et.reduce((m,x)=>x[1]>m[1]?x:m,st.et[0]); return {l:pick[0],r:pick[1]};}
+// ---------- Slotted chips (core p. 248; swapping one is a Simple Action, p. 82) ----------
+// A slotted skillsoft replaces the runner's own rating for that skill, and ActiveSofts bring no Dice Pools.
+function chipLines(){return S.gear.map((g,i)=>[g,i]).filter(([g])=>g&&g.key&&GEARDB[g.key]&&GEARDB[g.key].soft&&GEARDB[g.key].soft!=='DataSoft');}
+function chipInfo(g){return softOf(g,GEARDB[g.key].n);}
+function chipSkill(g){return softLabel(chipInfo(g));} // what a roll is called: the specialization, else the concentration, else the skill
+function chipKind(g){return softSpec(GEARDB[g.key].n).k;}
+function chipRig(){const lv=k=>(typeof gearLevel==='function'?gearLevel(k):0)||0; const sw=Math.max(lv('body:Skillwires'),lv('body:Skillwire Plus'));
+  const jacks=S.gear.filter(g=>g.key==='head:Chipjack').reduce((a,g)=>a+(+g.qty||1),0)+(sw?1:0);
+  const mem=S.gear.filter(g=>/^head:Headware Memory/.test(g.key)).reduce((a,g)=>a+(+g.r||0)*(+g.qty||1),0);
+  const dsl=S.gear.some(g=>g.key==='head:Datasoft Link'); return {sw,jacks,mem,dsl};}
+function chipMp(g){const it=GEARDB[g.key]; return it.mp?+it.mp(+g.r||1)||0:0;}
+function chipsOn(){return chipLines().filter(([g])=>g.slot);}
+// why a chip can't be slotted next to the ones already in (or '' if it can)
+function chipBlock(g,on){const R=chipRig(), it=GEARDB[g.key], v=chipInfo(g), k=chipKind(g), act=it.soft==='ActiveSoft';
+  if(!v.sk&&k==='gen'||it.soft==='LinguaSoft'&&!v.sk) return 'pick the skill on the chip first'; if(k==='conc'&&!v.cc) return 'pick the concentration on the chip first'; if(k==='spec'&&!v.cs) return 'pick the specialization on the chip first';
+  if(act&&/^(sorcery|conjuring)/i.test(v.sk)) return 'magic skills can’t be ActiveSofts (core p. 248)';
+  if(act&&!R.sw) return 'ActiveSofts need skillwires (core p. 248)';
+  const others=on.filter(([x])=>x!==g);
+  if(act){const sum=others.filter(([x])=>GEARDB[x.key].soft==='ActiveSoft').reduce((a,[x])=>a+(+x.r||0),0)+(+g.r||0); if(sum>R.sw) return `ActiveSofts in use would total ${sum}, over Skillwires ${R.sw} (core p. 249)`;}
+  if(g.mem){const used=others.filter(([x])=>x.mem).reduce((a,[x])=>a+chipMp(x),0)+chipMp(g); if(used>R.mem) return `needs ${chipMp(g)} Mp of headware memory; ${Math.max(0,R.mem-used+chipMp(g))} Mp free`; if(!act&&!R.dsl) return 'a KnowSoft in headware memory needs a datasoft link (core p. 248)';}
+  else{const used=others.filter(([x])=>!x.mem).length+1; if(used>R.jacks) return R.jacks?`only ${R.jacks} chipjack${R.jacks>1?'s':''} (skillwires include one)`:'no chipjack';}
+  return '';}
+const chipEq=(a,b)=>String(a||'').trim().toLowerCase()===String(b||'').trim().toLowerCase();
+// the slotted chip that covers this use of a skill: general chip for the skill, or a concentration/specialization chip by its label
+function chipFor(skill,conc,spec){const on=chipsOn(); let best=null; on.forEach(([g])=>{const k=chipKind(g), v=chipInfo(g); const hit=k==='gen'?!!skill&&chipEq(v.sk,skill):k==='conc'?!!conc&&chipEq(v.cc,conc)&&(!skill||!v.sk||chipEq(v.sk,skill)):!!spec&&chipEq(v.cs,spec); if(hit&&(!best||+g.r>+best.r)) best=g;}); return best;}
+function skillDiceNow(skill,conc,spec){const c=chipFor(skill,conc,spec); if(!c) return Object.assign(skillDiceFor(skill,conc,spec),{chip:false}); return {dice:+c.r||0,how:chipSkill(c)+' chip',ia:0,chip:GEARDB[c.key].soft};}
+function skillPartsNow(sk){const parts=skillParts(sk), gen=chipFor(sk.name); return parts.map(p=>{const c=p.part==='gen'?gen:(p.part==='conc'?chipFor(sk.name,p.label,null):(chipFor(sk.name,sk.conc,p.label)||chipFor(sk.name,sk.conc,null)))||gen; return c?Object.assign({},p,{r:+c.r||0,chip:true}):p;});}
+function partsNamed(name){const sk=S.skills.find(x=>x.name===name); if(sk) return skillPartsNow(sk); const c=chipFor(name); return c?[{part:'gen',label:name,r:+c.r||0,chip:true}]:[];}
+function bestNow(re){const cs=chipsOn().filter(([g])=>chipKind(g)==='gen'&&re.test(chipInfo(g).sk)); return cs.length?Math.max(...cs.map(([g])=>+g.r||0)):bestRating(re);}
+function chipNoPool(re){return chipsOn().some(([g])=>GEARDB[g.key].soft==='ActiveSoft'&&re.test(chipInfo(g).sk||chipSkill(g)));}
+// general-skill chips for the Skill Web (it only ever uses general ratings, core p. 68); swHave() reads this
+function chipHaveMap(){const m={}; chipsOn().forEach(([g])=>{const v=chipInfo(g); if(chipKind(g)==='gen'&&v.sk&&GEARDB[g.key].soft==='ActiveSoft'){const w=typeof swWebName==='function'?swWebName(v.sk):v.sk; m[w]=Math.max(m[w]||0,+g.r||0);}}); return m;}
+function chipsHTML(){const L=chipLines(); if(!L.length) return ''; const R=chipRig(), on=chipsOn(); const actSum=on.filter(([g])=>GEARDB[g.key].soft==='ActiveSoft').reduce((a,[g])=>a+(+g.r||0),0), memUsed=on.filter(([g])=>g.mem).reduce((a,[g])=>a+chipMp(g),0), jUsed=on.filter(([g])=>!g.mem).length;
+  return `<section class="b2pan b2chips"><div class="b2h"><h3>Slotted chips</h3><span class="note">Skillwires ${R.sw||'none'}${R.sw?` · ActiveSofts ${actSum}/${R.sw}`:''} · chipjacks ${jUsed}/${R.jacks}${R.mem?` · memory ${memUsed}/${R.mem} Mp`:''}</span></div>
+   <div class="b2chipl">${L.map(([g,i])=>{const it=GEARDB[g.key], why=g.slot?'':chipBlock(g,on); return `<div class="b2sc${g.slot?' on':''}"><label class="b2chk"><input type="checkbox" data-b2chip="${i}" ${g.slot?'checked':''} ${!g.slot&&why?'disabled':''}> <b>${E(it.n.replace(/ \(general skill\)/,''))} ${+g.r||1}</b>${chipSkill(g)?`<span class="note">${E(softText(chipInfo(g),it.n))}</span>`:''}</label>
+     <div class="sfps">${softPickHTML(it.n,Object.assign(chipInfo(g),g.oth?{oth:true}:{}),i,{disabled:!!g.slot,langs:(S.langs||[]).map(L=>L.name).filter(Boolean)})}</div>
+     <label class="b2f"><span class="b2k">Runs from</span><select data-b2chipm="${i}" ${g.slot?'disabled':''}><option value="" ${!g.mem?'selected':''}>A chipjack</option><option value="1" ${g.mem?'selected':''}>Headware memory (${chipMp(g)} Mp)</option></select></label>
+     ${why?`<span class="note">${E(why.charAt(0).toUpperCase()+why.slice(1))}.</span>`:''}</div>`;}).join('')}</div>
+   <p class="note">While a chip is slotted, rolls for its skill use the chip’s rating only; your own rating, adept Improved Ability included, is set aside. ActiveSofts bring no Dice Pools: no Combat Pool on attacks with that skill, no Hacking Pool with a Computer chip, no Control Pool with a vehicle chip (core p. 248). Slotting or pulling a chip is a Simple Action (core p. 82). KnowSofts and LinguaSofts need only a chipjack, or headware memory plus a datasoft link.</p></section>`;}
+// Initiative: physical, or one of the Matrix modes (core p. 178; VR2 decks use their own boosts)
+function iniModes(T){const mx=T&&T.mx; if(!mx||typeof mxIniModes!=='function') return []; if(!(mx.hasDeck||mx.vr2||bestRating(/^computer/i)>0)) return []; return mxIniModes(mx);}
+function iniNow(T){const m=iniModes(T).find(x=>x.id===B.inim); return m?{r:m.r,d:m.d,m}:{r:T.reaction,d:T.dice,m:null};}
 const d6p=()=>1+Math.floor(Math.random()*6); // plain die: Initiative dice add up, no Rule of Six (core p. 32, 78)
 // spell duration: the book's own code when the list has it (Grimoire, Awakenings), else by category (core p. 150-158)
 function spellDur(n){const sp=spellFind(n); if(!sp) return null; if(sp.dur) return sp.dur; const c=sp.cat;
@@ -53,17 +95,17 @@ function visName(){return ['','','normal vision','natural low-light','natural th
 function attacks(){
   const T=sheetStats(), str=augAttr('str'), out=[]; const troll=baseRace()==='Troll'?1:0;
   // unarmed is always there (core p. 98-101)
-  {const sk=S.skills.find(x=>x.name==='Unarmed Combat'); const parts=sk?skillParts(sk):[]; const best=parts.reduce((m,p)=>p.r>m.r?p:m,{r:0,label:''});
-   const ia=adeptOn()?S.powers.filter(p=>p.type==='improvedAbility'&&p.skill==='Unarmed Combat').reduce((a,p)=>a+(+p.n||0),0):0;
+  {const parts=partsNamed('Unarmed Combat'); const best=parts.reduce((m,p)=>p.r>m.r?p:m,{r:0,label:''}), uChip=parts.some(p=>p.chip);
+   const ia=uChip?0:adeptOn()?S.powers.filter(p=>p.type==='improvedAbility'&&p.skill==='Unarmed Combat').reduce((a,p)=>a+(+p.n||0),0):0;
    const kh=adeptOn()?S.powers.find(p=>p.type==='killing'):null;
-   out.push({id:'unarmed',grp:'base',kind:'melee',n:'Unarmed'+(best.label&&best.label!=='Unarmed Combat'?' ('+best.label+')':''),dice:best.r?best.r+ia:null,skill:best.r||0,diceSrc:best.r?(best.label||'Unarmed Combat')+' '+best.r+(ia?' + Improved Ability '+ia:''):'no skill: defaulting (core p. 66–68)',
+   out.push({id:'unarmed',grp:'base',kind:'melee',n:'Unarmed'+(best.label&&best.label!=='Unarmed Combat'?' ('+best.label+')':''),dice:best.r?best.r+ia:null,skill:uChip&&chipNoPool(/^unarmed/i)?0:(best.r||0),diceSrc:best.r?(best.label||'Unarmed Combat')+(uChip?' chip':'')+' '+best.r+(ia?' + Improved Ability '+ia:'')+(uChip&&chipNoPool(/^unarmed/i)?' (ActiveSoft: no Combat Pool, core p. 248)':''):'no skill: defaulting (core p. 66–68)',
      dmg:kh?str+(kh.level||'M'):str+'M Stun',note:kh?`Killing Hands: Physical, or ${str}M Stun if you choose (core p. 126)`:'(Strength)M Stun (core p. 101)',reach:troll});}
   S.gear.forEach((g,i)=>{const it=GEARDB[g.key]; if(!it) return; if(g.at&&isVehPlace(g.at)&&(WSTAT[g.key]||g.cat==='vweap')) return; const where=carried(g)?'on':'off'; // guns stowed on a vehicle show under Drones and vehicles
-    if(MSTAT[g.key]){const [cc,reach,dmg,conc,msk]=MSTAT[g.key]; const sd=skillDiceFor(msk||'Armed Combat',conc,it.n);
-      out.push({id:'g'+i,g,grp:where,kind:'melee',n:it.n,dice:sd.dice==null?null:sd.dice+(sd.ia||0),skill:sd.dice||0,diceSrc:sd.dice==null?'no skill: defaulting (core p. 66–68)':sd.how+' '+sd.dice,dmg:strDmg(dmg,str),reach:reach+troll,note:(msk||'Armed Combat')+' · '+(it.pg||'')});}
-    else if(WSTAT[g.key]){const [rt,cc,ammo,mode,dmg]=WSTAT[g.key]; const [sk,conc]=RT_SKILL[rt]||['Firearms','']; const sd=skillDiceFor(sk,conc,it.n); const gc=(typeof gunCalc==='function')?gunCalc(g):null;
+    if(MSTAT[g.key]){const [cc,reach,dmg,conc,msk]=MSTAT[g.key]; const sd=skillDiceNow(msk||'Armed Combat',conc,it.n);
+      out.push({id:'g'+i,g,grp:where,kind:'melee',n:it.n,dice:sd.dice==null?null:sd.dice+(sd.ia||0),skill:sd.chip==='ActiveSoft'?0:(sd.dice||0),diceSrc:sd.dice==null?'no skill: defaulting (core p. 66–68)':sd.how+' '+sd.dice+(sd.chip==='ActiveSoft'?' (ActiveSoft: no Combat Pool, core p. 248)':''),dmg:strDmg(dmg,str),reach:reach+troll,note:(msk||'Armed Combat')+' · '+(it.pg||'')});}
+    else if(WSTAT[g.key]){const [rt,cc,ammo,mode,dmg]=WSTAT[g.key]; const [sk,conc]=RT_SKILL[rt]||['Firearms','']; const sd=skillDiceNow(sk,conc,it.n); const gc=(typeof gunCalc==='function')?gunCalc(g):null;
       const fs=feedSpec(g.key); const fg=fs?feedGuns().find(x=>x.g===g):null;
-      out.push({id:'g'+i,g,grp:where,kind:'gun',rt,n:it.n+((+g.qty||1)>1?' ×'+g.qty:''),dice:sd.dice==null?null:sd.dice+(sd.ia||0),skill:sd.dice||0,diceSrc:sd.dice==null?'no skill: defaulting (core p. 66–68)':sd.how+' '+sd.dice,
+      out.push({id:'g'+i,g,grp:where,kind:'gun',rt,n:it.n+((+g.qty||1)>1?' ×'+g.qty:''),dice:sd.dice==null?null:sd.dice+(sd.ia||0),skill:sd.chip==='ActiveSoft'?0:(sd.dice||0),diceSrc:sd.dice==null?'no skill: defaulting (core p. 66–68)':sd.how+' '+sd.dice+(sd.chip==='ActiveSoft'?' (ActiveSoft: no Combat Pool, core p. 248)':''),
         dmg:(gc&&gc.C.dmg)||strDmg(dmg,str),mode:String(mode||''),bands:RANGES[rt]||['','','',''],aim:gc?gc.C.aim:0,aimTxt:gc?(gc.C.aimTxt||[]).filter(x=>!/pick the shooter/.test(x)).join(', '):'',rc:gc?(gc.C.rc||0):0,gid:fg?fg.gid:null,cap:fs?fs.cap:null,note:sk+' · '+(it.pg||'')});}});
   if(isMagician()){const mp=bestRating(/^sorcery/i)+powerFoci();
     S.powers.forEach((p,i)=>{const sp=spellFind(p.name); if(!sp||sp.cat!=='Combat') return;
@@ -75,17 +117,17 @@ function attacks(){
     out.push({id:'s'+i,grp:'spirit',kind:'spirit',n:ST.n+', Force '+F+((+x.sv||0)?' · '+x.sv+' service'+(x.sv>1?'s':''):''),dice:ST.dice?ST.dice(F):null,diceSrc:ST.dice?ST.dsrc(F):'powers: the GM sets the dice',dmg:ST.dmg?ST.dmg(F):'by power',ranged:!!ST.ranged,reach:ST.reach||0,f:F,note:ST.note(F)});});
   // drones and vehicles (R2 p. 58): a weapon stowed "at" a vehicle in Stash counts as mounted on it
   S.gear.forEach((v,vi)=>{if(!isVehG(v)||!GEARDB[v.key]) return; const vn=GEARDB[v.key].n, R=typeof R2OBJ!=='undefined'?R2OBJ[v.key]:null, rr=R?R.r:{};
-    const sen=parseInt(rr.Se,10)||0, pil=parseInt(rr.P,10)||0, mods=((v.vb&&v.vb.mods)||[]).map(m=>m.id).join(','), gun=bestRating(/^gunnery/i);
+    const sen=parseInt(rr.Se,10)||0, pil=parseInt(rr.P,10)||0, mods=((v.vb&&v.vb.mods)||[]).map(m=>m.id).join(','), gun=bestNow(/^gunnery/i), gunChip=chipNoPool(/^gunnery/i);
     S.gear.forEach((g,i)=>{if(g.at!==vn||!GEARDB[g.key]) return; const it=GEARDB[g.key]; let dmg=null,mode='';
       if(WSTAT[g.key]){dmg=strDmg(String(WSTAT[g.key][4]),0); mode=String(WSTAT[g.key][3]||'');}
       else if(g.cat==='vweap'){const m=/(\d+[LMSD])/.exec(it.s||''); if(m) dmg=m[1]; const mm=/\b(SS|SA|BF|FA)(\/(SS|SA|BF|FA))*\b/.exec(it.s||''); mode=mm?mm[0]:'SS';}
       if(!dmg) return;
-      out.push({id:'v'+vi+'_'+i,grp:'drone',kind:'drone',n:vn+': '+it.n,veh:vn,dmg,mode,sen,pil,gun,skill:gun,hasR2:!!R,mount:/ring/.test(mods)?'ring':/pintle/.test(mods)?'pintle':'fixed',note:(it.pg||'')+' · stowed on the '+vn+' in Stash'});});});
+      out.push({id:'v'+vi+'_'+i,grp:'drone',kind:'drone',n:vn+': '+it.n,veh:vn,dmg,mode,sen,pil,gun,gunChip,skill:gun,hasR2:!!R,mount:/ring/.test(mods)?'ring':/pintle/.test(mods)?'pintle':'fixed',note:(it.pg||'')+' · stowed on the '+vn+' in Stash'});});});
   // Matrix: Attack programs on the deck (core p. 175, 179)
   {const mx=typeof matrixInfo==='function'?matrixInfo():null; if(mx&&(mx.hasDeck||mx.vr2)) S.gear.forEach((g,i)=>{if(!GEARDB[g.key]) return; const r=+g.r||1;
-    if(/^prog:/.test(g.key)&&!/^prog:(Attack|Persona)/.test(g.key)) return out.push({id:'u'+i,grp:'matrix',kind:'util',n:GEARDB[g.key].n+' '+r+(g.loaded?'':' (not loaded)'),rating:r,gi:i,loaded:!!g.loaded,hp:mx.pool||0,skill:r,dmg:'—',note:'Utility test: rating + Hacking Pool (up to the rating) against the node\u2019s System Rating; the node rolls its System Rating against your Evasion; you need more successes than the node plus its Security Code (core p. 174).'});
+    if(/^prog:/.test(g.key)&&!/^prog:(Attack|Persona)/.test(g.key)) return out.push({id:'u'+i,grp:'matrix',kind:'util',n:GEARDB[g.key].n+' '+r+(g.loaded?'':' (not loaded)'),rating:r,gi:i,loaded:!!g.loaded,hp:chipNoPool(/^computer/i)?0:(mx.pool||0),skill:r,dmg:'—',note:'Utility test: rating + Hacking Pool (up to the rating) against the node\u2019s System Rating; the node rolls its System Rating against your Evasion; you need more successes than the node plus its Security Code (core p. 174).'});
     if(!/^prog2?:Attack/.test(g.key||'')) return; const v2=/^prog2:/.test(g.key);
-    out.push({id:'m'+i,grp:'matrix',kind:'matrix',n:GEARDB[g.key].n+' '+r+(g.loaded||v2?'':' (not loaded)'),rating:r,v2,gi:i,loaded:!!g.loaded||v2,hp:mx.pool||0,skill:r,dmg:v2?'VR2: '+((/-([LMSD])$/.exec(GEARDB[g.key].n)||[])[1]||'?')+' damage, VR2 rules':'1 box per extra success',
+    out.push({id:'m'+i,grp:'matrix',kind:'matrix',n:GEARDB[g.key].n+' '+r+(g.loaded||v2?'':' (not loaded)'),rating:r,v2,gi:i,loaded:!!g.loaded||v2,hp:chipNoPool(/^computer/i)?0:(mx.pool||0),skill:r,dmg:v2?'VR2: '+((/-([LMSD])$/.exec(GEARDB[g.key].n)||[])[1]||'?')+' damage, VR2 rules':'1 box per extra success',
       note:v2?'Virtual Realities 2.0 has its own Matrix combat rules (VR2 p. 98 on): the GM sets dice and target number here.':'Only while jacked in. A target resists; extra successes over theirs (and the node’s Security Code) are boxes; 10 crash it (core p. 179).'});});}
   return out;
 }
@@ -101,7 +143,7 @@ const GRP={on:'Carried',off:'Not on you: stashed or in a vehicle',base:'Basic at
 function nightHTML(){
   const T=sheetStats(), ar=T.ar, w=T.wmod.m, A=attacks(); if(!A.find(a=>a.id===B.wid)){const by=(B.widBy||{})[S.id]; B.wid=(by&&A.find(a=>a.id===by)?by:(A.find(a=>a.grp==='on'&&a.id!=='unarmed')||A.find(a=>a.id!=='unarmed')||A[0]).id);} const W=A.find(a=>a.id===B.wid);
   const bodyR=augAttr('body')+hasDerm(), isMag=isMagician(), poolName=W.kind==='spell'?'Magic Pool':'Combat Pool';
-  if(B._for!==S.id){B._for=S.id; B.pool=T.cpool; B.poolMax=T.cpool; B.karma=T.kpool; B.mpool=null; B.hpool=null; B.hpMax=null; B.roll=null; B.gh.roll=null; B.ini=null; B.conjRes=''; B.spNote='';} // each runner has their own pools
+  if(B._for!==S.id){B._for=S.id; B.inim=''; B.pool=T.cpool; B.poolMax=T.cpool; B.karma=T.kpool; B.mpool=null; B.hpool=null; B.hpMax=null; B.roll=null; B.gh.roll=null; B.ini=null; B.conjRes=''; B.spNote='';} // each runner has their own pools
   if(B.poolMax!==T.cpool){B.poolMax=T.cpool; B.pool=T.cpool;} if(B.karma==null) B.karma=T.kpool;
   const mpMax=isMag?bestRating(/^sorcery/i)+powerFoci():0; if(B.mpool==null||B.mpMax!==mpMax){B.mpMax=mpMax;B.mpool=mpMax;}
   const big=[['Body',String(augAttr('body')),hasDerm()?'+1 dermal: '+bodyR+' to resist':bodyR+' dice to resist'],['Armor',ar.b+' / '+ar.i,'Ballistic / Impact worn'],['Reaction',String(T.reaction),''],['Initiative',`${T.reaction-w} + ${T.dice}D6`,w?'wounds −'+w:''],
@@ -195,7 +237,7 @@ function nightHTML(){
   else if(W.kind==='matrix'||W.kind==='util'){if(B.hpool==null||B.hpMax!==W.hp){B.hpMax=W.hp;B.hpool=W.hp;} maxSp=W.v2?0:Math.min(B.hpool,W.rating); const sp=Math.min(B.spend,maxSp); dice=(W.v2?(B.dfd||4):W.rating)+sp; dSrc=(W.v2?'GM-set (VR2 rules)':(W.kind==='util'?'program rating ':'Attack rating ')+W.rating)+(sp?' + '+sp+' Hacking Pool':'');}
   else if(W.kind==='cast'){maxSp=B.mpool; const sp=Math.min(B.spend,maxSp); dice=spellF+sp; dSrc='Force '+spellF+(sp?' + '+sp+' Magic Pool':'');}
   else if(W.kind==='spirit'){maxSp=0; dice=W.dice==null?(B.dfd||4):W.dice; dSrc=W.diceSrc;}
-  else if(W.kind==='drone'){const auto=B.dmode==='auto', h=B.dtgt==='p'?0:Math.floor(W.sen/2); maxSp=auto?0:Math.min(B.pool,W.gun||0); const sp=Math.min(B.spend,maxSp); dice=(auto?W.pil:W.gun)+h+sp; dSrc=(auto?'Pilot '+W.pil:'Gunnery '+W.gun)+(B.dtgt==='p'?'':' + half Sensor ('+h+')')+(sp?' + '+sp+' Combat Pool':'');}
+  else if(W.kind==='drone'){const auto=B.dmode==='auto', h=B.dtgt==='p'?0:Math.floor(W.sen/2); maxSp=auto||W.gunChip?0:Math.min(B.pool,W.gun||0); const sp=Math.min(B.spend,maxSp); dice=(auto?W.pil:W.gun)+h+sp; dSrc=(auto?'Pilot '+W.pil:'Gunnery '+(W.gunChip?'chip ':'')+W.gun+(W.gunChip?' (ActiveSoft: no Combat Pool, core p. 248)':''))+(B.dtgt==='p'?'':' + half Sensor ('+h+')')+(sp?' + '+sp+' Combat Pool':'');}
   else {maxSp=aimLock?0:Math.min(B.pool,W.skill||0); const sp=Math.min(B.spend,maxSp); dice=(W.dice==null?(B.dfd||4):W.dice)+sp; dSrc=(W.dice==null?'defaulting, GM-set':W.diceSrc)+(sp?' + '+sp+' Combat Pool':'');}
   const spend=Math.min(B.spend,maxSp);
   if((W.kind==='matrix'||W.kind==='util')&&!W.v2) ctl+=step('spend','Hacking Pool ('+B.hpool+' left, up to the rating '+W.rating+')',spend);
@@ -217,7 +259,7 @@ function nightHTML(){
   const hard=dkI?(+dkI.h||0):0;
   const gPow=G.kind==='gel'?G.pow-2:G.pow, gTn=mxHit?G.pow:blackHit?Math.max(2,G.pow-hard):(spellHit?G.pow:Math.max(2,gPow-armV))+susPen();
   let gLv=G.lvl; if(G.kind==='flech'&&G.fl&&derm) gLv=L4[Math.max(0,L4.indexOf(G.lvl)-1)];
-  const mpcp=dkI?(+dkI.mpcp||0):0; if(mxHit&&(B.hpool==null)){const mx=typeof matrixInfo==='function'?matrixInfo():null; B.hpMax=mx?mx.pool:0; B.hpool=B.hpMax;}
+  const mpcp=dkI?(+dkI.mpcp||0):0; if(mxHit&&(B.hpool==null)){const mx=typeof matrixInfo==='function'?matrixInfo():null; B.hpMax=mx&&!chipNoPool(/^computer/i)?mx.pool:0; B.hpool=B.hpMax;}
   const gBase=mxHit?mpcp:(G.kind==='mana'||(blackHit&&G.stun))?attrNow('wil'):blackHit?natBody():bodyR, gSp=mxHit?Math.min(G.spend,B.hpool||0):spellHit?(isMag?Math.min(G.spend,B.mpool):0):blackHit?0:Math.min(G.spend,B.pool);
   const gPoolName=mxHit?'Hacking Pool':spellHit?'Magic Pool (spell defense)':'Combat Pool';
   let gRes=''; if(G.roll){const R=G.roll,k=R.r.filter(x=>x>=R.tn).length+(R.kx||0),pk=R.r.slice(R.r.length-R.pool).filter(x=>x>=R.tn).length; R.boxes=null; R.final=null;
@@ -230,7 +272,8 @@ function nightHTML(){
   B._gh={gTn,gBase,gSp,gLv,armV,gPow,spellHit};
   const ghRolled=G.roll?G.roll.r.map((v,j)=>`<span class="b2die${v>=G.roll.tn?' hit':''}${j>=G.roll.r.length-G.roll.pool?' pool':''}">${v}</span>`).join(''):'';
   // skills
-  const skl=[]; S.skills.filter(x=>x.name).forEach(x=>skillParts(x).forEach(p=>{if(p.r) skl.push([p.label,p.r]);}));
+  const skl=[]; S.skills.filter(x=>x.name).forEach(x=>skillPartsNow(x).forEach(p=>{if(p.r) skl.push([p.label,p.r,p.chip]);}));
+  chipsOn().forEach(([g])=>{const n=chipSkill(g); if(n&&!skl.some(x=>chipEq(x[0],n))) skl.push([n,+g.r||0,true]);});
   Object.entries(advSkills()).forEach(([n,r])=>skl.push([n,r]));
   const ia=adeptOn()?S.powers.filter(p=>p.type==='improvedAbility'):[];
   // powers and spells
@@ -240,9 +283,10 @@ function nightHTML(){
   const copyBox=B.copy?`<div class="b2copy"><label for="b2r20" class="b2k">${E(B.copy.msg)}</label><input id="b2r20" readonly value="${E(B.copy.text)}"></div>`:'';
   return `${gmHitsHTML()}<div class="b2big">${big.map(tile).join('')}</div>
   <div class="b2grid">
-   <section class="b2pan"><div class="b2h"><h3>Initiative</h3><span class="mono">${T.reaction} + ${T.dice}D6${w?' − '+w:''}</span></div>
+   <section class="b2pan"><div class="b2h"><h3>Initiative</h3><span class="mono">${iniNow(T).r} + ${iniNow(T).d}D6${w?' − '+w:''}</span></div>
+     ${iniModes(T).length?`<label class="b2f b2inim"><span class="b2k">Where</span><select data-b2="inim"><option value="" ${!B.inim?'selected':''}>Physical world: ${T.reaction} + ${T.dice}D6</option>${iniModes(T).map(m=>`<option value="${m.id}" ${B.inim===m.id?'selected':''}>Matrix, ${E(m.l.charAt(0).toLowerCase()+m.l.slice(1))}: ${m.r} + ${m.d}D6</option>`).join('')}</select></label>`:''}
      <div class="b2ini"><b>${B.ini==null?'—':Math.max(0,B.ini-w)}</b><span>${B.ini==null?'Roll to see your passes':'Acts on '+(()=>{const o=[];for(let x=Math.max(0,B.ini-w);x>0;x-=10)o.push(x);return o.join(', ')||'—';})()}</span></div>
-     <div class="b2row"><button data-b2a="ini">Roll Initiative</button><button class="ghost" data-b2a="cini">Copy for Roll20</button></div><p class="note">Each pass is 10 lower; wounds come off the total (core p. 78).</p></section>
+     <div class="b2row"><button data-b2a="ini">Roll Initiative</button><button class="ghost" data-b2a="cini">Copy for Roll20</button></div><p class="note">Each pass is 10 lower; wounds come off the total (core p. 78).${iniNow(T).m?` In the Matrix, wired reflexes, magic and a VCR add nothing (core p. 178)${iniNow(T).m.id==='kb'?'; keyboard only halves Reaction, rounded down here, and keeps the response-increase dice':''}. Talking with the physical world by voice or screen costs 1D6 of Matrix Initiative under VR2 (p. 120).`:''}</p></section>
    <section class="b2pan"><div class="b2h"><h3>Condition</h3><span class="${w||S.phys>10?'b2warn':'b2ok'}">${E(cond)}</span></div>
      <span class="b2k">Physical</span><div class="b2boxes">${boxes('phys',10)}<span class="b2ovl">overflow</span>${boxes('phys',B10,true)}</div>
      <span class="b2k">Stun</span><div class="b2boxes">${boxes('stun',10)}</div>
@@ -264,8 +308,9 @@ function nightHTML(){
      <div class="b2nums"><div><span class="b2k">Dice</span><b>${gBase+gSp}</b><small>${mxHit?'MPCP '+gBase:G.kind==='mana'||(blackHit&&G.stun)?'Willpower '+gBase:blackHit?'natural Body '+gBase:'Body '+bodyR+(hasDerm()?' with dermal armor':'')}${gSp?' + '+gSp+' '+gPoolName:''}</small></div><div><span class="b2k">If successes tie</span><b>${gLv}${G.kind==='gel'?' Stun':''}</b><small>${G.kind==='flech'&&G.fl&&derm?'dermal armor cancels flechette’s extra level (core p. 93)':G.kind==='gel'?'gel: Power −2, Stun (core p. 95)':G.kind==='apds'?'core p. 277':'core p. 91'}</small></div></div>
      <div class="b2row"><button data-b2a="ghroll">Roll ${gBase+gSp} dice</button><button class="ghost" data-b2a="ghcopy">Copy for Roll20</button><button class="ghost" data-b2a="ghmark" ${G.roll&&(G.roll.final||G.roll.boxes)?'':'disabled'}>Mark it on the monitor</button></div>
      <div class="b2dice" aria-live="polite">${ghRolled}</div><b>${E(gRes||'Pool dice have an outline: if they alone beat the attacker, it’s a complete miss.')}</b>${G.roll&&G.att?karmaHTML(G.roll,'ghk'):''}</section>
+   ${chipsHTML()}
    <section class="b2pan"><div class="b2h"><h3>Skill checks</h3>${step('sk:tn','Target number',B.sk.tn)}</div>
-     <div class="b2skills">${skl.map(([n,r])=>{const x=ia.filter(p=>n===p.skill||n.startsWith(p.skill)).reduce((a,p)=>a+(+p.n||0),0); return `<div class="b2r"><span>${E(n)}</span><b>${r}${x?'+'+x:''}</b><span class="b2row"><button class="ghost" data-b2k="${E(n)}" data-d="${r+x}">Roll</button><button class="ghost" data-b2k="${E(n)}" data-d="${r+x}" data-copy="1" aria-label="Copy ${E(n)} for Roll20">Roll20</button></span></div>`;}).join('')||'<p class="note">No skills.</p>'}</div>
+     <div class="b2skills">${skl.map(([n,r,ch])=>{const x=ch?0:ia.filter(p=>n===p.skill||n.startsWith(p.skill)).reduce((a,p)=>a+(+p.n||0),0); return `<div class="b2r${ch?' b2chipped':''}"><span>${E(n)}${ch?' <span class="b2tag">chip</span>':''}</span><b>${r}${x?'+'+x:''}</b><span class="b2row"><button class="ghost" data-b2k="${E(n)}" data-d="${r+x}">Roll</button><button class="ghost" data-b2k="${E(n)}" data-d="${r+x}" data-copy="1" aria-label="Copy ${E(n)} for Roll20">Roll20</button></span></div>`;}).join('')||'<p class="note">No skills.</p>'}</div>
      ${(()=>{if(typeof SKILLWEB==='undefined'||typeof swOptions!=='function') return ''; const have=swHave(); const L=SKILLWEB.SKILLS.filter(n=>!have[n]); if(!L.length) return ''; const tgt=L.includes(B.dft)?B.dft:L[0]; const o=swOptions(tgt,B.sk.tn)[0];
        return `<div class="b2ctl b2dft"><label class="b2f"><span class="b2k">Default on a skill you don’t have</span><select data-b2="dft">${L.map(n=>`<option value="${E(n)}" ${n===tgt?'selected':''}>${E(swLabel(n))}</option>`).join('')}</select></label>${o?`<div class="b2f"><span class="b2k">Best route (Skill Web, core p. 66–69)</span><span>${E(o.from)}${o.kind==='attr'?' (attribute)':''}: ${o.dice} dice, TN +${o.tn}</span></div><div class="b2f"><span class="b2k">&nbsp;</span><button class="ghost" data-b2a="dfroll">Roll it</button></div>`:'<p class="note">No route: the GM decides.</p>'}</div>`;})()}
      ${(()=>{const L=(S.contacts||[]).filter(c=>c&&c.name); if(!L.length) return ''; const C=L[Math.min(L.length-1,+B.ctc||0)], st=ctStats(C), et=ctEtq(st,C), cur=C.cb==null?(st?st.id:''):C.cb;
@@ -293,16 +338,16 @@ function spiritsHTML(){const L=S.spirits||[], herm=S.magic==='hermetic'; const t
 const VSKILLS=/^(Car|Bike|Hovercraft|Motorboat|Rotor Craft|Sailboat|Vectored Thrust|Winged Plane|Ship|Walker|LTA|Submarine)/i;
 function vehHTML(){const V=S.gear.filter(g=>isVehG(g)&&GEARDB[g.key]); if(!V.length) return '';
   const vi=Math.min(B.vveh||0,V.length-1), v=V[vi], R=typeof R2OBJ!=='undefined'?R2OBJ[v.key]:null, rr=R?R.r:{}; const hand=parseInt(String(rr.H||'').split('/')[0],10)||4, cruise=parseInt(String(rr.Sp||'').split('/')[0],10)||0;
-  const sk=[]; S.skills.filter(x=>x.name&&VSKILLS.test(x.name)).forEach(x=>skillParts(x).forEach(p=>{if(p.r) sk.push([p.label,p.r]);})); const ski=Math.min(B.vsk||0,Math.max(0,sk.length-1)); const skill=sk[ski]||['no vehicle skill: defaulting (GM)',0];
+  const sk=[]; S.skills.filter(x=>x.name&&VSKILLS.test(x.name)).forEach(x=>skillPartsNow(x).forEach(p=>{if(p.r) sk.push([p.label,p.r,p.chip]);})); chipsOn().forEach(([g])=>{const n=chipSkill(g), v=chipInfo(g); if(n&&(VSKILLS.test(v.sk)||VSKILLS.test(n))&&!sk.some(x=>chipEq(x[0],n))) sk.push([n,+g.r||0,true]);}); const ski=Math.min(B.vsk||0,Math.max(0,sk.length-1)); const skill=sk[ski]||['no vehicle skill: defaulting (GM)',0];
   const vcr=gearLevel('body:Vehicle Control Rig'), cp=vcr?Math.floor((attrNow('quick')+attrNow('int'))/2)+2*vcr:0; if(B.cpool==null||B.cpMax!==cp){B.cpMax=cp;B.cpool=cp;}
   const kind=B.vtest||'pos', ter=B.vter||'n'; const POS={o:0,n:1,r:2,t:4}, CR={o:-1,n:0,t:2,r:4}; const tm=(kind==='pos'?POS:CR)[ter];
-  const tn=Math.max(2,hand+tm+woundMods().m+susPen()); const sp=Math.min(B.vsp||0,B.cpool), dice=skill[1]+sp;
+  const tn=Math.max(2,hand+tm+woundMods().m+susPen()); const vChip=!!skill[2]&&chipNoPool(VSKILLS), sp=vChip?0:Math.min(B.vsp||0,B.cpool), dice=skill[1]+sp;
   const sel=(id,lab,opts,val)=>`<label class="b2f"><span class="b2k">${E(lab)}</span><select data-b2="${id}">${opts.map(([o,t])=>`<option value="${E(o)}" ${String(o)===String(val)?'selected':''}>${E(t)}</option>`).join('')}</select></label>`;
   const step=(id,lab,val)=>`<div class="b2f"><span class="b2k">${E(lab)}</span><div class="b2step"><button class="ghost" data-b2s="${id}" data-d="-1" aria-label="Lower ${E(lab)}">−</button><b>${E(val)}</b><button class="ghost" data-b2s="${id}" data-d="1" aria-label="Raise ${E(lab)}">+</button></div></div>`;
   return `<section class="b2pan"><div class="b2h"><h3>Vehicle tests</h3><span class="note">chases and crashes, core p. 106–107</span></div>
    <div class="b2ctl">${sel('vveh','Vehicle',V.map((g,j)=>[j,GEARDB[g.key].n]),vi)}${sel('vsk','Skill',sk.length?sk.map((x,j)=>[j,x[0]+' '+x[1]]):[[0,'none']],ski)}
    ${sel('vtest','Test',[['pos','Position Test (each turn of a chase)'],['crash','Crash Test (Serious damage, no driver action, a ram)']],kind)}
-   ${sel('vter','Terrain',[['o','Open'],['n','Normal'],['r','Restricted'],['t','Tight']],ter)}${cp?step('vsp','Control Pool ('+B.cpool+' left)',sp):''}</div>
+   ${sel('vter','Terrain',[['o','Open'],['n','Normal'],['r','Restricted'],['t','Tight']],ter)}${cp&&!vChip?step('vsp','Control Pool ('+B.cpool+' left)',sp):cp?'<span class="note">Vehicle ActiveSoft: no Control Pool (core p. 248)</span>':''}</div>
    <div class="b2rows"><div class="b2r"><span>Handling</span><b>${hand}</b></div><div class="b2r alt"><span>Terrain</span><b>${SIGN(tm)}</b></div>${woundMods().m?`<div class="b2r"><span>Wounds</span><b class="b2warn">+${woundMods().m}</b></div>`:''}<div class="b2r tot"><span>Target number</span><b>${tn}</b></div></div>
    <div class="b2row"><button data-b2a="vroll">Roll ${dice} dice</button><button class="ghost" data-b2a="vref">New turn: refresh Control Pool</button></div>
    <p class="note" aria-live="polite">${E(B.vRes||(kind==='pos'?`Each success moves you ${cruise||'cruising speed'} m and every 2 give each passenger an attack; keep the count for the Escape Test (core p. 106–107).`:`Fail and you crash: Power ${Math.floor(cruise/10)} (cruising speed ÷ 10), damage by speed (core p. 107).`))}</p></section>`;}
@@ -321,8 +366,8 @@ function copyOut(text,msg){let ok=false; try{if(navigator.clipboard){navigator.c
   B.copy={text,msg:ok?msg+': copied. Paste it into the Roll20 chat.':msg+': select this and copy it.'};}
 function who(){return S.handle||S.name||'Runner';}
 function act(a){const C=B._cur, W=C&&C.W; B.warn='';
-  if(a==='ini'){const T=sheetStats(); B.ini=T.reaction+Array.from({length:T.dice},d6p).reduce((x,y)=>x+y,0);}
-  else if(a==='cini'){const T=sheetStats(); copyOut(`&{template:default} {{name=${who()}: Initiative}} {{Initiative=[[${T.reaction-T.wmod.m}+${T.dice}d6]]}}`,'Initiative');}
+  if(a==='ini'){const T=sheetStats(), I=iniNow(T); B.ini=I.r+Array.from({length:I.d},d6p).reduce((x,y)=>x+y,0);}
+  else if(a==='cini'){const T=sheetStats(), I=iniNow(T); copyOut(`&{template:default} {{name=${who()}: ${I.m?'Matrix ':''}Initiative}} {{Initiative=[[${I.r-T.wmod.m}+${I.d}d6]]}}`,'Initiative');}
   else if(a==='roll'||a==='copy'){
     if(W.kind==='gun'&&W.gid){const at=(S.ammoT||{})[W.gid]; if(at){if(at.in.n<C.rounds){B.warn='Not enough rounds loaded: load or change the clip first.'; return redraw();} ammoAct(W.gid,'fire',C.rounds);}}
     if(W.kind==='gun'||W.kind==='drone') B.fired+=C.rounds;
@@ -337,12 +382,12 @@ function act(a){const C=B._cur, W=C&&C.W; B.warn='';
     if(W.kind==='gun'&&W.gid){render(); return;}}
   else if(a==='karma'||a==='ghk'){const R=a==='karma'?B.roll:B.gh.roll; if(R){const c=(R.kc||0)+1; if(B.karma>=c){B.karma-=c; R.kc=c;}}}
   else if(a==='vroll'||a==='vref'){if(a==='vref'){B.cpool=B.cpMax; B.vRes=''; return redraw();} const V=S.gear.filter(g=>isVehG(g)&&GEARDB[g.key]); const v=V[Math.min(B.vveh||0,V.length-1)]; if(!v) return; const R=typeof R2OBJ!=='undefined'?R2OBJ[v.key]:null, rr=R?R.r:{}; const hand=parseInt(String(rr.H||'').split('/')[0],10)||4, cruise=parseInt(String(rr.Sp||'').split('/')[0],10)||0;
-    const sk=[]; S.skills.filter(x=>x.name&&VSKILLS.test(x.name)).forEach(x=>skillParts(x).forEach(p=>{if(p.r) sk.push([p.label,p.r]);})); const skill=sk[Math.min(B.vsk||0,Math.max(0,sk.length-1))]||['',0];
-    const kind=B.vtest||'pos', ter=B.vter||'n', tm=(kind==='pos'?{o:0,n:1,r:2,t:4}:{o:-1,n:0,t:2,r:4})[ter], tn=Math.max(2,hand+tm+woundMods().m+susPen()); const sp=Math.min(B.vsp||0,B.cpool||0); B.cpool=(B.cpool||0)-sp; B.vsp=0;
+    const sk=[]; S.skills.filter(x=>x.name&&VSKILLS.test(x.name)).forEach(x=>skillPartsNow(x).forEach(p=>{if(p.r) sk.push([p.label,p.r,p.chip]);})); chipsOn().forEach(([g])=>{const n=chipSkill(g), v=chipInfo(g); if(n&&(VSKILLS.test(v.sk)||VSKILLS.test(n))&&!sk.some(x=>chipEq(x[0],n))) sk.push([n,+g.r||0,true]);}); const skill=sk[Math.min(B.vsk||0,Math.max(0,sk.length-1))]||['',0];
+    const kind=B.vtest||'pos', ter=B.vter||'n', tm=(kind==='pos'?{o:0,n:1,r:2,t:4}:{o:-1,n:0,t:2,r:4})[ter], tn=Math.max(2,hand+tm+woundMods().m+susPen()); const sp=skill[2]&&chipNoPool(VSKILLS)?0:Math.min(B.vsp||0,B.cpool||0); B.cpool=(B.cpool||0)-sp; B.vsp=0;
     const r=rollN(skill[1]+sp), k=r.filter(x=>x>=tn).length; const imp=cruise>200?'D':cruise>60?'S':cruise>20?'M':'L';
     B.vRes=kind==='pos'?`${r.join(' ')} → ${k} success${k===1?'':'es'} vs TN ${tn}: ${k*cruise} m, ${Math.floor(k/2)} attack${Math.floor(k/2)===1?'':'s'} per passenger. Note ${k} for the Escape Test.`:`${r.join(' ')} → ${k} success${k===1?'':'es'} vs TN ${tn}: `+(k?'no crash.':`crash: ${Math.floor(cruise/10)}${imp} to the vehicle (Body + half armor resists; passengers take what gets through, Impact armor only, core p. 107).`);}
   else if(a==='dfroll'){const have=swHave(); const L=SKILLWEB.SKILLS.filter(n=>!have[n]); const tgt=L.includes(B.dft)?B.dft:L[0]; const o=tgt?swOptions(tgt,B.sk.tn)[0]:null; if(o){const tn=B.sk.tn+o.tn+woundMods().m+susPen(), r=rollN(o.dice), k=r.filter(x=>x>=tn).length; B.sk.res=`${swLabel(tgt)} by defaulting to ${o.from}: ${r.join(' ')} → ${k} success${k===1?'':'es'} vs TN ${tn} (base ${B.sk.tn} + ${o.tn} for the route${woundMods().m?' + wounds':''}${susPen()?' + sustaining':''}).`;}}
-  else if(a==='ctroll'){const C=(S.contacts||[]).filter(c=>c&&c.name)[+B.ctc||0]; const e=S.skills.find(x=>x.name==='Etiquette'); const parts=e?skillParts(e):[]; const best=parts.reduce((m,p)=>p.r>m.r?p:m,{r:0,label:'Etiquette'}); let dice=best.r, how=best.label+' '+best.r; if(!dice){const o=typeof swOptions==='function'?swOptions('Etiquette',B.sk.tn)[0]:null; if(o){dice=o.dice; how='defaulting to '+o.from;} else {dice=attrNow('cha'); how='Charisma';}}
+  else if(a==='ctroll'){const C=(S.contacts||[]).filter(c=>c&&c.name)[+B.ctc||0]; const parts=partsNamed('Etiquette'); const best=parts.reduce((m,p)=>p.r>m.r?p:m,{r:0,label:'Etiquette'}); let dice=best.r, how=best.label+(best.chip?' chip':'')+' '+best.r; if(!dice){const o=typeof swOptions==='function'?swOptions('Etiquette',B.sk.tn)[0]:null; if(o){dice=o.dice; how='defaulting to '+o.from;} else {dice=attrNow('cha'); how='Charisma';}}
     const tn=B.sk.tn+woundMods().m+susPen(), r=rollN(dice), k=r.filter(x=>x>=tn).length; const st=ctStats(C), et=ctEtq(st,C||{}); B.sk.res=`Asking ${C?C.name:'a contact'} (${how}): ${r.join(' ')} → ${k} success${k===1?'':'es'} vs TN ${tn}.${k&&st&&et&&et.r?` Baseline fee: ${et.r} × ${k} × (${st.cha} + ${st.int}) × 10 = ${(et.r*k*(st.cha+st.int)*10).toLocaleString()}¥, before Negotiation (core p. 202).`:''} The GM decides what they know and what it costs.`;}
   else if(a==='ctchk'){const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)], st=ctStats(C), et=ctEtq(st,C||{}); if(!st) return; const tn=B.sk.tn+2+(et.def?4:0), r=rollN(et.r), k=r.filter(x=>x>=tn).length, h=d6p()+d6p();
     B.sk.res=`${C.name} checks around (${et.l} ${et.r}): ${r.join(' ')||'no dice'} → ${k} success${k===1?'':'es'} vs TN ${tn} (your TN ${B.sk.tn} + 2${et.def?' + 4 for defaulting':''}). ${k?`They get word back in ${h} hours (2D6), or when the GM says.`:'Nothing turns up this time.'} The cost is worked out as if they’d known it already (core p. 202).`;}
@@ -508,7 +553,7 @@ function mount(){
     if(k==='wid'){B.wid=t.value; B.widBy=B.widBy||{}; B.widBy[S.id]=t.value;B.mode='s1';B.rng=0;B.roll=null;B.spend=0;B.aim=0;B.force=0;B.mount=null;}
     else if(k==='mode') B.mode=t.value; else if(k==='dmode'){B.dmode=t.value; B.spend=0;} else if(k==='mount') B.mount=t.value; else if(k==='urb') B.urb=t.value; else if(k==='los') B.los=t.value; else if(k==='spt') B.spt=t.value; else if(k==='susp') B.susp=t.value; else if(k==='rng') B.rng=+t.value; else if(k==='dmglv') B.dmgLv=t.value; else if(k==='amsel') B.amSel=t.value;
     else if(k&&k.startsWith('sit:')) B.sit[k.slice(4)]=t.value; else if(k&&k.startsWith('msit:')) B.msit[k.slice(5)]=t.value;
-    else if(k==='gh:kind'){B.gh.kind=t.value;B.gh.roll=null;} else if(k==='gh:lvl'){B.gh.lvl=t.value;B.gh.roll=null;} else if(k==='gh:dt'){B.gh.stun=t.value==='s';B.gh.roll=null;} else if(k==='dtgt'){B.dtgt=t.value;B.rng=0;} else if(k==='dft'){B.dft=t.value;} else if(k==='ctc'){B.ctc=+t.value;} else if(k==='ctb'||k==='cte'){const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)]; if(C){if(k==='ctb') {C.cb=t.value; delete C.cei;} else C.cei=+t.value; if(typeof save==='function') save();}} else if(k==='vveh'){B.vveh=+t.value;B.vRes='';} else if(k==='vsk'){B.vsk=+t.value;} else if(k==='vtest'){B.vtest=t.value;B.vRes='';} else if(k==='vter'){B.vter=t.value;}
+    else if(k==='gh:kind'){B.gh.kind=t.value;B.gh.roll=null;} else if(k==='gh:lvl'){B.gh.lvl=t.value;B.gh.roll=null;} else if(k==='gh:dt'){B.gh.stun=t.value==='s';B.gh.roll=null;} else if(k==='dtgt'){B.dtgt=t.value;B.rng=0;} else if(k==='dft'){B.dft=t.value;} else if(k==='ctc'){B.ctc=+t.value;} else if(k==='inim'){B.inim=t.value; B.ini=null;} else if(k==='ctb'||k==='cte'){const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)]; if(C){if(k==='ctb') {C.cb=t.value; delete C.cei;} else C.cei=+t.value; if(typeof save==='function') save();}} else if(k==='vveh'){B.vveh=+t.value;B.vRes='';} else if(k==='vsk'){B.vsk=+t.value;} else if(k==='vtest'){B.vtest=t.value;B.vRes='';} else if(k==='vter'){B.vter=t.value;}
     else if(c==='gh:fl'){B.gh.fl=t.checked;B.gh.roll=null;}
     else if(n){const f=n.slice(3), v=Math.max(0,Math.round(+t.value||0)); if(f.startsWith('u:')) B.af.use[f.slice(2)]=v; else B.af[f]=v; B.af.saved=''; return afTotals();}
     else if(c==='af:keepSus'){B.af.keepSus=t.checked; return afTotals();}
@@ -516,11 +561,14 @@ function mount(){
     else return;
     redraw();});
   document.addEventListener('input',e=>{const t=e.target; if(t&&t.dataset&&t.dataset.b2in==='suson') B.suson=t.value;});
+  document.addEventListener('change',e=>{const t=e.target; if(!t||!t.dataset) return; const d=t.dataset;
+    if(d.b2chip!=null){const g=S.gear[+d.b2chip]; if(!g) return; if(t.checked){const why=chipBlock(g,chipsOn()); if(why){t.checked=false; return;} g.slot=true;} else delete g.slot; B.hpool=null; B.hpMax=null; render(); return;}
+    if(d.b2chipm!=null){const g=S.gear[+d.b2chipm]; if(!g) return; if(t.value) g.mem=true; else delete g.mem; render(); return;}});
   document.addEventListener('change',e=>{const t=e.target; if(!t||!t.dataset||!t.dataset.b2ct) return; const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)]; if(!C) return; C[t.dataset.b2ct]=Math.max(0,Math.min(12,Math.floor(+t.value||0))); if(typeof save==='function') save(); redraw();});
   const _render=render; render=function(){_render.apply(this,arguments); try{shareGM();}catch(e){} try{if(typeof xferCheck==='function') xferCheck();}catch(e){} try{redraw(); redrawAfter(); redrawStrip();}catch(e){console.error(e);}};
   try{ if(localStorage.getItem('sr2-builder-session')==='1'&&!ST.tab) B.tab='night'; }catch(e){}
   setTab(B.tab);
 }
-window.SR2B2={B,attacks,nightHTML,afterHTML,setTab};
+window.SR2B2={B,attacks,nightHTML,afterHTML,setTab}; window.chipHaveMap=chipHaveMap; // the Skill Web (swHave) counts slotted chips
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mount); else mount();
 })();

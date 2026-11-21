@@ -74,3 +74,5 @@
 .cbv2:not(.cb-at-la):not(.cb-at-ra) .cb>.cb-chks{display:none}
 .dk .vw-num{white-space:normal;text-align:right;line-height:1.35}
 .vw-own{margin:0 0 12px;padding:10px 12px;border:1px dashed var(--line);border-radius:8px}.vw-own .fl{display:flex;flex-direction:column;gap:4px;max-width:100%}.vw-own select{max-width:100%;min-width:0}.vw-own .note{margin:6px 0 0}
+
+.lk-sfp{margin:12px 0 4px}.lk-sfp .sfps{display:flex;flex-wrap:wrap;gap:8px 12px}.lk-sfp .sfp{display:flex;flex-direction:column;gap:4px;flex:1 1 180px;min-width:0}.lk-sfp .sfpk{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}.lk-sfp select,.lk-sfp input{width:100%;min-height:40px}.lk-sfp .note{margin:6px 0 0}

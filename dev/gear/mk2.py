@@ -425,6 +425,12 @@ rep('${g.text?`<p>${esc(g.text)}</p>`:`<div class="pills">', '${g.html?g.html:g.
 rep("renderSortFilter(); renderList(); renderKit(); if(st.sel) renderTag();});", "renderSortFilter(); renderList(); renderKit(); if(st.sel) renderTag(); if(typeof fxPanel===\'function\') fxPanel();});")
 rep('<div class="sd-a"><button class="btn" id="sendCopy">Copy code</button><button class="btn ghost" id="sendClose2">Done</button></div>', '<p class="note">Sent lists stay on the shopping list. Clear it once this is in the Builder so nothing goes out twice.</p><div class="sd-a"><button class="btn" id="sendCopy">Copy code</button><button class="btn ghost" id="sendClear">Clear the shopping list</button><button class="btn ghost" id="sendClose2">Done</button></div>')
 rep('<button type="button" class="btn big" data-tab="build">Build it out and add</button>', '<button type="button" class="btn ghost big" id="addKit">Add as it comes</button><button type="button" class="btn big" data-tab="build">Build it out and add</button>')
+# skillsofts: pick the skill on the chip (down to concentration/specialization); it rides along to the Builder as `sf`
+rep('${kitFeed(i)?\'\':`<label class="addq">How many', '${softLockerHTML(i)}${kitFeed(i)?\'\':`<label class="addq">How many')
+rep("if(e.target.id==='addKit'){const i=BYID[st.sel]; const nl=Object.assign({id:i.id,r:st.rate[i.id]??(i.r?(i.mult!=null?1000:i.r[0]):0)},", "if(e.target.id==='addKit'){const i=BYID[st.sel]; if(softNeedsPick(i)){softNag(); return;} const nl=Object.assign({id:i.id,r:st.rate[i.id]??(i.r?(i.mult!=null?1000:i.r[0]):0)},softKitPart(i),")
+rep("k.loaded?{loaded:true}:{},k.build?", "k.loaded?{loaded:true}:{},k.sf?{sf:Object.assign({},k.sf)}:{},k.build?")
+rep("  else items.push(Object.assign({key:i.id,qty:1,r:i.r?(st.rate[i.id]??(i.mult!=null?1000:i.r[0])):undefined},", "  else items.push(Object.assign({key:i.id,qty:1,r:i.r?(st.rate[i.id]??(i.mult!=null?1000:i.r[0])):undefined},softKitPart(i),")
+rep("k.gel?'gel-packs':'',", "k.gel?'gel-packs':'',k.sf&&softLabel(k.sf)?'Skill: '+softText(k.sf,(BYID[k.id]||{}).n):'',")
 open('gear/template2.html','w').write(s)
 d=open('gear_data.json').read()
 page=s.replace('/*DATA*/null',d.replace('</','<\\/'),1)

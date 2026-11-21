@@ -216,6 +216,8 @@ h1 small{display:block;font:500 .75rem var(--body);letter-spacing:.08em;text-tra
 .cbv2:not(.cb-at-la):not(.cb-at-ra) .cb>.cb-chks{display:none}
 .dk .vw-num{white-space:normal;text-align:right;line-height:1.35}
 .vw-own{margin:0 0 12px;padding:10px 12px;border:1px dashed var(--line);border-radius:8px}.vw-own .fl{display:flex;flex-direction:column;gap:4px;max-width:100%}.vw-own select{max-width:100%;min-width:0}.vw-own .note{margin:6px 0 0}
+
+.lk-sfp{margin:12px 0 4px}.lk-sfp .sfps{display:flex;flex-wrap:wrap;gap:8px 12px}.lk-sfp .sfp{display:flex;flex-direction:column;gap:4px;flex:1 1 180px;min-width:0}.lk-sfp .sfpk{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}.lk-sfp select,.lk-sfp input{width:100%;min-height:40px}.lk-sfp .note{margin:6px 0 0}
 /* Fixer: street prices and availability */
 .srcbtn.on{border-color:var(--accent,var(--ink));}
 .srcbtn.on .n{color:var(--accent,var(--ink));font-weight:700}
@@ -2209,6 +2211,78 @@ if(typeof document!=='undefined'){
 }
 return {render,split,keyOf,refocus,OPEN};})();
 /*@end:decks*/
+/*@shared:softs*/
+// Skills and concentrations (core p. 70-77), shared by the Runner Builder's skill picker and both tools' skillsoft pickers.
+const SW='A specific weapon, e.g. Ares Predator', SV='A specific vehicle model';
+const SKILLDB={
+ 'Armed Combat':{cat:'Combat',concs:{'Edged Weapons':SW,'Pole Arms/Staff':SW,'Whips/Flails':SW,'Clubs':SW}},
+ 'Unarmed Combat':{cat:'Combat',concs:{'Subduing Combat':'','Cyber-Implant Weaponry':SW,'Martial Arts Style':'A specific technique, e.g. Strikes'}},
+ 'Demolitions':{cat:'Combat',concs:{'Commercial Explosives':'','Plastic Explosives':''}},
+ 'Firearms':{cat:'Combat',concs:{'Pistols':SW,'Rifles':SW,'Submachine Guns':SW,'Light Machine Guns':SW,'Grenade Launchers':SW,'Tasers':SW}},
+ 'Gunnery':{cat:'Combat',concs:{'Machine Guns':SW,'Missile/Rocket Launchers':SW,'Assault Cannon':SW,'Vehicle-Mounted Cannon':SW}},
+ 'Projectile Weapons':{cat:'Combat',concs:{'Bows':SW,'Crossbows':SW}},
+ 'Throwing Weapons':{cat:'Combat',concs:{'Shafted':SW,'Non-Aerodynamic':['Grenades','Knives'],'Aerodynamic':['Shuriken','Airfoil Grenades']}},
+ 'Athletics':{cat:'Physical',concs:{'Running':'','Climbing':'','Lifting':'','Jumping':'','Swimming':''}},
+ 'Stealth':{cat:'Physical',concs:{'Urban':'An aspect, e.g. Sneaking or Shadowing','Wilderness':'An aspect','Farmland':'An aspect'}},
+ 'Biotech':{cat:'Technical',concs:{'Transimplant Surgery':['Headware','Bodyware','Organic Replacements'],'Organ Culture':'An organ or limb','Replacement Construction':'An organ or limb','Extended Care':'','First Aid':'e.g. Combat Lifesaver'}},
+ 'Computer':{cat:'Technical',concs:{'Hardware':['Mainframes','Micros','Interface Tech','Implant Tech'],'Software':['Decking','Matrix Programming','Non-Matrix Programming','Interface Programming','Implant Programming']}},
+ 'Electronics':{cat:'Technical',concs:{'Control Systems':'','Electronic Warfare':'','Maglocks':'','Linking between Devices':'','Diagnostics':''}},
+ 'Conjuring':{cat:'Magical',concs:{'Elemental':['Fire','Water','Air','Earth'],'Nature Spirit':'A spirit type'}},
+ 'Sorcery':{cat:'Magical',concs:{'Spellcasting':['Combat','Detection','Health','Illusion','Manipulation'],'Ritual Sorcery':['Combat','Detection','Health','Illusion','Manipulation']}},
+ 'Etiquette':{cat:'Social',concs:{'Corporate':'','Matrix':'','Media':'','Street':'A subculture or gang','Tribal':'A tribe'}},
+ 'Interrogation':{cat:'Social',concs:{'Verbal':'','Machine-Aided':['Lie Detectors','Voice-Stress Analysis']}},
+ 'Leadership':{cat:'Social',concs:{'Political':['Strategy','Tactics','Morale'],'Military':['Strategy','Tactics','Morale'],'Commercial':['Strategy','Tactics','Morale']}},
+ 'Negotiation':{cat:'Social',concs:{'Bargain':'','Bribe':'','Fast Talk':''}},
+ 'Bike':{cat:'Vehicle',concs:{'Two-wheeler':SV,'Three-wheeler':SV,'Racing':SV}},
+ 'Car':{cat:'Vehicle',concs:{'Passenger Vehicle':SV,'Truck':SV,'Racing':SV,'Remote Operation':'A vehicle category'}},
+ 'Hovercraft':{cat:'Vehicle',concs:{'Passenger Craft':SV,'Transport Craft':SV,'Racing':SV,'Remote Operation':'A vehicle category'}},
+ 'Motorboat':{cat:'Vehicle',concs:{'Pleasure Craft':SV,'Transport':SV,'Racing':SV,'Remote Operation':'A vehicle category'}},
+ 'Rotor Craft':{cat:'Vehicle',concs:{'Tilt-Rotor':SV,'Fixed-Rotor':SV,'Remote Operation':'A vehicle category'}},
+ 'Sailboat':{cat:'Vehicle',concs:{'Pleasure Craft':SV,'Transport':SV,'Racing':SV}},
+ 'Vectored Thrust':{cat:'Vehicle',concs:{'Vertical Take-Off and Landing':SV,'LAV Craft':SV,'Remote Operation':'A vehicle category'}},
+ 'Winged Plane':{cat:'Vehicle',concs:{'Gliders':SV,'Jets':SV,'Propellers':SV,'Racing':SV,'Remote Operation':'A vehicle category'}},
+ 'Biology':{cat:'Knowledge',concs:{'Zoology':'','Botany':'','Medicine':'','Parazoology':'','Parabotany':''}},
+ 'Computer Theory':{cat:'Knowledge',concs:{'Hardware':['Mainframes','Micros','Interface Tech','Implant Tech'],'Software':['Decking','Matrix Programming','Non-Matrix Programming','Interface Programming','Implant Programming'],'Matrix Theory':''}},
+ 'Cybertechnology':{cat:'Knowledge',concs:{'Headware':'A specific device','Bodyware':'A specific device'}},
+ 'Magical Theory':{cat:'Knowledge',concs:{'Design':['Shamanic','Hermetic'],'History':'A continent'}},
+ 'Military Theory':{cat:'Knowledge',concs:{'Military History':'A continent or period','Tactics':['Air','Land','Sea']}},
+ 'Physical Sciences':{cat:'Knowledge',concs:{'Engineering':'','Physics':'','Chemistry':'','Geology':''}},
+ 'Psychology':{cat:'Knowledge',concs:{'Individual Behavior':'','Group Behavior':'','Deviant Behavior':''}},
+ 'Sociology':{cat:'Knowledge',concs:{'History':'','Anthropology':'','Archaeology':''}}
+};
+['Armed Combat','Firearms','Projectile Weapons','Throwing Weapons','Gunnery','Computer','Electronics','Biotech','Bike','Car','Hovercraft','Motorboat','Rotor Craft','Sailboat','Vectored Thrust','Winged Plane'].forEach(k=>{SKILLDB[k+' (B/R)']={cat:'Build/Repair',concs:{}};});
+// ---------- Skillsofts (core p. 248): what skill a chip carries, down to concentration and specialization ----------
+// ActiveSofts copy Active Skills (Combat, Physical, Technical, Social, Vehicle, B/R; never Sorcery or Conjuring);
+// KnowSofts copy Knowledge Skills; LinguaSofts copy a language (core p. 70-72, 248).
+const SOFT_CATS={ActiveSoft:['Combat','Physical','Technical','Social','Vehicle','Build/Repair'],KnowSoft:['Knowledge']};
+function softSpec(itemName){const n=String(itemName||''); const t=/^ActiveSoft/.test(n)?'ActiveSoft':/^KnowSoft/.test(n)?'KnowSoft':/^LinguaSoft/.test(n)?'LinguaSoft':/^DataSoft/.test(n)?'DataSoft':''; return {t,k:/concentration/.test(n)?'conc':/specialization/.test(n)?'spec':'gen'};}
+function softSkills(t){return Object.keys(SKILLDB).filter(n=>(SOFT_CATS[t]||[]).includes(SKILLDB[n].cat));}
+function softConcs(sk){return SKILLDB[sk]?Object.keys(SKILLDB[sk].concs):[];}
+function softSpecs(sk,cc){const v=SKILLDB[sk]&&SKILLDB[sk].concs[cc]; return Array.isArray(v)?{list:v,hint:''}:{list:null,hint:typeof v==='string'?v:''};}
+// the skill a chip line carries; older lines only had the skill typed in their note
+function softOf(o,itemName){const {k}=softSpec(itemName); if(o&&(o.sk||o.cc||o.cs)) return {sk:o.sk||'',cc:o.cc||'',cs:o.cs||''}; const n=String(o&&o.note||'').trim(); if(!n) return {sk:'',cc:'',cs:''};
+  if(k==='gen') return {sk:n,cc:'',cs:''}; const hit=Object.keys(SKILLDB).find(s=>softConcs(s).some(c=>c.toLowerCase()===n.toLowerCase())); if(k==='conc') return hit?{sk:hit,cc:softConcs(hit).find(c=>c.toLowerCase()===n.toLowerCase()),cs:''}:{sk:'',cc:n,cs:''}; return {sk:'',cc:'',cs:n};}
+function softLabel(v){return (v&&(v.cs||v.cc||v.sk))||'';}
+function softText(v,itemName){const {t}=softSpec(itemName); if(!v||!softLabel(v)) return ''; return t==='LinguaSoft'?v.sk:[v.sk,v.cc,v.cs].filter(Boolean).join(' › ');}
+// dropdowns for one chip: skill, then concentration, then specialization (each only when the chip type needs it)
+function softPickHTML(itemName,v,key,o){o=o||{}; const {t,k}=softSpec(itemName); const q=x=>String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); const dis=o.disabled?' disabled':'';
+  const lab=(l,inner)=>`<label class="sfp"><span class="sfpk">${l}</span>${inner}</label>`, A=f=>`data-sfp="${q(key)}" data-sff="${f}"${dis}`;
+  if(t==='DataSoft'||!t) return '';
+  if(t==='LinguaSoft') return lab('Language',`<input ${A('sk')} value="${q(v.sk)}" placeholder="e.g. Japanese"${o.langs&&o.langs.length?` list="sfpLang_${q(key)}"`:''}>${o.langs&&o.langs.length?`<datalist id="sfpLang_${q(key)}">${o.langs.map(n=>`<option value="${q(n)}">`).join('')}</datalist>`:''}`);
+  const L=softSkills(t), known=L.includes(v.sk), other=!!v.sk&&!known||v.oth;
+  let h=lab('Skill',`<select ${A('sk')}><option value="" ${!v.sk&&!v.oth?'selected':''}>Pick the skill</option>${L.map(n=>`<option value="${q(n)}" ${v.sk===n?'selected':''}>${q(n)}</option>`).join('')}${t==='KnowSoft'?`<option value="__other" ${other?'selected':''}>Other (type it)</option>`:''}</select>`);
+  if(other) h+=lab('Knowledge skill',`<input ${A('sko')} value="${q(known?'':v.sk)}" placeholder="e.g. Seattle Gangs">`);
+  if(k!=='gen'){const C=known?softConcs(v.sk):[]; h+=C.length?lab('Concentration',`<select ${A('cc')}><option value="" ${!v.cc?'selected':''}>Pick one</option>${C.map(n=>`<option value="${q(n)}" ${v.cc===n?'selected':''}>${q(n)}</option>`).join('')}</select>`):lab('Concentration',`<input ${A('cc')} value="${q(v.cc)}" placeholder="${v.sk?'Name it':'Pick the skill first'}">`);}
+  if(k==='spec'){const S2=v.sk&&v.cc?softSpecs(v.sk,v.cc):{list:null,hint:''}; h+=S2.list?lab('Specialization',`<select ${A('cs')}><option value="" ${!v.cs?'selected':''}>Pick one</option>${S2.list.map(n=>`<option value="${q(n)}" ${v.cs===n?'selected':''}>${q(n)}</option>`).join('')}</select>`):lab('Specialization',`<input ${A('cs')} value="${q(v.cs)}" placeholder="${q(S2.hint||(v.cc?'Name it':'Pick the concentration first'))}">`);}
+  return h;}
+// apply one dropdown change to a chip's {sk,cc,cs}; a new skill clears the concentration, a new concentration clears the specialization
+function softSet(v,f,val){v=Object.assign({sk:'',cc:'',cs:''},v); val=String(val||'').trim();
+  if(f==='sk'){if(val==='__other'){v.oth=true; v.sk='';} else {delete v.oth; if(val!==v.sk){v.sk=val; v.cc=''; v.cs='';}}}
+  else if(f==='sko'){v.oth=true; v.sk=val; v.cc=''; v.cs='';}
+  else if(f==='cc'){if(val!==v.cc){v.cc=val; v.cs='';}}
+  else if(f==='cs') v.cs=val;
+  return v;}
+/*@end:softs*/
 function vr2DeckCost(d){const r=vr2Price(d); return {...r,lines:r.lines.concat(r.extras)};}
 const PERS=[['Bod','bod'],['Evasion','eva'],['Masking','mask'],['Sensors','sens']];
 function isDeck(i){return !!(i&&i.cat==='deck'&&(i.d||i.vr2deck));}
@@ -2620,6 +2694,15 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
   e.stopImmediatePropagation(); const C=vOwnCost(i,B), N=vOwnNew(i,B); if(!N.add.length) return; const x=vOwnSend(i,B);
   st.kit.push({id:i.id,r:0,vb:x.vb,up:x.up,pc:C.diff,bp:N.add}); save(); renderKit(); b.textContent='Added'; setTimeout(()=>{const bb=$('addVeh'); if(bb) renderTag();},1200);},true);
 
+// ---------- Skillsofts: the skill on the chip (core p. 248) ----------
+function softLockerHTML(i){if(!i||i.cat!=='soft') return ''; const {t}=softSpec(i.n); if(!t||t==='DataSoft') return ''; st.sfp=st.sfp||{}; const v=st.sfp[i.id]||{sk:'',cc:'',cs:''};
+  return `<div class="lk-sfp"><div class="sfps">${softPickHTML(i.n,v,i.id)}</div><p class="note">${t==='ActiveSoft'?'ActiveSofts copy Active Skills and need skillwires.':t==='KnowSoft'?'KnowSofts copy Knowledge Skills; a chipjack runs them.':'LinguaSofts copy a language; a chipjack runs them.'} The skill goes with the chip to the Runner Builder (core p. 248).</p><p class="note sfp-nag" hidden>Pick the skill on the chip first.</p></div>`;}
+function softPicked(i){const {t,k}=softSpec(i.n), v=(st.sfp||{})[i.id]||{}; if(!v.sk) return false; if(t==='ActiveSoft'||t==='KnowSoft'){if(k!=='gen'&&!v.cc) return false; if(k==='spec'&&!v.cs) return false;} return true;}
+function softNeedsPick(i){if(!i||i.cat!=='soft') return false; const {t}=softSpec(i.n); return !!t&&t!=='DataSoft'&&!softPicked(i);}
+function softNag(){const n=document.querySelector('.sfp-nag'); if(n) n.hidden=false;}
+function softKitPart(i){if(!i||i.cat!=='soft') return {}; const v=(st.sfp||{})[i.id]; return v&&v.sk?{sf:{sk:v.sk,cc:v.cc||'',cs:v.cs||''}}:{};}
+document.addEventListener('change',e=>{const t=e.target.closest&&e.target.closest('[data-sfp]'); if(!t) return; const i=BYID[t.dataset.sfp]; if(!i) return; st.sfp=st.sfp||{}; st.sfp[i.id]=softSet(st.sfp[i.id],t.dataset.sff,t.value); renderTag();});
+
 // ---------- Fixer: buying off the street (core p. 184–185) ----------
 // Availability (TN/base time) and Street Index for each item, checked against the printed tables.
 // Fixer price = Cost x Street Index, then the Negotiation result (5% per net success), then any house markup.
@@ -2790,7 +2873,7 @@ function renderTag(){
     goes:G.length?`<div class="links">${G.map(g=>`<div class="lgrp"><h4>${esc(g.title)}</h4>${g.note?`<p>${esc(g.note)}</p>`:''}${g.html?g.html:g.text?`<p>${esc(g.text)}</p>`:`<div class="pills">${g.list.map(x=>`<button type="button" class="pill ${visible(x)?'':'off'}" data-id="${esc(x.id)}" title="${esc(BOOK[x.src][0]+' '+pageRef(x))}">${srcTag(x.src)}${esc(x.n)}<span class="pp">${priceLabel(x)}</span></button>`).join('')}</div>`}</div>`).join('')}</div>`:'<p class="note">No pairings listed for this item.</p>'};
   const bar=!buyable?`<div class="tbar"><div class="tp"><b>${priceTxt}</b><span>${esc(CATN[i.cat])}: picked in the Runner Builder</span></div></div>`
     :canBuildIt?(tab==='build'?'':`<div class="tbar"><div class="tp"><b>${fxBarPrice(i,r,price,priceTxt)}</b><span>Before add-ons${FXS.on?' · fixer price':''}</span></div><div class="ta"><button type="button" class="btn ghost big" id="addKit">Add as it comes</button><button type="button" class="btn big" data-tab="build">Build it out and add</button></div></div>`)
-    :`<div class="tbar"><div class="tp"><b>${fxBarPrice(i,r,price,priceTxt)}</b><span>${i.r&&i.mult==null?esc(i.r[2])+' '+r:'Each'}${FXS.on&&price!=null?' · list '+fmt(price)+'¥':''}</span></div><div class="ta"><button type="button" class="btn ghost big" data-send="item">Send to a character</button>${kitFeed(i)?'':`<label class="addq">How many <input type="number" id="addQty" min="1" max="999" value="1" inputmode="numeric"></label>`}<button type="button" class="btn big" id="addKit">Add to shopping list</button></div></div>`;
+    :`<div class="tbar"><div class="tp"><b>${fxBarPrice(i,r,price,priceTxt)}</b><span>${i.r&&i.mult==null?esc(i.r[2])+' '+r:'Each'}${FXS.on&&price!=null?' · list '+fmt(price)+'¥':''}</span></div><div class="ta"><button type="button" class="btn ghost big" data-send="item">Send to a character</button>${softLockerHTML(i)}${kitFeed(i)?'':`<label class="addq">How many <input type="number" id="addQty" min="1" max="999" value="1" inputmode="numeric"></label>`}<button type="button" class="btn big" id="addKit">Add to shopping list</button></div></div>`;
   $('tag').innerHTML=`<div class="thd"><a class="back" href="#list" id="backList">↑ Back to the list</a><div class="kicker">${srcTag(i.src)}<span>${esc(BOOK[i.src][0])}</span><span>·</span><span>${esc(pageRef(i))}</span><span>·</span><span>${esc(CATN[i.cat])}${i._.sub?' › '+esc(i._.sub):''}</span></div>
    <h2>${esc(i.n)}</h2>
    <div class="price">${fxHeadPrice(i,r,price,priceTxt)}${i.r&&i.mult==null?` <span class="note">at ${esc(i.r[2].toLowerCase())} ${r}</span>`:''}</div>
@@ -2819,9 +2902,9 @@ function xferItem(i){const items=[]; let vr2deck=null; const ok=k=>!!BYID[k];
     C.U.forEach(x=>items.push({key:x.it.id,qty:1,r:x.u.r,loaded:!!x.u.loaded}));}
   else if(isVeh(i)){const {B}=vbFix(i); items.push(B.own?vOwnSend(i,B):{key:i.id,qty:1,vb:JSON.parse(JSON.stringify(B))});}
   else if(HB.isHost(i.id)){const S=hbFix(i); items.push(Object.assign({key:i.id,qty:1,hb:JSON.parse(JSON.stringify(S))},gelOK(i)&&st.gel&&st.gel[i.id]?{gel:true}:{}));}
-  else items.push(Object.assign({key:i.id,qty:1,r:i.r?(st.rate[i.id]??(i.mult!=null?1000:i.r[0])):undefined},gelOK(i)&&st.gel&&st.gel[i.id]?{gel:true}:{},kitForGun(i.id)&&st.fgSel&&/^o:/.test(st.fgSel[i.id]||'')?{forKey:st.fgSel[i.id].slice(2)}:{}));
+  else items.push(Object.assign({key:i.id,qty:1,r:i.r?(st.rate[i.id]??(i.mult!=null?1000:i.r[0])):undefined},softKitPart(i),gelOK(i)&&st.gel&&st.gel[i.id]?{gel:true}:{},kitForGun(i.id)&&st.fgSel&&/^o:/.test(st.fgSel[i.id]||'')?{forKey:st.fgSel[i.id].slice(2)}:{}));
   return {items:items.filter(x=>ok(x.key)),vr2deck,label:i.n};}
-function xferKit(){const items=st.kit.map(k=>{if(!BYID[k.id]) return {name:k.n,cost:k.cost}; const o=Object.assign({key:k.id,qty:k.q||1,r:BYID[k.id].r||k.noR?k.r:undefined},k.gel?{gel:true}:{},k.vb?{vb:JSON.parse(JSON.stringify(k.vb))}:{},k.up?{up:Object.assign({},k.up)}:{},k.loaded?{loaded:true}:{},k.build?{build:JSON.parse(JSON.stringify(k.build))}:{},k.hb?{hb:JSON.parse(JSON.stringify(k.hb))}:{});
+function xferKit(){const items=st.kit.map(k=>{if(!BYID[k.id]) return {name:k.n,cost:k.cost}; const o=Object.assign({key:k.id,qty:k.q||1,r:BYID[k.id].r||k.noR?k.r:undefined},k.gel?{gel:true}:{},k.vb?{vb:JSON.parse(JSON.stringify(k.vb))}:{},k.up?{up:Object.assign({},k.up)}:{},k.loaded?{loaded:true}:{},k.sf?{sf:Object.assign({},k.sf)}:{},k.build?{build:JSON.parse(JSON.stringify(k.build))}:{},k.hb?{hb:JSON.parse(JSON.stringify(k.hb))}:{});
     if(k.fg&&kitForGun(k.id)){if(k.fg.startsWith('k:')){const j=st.kit.findIndex(x=>x.u===k.fg.slice(2)); if(j>=0&&kitFeed(BYID[st.kit[j].id])) o.forItem=j;} else if(k.fg.startsWith('o:')) o.forKey=k.fg.slice(2);}
     return o;}); const v2=st.kit.find(k=>k.v2); return Object.assign({items,label:'Shopping list ('+st.kit.length+')',total:st.kit.reduce((a,k)=>a+kitPrice(k),0)},fxStreet(),v2?{vr2deck:JSON.parse(JSON.stringify(v2.v2))}:{});}
 function sendGear(p){p.v=1; p.at=Date.now(); p.from='Gear Locker';
@@ -2867,7 +2950,7 @@ function renderKit(){ kitChip();
   const order=DATA.cats.map(x=>x[1]).filter(g=>groups[g]).concat(groups.Other?['Other']:[]);
   const body=st.kit.length?order.map(g=>`<div class="kg">${esc(g)}</div>`+groups[g].map(([k,ix])=>{const i=BYID[k.id]||{n:k.n,src:k.src||'core',cost:k.cost}; const p=kitPrice(k);
       const es=k.hb&&k.hc!=null?+(k.he||0):+(essAt(i,k.r)||0)*(k.q||1);
-      const note=[i.r&&!k.hb&&!k.noR?`${i.r[2]} ${k.r}`:'',k.gel?'gel-packs':'',k.up?'Work on '+k.up.who+'’s own, not a new one':'',k.bp&&k.bp.length?(k.up?'Adds ':'With ')+k.bp.join(', '):'',k.loaded?'loaded':''].filter(Boolean).join(' · ');
+      const note=[i.r&&!k.hb&&!k.noR?`${i.r[2]} ${k.r}`:'',k.gel?'gel-packs':'',k.sf&&softLabel(k.sf)?'Skill: '+softText(k.sf,(BYID[k.id]||{}).n):'',k.up?'Work on '+k.up.who+'’s own, not a new one':'',k.bp&&k.bp.length?(k.up?'Adds ':'With ')+k.bp.join(', '):'',k.loaded?'loaded':''].filter(Boolean).join(' · ');
       return `<div class="kl"><div class="kt"><b>${srcTag(i.src)} ${esc(i.n)}</b><span class="c">${fxKitC(k,p)}${es?` · ${Math.round(es*100)/100} Ess`:''}</span></div>${note?`<span class="kn">${esc(note)}</span>`:''}${fxKitAv(k)}${BYID[k.id]&&kitForGun(k.id)?kitFgHTML(k,ix,KG):''}
         <div class="ka">${kitStackable(k)?`<span class="qty" role="group" aria-label="Quantity of ${esc(i.n)}"><button type="button" class="sq" data-kq="${ix}" data-d="-1" aria-label="One fewer ${esc(i.n)}" ${(k.q||1)<=1?'disabled':''}>−</button><span>${k.q||1}</span><button type="button" class="sq" data-kq="${ix}" data-d="1" aria-label="One more ${esc(i.n)}">+</button></span>`:'<span></span>'}
         <span style="display:flex;gap:6px;align-items:center">${BYID[k.id]?legalBadge(i,k.r):''}${BYID[k.id]?`<button type="button" class="xb" data-kedit="${ix}">Open</button>`:''}<button type="button" class="xb" data-rm="${ix}" aria-label="Remove ${esc(i.n)}">Remove</button></span></div></div>`;}).join('')).join('')
@@ -2913,7 +2996,7 @@ document.addEventListener('click',e=>{
   if(e.target.dataset&&e.target.dataset.send){ if(e.target.dataset.send==='kit'){ if(st.kit.length) sendGear(xferKit()); } else {const i=BYID[st.sel]; if(i) sendGear(xferItem(i));} return;}
   if(e.target.id==='sendClose'||e.target.id==='sendClose2'||e.target.id==='sendDlg'){$('sendDlg').hidden=true; return;}
   if(e.target.id==='sendCopy'){const t=$('sendCode'); t.select(); let ok=false; try{navigator.clipboard.writeText(t.value).then(()=>{e.target.textContent='Copied';},()=>{try{document.execCommand('copy');e.target.textContent='Copied';}catch(_){}});}catch(_){try{document.execCommand('copy');e.target.textContent='Copied';}catch(__){}} return;}
-  if(e.target.id==='addKit'){const i=BYID[st.sel]; const nl=Object.assign({id:i.id,r:st.rate[i.id]??(i.r?(i.mult!=null?1000:i.r[0]):0)},gelOK(i)&&st.gel&&st.gel[i.id]?{gel:true}:{},kitForGun(i.id)&&st.fgSel&&st.fgSel[i.id]?{fg:st.fgSel[i.id]}:{});
+  if(e.target.id==='addKit'){const i=BYID[st.sel]; if(softNeedsPick(i)){softNag(); return;} const nl=Object.assign({id:i.id,r:st.rate[i.id]??(i.r?(i.mult!=null?1000:i.r[0]):0)},softKitPart(i),gelOK(i)&&st.gel&&st.gel[i.id]?{gel:true}:{},kitForGun(i.id)&&st.fgSel&&st.fgSel[i.id]?{fg:st.fgSel[i.id]}:{});
     const same=st.kit.find(k=>k.id===nl.id&&k.r===nl.r&&!!k.gel===!!nl.gel&&(k.fg||'')===(nl.fg||'')&&!k.build&&!k.hb&&!k.vb&&k.pc==null&&!kitFeed(i)); const qe=$('addQty'), qn=kitFeed(i)?1:Math.max(1,Math.min(999,Math.round(+(qe&&qe.value)||1))); if(same) same.q=(same.q||1)+qn; else {if(qn>1) nl.q=qn; st.kit.push(nl);} save(); renderKit(); if(qe) qe.value=1; e.target.textContent=qn>1?'Added '+qn:'Added'; setTimeout(()=>{const b=$('addKit'); if(b) b.textContent='Add to shopping list';},1200); return;}
   if(e.target.id==='addBuild'){const g=BYID[st.sel]; const C=buildCalc(g); const B=JSON.parse(JSON.stringify(bstate(g)));
     // one line: the gun carries its add-ons, so the Runner Builder gets them fitted

@@ -200,6 +200,7 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
 .notebtn{font:inherit;font-size:.75rem;margin-top:.25rem;padding:1px 8px;border:1px dashed var(--line);border-radius:4px;background:transparent;color:var(--muted);cursor:pointer}.notebtn:hover{color:var(--ink);border-color:var(--muted)}
 .grpd{margin:.5rem 0;border:1px solid var(--line,#444);border-radius:6px;padding:.25rem .75rem}.grpd>summary{cursor:pointer;padding:.375rem 0;font-weight:600}.grpd .pg{font-weight:400}
 .mgh{margin:.75rem 0 .25rem;font-size:.875rem}#grpBox .bchks{display:flex;flex-wrap:wrap;gap:.25rem 1rem}#grpBox label.bchk{display:flex;flex-direction:row;align-items:center;gap:.375rem;text-transform:none;letter-spacing:0;font-size:.8125rem;font-weight:400;color:inherit}#grpBox label.bchk input{width:auto;margin:0}.mgres{margin:.5rem 0;padding:.5rem .75rem;border-left:3px solid var(--accent,#c90);background:rgba(127,127,127,.08)}
+.sfps{display:flex;flex-wrap:wrap;gap:.375rem .75rem;margin-top:.375rem}.sfp{display:flex;flex-direction:column;gap:.125rem;min-width:9rem;flex:1 1 9rem}.sfp .sfpk{font-size:.6875rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}.sfp select,.sfp input{width:100%}
 </style></head><body>
 <div class="wrap" id="appRoot">
   <header class="top">
@@ -367,7 +368,7 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
 
       <section class="card ses" id="softCard" data-jump="Skillsofts" hidden="">
         <h2><span class="num">07d</span> Skillsofts <span class="pg">p. 248</span></h2>
-        <div class="tbl"><table><thead><tr><th>Soft</th><th class="n">Rating</th><th class="n">Size</th></tr></thead><tbody id="softBody"></tbody></table></div>
+        <div class="tbl"><table><thead><tr><th>Soft and the skill on it</th><th class="n">Rating</th><th class="n">Size</th></tr></thead><tbody id="softBody"></tbody></table></div>
         <p class="note" id="softNote"></p>
       </section>
 
@@ -457,7 +458,7 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1795247288317","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwq3vt2f","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795247288306}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1795304993723","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwr28mub","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795304993709}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--paper',panel2:'--soft',ink:'--ink',muted:'--muted',line:'--line',accent:'--accent',accentInk:'--accent-ink',accentSoft:'--accent-soft',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skillweb*/
@@ -797,6 +798,8 @@ function efVal(x){return EF_MAGIC2.has(x.n)&&S.magic!=='none'?-2:(+x.v||0);}
 function efNet(){return (S.ef||[]).reduce((a,x)=>a+efVal(x),0);}
 const EF_EXCLUSIVE=[['Pacifist','Total Pacifist'],['Paraplegic','Quadriplegic'],['Illiterate','Uneducated'],['High School Education','College Education'],['High Pain Tolerance','Low Pain Tolerance']];
 const MAGIC_TYPES=[['none','Mundane'],['hermetic','Hermetic magician'],['shamanic','Shamanic magician'],['adept','Physical adept']];
+/*@shared:softs*/
+// Skills and concentrations (core p. 70-77), shared by the Runner Builder's skill picker and both tools' skillsoft pickers.
 const SW='A specific weapon, e.g. Ares Predator', SV='A specific vehicle model';
 const SKILLDB={
  'Armed Combat':{cat:'Combat',concs:{'Edged Weapons':SW,'Pole Arms/Staff':SW,'Whips/Flails':SW,'Clubs':SW}},
@@ -835,6 +838,38 @@ const SKILLDB={
  'Sociology':{cat:'Knowledge',concs:{'History':'','Anthropology':'','Archaeology':''}}
 };
 ['Armed Combat','Firearms','Projectile Weapons','Throwing Weapons','Gunnery','Computer','Electronics','Biotech','Bike','Car','Hovercraft','Motorboat','Rotor Craft','Sailboat','Vectored Thrust','Winged Plane'].forEach(k=>{SKILLDB[k+' (B/R)']={cat:'Build/Repair',concs:{}};});
+// ---------- Skillsofts (core p. 248): what skill a chip carries, down to concentration and specialization ----------
+// ActiveSofts copy Active Skills (Combat, Physical, Technical, Social, Vehicle, B/R; never Sorcery or Conjuring);
+// KnowSofts copy Knowledge Skills; LinguaSofts copy a language (core p. 70-72, 248).
+const SOFT_CATS={ActiveSoft:['Combat','Physical','Technical','Social','Vehicle','Build/Repair'],KnowSoft:['Knowledge']};
+function softSpec(itemName){const n=String(itemName||''); const t=/^ActiveSoft/.test(n)?'ActiveSoft':/^KnowSoft/.test(n)?'KnowSoft':/^LinguaSoft/.test(n)?'LinguaSoft':/^DataSoft/.test(n)?'DataSoft':''; return {t,k:/concentration/.test(n)?'conc':/specialization/.test(n)?'spec':'gen'};}
+function softSkills(t){return Object.keys(SKILLDB).filter(n=>(SOFT_CATS[t]||[]).includes(SKILLDB[n].cat));}
+function softConcs(sk){return SKILLDB[sk]?Object.keys(SKILLDB[sk].concs):[];}
+function softSpecs(sk,cc){const v=SKILLDB[sk]&&SKILLDB[sk].concs[cc]; return Array.isArray(v)?{list:v,hint:''}:{list:null,hint:typeof v==='string'?v:''};}
+// the skill a chip line carries; older lines only had the skill typed in their note
+function softOf(o,itemName){const {k}=softSpec(itemName); if(o&&(o.sk||o.cc||o.cs)) return {sk:o.sk||'',cc:o.cc||'',cs:o.cs||''}; const n=String(o&&o.note||'').trim(); if(!n) return {sk:'',cc:'',cs:''};
+  if(k==='gen') return {sk:n,cc:'',cs:''}; const hit=Object.keys(SKILLDB).find(s=>softConcs(s).some(c=>c.toLowerCase()===n.toLowerCase())); if(k==='conc') return hit?{sk:hit,cc:softConcs(hit).find(c=>c.toLowerCase()===n.toLowerCase()),cs:''}:{sk:'',cc:n,cs:''}; return {sk:'',cc:'',cs:n};}
+function softLabel(v){return (v&&(v.cs||v.cc||v.sk))||'';}
+function softText(v,itemName){const {t}=softSpec(itemName); if(!v||!softLabel(v)) return ''; return t==='LinguaSoft'?v.sk:[v.sk,v.cc,v.cs].filter(Boolean).join(' › ');}
+// dropdowns for one chip: skill, then concentration, then specialization (each only when the chip type needs it)
+function softPickHTML(itemName,v,key,o){o=o||{}; const {t,k}=softSpec(itemName); const q=x=>String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); const dis=o.disabled?' disabled':'';
+  const lab=(l,inner)=>`<label class="sfp"><span class="sfpk">${l}</span>${inner}</label>`, A=f=>`data-sfp="${q(key)}" data-sff="${f}"${dis}`;
+  if(t==='DataSoft'||!t) return '';
+  if(t==='LinguaSoft') return lab('Language',`<input ${A('sk')} value="${q(v.sk)}" placeholder="e.g. Japanese"${o.langs&&o.langs.length?` list="sfpLang_${q(key)}"`:''}>${o.langs&&o.langs.length?`<datalist id="sfpLang_${q(key)}">${o.langs.map(n=>`<option value="${q(n)}">`).join('')}</datalist>`:''}`);
+  const L=softSkills(t), known=L.includes(v.sk), other=!!v.sk&&!known||v.oth;
+  let h=lab('Skill',`<select ${A('sk')}><option value="" ${!v.sk&&!v.oth?'selected':''}>Pick the skill</option>${L.map(n=>`<option value="${q(n)}" ${v.sk===n?'selected':''}>${q(n)}</option>`).join('')}${t==='KnowSoft'?`<option value="__other" ${other?'selected':''}>Other (type it)</option>`:''}</select>`);
+  if(other) h+=lab('Knowledge skill',`<input ${A('sko')} value="${q(known?'':v.sk)}" placeholder="e.g. Seattle Gangs">`);
+  if(k!=='gen'){const C=known?softConcs(v.sk):[]; h+=C.length?lab('Concentration',`<select ${A('cc')}><option value="" ${!v.cc?'selected':''}>Pick one</option>${C.map(n=>`<option value="${q(n)}" ${v.cc===n?'selected':''}>${q(n)}</option>`).join('')}</select>`):lab('Concentration',`<input ${A('cc')} value="${q(v.cc)}" placeholder="${v.sk?'Name it':'Pick the skill first'}">`);}
+  if(k==='spec'){const S2=v.sk&&v.cc?softSpecs(v.sk,v.cc):{list:null,hint:''}; h+=S2.list?lab('Specialization',`<select ${A('cs')}><option value="" ${!v.cs?'selected':''}>Pick one</option>${S2.list.map(n=>`<option value="${q(n)}" ${v.cs===n?'selected':''}>${q(n)}</option>`).join('')}</select>`):lab('Specialization',`<input ${A('cs')} value="${q(v.cs)}" placeholder="${q(S2.hint||(v.cc?'Name it':'Pick the concentration first'))}">`);}
+  return h;}
+// apply one dropdown change to a chip's {sk,cc,cs}; a new skill clears the concentration, a new concentration clears the specialization
+function softSet(v,f,val){v=Object.assign({sk:'',cc:'',cs:''},v); val=String(val||'').trim();
+  if(f==='sk'){if(val==='__other'){v.oth=true; v.sk='';} else {delete v.oth; if(val!==v.sk){v.sk=val; v.cc=''; v.cs='';}}}
+  else if(f==='sko'){v.oth=true; v.sk=val; v.cc=''; v.cs='';}
+  else if(f==='cc'){if(val!==v.cc){v.cc=val; v.cs='';}}
+  else if(f==='cs') v.cs=val;
+  return v;}
+/*@end:softs*/
 const SKILLS=Object.keys(SKILLDB);
 const CATORDER=['Combat','Physical','Technical','Magical','Social','Vehicle','Knowledge','Build/Repair'];
 const OTHER='__other';
@@ -1642,8 +1677,8 @@ function renderExtras(){
     $('deckStats').innerHTML=[['Deck',dk.name+(B.vr2&&!dk.vr2?' <span class="bad-text">(Matrix 1.0 deck)</span>':'')],['MPCP',dk.mpcp],['Hardening',dk.h],['Active memory',`${dk.am} Mp${dk.am>dk.amMax?` <span class="bad-text">(max ${dk.amMax})</span>`:''}`],['Storage',`${dk.sm} Mp`],...(dk.ls!=null?[['Load speed',`${dk.ls} Mp/turn`]]:[]),[B.vr2?'I/O speed':'I/O speed',`${dk.io} ${dk.vr2?'MePS':'Mp/turn'}`],
       ['Persona',`Bod ${dk.persona.Bod} · Evasion ${dk.persona.Evasion} · Masking ${dk.persona.Masking} · Sensors ${dk.persona.Sensors}`],
       ...(df!=null?[['Detection Factor',`${df} <span class="pg">VR2 p. 17</span>`]]:[]),
-      ['Hacking Pool',`${mx.pool} <span class="pg">${B.vr2?'VR2 p. 18':'p. 85'}</span>${mx.poolHow?`<div class="gstat">${esc(mx.poolHow)}</div>`:''}`],['Matrix Reaction / Initiative',`${mx.react} + ${mx.dice}D6`]].map(([k,v])=>`<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')
-      +(mx.rigPen?`<p class="note">Riggers deck at +1 to all target numbers and lose Hacking Pool dice equal to their VCR level (R2 p. 16).</p>`:'');
+      ['Hacking Pool',`${mx.pool} <span class="pg">${B.vr2?'VR2 p. 18':'p. 85'}</span>${mx.poolHow?`<div class="gstat">${esc(mx.poolHow)}</div>`:''}`],...mxIniModes(mx).filter(m=>m.id!=='tort'||!mx.hasDeck).map(m=>['Matrix Initiative: '+m.l,`${m.r} + ${m.d}D6 <span class="pg">${m.pg}</span>`])].map(([k,v])=>`<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')
+      +(B.vr2?'':`<p class="note">Keyboard only halves Reaction (rounded down; the book doesn’t say) and drops the response-increase Reaction bonus, but keeps its extra dice. Wired reflexes, magic and a VCR add nothing in the Matrix (core p. 178).</p>`)+(mx.rigPen?`<p class="note">Riggers deck at +1 to all target numbers and lose Hacking Pool dice equal to their VCR level (R2 p. 16).</p>`:'');
     $('deckPg').textContent=B.vr2?'VR2 p. 16–18, 85–89':'p. 172–175';
     $('vr2Design').hidden=!dk.vr2; if(dk.vr2) $('vr2Design').innerHTML=vr2DesignHTML(dk);
     $('progList').innerHTML=progChecklistHTML(dk); $('progPg').textContent=dk.vr2||B.vr2?'VR2 p. 16, 161':'core p. 174–176';
@@ -1671,7 +1706,7 @@ function renderExtras(){
     const act=softs.filter(([g])=>GEARDB[g.key].soft==='ActiveSoft'); const sumR=act.reduce((a,[g])=>a+(+g.r||0),0);
     const jacks=S.gear.filter(g=>g.key==='head:Chipjack').reduce((a,g)=>a+(+g.qty||1),0)+(sw?1:0);
     const mem=S.gear.filter(g=>g.key==='head:Headware Memory').reduce((a,g)=>a+(+g.r||0)*(+g.qty||1),0);
-    $('softBody').innerHTML=softs.map(([g,i])=>{const it=GEARDB[g.key];return `<tr><td>${esc(it.n)}<div class="gstat">${esc(g.note||'name the skill in the gear note')}</div></td><td class="n">${g.r}</td><td class="n">${it.mp(+g.r)} Mp</td></tr>`;}).join('')||`<tr><td colspan="3" class="note">No skillsofts yet. Add them from Gear → Skillsofts.</td></tr>`;
+    $('softBody').innerHTML=softs.map(([g,i])=>{const it=GEARDB[g.key];return `<tr><td>${esc(it.n)}${it.soft==='DataSoft'?`<div class="gstat">${esc(g.note||'what data it holds: use the gear note')}</div>`:`<div class="sfps">${softPickHTML(it.n,Object.assign(softOf(g,it.n),g.oth?{oth:true}:{}),i,{langs:(S.langs||[]).map(L=>L.name).filter(Boolean)})}</div>`}</td><td class="n">${g.r}</td><td class="n">${it.mp(+g.r)} Mp</td></tr>`;}).join('')||`<tr><td colspan="3" class="note">No skillsofts yet. Add them from Gear → Skillsofts.</td></tr>`;
     $('softNote').innerHTML=`Skillwires ${sw||'none'}: ActiveSofts in use at once can total rating ${sw||0}${act.length?` (yours total ${sumR}${sumR>sw?', so not all can run together':''})`:''}. Chipjacks: ${jacks} (skillwires include one). Headware memory: ${mem} Mp. ActiveSofts need skillwires and give no dice pools (p. 248).`;
   }
   // languages
@@ -3038,12 +3073,20 @@ function matrixInfo(){
   let pool=Math.floor((attrNow('int')+dk.mpcp)/3); notes.push(`(Intelligence ${attrNow('int')} + MPCP ${dk.mpcp}) ÷ 3`);
   if(rigPen){pool=Math.max(0,pool-rigPen);notes.push(`−${rigPen} for VCR ${vcr}`);}
   const react=tort?Math.max(1,Math.floor(baseR/2)):baseR+2*lv;
-  return {pool,poolHow:notes.join(' '),react,dice:1+lv,lv,rigPen,vr2:true};
+  return {pool,poolHow:notes.join(' '),react,dice:1+lv,lv,rigPen,vr2:true,baseR,tort};
  }
  const comp=bestRating(/^computer$/i); const ri=[1,2,3].reduce((m,L)=>S.gear.some(g=>g.key==='deck:Response Increase '+L)?L:m,0);
  let pool=comp+baseR+2*ri; if(rigPen){pool=Math.max(0,pool-rigPen);notes.push(`−${rigPen} for VCR ${vcr}`);}
- return {pool,poolHow:notes.join(' '),react:baseR+2*ri,dice:1+ri,lv:ri,rigPen,comp,vr2:false,hasDeck:!!dk};
+ return {pool,poolHow:notes.join(' '),react:baseR+2*ri,dice:1+ri,lv:ri,rigPen,comp,vr2:false,hasDeck:!!dk,baseR};
 }
+// Matrix Initiative for each way of running (core p. 178): magic, wired reflexes and VCRs never count in the Matrix.
+// Pure cybernetic command adds a die; keyboard only halves Reaction and drops the response-increase Reaction bonus but keeps its dice;
+// a tortoise on a terminal halves Reaction (minimum 1) and rolls 1D6. The book doesn't say how to round a half: rounded down here.
+function mxIniModes(mx){if(!mx) return []; const bR=mx.baseR||0, half=Math.floor(bR/2);
+  if(mx.vr2) return [{id:'vr2',l:mx.tort?'Tortoise (VR2 deck, no DNI)':'In the Matrix (VR2 deck)',r:mx.react,d:mx.dice,pg:'VR2 p. 120'}];
+  const ri=mx.lv||0, out=[];
+  if(mx.hasDeck) out.push({id:'full',l:'Full cybernetic (DNI only)',r:bR+2*ri,d:2+ri,pg:'p. 178'},{id:'mix',l:'Cybernetic with keyboard help',r:bR+2*ri,d:1+ri,pg:'p. 178'},{id:'kb',l:'Keyboard only',r:half,d:1+ri,pg:'p. 178'});
+  out.push({id:'tort',l:'Tortoise on a terminal',r:Math.max(1,half),d:1,pg:'p. 178'}); return out;}
 function detectionFactor(dk){
  if(!dk) return null; const sl=S.gear.filter(g=>g.key==='prog2:Sleaze').reduce((m,g)=>Math.max(m,+g.r||0),0);
  return sl?Math.ceil((dk.persona.Masking+sl)/2):Math.ceil(dk.persona.Masking/2);
@@ -3132,7 +3175,8 @@ const swLabel=n=>SW_TO_B[n]||n;
 function swWebName(b){if(SW_BR[b]) return SW_BR[b]; const e=Object.entries(SW_TO_B).find(([,v])=>v===b); return e?e[0]:b;}
 function swHave(){const m={}; const put=(web,r,ia)=>{if(!SKILLWEB.SKILLS.includes(web)||!(r>0)) return; if(!m[web]||r>m[web].r) m[web]={r,ia:ia||0};};
   S.skills.forEach(s=>{if(!s.name) return; const g=skillParts(s).find(p=>p.part==='gen'); const ia=adeptOn()?S.powers.filter(p=>p.type==='improvedAbility'&&p.skill===s.name).reduce((a,p)=>a+(+p.n||0),0):0; if(g) put(swWebName(s.name),g.r,ia);});
-  Object.entries(advSkills()).forEach(([n,r])=>put(swWebName(n),r,0)); return m;}
+  Object.entries(advSkills()).forEach(([n,r])=>put(swWebName(n),r,0));
+  if(typeof chipHaveMap==='function') Object.entries(chipHaveMap()).forEach(([web,r])=>{if(SKILLWEB.SKILLS.includes(web)&&r>0) m[web]={r,ia:0,chip:true};}); return m;}
 function swAttrs(){return [['QUICKNESS','Quickness',augAttr('quick')],['STRENGTH','Strength',augAttr('str')],['BODY','Body',augAttr('body')],['INTELLIGENCE','Intelligence',augAttr('int')],['CHARISMA','Charisma',augAttr('cha')],['WILLPOWER','Willpower',augAttr('wil')],['REACTION','Reaction',reactionVal()]];}
 function swP(t){return t<=1?1:t<=6?(7-t)/6:swP(t-6)/6;} // chance one die succeeds; Rule of Six above 6
 function swOptions(target,base){const have=swHave(), out=[];
@@ -3144,10 +3188,10 @@ function swOptText(o){return `${esc(o.from)}${o.kind==='attr'?' (attribute)':''}
 function renderDefaulting(){const box=$('swBox'); if(!box) return; const have=swHave();
   const all=SKILLWEB.SKILLS.slice(); if(!SWSEL||!all.includes(SWSEL)) SWSEL=all.find(n=>!have[n])||all[0];
   const magicBlock=n=>(n==='Sorcery'||n==='Conjuring')&&S.magic==='none';
-  const opt=all.map(n=>`<option value="${esc(n)}" ${n===SWSEL?'selected':''}>${esc(swLabel(n))}${have[n]?` (you have ${have[n].r})`:''}</option>`).join('');
+  const opt=all.map(n=>`<option value="${esc(n)}" ${n===SWSEL?'selected':''}>${esc(swLabel(n))}${have[n]?` (you have ${have[n].r}${have[n].chip?' on a chip':''})`:''}</option>`).join('');
   let detail='';
   if(magicBlock(SWSEL)) detail='<p class="note">Only magically active characters can use Sorcery or Conjuring at all (p. 45).</p>';
-  else if(have[SWSEL]) detail=`<p>You have ${esc(swLabel(SWSEL))} at <b>${have[SWSEL].r}</b>, so no defaulting needed.</p>`;
+  else if(have[SWSEL]) detail=`<p>You have ${esc(swLabel(SWSEL))} at <b>${have[SWSEL].r}</b>${have[SWSEL].chip?' on a slotted chip':''}, so no defaulting needed.</p>`;
   else{const o=swOptions(SWSEL,SWBASE); detail=o.length?`<ol class="swopts">${o.slice(0,4).map((x,i)=>`<li>${swOptText(x)}<div class="note">Path: ${esc(x.dots.join(' → '))}</div></li>`).join('')}</ol>${o.length>4?`<p class="note">${o.length-4} weaker option${o.length-4>1?'s':''} not shown.</p>`:''}`:'<p><b>Can’t default.</b> No skill you have or attribute connects to it on the Skill Web (arrows block some paths).</p>';}
   const rows=all.filter(n=>!have[n]&&!magicBlock(n)).map(n=>{const o=swOptions(n,SWBASE)[0]; return `<tr><td>${esc(swLabel(n))}</td>${o?`<td>${esc(o.from)}</td><td class="n mono">${o.dice}</td><td class="n mono">+${o.tn}</td>`:'<td colspan="3" class="note">can’t default</td>'}</tr>`;}).join('');
   box.innerHTML=`<h3>Defaulting <span class="pg">p. 68–69</span></h3>
@@ -3397,7 +3441,7 @@ function summary(magicRating,rSpent,rBudget){
   if(wmod.m) rows.push(['Wound modifier',`+${wmod.m} TN`]);
   const mx=matrixInfo();
   if(mx&&(mx.vr2||mx.hasDeck||comp)) rows.push([mx.vr2||mx.hasDeck?'Hacking Pool':'Hacking Pool (with a deck)',mx.pool]);
-  if(mx&&(mx.lv||mx.vr2)) rows.push(['Matrix Initiative',`${mx.react} + ${mx.dice}D6`]);
+  if(mx&&(mx.hasDeck||mx.vr2)) mxIniModes(mx).filter(m=>m.id!=='tort').forEach(m=>rows.push(['Matrix Initiative ('+m.l.toLowerCase()+')',`${m.r} + ${m.d}D6`]));
   rows.push(['Native language',nativeLang()]);
   rows.push(['Karma Pool',pool+(+S.kPoolBonus||0)],['Good Karma',`${(+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog()} available`]);
   $('sumStats').innerHTML=rows.map(([k,v])=>`<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
@@ -3611,6 +3655,8 @@ $('spAdd').onclick=()=>{const n=$('spName').value;const f=Math.min(S.established
 $('advBuy').onclick=()=>{const x=advTargets().find(t=>t.id===$('advPick').value); if(!x||karmaShort(x.cost)) return; S.adv=S.adv||[]; S.adv.push(Object.assign({cost:x.cost,desc:x.label.replace(/ \(above racial max, GM approval\)/,'')},x.entry)); if(x.entry.kind==='spellF'){const sp=S.powers.find(p=>p.name===x.entry.name); if(sp) sp.cost=x.entry.to;} render();};
 $('initBuy').onclick=()=>{const how=$('initHow').value||'self'; const g=initGrade()+1; if(karmaShort(initCost(g,how))) return; const ord=/Ord$/.test(how)?$('initOrd').value:''; const O=ORDEALS.find(o=>o[0]===ord); const asc=ord==='asc'?$('initAsc').value:''; if(ord==='asc'&&!asc){const n=$('advNote'); if(n){n.textContent='Pick the attribute you give up for the Asceticism ordeal first.'; n.hidden=false;} return;} if(/Ord$/.test(how)&&!O){const n=$('advNote'); if(n){n.textContent='Pick the ordeal first.'; n.hidden=false;} return;} if(/^group/.test(how)&&!mgState().contact){const n=$('advNote'); if(n){n.textContent='Group initiation needs a magical group with an astral contact (GR p. 54). Open “The group” below.'; n.hidden=false;} return;} S.adv=S.adv||[]; S.adv.push({kind:'init',grade:g,how,ord:ord||undefined,asc:asc||undefined,group:/^group/.test(how)?(S.initGroup||''):undefined,cost:initCost(g,how),desc:`Initiated to Grade ${g} (${INIT_HOW[how][1].toLowerCase()}${O?': '+O[1].toLowerCase():''})`}); render();};
 $('initGroup').oninput=e=>{S.initGroup=e.target.value; save();};
+document.addEventListener('change',e=>{const t=e.target.closest&&e.target.closest('[data-sfp]'); if(!t) return; const g=S.gear[+t.dataset.sfp]; if(!g||!GEARDB[g.key]) return;
+  const v=softSet(Object.assign(softOf(g,GEARDB[g.key].n),g.oth?{oth:true}:{}),t.dataset.sff,t.value); g.sk=v.sk; g.cc=v.cc; g.cs=v.cs; if(v.oth) g.oth=true; else delete g.oth; save(); render();});
 $('grpBox').addEventListener('change',e=>{const t=e.target, k=t.dataset.mg; if(!k) return; const M=mgState();
   if(k.startsWith('s_')){const wasHad=!!M.str[k.slice(2)]; M.str[k.slice(2)]=t.checked; if(M.contact&&wasHad!==t.checked&&STRICT.find(x=>x[0]===k.slice(2))[2]==='g'){M.contact=false; M.res='Changing a group stricture loses the astral contact (GR p. 55): the group must forge a new one.';}}
   else if(t.type==='checkbox') M[k]=t.checked; else if(t.type==='number') M[k]=Math.max(0,Math.floor(+t.value||0)); else M[k]=t.value;
@@ -3701,7 +3747,7 @@ function sheetStats(){
   if(wmod.m) rows.push(['Wound modifier',`+${wmod.m} TN`]);
   const mx=matrixInfo();
   if(mx&&(mx.vr2||mx.hasDeck||comp)) rows.push([mx.vr2||mx.hasDeck?'Hacking Pool':'Hacking Pool (with a deck)',mx.pool]);
-  if(mx&&(mx.lv||mx.vr2)) rows.push(['Matrix Initiative',`${mx.react} + ${mx.dice}D6`]);
+  if(mx&&(mx.hasDeck||mx.vr2)) mxIniModes(mx).filter(m=>m.id!=='tort').forEach(m=>rows.push(['Matrix Initiative ('+m.l.toLowerCase()+')',`${m.r} + ${m.d}D6`]));
   rows.push(['Native language',nativeLang()]);
   rows.push(['Karma Pool',pool+(+S.kPoolBonus||0)],['Good Karma',`${(+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog()} available`]);
   return {rows,reaction,dice,wmod,ar,mx,cpool:Math.max(0,Math.floor((qAug+i+w)/2)+cs-ar.poolPenalty),kpool:pool+(+S.kPoolBonus||0),bi:bodyIndexUsed()};
@@ -3726,7 +3772,7 @@ function sheetFile(){
     tile('Essence',+ess.toFixed(2),T.bi?`Body Index ${+T.bi.toFixed(3)} of ${bodyIndexMax()}`:''),
     ...(S.magic!=='none'?[tile('Magic',magicRating,'')]:[]),
     ...(isMagician()?[tile('Magic Pool',sorc,'Sorcery + power foci')]:[]),...(S.magic!=='none'&&initGrade()>=0?[tile('Initiate',`Grade ${initGrade()}`,`Astral Pool ${initGrade()} · +${initGrade()} Astral Reaction · GR p. 38`)]:[]),
-    ...(T.mx&&(T.mx.vr2||T.mx.hasDeck)?[tile('Hacking Pool',T.mx.pool,T.mx.vr2?'VR2 p. 18':'p. 85'),tile('Matrix Initiative',`${T.mx.react} + ${T.mx.dice}D6`,'')]:[]),
+    ...(T.mx&&(T.mx.vr2||T.mx.hasDeck)?[tile('Hacking Pool',T.mx.pool,T.mx.vr2?'VR2 p. 18':'p. 85'),...mxIniModes(T.mx).filter(m=>m.id==='full'||m.id==='kb'||m.id==='vr2').map(m=>tile(m.id==='full'?'Matrix Initiative':m.id==='kb'?'Keyboard Matrix Initiative':'Matrix Initiative',`${m.r} + ${m.d}D6`,m.id==='full'?'pure DNI':m.id==='kb'?'keyboard only':''))]:[]),
     ...(vcr?[tile('Control Pool',baseR+2*vcr,`VCR ${vcr}`),tile('Rigged Initiative',`${baseR+2*vcr} + ${1+vcr}D6`,'')]:[]),
   ].join('');
   // ---- attributes ----
@@ -3918,6 +3964,7 @@ function gearImport(p){const added=[],skipped=[],byIx={},links=[],upd=[]; const 
       if(x.hb&&typeof x.hb==='object') row.hb=JSON.parse(JSON.stringify(x.hb));
       if(x.gel) row.gel=true;
       if(x.loaded) row.loaded=true;
+      if(x.sf&&typeof x.sf==='object'&&it.soft){row.sk=String(x.sf.sk||'').slice(0,80); row.cc=String(x.sf.cc||'').slice(0,80); row.cs=String(x.sf.cs||'').slice(0,80);}
       if(had.has(x.key)) dup.push(it.n); S.gear.push(row); byIx[ix]=row; if(forGunItem(x.key)&&(x.forItem!=null||x.forKey)) links.push([row,x]); if(it.src&&it.src!=='core') books[it.src]=true; added.push(it.n);}
     else if(x&&x.name){S.gear.push({name:String(x.name).slice(0,140),cat:'other',qty:1,cost:Math.max(0,+x.cost||0),ess:0}); added.push(String(x.name));}});
   links.forEach(([row,x])=>{let t=x.forItem!=null?byIx[+x.forItem]:null; if(!t&&x.forKey) t=S.gear.find(g=>g.key===x.forKey&&isFeedGun(g)); if(t&&isFeedGun(t)){if(!t.gid) t.gid='w'+Math.random().toString(36).slice(2,9); row.forGun=t.gid;}});

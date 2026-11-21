@@ -233,3 +233,12 @@ document.addEventListener('change',e=>{const t=e.target.closest&&e.target.closes
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#addVeh'); if(!b) return; const i=BYID[st.sel]; if(!i||!isVeh(i)) return; const {B}=vbFix(i); if(!B.own) return;
   e.stopImmediatePropagation(); const C=vOwnCost(i,B), N=vOwnNew(i,B); if(!N.add.length) return; const x=vOwnSend(i,B);
   st.kit.push({id:i.id,r:0,vb:x.vb,up:x.up,pc:C.diff,bp:N.add}); save(); renderKit(); b.textContent='Added'; setTimeout(()=>{const bb=$('addVeh'); if(bb) renderTag();},1200);},true);
+
+// ---------- Skillsofts: the skill on the chip (core p. 248) ----------
+function softLockerHTML(i){if(!i||i.cat!=='soft') return ''; const {t}=softSpec(i.n); if(!t||t==='DataSoft') return ''; st.sfp=st.sfp||{}; const v=st.sfp[i.id]||{sk:'',cc:'',cs:''};
+  return `<div class="lk-sfp"><div class="sfps">${softPickHTML(i.n,v,i.id)}</div><p class="note">${t==='ActiveSoft'?'ActiveSofts copy Active Skills and need skillwires.':t==='KnowSoft'?'KnowSofts copy Knowledge Skills; a chipjack runs them.':'LinguaSofts copy a language; a chipjack runs them.'} The skill goes with the chip to the Runner Builder (core p. 248).</p><p class="note sfp-nag" hidden>Pick the skill on the chip first.</p></div>`;}
+function softPicked(i){const {t,k}=softSpec(i.n), v=(st.sfp||{})[i.id]||{}; if(!v.sk) return false; if(t==='ActiveSoft'||t==='KnowSoft'){if(k!=='gen'&&!v.cc) return false; if(k==='spec'&&!v.cs) return false;} return true;}
+function softNeedsPick(i){if(!i||i.cat!=='soft') return false; const {t}=softSpec(i.n); return !!t&&t!=='DataSoft'&&!softPicked(i);}
+function softNag(){const n=document.querySelector('.sfp-nag'); if(n) n.hidden=false;}
+function softKitPart(i){if(!i||i.cat!=='soft') return {}; const v=(st.sfp||{})[i.id]; return v&&v.sk?{sf:{sk:v.sk,cc:v.cc||'',cs:v.cs||''}}:{};}
+document.addEventListener('change',e=>{const t=e.target.closest&&e.target.closest('[data-sfp]'); if(!t) return; const i=BYID[t.dataset.sfp]; if(!i) return; st.sfp=st.sfp||{}; st.sfp[i.id]=softSet(st.sfp[i.id],t.dataset.sff,t.value); renderTag();});
