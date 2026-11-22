@@ -19,7 +19,11 @@ const keep=()=>{try{localStorage.setItem('sr2-b2',JSON.stringify({tab:B.tab,gv:B
 const B={tab:ST.tab||'build',gv:ST.gv==='gear'?'gear':'play',wid:'unarmed',mode:'s1',rng:0,amSel:'',sit:{},msit:{},gm:0,spend:0,force:0,dmgLv:'M',tnBase:4,fired:0,pool:null,poolMax:null,karma:null,roll:null,copy:null,
   gh:{kind:'ball',pow:9,lvl:'M',fl:true,att:0,spend:0,roll:null}, sk:{tn:4,res:''}, ini:null, af:{gk:0,kp:0,nin:0,nout:0,note:'',phys:null,stun:null,use:{},saved:''}};
 // ---------- rules tables (core p. 89, 101) ----------
-const VIS=[['n','Clear',0,0,0],['full','Full darkness',8,8,2],['min','Minimal light',6,2,2],['part','Partial light',2,0,1],['glare','Glare',2,2,2],['mist','Mist',2,0,0],['ls','Light smoke, fog, rain',4,2,0],['hs','Heavy smoke, fog, rain',6,4,0],['ts','Thermal smoke, heavy',6,4,6]]; // normal, natural low-light, natural thermographic
+// Visibility Table (core p. 89). Columns: normal, low-light cybernetic/electronic, low-light natural, thermographic cybernetic/electronic, thermographic natural.
+// "If the table listing is split by a slash, the first modifier is for cybernetic or electronic vision and the second for natural, metahuman vision."
+// Thermal smoke: normal and low-light as heavy smoke; thermographic as normal vision in heavy smoke.
+const VIS=[['n','Clear',0,0,0,0,0],['full','Full darkness',8,8,8,4,2],['min','Minimal light',6,4,2,4,2],['part','Partial light',2,1,0,2,1],['glare','Glare',2,4,2,4,2],['mist','Mist',2,2,0,0,0],['ls','Light smoke, fog, rain',4,4,2,0,0],['hs','Heavy smoke, fog, rain',6,6,4,1,0],['ts','Thermal smoke, heavy',6,6,4,6,6]];
+const VISK=[['normal vision',2],['cybernetic low-light',3],['natural low-light',4],['cybernetic thermographic',5],['natural thermographic',6]];
 const SITS=[['tgt','Target is',[['n','Moving normally',0],['run','Running',2],['still','Stationary',-1]]],
  ['cov','Target cover',[['n','In the open',0],['part','Partial cover',4],['blind','Can’t be seen (blind fire)',8]]],
  ['me','You are',[['n','Standing',0],['walk','Walking',1],['walkd','Walking, difficult ground',2],['run','Running',4],['rund','Running, difficult ground',6]]],
@@ -143,7 +147,19 @@ const DURN={I:'Instant',S:'Sustained',P:'Permanent'};
 // Karma Pool rerolls are rolled by hand at the table: the tool only charges the Karma (1, then 2, 3 … on the same test) and takes the extra successes (core p. 191)
 function karmaHTML(R,key){if(!R) return ''; const next=(R.kc||0)+1; return `<div class="b2karma"><span class="b2k">Karma Pool, rolled by hand</span><div class="b2row"><button class="ghost" data-b2a="${key}" ${B.karma>=next?'':'disabled'}>Reroll my failures: −${next} Karma Pool</button>${R.kc?`<div class="b2step"><button class="ghost" data-b2s="${key}x" data-d="-1" aria-label="Fewer successes from rerolls">−</button><b>+${R.kx||0}</b><button class="ghost" data-b2s="${key}x" data-d="1" aria-label="More successes from rerolls">+</button></div><small>successes from ${R.kc} reroll${R.kc>1?'s':''}</small>`:''}</div><small>Pick up the dice that failed, roll them for real and add what hits. Each reroll on the same test costs 1 more (core p. 191). Karma Pool left: ${B.karma}. <button class="ghost" data-b2a="kref">New scene: refresh it</button></small></div>`;}
 function visCol(){const r=baseRace(); return r==='Troll'||r==='Dwarf'?4:r==='Elf'||r==='Ork'?3:2;}
-function visName(){return ['','','normal vision','natural low-light','natural thermographic'][visCol()];}
+// Every kind of vision this runner can use right now, with where it comes from: race, eye implants (on their own or as cybereye options),
+// helmet vision options carried, and a low-light or thermographic scope on the weapon in hand (electronic vision, used through the scope).
+function visKinds(W){const K=[[2,'normal vision']]; const nat=visCol(); if(nat===3) K.push([4,'natural low-light']); if(nat===4) K.push([6,'natural thermographic']);
+  const has=new Map(), add=(col,src)=>{if(!has.has(col)) has.set(col,src);};
+  (S.gear||[]).forEach(g=>{if(g.at) return; const k=g.key||'';
+    if(k==='head:Low-Light Eyes') add(3,'low-light eyes'); if(k==='head:Thermographic Eyes') add(5,'thermographic eyes');
+    if(k==='head:Cybereyes'&&g.hb&&Array.isArray(g.hb.opts)) g.hb.opts.forEach(o=>{const id=o&&(o.id||o); if(/Low-Light Eyes$/.test(id)) add(3,'cybereyes'); if(/Thermographic Eyes$/.test(id)) add(5,'cybereyes');});
+    if(k==='armor:Helmet option: Low-Light'&&!g.off) add(3,'helmet'); if(k==='armor:Helmet option: Thermographic'&&!g.off) add(5,'helmet');});
+  if(W&&W.scope) W.scope.forEach(v=>{if(/^low/i.test(v)) add(3,'scope'); if(/^therm/i.test(v)) add(5,'scope');});
+  has.forEach((src,col)=>K.push([col,(col===3?'low-light':'thermographic')+' ('+src+')'])); return K;}
+// the best vision for a condition: the lowest modifier among the kinds the runner has
+function visBest(v,K){let b=K[0]; K.forEach(k=>{if(v[k[0]]<v[b[0]]) b=k;}); return b;}
+function visName(W){const K=visKinds(W); return K.length>1?'best of '+K.map(k=>k[1]).join(', '):'normal vision';}
 // ---------- what this runner can attack with ----------
 function attacks(){
   const T=sheetStats(), str=augAttr('str'), out=[]; const troll=baseRace()==='Troll'?1:0;
@@ -159,7 +175,7 @@ function attacks(){
     else if(WSTAT[g.key]){const [rt,cc,ammo,mode,dmg]=WSTAT[g.key]; const [sk,conc]=RT_SKILL[rt]||['Firearms','']; const sd=skillDiceNow(sk,conc,it.n); const gc=(typeof gunCalc==='function')?gunCalc(g):null;
       const fs=feedSpec(g.key); const fg=fs?feedGuns().find(x=>x.g===g):null;
       out.push({id:'g'+i,g,grp:where,kind:'gun',rt,n:it.n+((+g.qty||1)>1?' ×'+g.qty:''),dice:sd.dice==null?null:sd.dice+(sd.ia||0),skill:sd.chip==='ActiveSoft'?0:(sd.dice||0),diceSrc:sd.dice==null?'no skill: defaulting (core p. 66–68)':sd.how+' '+sd.dice+(sd.chip==='ActiveSoft'?' (ActiveSoft: no Combat Pool, core p. 248)':''),
-        dmg:(gc&&gc.C.dmg)||strDmg(dmg,str),mode:String(mode||''),bands:RANGES[rt]||['','','',''],aim:gc?gc.C.aim:0,aimTxt:gc?(gc.C.aimTxt||[]).filter(x=>!/pick the shooter/.test(x)).join(', '):'',rc:gc?(gc.C.rc||0):0,gid:fg?fg.gid:null,cap:fs?fs.cap:null,note:sk+' · '+(it.pg||'')});}});
+        dmg:(gc&&gc.C.dmg)||strDmg(dmg,str),mode:String(mode||''),bands:RANGES[rt]||['','','',''],scope:gc?(gc.C.parts||[]).filter(p=>p.vis).map(p=>p.vis):[],aim:gc?gc.C.aim:0,aimTxt:gc?(gc.C.aimTxt||[]).filter(x=>!/pick the shooter/.test(x)).join(', '):'',rc:gc?(gc.C.rc||0):0,gid:fg?fg.gid:null,cap:fs?fs.cap:null,note:sk+' · '+(it.pg||'')});}});
   if(isMagician()){const mp=bestRating(/^sorcery/i)+powerFoci();
     S.powers.forEach((p,i)=>{const sp=spellFind(p.name); if(!sp||sp.cat!=='Combat') return;
       out.push({id:'sp'+i,grp:'spell',kind:'spell',n:p.name+' (Force '+(+p.cost||1)+')',maxF:+p.cost||1,sp,dice:null,skill:mp,pool:mp,note:(sp.pg||'')+' · '+(sp.ty==='M'?'mana: target resists with Willpower':'physical: target resists with Body')});});
@@ -278,7 +294,9 @@ function nightHTML(){
     ctl+=sel('dmglv','Spell’s damage level',[['L','Light'],['M','Moderate'],['S','Serious'],['D','Deadly']],B.dmgLv); dmg=B.dmgLv+' · Force '+spellF; dmgNote='target resists against the Force; armor doesn’t help (core p. 129, 149)';
   }
   // visibility (all but Matrix): the column for this runner's eyes
-  if(!['drone','matrix','util','cast'].includes(W.kind)){ctl+=sel('sit:vis','Light and air ('+visName()+')',VIS.map(v=>[v[0],v[1]+(v[vc]?' ('+SIGN(v[vc])+')':'')]),B.sit.vis||'n'); const v=VIS.find(x=>x[0]===B.sit.vis); if(v&&v[0]!=='n'){rows.push([v[1],visName()+' · core p. 89',SIGN(v[vc])]); tn+=v[vc];}}
+  if(!['drone','matrix','util','cast'].includes(W.kind)){// melee uses the Visibility Table at half value, rounded down, except Full Darkness (core p. 102)
+    const VK=visKinds(W), mel=W.kind==='melee', vm=(v,bk)=>mel&&v[0]!=='full'?Math.floor(v[bk[0]]/2):v[bk[0]];
+    ctl+=sel('sit:vis','Light and air',VIS.map(v=>{const bk=visBest(v,VK), m=vm(v,bk); return [v[0],v[1]+(m?' ('+SIGN(m)+')':'')];}),B.sit.vis||'n'); const v=VIS.find(x=>x[0]===B.sit.vis); if(v&&v[0]!=='n'){const bk=visBest(v,VK), m=vm(v,bk); rows.push([v[1],'using '+bk[1]+(mel&&v[0]!=='full'?', half in melee · core p. 89, 102':' · core p. 89'),SIGN(m)]); tn+=m;}}
   ctl+=step('gm','GM modifier',B.gm?SIGN(B.gm):'0'); if(B.gm){rows.push(['GM modifier','anything the tables don’t cover',SIGN(B.gm)]); tn+=B.gm;}
   if(w&&W.kind!=='spirit'&&!(W.kind==='drone'&&B.dmode==='auto')){rows.push(['Wounds','core p. 112','+'+w]); tn+=w;}
   {const sp=susPen(); if(sp&&W.kind!=='spirit'&&!(W.kind==='drone'&&B.dmode==='auto')){rows.push(['Sustaining '+susN()+' spell'+(susN()>1?'s':''),'+2 each · core p. 128',SIGN(sp)]); tn+=sp;}}
