@@ -515,8 +515,8 @@ function mount(){
   {const pb=document.createElement('button'); pb.id='b2pracBtn'; pb.type='button'; pb.className='ghost b2pracb'; pb.dataset.b2a='prac'; pb.textContent='Practice session'; tabs.after(pb);
    const bar=document.createElement('div'); bar.id='b2prac'; bar.className='b2pracbar'; bar.hidden=true; bar.setAttribute('role','status'); nav.after(bar);}
   window.addEventListener('storage',e=>{if(e.key===HITKEY&&B.tab==='night') redraw();});
-  // on the public site, link the GM screen and the classic layout next to the Gear Locker link
-  {const f=(location.pathname.split('/').pop()||'').toLowerCase(); if(/^https?:$/.test(location.protocol)&&!/claude/.test(location.hostname)&&/builder\.html$/.test(f)){const lt=$('lockerTop'); if(lt){const x=document.createElement('span'); x.className='note'; x.innerHTML=' · <a href="gm-screen.html" target="_blank" rel="noopener">GM screen ↗</a> · <a href="builder-classic.html">Classic layout</a>'; lt.after(x);}}}
+  // on the public site, link the GM screen next to the Gear Locker link
+  {const f=(location.pathname.split('/').pop()||'').toLowerCase(); if(/^https?:$/.test(location.protocol)&&!/claude/.test(location.hostname)&&/builder\.html$/.test(f)){const lt=$('lockerTop'); if(lt){const x=document.createElement('span'); x.className='note'; x.innerHTML=' · <a href="gm-screen.html" target="_blank" rel="noopener">GM screen ↗</a>'; lt.after(x);}}}
   const strip=document.createElement('div'); strip.id='b2strip'; strip.setAttribute('aria-label','Budget'); nav.after(strip);
   const drawer=document.createElement('div'); drawer.id='b2drawer'; drawer.hidden=true; strip.after(drawer);
   const lay=document.querySelector('.layout'); const night=document.createElement('section'); night.id='b2night'; night.className='b2wrap'; night.setAttribute('aria-label','Game night');

@@ -32,6 +32,6 @@ for f in ['sr2-builder.html','gear/template.html','gear/sr2-gear-locker.html','S
 if bad: print('MISMATCH',bad); sys.exit(1)
 site='/home/claude/shadowrun2-tools'
 if os.path.isdir(site) and not os.environ.get('NOSITE'):
-    shutil.copy('SR2_Runner_Builder_2.html',site+'/builder.html'); shutil.copy('SR2_Runner_Builder.html',site+'/builder-classic.html')  # the redesigned Builder is live; the classic layout stays as a backup
+    shutil.copy('SR2_Runner_Builder_2.html',site+'/builder.html')  # the classic layout was retired 2026-11-21
     shutil.copy('SR2_Gear_Locker_2.html',site+'/gear-locker.html'); shutil.copy('SR2_GM_Screen.html',site+'/gm-screen.html')
 print(f'built: shared blocks builder {nb}, locker {nl}; {len(SH)} shared modules; all blocks match')

@@ -14,7 +14,7 @@ The build runs these steps in order:
 1. Inject each `shared/*.js` module into both pages, between `/*@shared:NAME*/` and `/*@end:NAME*/` markers.
 2. Run `extract.js` to turn the builder's item data into `gear_data.json`.
 3. Run `gear/mk.py` to build the old-layout Gear Locker (kept for reference), then `gear/mk2.py` to build the live Gear Locker from the same template with the new layout.
-4. Run `builder2/mkb2.py` to build the live Runner Builder (Build / Game night / After the session) from the classic one, and `gm/mkgm.py` to build the GM screen with the Gear Locker items embedded. `build.py` does all of this.
+4. Run `builder2/mkb2.py` to build the live Runner Builder (Build / Game night / After the session) on top of `sr2-builder.html`, and `gm/mkgm.py` to build the GM screen with the Gear Locker items embedded. `build.py` does all of this.
 4. Check that every injected block matches its source module.
 5. Copy the Runner Builder and the new-layout Gear Locker (`SR2_Gear_Locker_2.html`) to the site as `builder.html` and `gear-locker.html`.
 
@@ -32,7 +32,7 @@ The build runs these steps in order:
 | `shared/cyberbody.js`, `shared/cyberbody_ui.js` | Cyberlimbs. |
 | `shared/skins.js` | Color modes. |
 | `shared/skillweb.js` | Skill Web (not wired into the pages yet). |
-| `builder2/mkb2.py`, `builder2/b2ui.js`, `builder2/b2ui.css` | The live Runner Builder's three modes. The code goes inside the Builder's own script, so it reads the character and rules helpers directly and travels with 'builder with character' exports. Game night: big stats, one attack panel (weapon, firing mode, ammo, ranged and melee modifiers, pools, Roll20 copy), Got hit, skill checks, powers and spells. After the session: Karma, nuyen, damage and used-up gear, saved with a snapshot. It also stores a few numbers (`S._gm`) for the GM screen. The classic page is published as `builder-classic.html`. |
+| `builder2/mkb2.py`, `builder2/b2ui.js`, `builder2/b2ui.css` | The live Runner Builder's three modes. The code goes inside the Builder's own script, so it reads the character and rules helpers directly and travels with 'builder with character' exports. Game night: big stats, one attack panel (weapon, firing mode, ammo, ranged and melee modifiers, pools, Roll20 copy), Got hit, skill checks, powers and spells. After the session: Karma, nuyen, damage and used-up gear, saved with a snapshot. It also stores a few numbers (`S._gm`) for the GM screen. The older single-page layouts (`builder-classic.html`, `gear-locker-classic.html`) were retired on 2026-11-21. |
 | `gm/` | The GM screen: `gm_data.js` (stat blocks with printed pages, suggested loadouts), `gm.js`, `gm.css`, `gm.html`, built by `mkgm.py` into `gm-screen.html`. |
 | `chk*.js`, `gear/chk*.js`, `v2/` | Regression tests. `runall.sh` runs them; `v2/` checks the live Gear Locker, including the older Locker checks run against it. |
 | `books_tools/` | Scripts that turn the rulebook PDFs into per-page text with printed page numbers, and search them. They need the PDFs; no book text is stored here. |
