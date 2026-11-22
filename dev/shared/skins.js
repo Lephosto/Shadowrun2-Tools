@@ -14,7 +14,10 @@ const P={
   cosmic:{label:'Cosmic Spark',group:'Western',base:'dark',deco:'stars',bg:'#0a0820',panel:'#141130',panel2:'#1e1a42',ink:'#f5ecda',muted:'#bfae94',line:'#3a3366',accent:'#ffb23f',accentInk:'#1c1000',accentSoft:'#3d2a12',ok:'#62e3c6',okSoft:'#123a35',warn:'#ffd86b',warnSoft:'#3a3014',bad:'#ff6f61',badSoft:'#3f1620',price:'#9fd4ff'},
   contrast:{label:'High contrast',base:'dark',bg:'#000000',panel:'#000000',panel2:'#141414',ink:'#ffffff',muted:'#dadada',line:'#9a9a9a',accent:'#ffe600',accentInk:'#000000',accentSoft:'#332e00',ok:'#66ff94',okSoft:'#0a2a12',warn:'#ffbe57',warnSoft:'#332000',bad:'#ff7a7a',badSoft:'#3a0d0d',price:'#8adcff'}
 };
-const LIST=[['system','Match my device'],['light','Light'],['dark','Dark'],...Object.entries(P).map(([k,v])=>[k,v.label])];
+// Parked 2026-11-22 for the redesign: only Match my device, Light and Dark are offered. A saved skin stays in storage untouched
+// and reads as 'system' while parked, so setting PARKED to false brings every pick back as it was.
+const PARKED=true;
+const LIST=[['system','Match my device'],['light','Light'],['dark','Dark'],...(PARKED?[]:Object.entries(P).map(([k,v])=>[k,v.label]))];
 let set=[], prev=null; // prev: the site-wide colors before the last pick, so a page can hand that pick to one character instead
 const DECO={stars:'html[data-skin] body{background-image:radial-gradient(1px 1px at 12% 18%,rgba(255,240,210,.85) 50%,transparent 51%),radial-gradient(1px 1px at 68% 9%,rgba(255,240,210,.7) 50%,transparent 51%),radial-gradient(1.5px 1.5px at 84% 33%,rgba(255,178,63,.9) 50%,transparent 51%),radial-gradient(1px 1px at 33% 62%,rgba(159,212,255,.75) 50%,transparent 51%),radial-gradient(1px 1px at 52% 41%,rgba(255,240,210,.6) 50%,transparent 51%),radial-gradient(1.5px 1.5px at 7% 84%,rgba(255,240,210,.8) 50%,transparent 51%),radial-gradient(1px 1px at 91% 76%,rgba(159,212,255,.7) 50%,transparent 51%),radial-gradient(120% 70% at 50% 120%,rgba(255,140,40,.14),transparent 60%);background-size:420px 420px,420px 420px,420px 420px,420px 420px,420px 420px,420px 420px,420px 420px,100% 100%;background-attachment:fixed}',
   sun:'html[data-skin] body{background-image:radial-gradient(60% 45% at 85% -10%,rgba(255,214,140,.55),transparent 70%),radial-gradient(140% 60% at 50% 115%,rgba(163,92,40,.18),transparent 65%);background-attachment:fixed}'};

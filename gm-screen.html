@@ -5,14 +5,45 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SR2 GM Screen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
-<style>:root{--bg:#f3f4f6;--paper:#fff;--panel2:#f5f6f8;--ink:#141922;--muted:#566070;--line:#d6dbe2;--accent:#2453c7;--accent-ink:#fff;--ok:#1f7a4d;--warn:#a35a00;--bad:#b42318;--hit:#1f7a4d;--pool:#2453c7;
- --mono:'IBM Plex Mono',ui-monospace,monospace;--body:'IBM Plex Sans',system-ui,sans-serif;--display:'Chakra Petch','Arial Narrow',sans-serif}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0f1319;--paper:#171c24;--panel2:#1d2430;--ink:#e7ebf1;--muted:#9aa5b5;--line:#2c3543;--accent:#7aa2ff;--accent-ink:#0d1220;--ok:#5ccf95;--warn:#f0b35a;--bad:#ff7a72;--hit:#5ccf95;--pool:#7aa2ff}}
-:root[data-theme=dark]{--bg:#0f1319;--paper:#171c24;--panel2:#1d2430;--ink:#e7ebf1;--muted:#9aa5b5;--line:#2c3543;--accent:#7aa2ff;--accent-ink:#0d1220;--ok:#5ccf95;--warn:#f0b35a;--bad:#ff7a72;--hit:#5ccf95;--pool:#7aa2ff}
+<style>/*@shared:tokens*/
+/* ---------- Design tokens, shared by all three tools (color 11b, decided 2026-11-22) ----------
+   One source: build.py copies this file into every tool. Change a value here and all three change with it.
+   Blue (--brand) runs the interface: tabs, links, selected things, focus. Crimson (--action) is only for
+   the main action on a screen (Roll, Add, Send) and for prices. */
+:root{
+  --bg:#e9eef6; --panel:#ffffff; --panel-2:#f3f6fb; --ink:#121a2a; --muted:#4f5d75; --line:#ccd6e6;
+  --brand:#2453c7; --brand-ink:#ffffff; --brand-soft:#e3eafb;
+  --action:#9c1d58; --action-ink:#ffffff; --action-soft:#f5e3ec; --price:#9c1d58;
+  --ok:#1d7a4a; --ok-soft:#e1f2e8; --warn:#9a5b00; --warn-soft:#fbefd9; --bad:#b3261e; --bad-soft:#fbe5e3;
+  --focus:#2453c7;
+  --f-display:"Chakra Petch","IBM Plex Sans",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  /* five type sizes; nothing smaller than 12px */
+  --t-xs:12px; --t-sm:14px; --t-md:16px; --t-lg:20px; --t-xl:28px;
+  --tap:24px; --radius:8px;
+  color-scheme:light;
+}
+@media (max-width:40em){:root{--tap:44px}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d1424; --panel:#141d31; --panel-2:#1a2540; --ink:#e6ecf7; --muted:#9aa8c2; --line:#26324d;
+  --brand:#7aa2ff; --brand-ink:#0d1220; --brand-soft:#1c2a4a;
+  --action:#e2669e; --action-ink:#1a0d14; --action-soft:#3a1a2a; --price:#e2669e;
+  --ok:#5fcf93; --ok-soft:#173226; --warn:#f0b04d; --warn-soft:#3a2c14; --bad:#ff8a80; --bad-soft:#3d1c1a;
+  --focus:#7aa2ff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1424; --panel:#141d31; --panel-2:#1a2540; --ink:#e6ecf7; --muted:#9aa8c2; --line:#26324d;
+  --brand:#7aa2ff; --brand-ink:#0d1220; --brand-soft:#1c2a4a;
+  --action:#e2669e; --action-ink:#1a0d14; --action-soft:#3a1a2a; --price:#e2669e;
+  --ok:#5fcf93; --ok-soft:#173226; --warn:#f0b04d; --warn-soft:#3a2c14; --bad:#ff8a80; --bad-soft:#3d1c1a;
+  --focus:#7aa2ff; color-scheme:dark}
+/*@end:tokens*/
+/* The GM screen's older color names, pointed at the shared tokens */
+:root{--paper:var(--panel);--panel2:var(--panel-2);--accent:var(--brand);--accent-ink:var(--brand-ink);--hit:var(--ok);--pool:var(--brand);--mono:var(--f-mono);--body:var(--f-body);--display:var(--f-display)}
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 var(--body)}
 button,select,input{font:inherit;color:inherit}
-button{min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font-weight:600;cursor:pointer}
+button{min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--action);background:var(--action);color:var(--action-ink);font-weight:600;cursor:pointer}
 button.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
 button:disabled{opacity:.5;cursor:not-allowed}
 button.sm{min-height:36px;font-size:13px;padding:0 10px}button.xs{min-height:32px;min-width:32px;padding:0 8px;font-size:13px}button.sq{width:40px;min-height:40px;padding:0}
@@ -20,20 +51,20 @@ select,input{min-height:44px;border-radius:8px;border:1px solid var(--line);back
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .sr{position:absolute;left:-9999px}
 .wrap{max-width:1440px;margin:0 auto;padding:12px 16px 40px}
-header.top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:flex-end;justify-content:space-between;padding:8px 0 12px}
 h1{font:700 26px/1 var(--display);margin:0}h2{font:700 18px var(--display);margin:0}
-.tag{font:600 11px var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.tag{font:600 12px var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
 #tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 0}
 #tabs button{border-radius:999px;background:transparent;color:var(--ink);border-color:var(--line)}#tabs button[aria-selected=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .panel{background:var(--paper);border:1px solid var(--line);border-radius:10px;min-width:0}
 .pad{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
-.lbl{font:600 11px var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}.lbl small{text-transform:none;letter-spacing:0;font-weight:400}
+.lbl{font:600 12px var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}.lbl small{text-transform:none;letter-spacing:0;font-weight:400}
 .note{font-size:13px;color:var(--muted)}.mono{font-family:var(--mono)}.big{font-size:18px;min-width:28px;text-align:center}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .cat{display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:12px;align-items:start}
 .list{position:sticky;top:64px;max-height:calc(100vh - 76px);display:flex;flex-direction:column;overflow:hidden}
 .bhd{display:flex;flex-direction:column;gap:8px;padding:12px;border-bottom:1px solid var(--line)}
 #q{width:100%}
+.ftog{background:transparent;color:var(--brand);border-color:var(--brand)}.ftog[aria-expanded=true]{background:var(--brand-soft)}
 .ftog .fn{background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:0 6px;font-size:12px}
 .fbox{display:flex;flex-direction:column;gap:10px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}.fbox[hidden]{display:none}
 .fl{display:flex;flex-direction:column;gap:4px;min-width:0}.fl.wide{grid-column:1/-1}
@@ -44,7 +75,7 @@ h1{font:700 26px/1 var(--display);margin:0}h2{font:700 18px var(--display);margi
 .it{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;background:transparent;color:var(--ink);border:1px solid transparent;border-radius:8px;padding:8px 10px;min-height:52px;font-weight:400}
 .it:hover{background:var(--panel2)}.it[aria-pressed=true]{border-color:var(--accent);background:var(--panel2)}
 .itn{display:flex;flex-direction:column;min-width:0}.itn small{color:var(--muted)}
-.tier{font:600 11px var(--body);letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.tier{font:600 12px var(--body);letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
 .tier.t0{color:var(--ok)}.tier.t1{color:var(--accent)}.tier.t2{color:var(--warn)}.tier.t3{color:var(--bad)}
 .dh{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:6px}
@@ -79,13 +110,78 @@ h1{font:700 26px/1 var(--display);margin:0}h2{font:700 18px var(--display);margi
 .orow .rini{display:flex;gap:4px;align-items:center;margin-left:auto}
 .orow .rhit{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
 .orow .rhmsg{flex-basis:100%;color:var(--muted)}
+/*@shared:ui*/
+/* ---------- Shared pieces, the same in all three tools (Phase 1 of the redesign, 2026-11-22) ----------
+   Copied in by build.py after each tool's own styles, so these win where they overlap. Colors come only from tokens.css. */
+
+/* Focus: 2px blue on everything you can tab to */
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+/* Fields: checkboxes and radios grow from 13px to 24px, the smallest tap target (changed from 20px on 2026-11-22) */
+input[type=checkbox],input[type=radio]{width:24px;height:24px;min-height:0;margin:0;flex:none;accent-color:var(--brand);padding:0}
+
+/* Touch: every control at least 24px tall; 44px at phone width (--tap) */
+:where(summary){min-height:24px}
+:where(button,select,input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color])){min-height:var(--tap)}
+
+/* Buttons. Main = crimson, one per panel (Roll, Add, Buy, Send). Secondary = blue outline. Quiet = text only. */
+.ui-main{background:var(--action)!important;color:var(--action-ink)!important;border:1px solid var(--action)!important}
+.ui-main:hover{filter:brightness(1.08)}
+.ui-main:disabled{opacity:.45;filter:none}
+.ui-sec{background:transparent;color:var(--brand);border:1px solid var(--brand)}
+.ui-quiet{background:transparent;color:var(--brand);border:1px solid transparent}
+
+/* Page cites: one small chip everywhere, e.g. "core p. 254" */
+.cite{display:inline-block;font:500 var(--t-xs)/1.4 var(--f-mono);letter-spacing:0;text-transform:none;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:0 6px;max-width:100%;overflow-wrap:anywhere;vertical-align:.08em}
+
+/* Tags: ok, warn, bad, neutral */
+.ui-tag{display:inline-block;font:600 var(--t-xs)/1.5 var(--f-body);padding:0 8px;border-radius:4px;background:var(--panel-2);color:var(--muted);white-space:nowrap}
+.ui-tag.ok{background:var(--ok-soft);color:var(--ok)} .ui-tag.warn{background:var(--warn-soft);color:var(--warn)} .ui-tag.bad{background:var(--bad-soft);color:var(--bad)}
+
+/* ---------- The shared header ----------
+   Laptop: tool name (Chakra Petch), the three tools with the current one marked, the tool's own controls, Colors at the right.
+   Phone: one row with the tool name, a line under it (the runner's name), and a Menu button that opens the rest. */
+.srh{display:flex;align-items:center;gap:12px 20px;flex-wrap:wrap;margin:0 0 16px;padding:0 0 12px;border-bottom:1px solid var(--line);position:relative}
+.srh-id{display:flex;flex-direction:column;min-width:0;margin-right:auto}
+.srh-name{font:600 var(--t-xl)/1.15 var(--f-display);letter-spacing:.01em;color:var(--ink);margin:0}
+.srh-sub{font:400 var(--t-xs)/1.4 var(--f-body);color:var(--muted);min-height:1.4em}
+.srh-tools{display:flex;gap:4px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.srh-tools a{display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:7px;font:500 var(--t-sm)/1 var(--f-body);color:var(--muted);text-decoration:none;white-space:nowrap}
+.srh-tools a:hover{color:var(--brand)}
+.srh-tools a[aria-current="page"]{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.srh-ctl{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap}
+.srh-ctl label{display:inline-flex;flex-direction:row;align-items:center;gap:6px;font:600 var(--t-xs)/1.2 var(--f-body);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.srh-ctl label.plain{text-transform:none;letter-spacing:0;font-weight:500}
+.srh-menu{display:none;align-items:center;gap:6px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);padding:0 12px;font:600 var(--t-sm)/1 var(--f-body);cursor:pointer}
+.srh-menu svg{width:20px;height:20px}
+@media (max-width:40em){
+  .srh{flex-wrap:nowrap;margin-bottom:12px;padding-bottom:8px}
+  .srh-name{font-size:var(--t-lg)}
+  .srh-id{min-width:0;flex:1}
+  .srh-sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .srh-menu{display:inline-flex;min-width:44px;justify-content:center}
+  .srh-tools,.srh-ctl{display:none}
+  .srh.open{flex-wrap:wrap}
+  .srh.open .srh-tools,.srh.open .srh-ctl{display:flex;width:100%;order:3}
+  .srh.open .srh-tools a{flex:1;justify-content:center;min-height:44px}
+  .srh.open .srh-ctl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+  .srh.open .srh-ctl>:not(button){grid-column:1/-1}
+  .srh.open .srh-ctl label{flex-direction:column;align-items:stretch;gap:4px}
+  .srh.open .srh-ctl label.plain{flex-direction:row;align-items:center;gap:8px}
+  .srh.open .srh-ctl select{width:100%;max-width:none!important}
+}
+@media print{.srh-tools,.srh-ctl,.srh-menu{display:none!important}}
+/*@end:ui*/
 </style>
 </head>
 <body>
 <div class="wrap">
- <header class="top"><div><div class="tag">Shadowrun · 2nd Edition · for the GM</div><h1>SR2 GM Screen</h1></div>
-  <div class="row"><a href="builder.html">Runner Builder</a> · <a href="gear-locker.html">Gear Locker</a>
-   <label class="sr" for="theme">Colors</label><select id="theme"><option value="">Match my device</option><option value="light">Light</option><option value="dark">Dark</option></select></div></header>
+ <header class="srh" id="srh">
+  <div class="srh-id"><h1 class="srh-name">SR2 GM Screen</h1><span class="srh-sub" id="srhSub">Baddies, encounters and the table</span></div>
+  <nav class="srh-tools" aria-label="Tools"><a data-tool="builder">Runner Builder</a><a data-tool="locker">Gear Locker</a><a data-tool="gm">GM screen</a></nav>
+  <div class="srh-ctl" id="srhCtl"><label for="skinSel">Colors<select id="skinSel"></select></label></div>
+  <button type="button" class="srh-menu" aria-expanded="false" aria-controls="srhCtl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menu</button>
+ </header>
  <nav id="tabs" role="tablist" aria-label="GM screen"><button role="tab" data-tab="cat">Baddies</button><button role="tab" data-tab="enc" id="tabEnc">Encounter</button><button role="tab" data-tab="tbl">At the table</button></nav>
  <main id="view"></main>
  <p class="note">Stats come from the Shadowrun 2nd Edition core rulebook and the Corporate Security Handbook, with printed page numbers. Gear comes from the Gear Locker. Saved in this browser only.</p>
@@ -229,7 +325,84 @@ const STREET_LOADOUTS={
  difficult:{n:'Difficult',why:'heavy hitter',items:['guns:AK-97','guns:Ares Predator','armor:Armor Jacket','boom:Offensive Grenade']}
 };
 </script>
-<script>(function(){const s=document.getElementById('theme');let t='';try{t=localStorage.getItem('sr2-gm-theme')||'';}catch(e){} const ap=v=>{if(v) document.documentElement.dataset.theme=v; else delete document.documentElement.dataset.theme;}; ap(t); s.value=t; s.onchange=()=>{ap(s.value);try{localStorage.setItem('sr2-gm-theme',s.value);}catch(e){}};})();</script>
+<script>
+// Colors: the same choice as the Builder and the Gear Locker (saved under 'sr2-skin'). A GM screen pick from before is carried over once.
+try{const o=localStorage.getItem('sr2-gm-theme'); if(o&&!localStorage.getItem('sr2-skin')) localStorage.setItem('sr2-skin',o); localStorage.removeItem('sr2-gm-theme');}catch(e){}
+const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--panel',panel2:'--panel-2',ink:'--ink',muted:'--muted',line:'--line',accent:'--brand',accentInk:'--brand-ink',accentSoft:'--brand-soft',price:'--price',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
+/*@shared:skins*/
+// ---------- Color modes, shared by both tools ----------
+// Each page defines SKINENV = {map:{paletteKey:'--its-token'}, sel:'id of the <select>'}. The choice is saved under 'sr2-skin',
+// so both tools on the same site open in the same colors. System/Light/Dark use the page's own tokens; the skins set every token inline.
+const SKIN=(()=>{
+const KEY='sr2-skin';
+const P={
+  matrix:{label:'Matrix (green screen)',base:'dark',mono:true,bg:'#020a04',panel:'#06140b',panel2:'#0b2013',ink:'#c2ffd2',muted:'#6cbc86',line:'#1d4a2c',accent:'#3dff7f',accentInk:'#021006',accentSoft:'#0e3a1d',ok:'#3dff7f',okSoft:'#0e3a1d',warn:'#e8ff66',warnSoft:'#2b3410',bad:'#ff6a5f',badSoft:'#3a1411',price:'#9dffbc'},
+  neon:{label:'Neon (Seattle at night)',base:'dark',bg:'#0d0718',panel:'#160d26',panel2:'#211339',ink:'#f4ebff',muted:'#b19dd0',line:'#3b2662',accent:'#ff4fae',accentInk:'#1a0310',accentSoft:'#3f1337',ok:'#33f0d2',okSoft:'#0e3535',warn:'#ffd447',warnSoft:'#3a2e10',bad:'#ff6682',badSoft:'#401425',price:'#33f0d2'},
+  amber:{label:'Amber terminal',base:'dark',mono:true,bg:'#110b02',panel:'#1b1306',panel2:'#271b09',ink:'#ffdcaa',muted:'#c9a066',line:'#4c3615',accent:'#ffb31a',accentInk:'#1a1000',accentSoft:'#3e2b07',ok:'#cbe26e',okSoft:'#2a3110',warn:'#ffd166',warnSoft:'#3d2c0a',bad:'#ff7f59',badSoft:'#3e1b0e',price:'#ffcb52'},
+  paper:{label:'Paper (printed sheet)',base:'light',bg:'#ebe3d2',panel:'#fbf7ee',panel2:'#f2eadb',ink:'#2a2016',muted:'#6a5a44',line:'#d5c6ab',accent:'#8c2a10',accentInk:'#ffffff',accentSoft:'#f3ddd0',ok:'#3b6a1d',okSoft:'#e3ebd1',warn:'#875700',warnSoft:'#f3e2c0',bad:'#a3221a',badSoft:'#f4d7d1',price:'#8c2a10'},
+  // Cosmic Spark: a night sky over the desert, IC lighting up gold "like a cosmic spark", starlight blue for money (his handle and his westerns)
+  // Western set: High Noon by day, Cosmic Spark by night (Cosmic loves the old westerns)
+  noon:{label:'High Noon',group:'Western',base:'light',deco:'sun',bg:'#e8d6b0',panel:'#f8eedb',panel2:'#efdfc0',ink:'#2b1d12',muted:'#6b5034',line:'#cdb48a',accent:'#973a17',accentInk:'#ffffff',accentSoft:'#f2d6c4',ok:'#386224',okSoft:'#dfe9cf',warn:'#7d5000',warnSoft:'#f2e0b5',bad:'#9b281c',badSoft:'#f3d3cb',price:'#1d5d78'},
+  cosmic:{label:'Cosmic Spark',group:'Western',base:'dark',deco:'stars',bg:'#0a0820',panel:'#141130',panel2:'#1e1a42',ink:'#f5ecda',muted:'#bfae94',line:'#3a3366',accent:'#ffb23f',accentInk:'#1c1000',accentSoft:'#3d2a12',ok:'#62e3c6',okSoft:'#123a35',warn:'#ffd86b',warnSoft:'#3a3014',bad:'#ff6f61',badSoft:'#3f1620',price:'#9fd4ff'},
+  contrast:{label:'High contrast',base:'dark',bg:'#000000',panel:'#000000',panel2:'#141414',ink:'#ffffff',muted:'#dadada',line:'#9a9a9a',accent:'#ffe600',accentInk:'#000000',accentSoft:'#332e00',ok:'#66ff94',okSoft:'#0a2a12',warn:'#ffbe57',warnSoft:'#332000',bad:'#ff7a7a',badSoft:'#3a0d0d',price:'#8adcff'}
+};
+// Parked 2026-11-22 for the redesign: only Match my device, Light and Dark are offered. A saved skin stays in storage untouched
+// and reads as 'system' while parked, so setting PARKED to false brings every pick back as it was.
+const PARKED=true;
+const LIST=[['system','Match my device'],['light','Light'],['dark','Dark'],...(PARKED?[]:Object.entries(P).map(([k,v])=>[k,v.label]))];
+let set=[], prev=null; // prev: the site-wide colors before the last pick, so a page can hand that pick to one character instead
+const DECO={stars:'html[data-skin] body{background-image:radial-gradient(1px 1px at 12% 18%,rgba(255,240,210,.85) 50%,transparent 51%),radial-gradient(1px 1px at 68% 9%,rgba(255,240,210,.7) 50%,transparent 51%),radial-gradient(1.5px 1.5px at 84% 33%,rgba(255,178,63,.9) 50%,transparent 51%),radial-gradient(1px 1px at 33% 62%,rgba(159,212,255,.75) 50%,transparent 51%),radial-gradient(1px 1px at 52% 41%,rgba(255,240,210,.6) 50%,transparent 51%),radial-gradient(1.5px 1.5px at 7% 84%,rgba(255,240,210,.8) 50%,transparent 51%),radial-gradient(1px 1px at 91% 76%,rgba(159,212,255,.7) 50%,transparent 51%),radial-gradient(120% 70% at 50% 120%,rgba(255,140,40,.14),transparent 60%);background-size:420px 420px,420px 420px,420px 420px,420px 420px,420px 420px,420px 420px,420px 420px,100% 100%;background-attachment:fixed}',
+  sun:'html[data-skin] body{background-image:radial-gradient(60% 45% at 85% -10%,rgba(255,214,140,.55),transparent 70%),radial-gradient(140% 60% at 50% 115%,rgba(163,92,40,.18),transparent 65%);background-attachment:fixed}'};
+function deco(kind){let el=document.getElementById('skinDeco'); if(!kind){if(el) el.remove(); return;} if(!el){el=document.createElement('style'); el.id='skinDeco'; document.head.appendChild(el);} el.textContent=DECO[kind]||'';}
+const env=()=>(typeof SKINENV!=='undefined'?SKINENV:{map:{}});
+function get(){try{const v=localStorage.getItem(KEY); return LIST.some(x=>x[0]===v)?v:'system';}catch(e){return 'system';}}
+function apply(id,save){const R=document.documentElement, E=env();
+  set.forEach(t=>R.style.removeProperty(t)); set=[]; R.style.removeProperty('color-scheme'); R.removeAttribute('data-skin');
+  if(id==='light'||id==='dark') R.setAttribute('data-theme',id); else R.removeAttribute('data-theme');
+  const p=P[id]; deco(p&&p.deco);
+  if(p){R.setAttribute('data-theme',p.base); R.setAttribute('data-skin',id); R.style.setProperty('color-scheme',p.base);
+    Object.entries(E.map).forEach(([k,tok])=>{const v=k==='font'?(p.mono?E.mono:null):p[k]; if(v){R.style.setProperty(tok,v); set.push(tok);}});}
+  if(save){try{localStorage.setItem(KEY,id);}catch(e){}}
+  const s=E.sel&&document.getElementById(E.sel); if(s&&s.value!==id) s.value=id;}
+function options(cur){const o=([k,l])=>`<option value="${k}"${k===cur?' selected':''}>${l}</option>`, G={}; const flat=LIST.filter(([k])=>!(P[k]&&P[k].group)).map(o).join('');
+  LIST.forEach(x=>{const g=P[x[0]]&&P[x[0]].group; if(g) (G[g]=G[g]||[]).push(x);}); return flat+Object.entries(G).map(([g,L])=>`<optgroup label="${g}">${L.map(o).join('')}</optgroup>`).join('');}
+function now(){const E=env(); let r=null; try{r=E.runner&&E.runner();}catch(e){} return r&&LIST.some(x=>x[0]===r)?r:get();}
+function init(){const E=env(); const s=E.sel&&document.getElementById(E.sel); const cur=now();
+  if(s){s.innerHTML=options(cur); s.addEventListener('change',()=>{const E2=env(); if(E2.pick&&E2.pick(s.value)) apply(s.value,false); else {prev=get(); apply(s.value,true);}});}
+  apply(cur,false);
+  window.addEventListener('storage',e=>{if(e.key===KEY) apply(now(),false);});}
+function restorePrev(){if(prev!=null){try{localStorage.setItem(KEY,prev);}catch(e){} prev=null;}}
+return {P,LIST,get,now,apply,init,restorePrev};
+})();
+/*@end:skins*/
+/*@shared:srhead*/
+// ---------- The shared header (all three tools) ----------
+// Fills the tool links for where the page is running, and opens and closes the phone menu.
+// On the site: builder.html, gear-locker.html, gm-screen.html. Offline: the SR2_*.html files side by side.
+// Anywhere else (an artifact, a renamed file) the other tools have no address, so only the current one shows.
+const SRHEAD=(()=>{
+const SITE={builder:'builder.html',locker:'gear-locker.html',gm:'gm-screen.html'};
+const FILE={builder:'SR2_Runner_Builder.html',locker:'SR2_Gear_Locker.html',gm:'SR2_GM_Screen.html'};
+function hrefs(){const f=(location.pathname.split('/').pop()||'').toLowerCase();
+  if(/^https?:$/.test(location.protocol)&&!/claude/.test(location.hostname)) return SITE;
+  if(location.protocol==='file:'&&/^sr2_/.test(f)) return FILE;
+  return null;}
+function init(tool){const h=document.getElementById('srh'); if(!h) return; const H=hrefs();
+  h.querySelectorAll('.srh-tools a[data-tool]').forEach(a=>{const t=a.dataset.tool;
+    // safe to run again on a page that was saved after a first run (the Builder's standalone copy is one)
+    if(t===tool){a.setAttribute('aria-current','page'); a.removeAttribute('href'); a.hidden=false; return;}
+    a.removeAttribute('aria-current');
+    if(H&&H[t]){a.href=H[t]; a.target='_blank'; a.rel='noopener'; a.hidden=false;} else {a.removeAttribute('href'); a.hidden=true;}});
+  const b=h.querySelector('.srh-menu'); h.classList.remove('open'); if(b) b.setAttribute('aria-expanded','false');
+  if(b) b.addEventListener('click',()=>{const o=!h.classList.contains('open'); h.classList.toggle('open',o); b.setAttribute('aria-expanded',String(o));});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&h.classList.contains('open')){h.classList.remove('open'); if(b){b.setAttribute('aria-expanded','false'); b.focus();}}});}
+function sub(text){const s=document.getElementById('srhSub'); if(s) s.textContent=text||'';}
+return {init,sub,hrefs};
+})();
+/*@end:srhead*/
+try{SKIN.init();}catch(e){}
+try{SRHEAD.init('gm');}catch(e){}
+</script>
 <script>/* SR2 GM Screen: catalog of baddies with filters, loadouts from Gear Locker data, encounter groups, table tracker.
    Rules: core p. 32 (Rule of Six/One), 78 (Initiative), 84 (Combat Pool), 86-89 (critters, ranged modifiers), 91-93 (damage resistance, armor),
    100-101 (melee), 112 (wounds), 187 (Professional and Threat Ratings). */

@@ -24,7 +24,7 @@
 .fxodds{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:8px}
 .fxodds>div{display:flex;flex-direction:column;min-width:0}
 .fxodds b{font-family:var(--mono);font-size:1.25rem}
-.fxodds .lbl{font-size:.6875rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.fxodds .lbl{font-size:0.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 .fxav{font-family:var(--mono);font-size:.75rem}
 .fxhard{color:var(--bad,#b3261e)}
 .fxfoot{display:flex;flex-direction:column;gap:4px;font-size:.8125rem}

@@ -1,0 +1,31 @@
+/* ---------- Design tokens, shared by all three tools (color 11b, decided 2026-11-22) ----------
+   One source: build.py copies this file into every tool. Change a value here and all three change with it.
+   Blue (--brand) runs the interface: tabs, links, selected things, focus. Crimson (--action) is only for
+   the main action on a screen (Roll, Add, Send) and for prices. */
+:root{
+  --bg:#e9eef6; --panel:#ffffff; --panel-2:#f3f6fb; --ink:#121a2a; --muted:#4f5d75; --line:#ccd6e6;
+  --brand:#2453c7; --brand-ink:#ffffff; --brand-soft:#e3eafb;
+  --action:#9c1d58; --action-ink:#ffffff; --action-soft:#f5e3ec; --price:#9c1d58;
+  --ok:#1d7a4a; --ok-soft:#e1f2e8; --warn:#9a5b00; --warn-soft:#fbefd9; --bad:#b3261e; --bad-soft:#fbe5e3;
+  --focus:#2453c7;
+  --f-display:"Chakra Petch","IBM Plex Sans",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  /* five type sizes; nothing smaller than 12px */
+  --t-xs:12px; --t-sm:14px; --t-md:16px; --t-lg:20px; --t-xl:28px;
+  --tap:24px; --radius:8px;
+  color-scheme:light;
+}
+@media (max-width:40em){:root{--tap:44px}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d1424; --panel:#141d31; --panel-2:#1a2540; --ink:#e6ecf7; --muted:#9aa8c2; --line:#26324d;
+  --brand:#7aa2ff; --brand-ink:#0d1220; --brand-soft:#1c2a4a;
+  --action:#e2669e; --action-ink:#1a0d14; --action-soft:#3a1a2a; --price:#e2669e;
+  --ok:#5fcf93; --ok-soft:#173226; --warn:#f0b04d; --warn-soft:#3a2c14; --bad:#ff8a80; --bad-soft:#3d1c1a;
+  --focus:#7aa2ff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1424; --panel:#141d31; --panel-2:#1a2540; --ink:#e6ecf7; --muted:#9aa8c2; --line:#26324d;
+  --brand:#7aa2ff; --brand-ink:#0d1220; --brand-soft:#1c2a4a;
+  --action:#e2669e; --action-ink:#1a0d14; --action-soft:#3a1a2a; --price:#e2669e;
+  --ok:#5fcf93; --ok-soft:#173226; --warn:#f0b04d; --warn-soft:#3a2c14; --bad:#ff8a80; --bad-soft:#3d1c1a;
+  --focus:#7aa2ff; color-scheme:dark}

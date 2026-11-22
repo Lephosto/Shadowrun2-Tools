@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """One build for both tools.
 1. shared/*.js is the single source for rules code used by both pages; it is injected between /*@shared:NAME*/ and /*@end:NAME*/.
+   shared/*.css (tokens.css, ui.css) is the single source for the look of all three tools, injected the same way into each tool's styles.
 2. The Runner Builder is the single source for item data; extract.js turns it into gear_data.json for the Gear Locker.
 3. Writes the Gear Locker page, both offline files, and the GitHub site folder, then checks every shared block matches."""
 import re,subprocess,shutil,os,sys
 D=os.path.dirname(os.path.abspath(__file__)); os.chdir(D)
-SH={f[:-3]:open('shared/'+f).read().strip() for f in os.listdir('shared') if f.endswith('.js')}
+SH={f.rsplit('.',1)[0]:open('shared/'+f).read().strip() for f in os.listdir('shared') if f.endswith(('.js','.css'))}
+assert len(SH)==len([f for f in os.listdir('shared') if f.endswith(('.js','.css'))]), 'a .js and a .css in shared/ share a name'
 def inject(path):
     s=open(path).read(); n=0
     for name,body in SH.items():
         pat=re.compile(r'/\*@shared:'+name+r'\*/\n.*?\n/\*@end:'+name+r'\*/',re.S)
         s,k=pat.subn(lambda m:'/*@shared:'+name+'*/\n'+body+'\n/*@end:'+name+'*/',s); n+=k
     open(path,'w').write(s); return n
-nb=inject('sr2-builder.html'); nl=inject('gear/template.html')
+nb=inject('sr2-builder.html'); nl=inject('gear/template.html'); ng=inject('gm/gm.css')+inject('gm/gm.html')
 open('_builder_src.html','w').write('<meta charset="utf-8">\n'+open('sr2-builder.html').read())
 env=dict(os.environ,SRC='_builder_src.html')
 for js in ['extract.js','mkstand.js']:
@@ -24,7 +26,7 @@ subprocess.run(['python3','builder2/mkb2.py'],check=True,stdout=subprocess.DEVNU
 subprocess.run(['python3','gm/mkgm.py'],check=True,stdout=subprocess.DEVNULL)  # GM screen, with Gear Locker items embedded
 # verify
 bad=[]
-for f in ['sr2-builder.html','gear/template.html','gear/sr2-gear-locker.html','SR2_Gear_Locker.html','SR2_Runner_Builder.html']:
+for f in ['sr2-builder.html','gear/template.html','gm/gm.css','gm/gm.html','gear/sr2-gear-locker.html','SR2_Gear_Locker.html','SR2_Runner_Builder.html','SR2_Runner_Builder_2.html','SR2_Gear_Locker_2.html','SR2_GM_Screen.html']:
     s=open(f).read()
     for name,body in SH.items():
         for m in re.finditer(r'/\*@shared:'+name+r'\*/\n(.*?)\n/\*@end:'+name+r'\*/',s,re.S):
@@ -34,4 +36,7 @@ site='/home/claude/shadowrun2-tools'
 if os.path.isdir(site) and not os.environ.get('NOSITE'):
     shutil.copy('SR2_Runner_Builder_2.html',site+'/builder.html')  # the classic layout was retired 2026-11-21
     shutil.copy('SR2_Gear_Locker_2.html',site+'/gear-locker.html'); shutil.copy('SR2_GM_Screen.html',site+'/gm-screen.html')
-print(f'built: shared blocks builder {nb}, locker {nl}; {len(SH)} shared modules; all blocks match')
+CSSN=[n for n in SH if os.path.exists('shared/'+n+'.css')]
+miss=[(f,n) for f in ['SR2_Runner_Builder_2.html','SR2_Gear_Locker_2.html','SR2_GM_Screen.html'] for n in CSSN+['srhead'] if '/*@shared:'+n+'*/\n'+SH[n]+'\n/*@end:'+n+'*/' not in open(f).read()]
+if miss: print('MISSING shared CSS',miss); sys.exit(1)
+print(f'built: shared blocks builder {nb}, locker {nl}, gm {ng}; {len(SH)} shared modules; all blocks match')

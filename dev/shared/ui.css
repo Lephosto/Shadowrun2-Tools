@@ -1,0 +1,60 @@
+/* ---------- Shared pieces, the same in all three tools (Phase 1 of the redesign, 2026-11-22) ----------
+   Copied in by build.py after each tool's own styles, so these win where they overlap. Colors come only from tokens.css. */
+
+/* Focus: 2px blue on everything you can tab to */
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+/* Fields: checkboxes and radios grow from 13px to 24px, the smallest tap target (changed from 20px on 2026-11-22) */
+input[type=checkbox],input[type=radio]{width:24px;height:24px;min-height:0;margin:0;flex:none;accent-color:var(--brand);padding:0}
+
+/* Touch: every control at least 24px tall; 44px at phone width (--tap) */
+:where(summary){min-height:24px}
+:where(button,select,input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color])){min-height:var(--tap)}
+
+/* Buttons. Main = crimson, one per panel (Roll, Add, Buy, Send). Secondary = blue outline. Quiet = text only. */
+.ui-main{background:var(--action)!important;color:var(--action-ink)!important;border:1px solid var(--action)!important}
+.ui-main:hover{filter:brightness(1.08)}
+.ui-main:disabled{opacity:.45;filter:none}
+.ui-sec{background:transparent;color:var(--brand);border:1px solid var(--brand)}
+.ui-quiet{background:transparent;color:var(--brand);border:1px solid transparent}
+
+/* Page cites: one small chip everywhere, e.g. "core p. 254" */
+.cite{display:inline-block;font:500 var(--t-xs)/1.4 var(--f-mono);letter-spacing:0;text-transform:none;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:0 6px;max-width:100%;overflow-wrap:anywhere;vertical-align:.08em}
+
+/* Tags: ok, warn, bad, neutral */
+.ui-tag{display:inline-block;font:600 var(--t-xs)/1.5 var(--f-body);padding:0 8px;border-radius:4px;background:var(--panel-2);color:var(--muted);white-space:nowrap}
+.ui-tag.ok{background:var(--ok-soft);color:var(--ok)} .ui-tag.warn{background:var(--warn-soft);color:var(--warn)} .ui-tag.bad{background:var(--bad-soft);color:var(--bad)}
+
+/* ---------- The shared header ----------
+   Laptop: tool name (Chakra Petch), the three tools with the current one marked, the tool's own controls, Colors at the right.
+   Phone: one row with the tool name, a line under it (the runner's name), and a Menu button that opens the rest. */
+.srh{display:flex;align-items:center;gap:12px 20px;flex-wrap:wrap;margin:0 0 16px;padding:0 0 12px;border-bottom:1px solid var(--line);position:relative}
+.srh-id{display:flex;flex-direction:column;min-width:0;margin-right:auto}
+.srh-name{font:600 var(--t-xl)/1.15 var(--f-display);letter-spacing:.01em;color:var(--ink);margin:0}
+.srh-sub{font:400 var(--t-xs)/1.4 var(--f-body);color:var(--muted);min-height:1.4em}
+.srh-tools{display:flex;gap:4px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.srh-tools a{display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:7px;font:500 var(--t-sm)/1 var(--f-body);color:var(--muted);text-decoration:none;white-space:nowrap}
+.srh-tools a:hover{color:var(--brand)}
+.srh-tools a[aria-current="page"]{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.srh-ctl{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap}
+.srh-ctl label{display:inline-flex;flex-direction:row;align-items:center;gap:6px;font:600 var(--t-xs)/1.2 var(--f-body);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.srh-ctl label.plain{text-transform:none;letter-spacing:0;font-weight:500}
+.srh-menu{display:none;align-items:center;gap:6px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);padding:0 12px;font:600 var(--t-sm)/1 var(--f-body);cursor:pointer}
+.srh-menu svg{width:20px;height:20px}
+@media (max-width:40em){
+  .srh{flex-wrap:nowrap;margin-bottom:12px;padding-bottom:8px}
+  .srh-name{font-size:var(--t-lg)}
+  .srh-id{min-width:0;flex:1}
+  .srh-sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .srh-menu{display:inline-flex;min-width:44px;justify-content:center}
+  .srh-tools,.srh-ctl{display:none}
+  .srh.open{flex-wrap:wrap}
+  .srh.open .srh-tools,.srh.open .srh-ctl{display:flex;width:100%;order:3}
+  .srh.open .srh-tools a{flex:1;justify-content:center;min-height:44px}
+  .srh.open .srh-ctl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+  .srh.open .srh-ctl>:not(button){grid-column:1/-1}
+  .srh.open .srh-ctl label{flex-direction:column;align-items:stretch;gap:4px}
+  .srh.open .srh-ctl label.plain{flex-direction:row;align-items:center;gap:8px}
+  .srh.open .srh-ctl select{width:100%;max-width:none!important}
+}
+@media print{.srh-tools,.srh-ctl,.srh-menu{display:none!important}}
