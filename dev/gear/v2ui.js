@@ -242,3 +242,9 @@ function softNeedsPick(i){if(!i||i.cat!=='soft') return false; const {t}=softSpe
 function softNag(){const n=document.querySelector('.sfp-nag'); if(n) n.hidden=false;}
 function softKitPart(i){if(!i||i.cat!=='soft') return {}; const v=(st.sfp||{})[i.id]; return v&&v.sk?{sf:{sk:v.sk,cc:v.cc||'',cs:v.cs||''}}:{};}
 document.addEventListener('change',e=>{const t=e.target.closest&&e.target.closest('[data-sfp]'); if(!t) return; const i=BYID[t.dataset.sfp]; if(!i) return; st.sfp=st.sfp||{}; st.sfp[i.id]=softSet(st.sfp[i.id],t.dataset.sff,t.value); renderTag();});
+
+// ---------- Camouflage pattern (FoF p. 52, 54) ----------
+function camoLockerHTML(i){if(!i||typeof camoKind!=='function'||!camoKind(i.id)) return ''; st.camoP=st.camoP||{}; const k=camoKind(i.id);
+  return `<div class="lk-sfp"><div class="sfps">${camoPickHTML(i.id,st.camoP[i.id]||'',`data-lkcamo="${esc(i.id)}"`)}</div><p class="note">${k==='mil'?'Military armor comes in a standard finish or a camouflage pattern (FoF p. 54).':'Patterns: Desert, Snow, Woodland, Urban and Winter Woodland, reversible day/night (FoF p. 52).'} In matching terrain it’s +4 to spot the wearer, −2 in the wrong one (FoF p. 77). The pattern goes with it to the Runner Builder.</p></div>`;}
+function camoKitPart(i){const v=i&&(st.camoP||{})[i.id]; return v?{camo:v}:{};}
+document.addEventListener('change',e=>{const t=e.target.closest&&e.target.closest('[data-lkcamo]'); if(!t) return; st.camoP=st.camoP||{}; if(t.value) st.camoP[t.dataset.lkcamo]=t.value; else delete st.camoP[t.dataset.lkcamo]; renderTag();});

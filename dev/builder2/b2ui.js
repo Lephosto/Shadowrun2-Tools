@@ -70,7 +70,7 @@ function chipNoPool(re){return chipsOn().some(([g])=>GEARDB[g.key].soft==='Activ
 // general-skill chips for the Skill Web (it only ever uses general ratings, core p. 68); swHave() reads this
 function chipHaveMap(){const m={}; chipsOn().forEach(([g])=>{const v=chipInfo(g); if(chipKind(g)==='gen'&&v.sk&&GEARDB[g.key].soft==='ActiveSoft'){const w=typeof swWebName==='function'?swWebName(v.sk):v.sk; m[w]=Math.max(m[w]||0,+g.r||0);}}); return m;}
 function chipsHTML(){const L=chipLines(); if(!L.length) return ''; const R=chipRig(), on=chipsOn(); const actSum=on.filter(([g])=>GEARDB[g.key].soft==='ActiveSoft').reduce((a,[g])=>a+(+g.r||0),0), memUsed=on.filter(([g])=>g.mem).reduce((a,[g])=>a+chipMp(g),0), jUsed=on.filter(([g])=>!g.mem).length;
-  return `<section class="b2pan b2chips"><div class="b2h"><h3>Slotted chips</h3><span class="note">Skillwires ${R.sw||'none'}${R.sw?` · ActiveSofts ${actSum}/${R.sw}`:''} · chipjacks ${jUsed}/${R.jacks}${R.mem?` · memory ${memUsed}/${R.mem} Mp`:''}</span></div>
+  return `<section class="b2pan b2chips b2span2"><div class="b2h"><h3>Slotted chips</h3><span class="note">Skillwires ${R.sw||'none'}${R.sw?` · ActiveSofts ${actSum}/${R.sw}`:''} · chipjacks ${jUsed}/${R.jacks}${R.mem?` · memory ${memUsed}/${R.mem} Mp`:''}</span></div>
    <div class="b2chipl">${L.map(([g,i])=>{const it=GEARDB[g.key], why=g.slot?'':chipBlock(g,on); return `<div class="b2sc${g.slot?' on':''}"><label class="b2chk"><input type="checkbox" data-b2chip="${i}" ${g.slot?'checked':''} ${!g.slot&&why?'disabled':''}> <b>${E(it.n.replace(/ \(general skill\)/,''))} ${+g.r||1}</b>${chipSkill(g)?`<span class="note">${E(softText(chipInfo(g),it.n))}</span>`:''}</label>
      <div class="sfps">${softPickHTML(it.n,Object.assign(chipInfo(g),g.oth?{oth:true}:{}),i,{disabled:!!g.slot,langs:(S.langs||[]).map(L=>L.name).filter(Boolean)})}</div>
      <label class="b2f"><span class="b2k">Runs from</span><select data-b2chipm="${i}" ${g.slot?'disabled':''}><option value="" ${!g.mem?'selected':''}>A chipjack</option><option value="1" ${g.mem?'selected':''}>Headware memory (${chipMp(g)} Mp)</option></select></label>
@@ -81,7 +81,22 @@ function iniModes(T){const mx=T&&T.mx; if(!mx||typeof mxIniModes!=='function') r
 function iniNow(T){const m=iniModes(T).find(x=>x.id===B.inim); return m?{r:m.r,d:m.d,m}:{r:T.reaction,d:T.dice,m:null};}
 // ---------- What you're wearing (core p. 242; SSC p. 39, 40, 70) ----------
 // Pick one body armor, one helmet and one shield from what the runner carries; the rest stay owned but not worn (g.off).
+// camouflage on the worn body armor: its pattern, which side is out, and where you are (FoF p. 52, 77)
+function camoHTML(ar){const g=ar.bodyG; if(!g||typeof camoKind!=='function'||!camoKind(g.key)) return ''; const gi=S.gear.indexOf(g), pat=g.camo||'', terr=S.terrain||'', side=g.camoSide||'day', tod=S.tod||'day';
+  const fx=camoEffect(pat,terr); const wrong=pat&&terr&&pat===terr&&side!==tod;
+  const sel=(attr,lab,opts,cur)=>`<label class="b2f"><span class="b2k">${lab}</span><select ${attr}>${opts.map(([v,t])=>`<option value="${v}" ${v===cur?'selected':''}>${E(t)}</option>`).join('')}</select></label>`;
+  return `<div class="b2camo">${camoPickHTML(g.key,pat,`data-camo="${gi}"`,{cls:'b2f',kcls:'b2k'})}
+    ${pat?sel(`data-camoside="${gi}"`,'Side out',[['day','Day side'],['night','Night side']],side):''}
+    ${sel('data-terrain','Where you are',[['','Pick the terrain'],...CAMO_PATTERNS.map(p=>[p,p])],terr)}
+    ${sel('data-tod','Time',[['day','Day'],['night','Night']],tod)}
+    <div class="b2cfx">${!pat?(camoKind(g.key)==='mil'?'Standard military finish: no camouflage modifier.':'Pick the pattern this one was bought in.'):!terr?'Pick where you are to see the Perception modifier.':`<b>${fx.mod>0?'+':''}${fx.mod}</b> ${E(pat)} ${E(fx.txt)} (FoF p. 77).${wrong?' The '+side+' side is out at '+tod+'; the patterns are reversible (FoF p. 52), so turn it, or it’s the GM’s call.':''} Moving counts as “action very obvious” (core p. 185).`}</div></div>`;}
+document.addEventListener('change',e=>{const t=e.target; if(!t||!t.dataset) return; const d=t.dataset;
+  if(d.camo!=null){const g=S.gear[+d.camo]; if(g){if(t.value) g.camo=t.value; else delete g.camo; render();} return;}
+  if(d.camoside!=null){const g=S.gear[+d.camoside]; if(g){g.camoSide=t.value; render();} return;}
+  if(d.terrain!=null){S.terrain=t.value; render(); return;}
+  if(d.tod!=null){S.tod=t.value; render(); return;}});
 function wearLines(){return S.gear.map((g,i)=>[g,i]).filter(([g])=>ASTAT[g.key]&&!g.at);}
+function wearPanelHTML(){const h=wearHTML(); return `<section class="b2pan b2wearp" aria-label="Armor you are wearing">${h||'<div class="b2h"><h3>Wearing</h3></div><p class="note">No armor carried. Buy some under Gear; stashed armor doesn’t count.</p>'}</section>`;}
 function wearHTML(){const L=wearLines(), ar=armorTotals(); if(!L.length&&!ar.parts.length) return '';
   const nm=g=>GEARDB[g.key]?GEARDB[g.key].n:g.key, BI=g=>{const a=ASTAT[g.key]; return a[0]+'/'+a[1];};
   const bodies=L.filter(([g])=>armorKind(g.key)==='body'), helms=L.filter(([g])=>armorKind(g.key)==='helmet'), shields=L.filter(([g])=>armorKind(g.key)==='shield'), fgs=L.filter(([g])=>armorKind(g.key)==='fg');
@@ -93,7 +108,7 @@ function wearHTML(){const L=wearLines(), ar=armorTotals(); if(!L.length&&!ar.par
   const helmOpts=ar.builtIn?[['built','Built into the '+nm(ar.builtIn)]]:[['','None'],...helms.map(([g,i])=>[i,nm(g)+' +'+BI(g)]),...sas.filter(([g])=>!g.off).map(([g,i])=>['sa:'+i,nm(g)+' helmet +1/2'])];
   const helmSel=helms.length||sas.length||ar.builtIn?sel('helm','Helmet',helmOpts,curHelm,!!ar.builtIn):'';
   const shSel=shields.length?sel('shield','Shield',[['','None'],...shields.map(([g,i])=>[i,nm(g)+' +'+BI(g)])],curShield):'';
-  const fgChk=fgs.length?`<label class="b2chk b2fg"><input type="checkbox" data-wear="fg" ${fgs.some(([g])=>!g.off)?'checked':''}> Forearm guards</label>`:'';
+  const fgChk=fgs.length?`<label class="b2chk b2wfg"><input type="checkbox" data-wear="fg" ${fgs.some(([g])=>!g.off)?'checked':''}> Forearm guards</label>`:'';
   const sign=(p,v)=>(p.plus&&v>=0?'+':'')+v;
   const parts=ar.parts.map(p=>`<span class="b2wp b2wp-${p.k}"><span>${E(p.l)}</span><b>${p.k==='helmet'&&ar.builtIn?'in suit':sign(p,p.b)+'/'+sign(p,p.i)}</b></span>`).join('<span class="b2wop" aria-hidden="true">·</span>');
   const notes=[];
@@ -103,9 +118,10 @@ function wearHTML(){const L=wearLines(), ar=armorTotals(); if(!L.length&&!ar.par
   if(ar.bodyG&&/^armor:Form-Fitting/.test(ar.bodyG.key)) notes.push('Form-fitting armor can’t be worn with any other body armor (SSC p. 40).');
   if(ar.derm) notes.push(`${hasDerm()?'Troll skin':''}${hasDerm()&&gearLevel('body:Dermal Plating')?' and ':''}${gearLevel('body:Dermal Plating')?'Dermal plating':''} add${hasDerm()&&gearLevel('body:Dermal Plating')?'':'s'} to Body for damage resistance, not to armor.`);
   if(ar.poolPenalty) notes.push(`This armor cuts Combat Pool by ${ar.poolPenalty} (core p. 84${booksOn().fof?'; FoF p. 54':''}).`);
-  return `<div class="b2wtop"><h3>Wearing</h3><div class="b2wsel">${bodySel}${helmSel}${shSel}${fgChk}</div><div class="b2wtot"><span class="b2k">Armor</span><b>${ar.b} / ${ar.i}</b><span class="note">Ballistic / Impact</span></div></div>
+  return `<div class="b2h"><h3>Wearing</h3><span class="b2wtot"><b>${ar.b} / ${ar.i}</b><small>Ballistic / Impact</small></span></div>
+   <div class="b2wearsel">${bodySel}${helmSel}${shSel}${fgChk}</div>${camoHTML(ar)}
    ${parts?`<div class="b2wparts">${parts}<span class="b2wop" aria-hidden="true">=</span><span class="b2wp b2wp-tot"><span>Total</span><b>${ar.b}/${ar.i}</b></span></div>`:''}
-   ${notes.length?`<p class="note b2wnote">${notes.map(E).join(' ')}</p>`:''}${!L.length?'':''}`;}
+   ${notes.length?`<p class="note b2wnote">${notes.map(E).join(' ')}</p>`:''}`;}
 function wearPick(k,v){const L=wearLines(), set=(kind,keep)=>L.filter(([g])=>armorKind(g.key)===kind).forEach(([g,i])=>{if(String(i)===String(keep)) delete g.off; else g.off=true;});
   if(k==='body') set('body',v);
   else if(k==='helm'){const sa=String(v).startsWith('sa:')?String(v).slice(3):null; set('helmet',sa!=null?null:v); L.filter(([g])=>g.hb&&g.hb.helmet&&HB.kind(g.key)==='secarmor').forEach(([g,i])=>{if(sa!=null&&String(i)===sa) delete g.helmOff; else g.helmOff=true;});}
@@ -316,7 +332,7 @@ function nightHTML(){
   else if(isMag) pw=S.powers.map(p=>{const sp=spellFind(p.name); return `<details class="b2card"><summary><b>${E(p.name)}</b><small>Force ${+p.cost||1}${sp?' · '+E(sp.cat)+' · '+(sp.ty==='M'?'mana':'physical')+(sp.pg?' · '+E(sp.pg):''):''}</small></summary><p>${sp?'Drain '+E(drainText(sp,+p.cost||1)):''}${p.note?' · '+E(p.note):''}</p></details>`;}).join('');
   const copyBox=B.copy?`<div class="b2copy"><label for="b2r20" class="b2k">${E(B.copy.msg)}</label><input id="b2r20" readonly value="${E(B.copy.text)}"></div>`:'';
   return `${gmHitsHTML()}<div class="b2big">${big.map(tile).join('')}</div>
-  <div class="b2grid">
+  <div class="b2grid b2ngrid">
    <section class="b2pan"><div class="b2h"><h3>Initiative</h3><span class="mono">${iniNow(T).r} + ${iniNow(T).d}D6${w?' − '+w:''}</span></div>
      ${iniModes(T).length?`<label class="b2f b2inim"><span class="b2k">Where</span><select data-b2="inim"><option value="" ${!B.inim?'selected':''}>Physical world: ${T.reaction} + ${T.dice}D6</option>${iniModes(T).map(m=>`<option value="${m.id}" ${B.inim===m.id?'selected':''}>Matrix, ${E(m.l.charAt(0).toLowerCase()+m.l.slice(1))}: ${m.r} + ${m.d}D6</option>`).join('')}</select></label>`:''}
      <div class="b2ini"><b>${B.ini==null?'—':Math.max(0,B.ini-w)}</b><span>${B.ini==null?'Roll to see your passes':'Acts on '+(()=>{const o=[];for(let x=Math.max(0,B.ini-w);x>0;x-=10)o.push(x);return o.join(', ')||'—';})()}</span></div>
@@ -326,6 +342,7 @@ function nightHTML(){
      <span class="b2k">Stun</span><div class="b2boxes">${boxes('stun',10)}</div>
      ${S.phys>10&&S.phys<=10+B10?`<div class="b2dying"><b>Bleeding out.</b> One more box every 10 minutes until someone stabilizes you; past ${10+B10} boxes you’re dead (core p. 111). To stabilize (core p. 115): First Aid, a Biotech test at the Deadly target number (10, “special”) within the first hour, then your own natural Body test against 10 if it fails; a trauma patch gives another natural Body test against 4 + dermal armor. A Heal or Treat spell or a DocWagon crew also works. Karma Pool can reroll your own Body tests.</div>`:''}
      ${dkI&&!dkI.vr2?`<span class="b2k">Persona (Matrix)</span><div class="b2boxes">${Array.from({length:10},(_,j)=>{const v=j+1,on=v<=(S.mxDmg||0); return `<button class="b2box${on?' on':''}" data-b2trk="mxDmg" data-v="${v}" aria-pressed="${on}" aria-label="Persona box ${v}"></button>`;}).join('')}</div>${(S.mxDmg||0)>=10?'<p class="note b2warn">Crashed: the deck dumps you (dump shock, core p. 165, 179). It’s back to full when restarted.</p>':''}`:''}${T.wmod.pain?`<p class="note">Pain Resistance ${T.wmod.pain} is already taken off the wound modifier.</p>`:''}</section>
+   ${wearPanelHTML()}
    <section class="b2pan b2full"><div class="b2h"><h3>Attack</h3><span class="note">weapon, mode, ammo and modifiers in one place; rolling or copying spends rounds and pool dice</span></div>
      <label class="b2f b2wide"><span class="b2k">Attack with</span><select data-b2="wid" class="b2wsel">${groups}</select></label>
      ${W.grp==='off'?'<p class="note b2warn">This one isn’t on you: move it to your carried gear in Stash before you can use it.</p>':''}
@@ -471,7 +488,7 @@ function afterHTML(){const a=B.af, ny=S.nuyenNow===''||S.nuyenNow==null?0:+S.nuy
   const sus=isMagician()?(S.sus||[]):[]; if(sus.length) diff.push(['Sustained spells',sus.map(x=>x.n).join(', '),a.keepSus?'kept':'dropped']); notes.push(['','After saving, spend any new Karma under Spend Good Karma in Build.']); // always shown, so the Save button doesn't move while someone is reaching for it
   notes.push(['',practicing()?'Practice session: this is undone when you end practice.':'This updates the real sheet. For a practice run, start a practice session at the top first.']);
   const sn=snaps();
-  return `<div class="b2grid"><section class="b2pan b2wide2"><div class="b2h"><h3>What happened at the table</h3></div>
+  return `<div class="b2grid b2afgrid"><section class="b2pan b2afmain"><div class="b2h"><h3>What happened at the table</h3></div>
    ${field('gk','Good Karma earned','what the GM awarded (core p. 190–191)',a.gk,'K')}${field('kp','Added to the Karma Pool','if the GM gave a Karma Pool point',a.kp,'K')}
    ${field('nin','Nuyen in','pay, loot sold',a.nin,'¥')}${field('nout','Nuyen out','bribes, bills, gifts',a.nout,'¥')}
    <label class="b2f b2wide"><span class="b2k">Note for the nuyen log</span><input type="text" data-b2t="af:note" value="${E(a.note)}" placeholder="the run, who paid, what the GM ruled"></label>
@@ -536,7 +553,7 @@ function redraw(){const n=$('b2night'); if(n&&B.tab==='night'){const f=document.
 function afTotals(){const n=$('b2after'); if(!n||B.tab!=='after') return; const tmp=document.createElement('div'); tmp.innerHTML=afterHTML(); {const h1=n.querySelector('#b2heal'), h2=tmp.querySelector('#b2heal'); if(h1&&h2) h1.innerHTML=h2.innerHTML;} const a=n.querySelector('#b2afd'), b=tmp.querySelector('#b2afd'); if(a&&b) a.innerHTML=b.innerHTML; const s1=n.querySelector('[data-b2a="afsave"]'), s2=tmp.querySelector('[data-b2a="afsave"]'); if(s1&&s2) s1.disabled=s2.disabled; n.querySelectorAll('[data-b2n]').forEach(i=>{const j=tmp.querySelector(`[data-b2n="${i.dataset.b2n}"]`); if(j&&i!==document.activeElement) i.value=j.value;});}
 function redrawAfter(){const n=$('b2after'); if(n&&B.tab==='after') n.innerHTML=afterHTML();}
 function redrawStrip(){try{practiceBar();}catch(e){}
-const s=$('b2strip'); if(s) s.innerHTML=stripHTML(); {const wv=$('b2wear'); if(wv){const h=B.tab==='after'?'':wearHTML(); wv.hidden=!h; if(h&&!(document.activeElement&&wv.contains(document.activeElement)&&document.activeElement.tagName==='SELECT')) wv.innerHTML=h;}} const d=$('b2drawer'); if(d){d.hidden=!B.drawer||B.tab!=='build'; if(B.drawer) d.innerHTML=`<div class="b2h"><h3>Checklist</h3><button class="ghost" data-b2a="drawer">Close</button></div><ul class="issues">${$('issues').innerHTML}</ul>`;}}
+const s=$('b2strip'); if(s) s.innerHTML=stripHTML(); {const j=document.querySelector('.jump'); if(j) document.documentElement.style.setProperty('--jumpH',j.offsetHeight+'px');} {const wv=$('b2wearBuild'); if(wv&&B.tab==='build'&&!(document.activeElement&&wv.contains(document.activeElement)&&document.activeElement.tagName==='SELECT')){const h=wearHTML(); wv.hidden=!h; wv.innerHTML=h;}} const d=$('b2drawer'); if(d){d.hidden=!B.drawer||B.tab!=='build'; if(B.drawer) d.innerHTML=`<div class="b2h"><h3>Checklist</h3><button class="ghost" data-b2a="drawer">Close</button></div><ul class="issues">${$('issues').innerHTML}</ul>`;}}
 function setTab(t){B.tab=t; keep(); document.body.classList.toggle('b2gn',t==='night'); document.body.classList.toggle('b2af',t==='after');
   if(typeof sessionSet==='function') sessionSet(t==='night',true);
   document.querySelectorAll('#b2tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
@@ -552,7 +569,6 @@ function mount(){
   // on the public site, link the GM screen next to the Gear Locker link
   {const f=(location.pathname.split('/').pop()||'').toLowerCase(); if(/^https?:$/.test(location.protocol)&&!/claude/.test(location.hostname)&&/builder\.html$/.test(f)){const lt=$('lockerTop'); if(lt){const x=document.createElement('span'); x.className='note'; x.innerHTML=' · <a href="gm-screen.html" target="_blank" rel="noopener">GM screen ↗</a>'; lt.after(x);}}}
   const strip=document.createElement('div'); strip.id='b2strip'; strip.setAttribute('aria-label','Budget'); nav.after(strip);
-  const wear=document.createElement('section'); wear.id='b2wear'; wear.setAttribute('aria-label','Armor you are wearing'); wear.hidden=true; strip.after(wear);
   const drawer=document.createElement('div'); drawer.id='b2drawer'; drawer.hidden=true; strip.after(drawer);
   const lay=document.querySelector('.layout'); const night=document.createElement('section'); night.id='b2night'; night.className='b2wrap'; night.setAttribute('aria-label','Game night');
   const after=document.createElement('section'); after.id='b2after'; after.className='b2wrap'; after.setAttribute('aria-label','After the session'); lay.before(night); lay.before(after);

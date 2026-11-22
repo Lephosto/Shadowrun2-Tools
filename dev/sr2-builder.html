@@ -204,6 +204,13 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
 .grpd{margin:.5rem 0;border:1px solid var(--line,#444);border-radius:6px;padding:.25rem .75rem}.grpd>summary{cursor:pointer;padding:.375rem 0;font-weight:600}.grpd .pg{font-weight:400}
 .mgh{margin:.75rem 0 .25rem;font-size:.875rem}#grpBox .bchks{display:flex;flex-wrap:wrap;gap:.25rem 1rem}#grpBox label.bchk{display:flex;flex-direction:row;align-items:center;gap:.375rem;text-transform:none;letter-spacing:0;font-size:.8125rem;font-weight:400;color:inherit}#grpBox label.bchk input{width:auto;margin:0}.mgres{margin:.5rem 0;padding:.5rem .75rem;border-left:3px solid var(--accent,#c90);background:rgba(127,127,127,.08)}
 .sfps{display:flex;flex-wrap:wrap;gap:.375rem .75rem;margin-top:.375rem}.gsfp{max-width:36rem}.gsfp .sfp{min-width:8rem}.sfp{display:flex;flex-direction:column;gap:.125rem;min-width:9rem;flex:1 1 9rem}.sfp .sfpk{font-size:.6875rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}.sfp select,.sfp input{width:100%}
+.stat .v{white-space:nowrap}
+@media (max-width:40em){.stat .v{white-space:normal;overflow-wrap:anywhere}}
+.grid2 label.wide{grid-column:span 2}@media (max-width:40em){.grid2 label.wide{grid-column:auto}}
+#contactBody input{width:100%;min-width:0}
+.stboard{align-items:start;grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr))}.stboard>*{min-width:0}.sth{flex-wrap:wrap}.sth>*{min-width:0;overflow-wrap:anywhere}
+.track .ovf button{width:2.5rem}
+[data-pgr]{width:14rem;max-width:100%}
 </style>
 
 <a href="#issues" class="mbar" id="mbar" aria-label="Checklist"></a>
@@ -259,8 +266,8 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
           <label for="fHandle">Street name<input id="fHandle" placeholder="Handle"></label>
           <label for="fRace">Race<select id="fRace"></select></label>
           <label for="fMagic">Magic<select id="fMagic"></select></label>
-          <label for="fTradition">Tradition, totem or adept path<input id="fTradition" placeholder="e.g. Dog totem"></label>
-          <label for="fConcept">Concept<input id="fConcept" placeholder="e.g. Ex-military bodyguard"></label>
+          <label for="fTradition">Tradition or totem<input id="fTradition" placeholder="e.g. Dog totem"></label>
+          <label for="fConcept" class="wide">Concept<input id="fConcept" placeholder="e.g. Ex-military bodyguard"></label>
         </div>
         <p class="note" id="raceTraits"></p>
         <div id="efBox" hidden>
@@ -350,6 +357,7 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
         <label id="optRecoilRow" for="optRecoil" hidden style="flex-direction:row;align-items:center;gap:0.375rem;text-transform:none;letter-spacing:0;font-size:0.8125rem;margin-bottom:0.5rem"><input type="checkbox" id="optRecoil"> Fields of Fire optional rule: Strength reduces recoil (p. 83)</label>
         <div class="tbl"><table id="weapTbl"><thead><tr><th>Weapon</th><th class="n">Conceal</th><th>Ammo / mode</th><th>Damage</th><th>Dice</th><th>Ranges (m)</th><th>TN mod</th></tr></thead><tbody id="weapBody"></tbody></table></div>
         <h3>Armor</h3>
+        <div id="b2wearBuild" hidden></div>
         <div class="tbl"><table><thead><tr><th>Worn</th><th class="n">Ballistic</th><th class="n">Impact</th><th></th></tr></thead><tbody id="armorBody"></tbody></table></div>
         <div id="armorTotal"></div>
       </section>
@@ -885,6 +893,18 @@ function softSet(v,f,val){v=Object.assign({sk:'',cc:'',cs:''},v); val=String(val
   else if(f==='cc'){if(val!==v.cc){v.cc=val; v.cs='';}}
   else if(f==='cs') v.cs=val;
   return v;}
+// ---------- Camouflage (FoF p. 52, 54, 77) ----------
+// Camo clothing comes in Desert, Snow, Woodland, Urban and Winter Woodland, reversible day/night (FoF p. 52); military armor
+// comes "in standard or custom camouflage patterns" (FoF p. 54). Spotting someone in camouflage that suits the terrain is +4 to the
+// observer's visual Perception target number, and camouflage that doesn't suit it is -2 (FoF p. 77).
+const CAMO_PATTERNS=['Desert','Snow','Woodland','Urban','Winter Woodland'];
+const CAMO_SUITS=new Set(['armor:Camouflage Full Suit','armor:Camouflage Jacket']), CAMO_MIL=new Set(['armor:Light Military Armor','armor:Medium Military Armor','armor:Heavy Military Armor']);
+function camoKind(key){return CAMO_SUITS.has(key)?'suit':CAMO_MIL.has(key)?'mil':'';}
+function camoPickHTML(key,cur,attr,o){o=o||{}; const k=camoKind(key); if(!k) return ''; const q=x=>String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const opts=(k==='mil'?[['','Standard (no camouflage)']]:[['','Pick a pattern']]).concat(CAMO_PATTERNS.map(p=>[p,p]));
+  return `<label class="${o.cls||'sfp'}"><span class="${o.kcls||'sfpk'}">Camouflage pattern</span><select ${attr}>${opts.map(([v,l])=>`<option value="${q(v)}"${v===(cur||'')?' selected':''}>${q(l)}</option>`).join('')}</select></label>`;}
+// what the worn pattern does where you are: +4 when it suits the terrain, -2 when it doesn't (FoF p. 77)
+function camoEffect(pattern,terrain){if(!pattern||!terrain) return null; return pattern===terrain?{mod:4,txt:'suits the terrain: +4 to the target number of anyone trying to spot you'}:{mod:-2,txt:'doesn’t suit the terrain: −2 to the target number of anyone trying to spot you'};}
 /*@end:softs*/
 const SKILLS=Object.keys(SKILLDB);
 const CATORDER=['Combat','Physical','Technical','Magical','Social','Vehicle','Knowledge','Build/Repair'];
@@ -1113,7 +1133,7 @@ function stashHTML(){const P=stashPlaces(); const items=S.gear.map((g,i)=>[g,i])
   const grp=L=>{if(L.length<6) return L.map(chip).join(''); const by={}; L.forEach(x=>{(by[catOf(x[0])]=by[catOf(x[0])]||[]).push(x);});
     return Object.keys(by).sort((a,b)=>order.indexOf(a)-order.indexOf(b)).map(c=>`<div class="stcat">${esc(c)}</div>`+by[c].map(chip).join('')).join('');};
   const col=(place,label,cls,removable)=>{const L=items.filter(([g])=>(g.at||'')===place);
-    return `<div class="stcol${cls?' '+cls:''}" data-stdrop="${esc(place)}"><div class="sth"><b>${label}</b><span class="note">${L.length?L.reduce((a,[g])=>a+(+g.qty||1),0)+' item'+(L.reduce((a,[g])=>a+(+g.qty||1),0)>1?'s':''):''}${removable&&!L.length?` <button class="x" data-strm="${esc(place)}" aria-label="Remove ${esc(place)}">×</button>`:''}</span></div><div class="stlist">${grp(L)||'<p class="note stempty">Drop gear here.</p>'}</div></div>`;};
+    return `<div class="stcol${cls?' '+cls:''}" data-stdrop="${esc(place)}"><div class="sth"><b>${label}</b><span class="note">${L.length?L.length+' item'+(L.length>1?'s':''):''}${removable&&!L.length?` <button class="x" data-strm="${esc(place)}" aria-label="Remove ${esc(place)}">×</button>`:''}</span></div><div class="stlist">${grp(L)||'<p class="note stempty">Drop gear here.</p>'}</div></div>`;};
   return col('',`With ${esc(S.handle||S.name||'you')}`,'carry',false)+P.map(p=>col(p,esc(p)+(isVehPlace(p)?' <span class="pg">vehicle</span>':''),'',!isVehPlace(p)&&!(p==='Stash'&&(!S.places||S.places.length<=1)))).join('');}
 function stashSummaryHTML(){const st=S.gear.filter(g=>g.at&&stashable(g)); if(!st.length) return ''; const by={}; st.forEach(g=>{(by[g.at]=by[g.at]||[]).push(g);});
   return Object.entries(by).map(([p,L])=>`<b>${esc(p)}:</b> ${L.map(g=>esc(g.name||'')+((+g.qty||1)>1?' ×'+g.qty:'')).join(', ')}`).join(' · ');}
@@ -1691,7 +1711,7 @@ function renderExtras(){
   $('armorTotal').innerHTML=`<div class="stat"><span class="k">Ballistic / Impact worn</span><span class="v big">${ar.b} / ${ar.i}</span></div>
    <div class="stat"><span class="k">Body for damage resistance</span><span class="v">${augAttr('body')+hasDerm()}</span></div>
    ${ar.poolPenalty?`<div class="stat"><span class="k">Armor Combat Pool penalty</span><span class="v bad-text">−${ar.poolPenalty}</span></div>`:''}
-   <p class="note">Only the best body armor counts; a helmet adds to it (p. 242), and a shield adds on top (table ruling). Core partial and full heavy armor already include a helmet. Forearm guards add +1 Impact against melee only (SSC p. 39). Pick what you’re wearing at the top of the page. ${hasDerm()?'Troll dermal armor and ':''}${gearLevel('body:Dermal Plating')?'Dermal plating and ':''}${hasDerm()||gearLevel('body:Dermal Plating')?'add to Body, not to armor.':''}</p>`;
+   <p class="note">Only the best body armor counts; a helmet adds to it (p. 242), and a shield adds on top (table ruling). Core partial and full heavy armor already include a helmet. Forearm guards add +1 Impact against melee only (SSC p. 39). Pick what you’re wearing in the Wearing box above, or with the ticks. ${hasDerm()?'Troll dermal armor and ':''}${gearLevel('body:Dermal Plating')?'Dermal plating and ':''}${hasDerm()||gearLevel('body:Dermal Plating')?'add to Body, not to armor.':''}</p>`;
   // traits
   const tr=raceTraitList();
   $('raceTraits').textContent=R().traits;
@@ -2815,7 +2835,7 @@ function vbEditor(g,ix){const v=vbFixG(g); if(!v) return ''; const B=g.vb, R=VB.
   F('Smartgoggles (Smartlink II)',3500,'','57')]);
  add('boom','fof',[F('IPE Offensive Grenade',50,'15S (−1/m)','48'),F('IPE Defensive Grenade',50,'15S (−1/.5 m)','48'),F('IPE Concussion Grenade',70,'16M Stun (−1/m)','48'),
   F('White Phosphorus Grenade',120,'14M/10L (−1/m)','48'),F('Smoke Grenade',30,'','48'),F('Smoke Grenade (IR)',40,'Blocks thermographic','48')]);
- add('armor','fof',[F('Camouflage Full Suit',800,'3/1 · +4 to Perception against you in matching terrain','52'),F('Camouflage Jacket',1200,'5/3','52'),
+ add('armor','fof',[F('Camouflage Full Suit',800,'3/1 · pick its pattern: Desert, Snow, Woodland, Urban or Winter Woodland; +4 to spot you in matching terrain, −2 in the wrong one (p. 77)','52'),F('Camouflage Jacket',1200,'5/3 · pick its pattern: Desert, Snow, Woodland, Urban or Winter Woodland; +4 to spot you in matching terrain, −2 in the wrong one (p. 77)','52'),
   F('Light Military Armor',25000,'10/7 · Hardened','54'),F('Medium Military Armor',45000,'12/8 · Hardened','54'),F('Heavy Military Armor',70000,'14/9 · Hardened','54'),F('Heavy Military Helmet',2500,'+2/+3','54'),
   {n:'Gel-Pack Upgrade',c:r=>r*4,r:[1,500000,'Armor cost ¥'],s:'Easier way: tick Gel-packs on the armor itself. This older entry adds 4 × the price you enter (armor ×5 in all)',pg:'FoF p. 53'}]);
  add('body','fof',[{n:'Smartlink II',c:3200,e:.5,s:'Smartlink Level II: extra −1 at long, −2 at extreme with a rangefinder; called shots +2 instead of +4',pg:'FoF p. 57'}]);
@@ -3122,7 +3142,7 @@ function matrixInfo(){
 function mxIniModes(mx){if(!mx) return []; const bR=mx.baseR||0, half=Math.floor(bR/2);
   if(mx.vr2) return [{id:'vr2',l:mx.tort?'Tortoise (VR2 deck, no DNI)':'In the Matrix (VR2 deck)',r:mx.react,d:mx.dice,pg:'VR2 p. 120'}];
   const ri=mx.lv||0, out=[];
-  if(mx.hasDeck) out.push({id:'full',l:'Full cybernetic (DNI only)',r:bR+2*ri,d:2+ri,pg:'p. 178'},{id:'mix',l:'Cybernetic with keyboard help',r:bR+2*ri,d:1+ri,pg:'p. 178'},{id:'kb',l:'Keyboard only',r:half,d:1+ri,pg:'p. 178'});
+  if(mx.hasDeck) out.push({id:'full',l:'Full cybernetic (DNI only)',sh:'pure DNI',r:bR+2*ri,d:2+ri,pg:'p. 178'},{id:'mix',l:'Cybernetic with keyboard help',sh:'DNI + keyboard',r:bR+2*ri,d:1+ri,pg:'p. 178'},{id:'kb',l:'Keyboard only',sh:'keyboard only',r:half,d:1+ri,pg:'p. 178'});
   out.push({id:'tort',l:'Tortoise on a terminal',r:Math.max(1,half),d:1,pg:'p. 178'}); return out;}
 function detectionFactor(dk){
  if(!dk) return null; const sl=S.gear.filter(g=>g.key==='prog2:Sleaze').reduce((m,g)=>Math.max(m,+g.r||0),0);
@@ -3409,13 +3429,13 @@ function render(){
     const sub=rows.reduce((a,[g])=>a+(+g.cost||0)*(+g.qty||1),0), es=rows.reduce((a,[g])=>a+(+g.ess||0)*(+g.qty||1),0)-(c==='head'?essenceCredit():0);
     if(LASTADD&&rows.some(([g])=>g.key===LASTADD)) FOLD.delete(c); const fo=FOLD.has(c);
     return `<tr class="gcat${fo?' folded':''}"><td colspan="7"><button class="gfold" data-fold="${c}" aria-expanded="${!fo}">${GCATNAME[c]} <span class="sub" style="float:none">(${rows.length})</span></button><span class="sub">${fmt(sub)}¥${es?` · ${+es.toFixed(2)} Ess`:''}</span></td></tr>`+rows.map(([g,i])=>{const it=g.key&&GEARDB[g.key];const t=(+g.cost||0)*(+g.qty||1);
-      if(it) return `<tr><td>${esc(it.n)}${eraChip(it)} <span class="pg">${it.pg}</span>${lockerLink(g.key)}${it.s?`<div class="gstat">${esc(it.s)}</div>`:''}${DESC[g.key]&&DESC[g.key][0]!==it.s?`<div class="gstat gdesc">${esc(DESC[g.key][0])}</div>`:''}${g.addons?(WSTAT[g.key]&&g.build?`<div class="gstat">Includes add-ons: ${esc(Object.entries(g.build||{}).filter(([k])=>!['ammo','link'].includes(k)).map(([,v])=>GB.accName(v)).join(', '))} (+${fmt(g.addons)}¥ each). Change them under Weapons.</div>`:`<div class="gstat">Includes ${R2OBJ&&R2OBJ[g.key]?'modifications':'options'} (+${fmt(g.addons)}¥ each). Change them in its build-out ${R2OBJ&&R2OBJ[g.key]?'under Rigging':'below this table'}.</div>`):''}${it.soft&&it.soft!=='DataSoft'?`<div class="sfps gsfp">${softPickHTML(it.n,Object.assign(softOf(g,it.n),g.oth?{oth:true}:{}),i,{langs:(S.langs||[]).map(L=>L.name).filter(Boolean)})}</div>`:''}${g.note||NOTE_OPEN.has(i)?`<input id="g_note_${i}" data-gr="${i}" data-f="note" value="${esc(g.note)}" placeholder="Note" aria-label="Note for this item" style="margin-top:0.25rem;width:100%;max-width:13.75rem;font-size:0.75rem;padding:3px 0.375rem">`:`<button type="button" class="notebtn" data-note="${i}" aria-label="Add a note to this item">+ Note</button>`}${gradeable(it)&&booksOn().ct?`<div><select id="g_gr_${i}" data-gr="${i}" data-f="grade" aria-label="Cyberware grade" style="margin-top:0.25rem;font-size:0.75rem">${Object.entries(CYBER_GRADES).map(([k,[l,e,c]])=>`<option value="${k}" ${(g.grade||'std')===k?'selected':''}>${l}${k==='std'?'':` (Essence ×${e}, price ×${c})`}</option>`).join('')}</select></div>`:''}${gelOK(it)&&booksOn().fof?`<label style="flex-direction:row;align-items:center;gap:0.3rem;text-transform:none;letter-spacing:0;font-size:0.75rem;margin-top:0.25rem"><input type="checkbox" id="g_gel_${i}" data-gr="${i}" data-f="gel" ${g.gel?'checked':''}> Gel-packs (FoF p. 53): Hardened, price ×5, Concealability halved, weight +25%</label>`:''}${it.bi!=null&&!it.neural?`<label style="flex-direction:row;align-items:center;gap:0.3rem;text-transform:none;letter-spacing:0;font-size:0.75rem;margin-top:0.25rem"><input type="checkbox" id="g_cu_${i}" data-gr="${i}" data-f="cultured" ${g.cultured?'checked':''}> Cultured (Body Index ×.75, price ×4)</label>`:it.neural?'<div class="gstat">Neural bioware: already cultured</div>':''}${forGunItem(g.key)?forGunHTML(g,i):''}</td>
+      if(it) return `<tr><td>${esc(it.n)}${eraChip(it)} <span class="pg">${it.pg}</span>${lockerLink(g.key)}${it.s?`<div class="gstat">${esc(it.s)}</div>`:''}${DESC[g.key]&&DESC[g.key][0]!==it.s?`<div class="gstat gdesc">${esc(DESC[g.key][0])}</div>`:''}${g.addons?(WSTAT[g.key]&&g.build?`<div class="gstat">Includes add-ons: ${esc(Object.entries(g.build||{}).filter(([k])=>!['ammo','link'].includes(k)).map(([,v])=>GB.accName(v)).join(', '))} (+${fmt(g.addons)}¥ each). Change them under Weapons.</div>`:`<div class="gstat">Includes ${R2OBJ&&R2OBJ[g.key]?'modifications':'options'} (+${fmt(g.addons)}¥ each). Change them in its build-out ${R2OBJ&&R2OBJ[g.key]?'under Rigging':'below this table'}.</div>`):''}${typeof camoKind==='function'&&camoKind(g.key)?`<div class="sfps gsfp">${camoPickHTML(g.key,g.camo,`data-gcamo="${i}"`)}</div>`:''}${it.soft&&it.soft!=='DataSoft'?`<div class="sfps gsfp">${softPickHTML(it.n,Object.assign(softOf(g,it.n),g.oth?{oth:true}:{}),i,{langs:(S.langs||[]).map(L=>L.name).filter(Boolean)})}</div>`:''}${g.note||NOTE_OPEN.has(i)?`<input id="g_note_${i}" data-gr="${i}" data-f="note" value="${esc(g.note)}" placeholder="Note" aria-label="Note for this item" style="margin-top:0.25rem;width:100%;max-width:13.75rem;font-size:0.75rem;padding:3px 0.375rem">`:`<button type="button" class="notebtn" data-note="${i}" aria-label="Add a note to this item">+ Note</button>`}${gradeable(it)&&booksOn().ct?`<div><select id="g_gr_${i}" data-gr="${i}" data-f="grade" aria-label="Cyberware grade" style="margin-top:0.25rem;font-size:0.75rem">${Object.entries(CYBER_GRADES).map(([k,[l,e,c]])=>`<option value="${k}" ${(g.grade||'std')===k?'selected':''}>${l}${k==='std'?'':` (Essence ×${e}, price ×${c})`}</option>`).join('')}</select></div>`:''}${gelOK(it)&&booksOn().fof?`<label style="flex-direction:row;align-items:center;gap:0.3rem;text-transform:none;letter-spacing:0;font-size:0.75rem;margin-top:0.25rem"><input type="checkbox" id="g_gel_${i}" data-gr="${i}" data-f="gel" ${g.gel?'checked':''}> Gel-packs (FoF p. 53): Hardened, price ×5, Concealability halved, weight +25%</label>`:''}${it.bi!=null&&!it.neural?`<label style="flex-direction:row;align-items:center;gap:0.3rem;text-transform:none;letter-spacing:0;font-size:0.75rem;margin-top:0.25rem"><input type="checkbox" id="g_cu_${i}" data-gr="${i}" data-f="cultured" ${g.cultured?'checked':''}> Cultured (Body Index ×.75, price ×4)</label>`:it.neural?'<div class="gstat">Neural bioware: already cultured</div>':''}${forGunItem(g.key)?forGunHTML(g,i):''}</td>
         <td class="n">${it.r?`${(()=>{const dm=deckRowMax(g); const fixed=it.r[2]==='Deck MPCP'&&dm; return `<input type="number" id="g_r_${i}" data-gr="${i}" data-f="r" min="${it.r[0]}" max="${dm!=null?dm:it.r[1]}" value="${g.r}" style="width:3.5rem" aria-label="${it.r[2]}" title="${fixed?'Set by the deck’s MPCP':it.r[2]+(dm!=null?` (up to ${dm} with this deck)`:'')}" ${fixed?'readonly':''} class="${it.r[2]==='Rating'&&g.r>6?'bad-text':''}">`;})()}`:'—'}</td>
-        <td class="n"><input type="number" min="1" id="g_q_${i}" data-gr="${i}" data-f="qty" value="${g.qty||1}" style="width:3.25rem"></td>
+        <td class="n"><input type="number" min="1" id="g_q_${i}" data-gr="${i}" data-f="qty" value="${g.qty||1}" style="width:4.75rem"></td>
         <td class="n mono">${fmt(g.cost)}</td><td class="n mono">${g.ess?+(+g.ess).toFixed(2):g.bi?`${+(+g.bi).toFixed(3)} BI`:'—'}</td><td class="n mono">${fmt(t)}¥</td>
         <td><button class="x" data-del="gear" data-i="${i}" aria-label="Remove item">×</button></td></tr>`;
       return `<tr><td><input id="g_n_${i}" data-gr="${i}" data-f="name" value="${esc(g.name)}" placeholder="Item" style="width:11.875rem"><div><select id="g_k_${i}" data-gr="${i}" data-f="cat" aria-label="Category" style="margin-top:0.25rem;font-size:0.75rem">${GCATS.map(([k,l])=>`<option value="${k}" ${(g.cat||'other')===k?'selected':''}>${l}</option>`).join('')}</select></div></td><td class="n">—</td>
-        <td class="n"><input type="number" min="1" id="g_q_${i}" data-gr="${i}" data-f="qty" value="${g.qty||1}" style="width:3.25rem"></td>
+        <td class="n"><input type="number" min="1" id="g_q_${i}" data-gr="${i}" data-f="qty" value="${g.qty||1}" style="width:4.75rem"></td>
         <td class="n"><input type="number" min="0" id="g_c_${i}" data-gr="${i}" data-f="cost" value="${g.cost||0}" style="width:6.875rem"></td>
         <td class="n"><input type="number" min="0" step="0.05" id="g_e_${i}" data-gr="${i}" data-f="ess" value="${g.ess||0}" style="width:4rem"></td><td class="n mono">${fmt(t)}¥</td>
         <td><button class="x" data-del="gear" data-i="${i}" aria-label="Remove item">×</button></td></tr>`;}).map(h=>fo?h.replace(/^\s*<tr>/,'<tr hidden>'):h).join('');}).join('') || `<tr><td colspan="7" class="note">No gear yet. Pick a category and an item above.</td></tr>`;
@@ -3483,7 +3503,7 @@ function summary(magicRating,rSpent,rBudget){
   if(wmod.m) rows.push(['Wound modifier',`+${wmod.m} TN`]);
   const mx=matrixInfo();
   if(mx&&(mx.vr2||mx.hasDeck||comp)) rows.push([mx.vr2||mx.hasDeck?'Hacking Pool':'Hacking Pool (with a deck)',mx.pool]);
-  if(mx&&(mx.hasDeck||mx.vr2)) mxIniModes(mx).filter(m=>m.id!=='tort').forEach(m=>rows.push(['Matrix Initiative ('+m.l.charAt(0).toLowerCase()+m.l.slice(1)+')',`${m.r} + ${m.d}D6`]));
+  if(mx&&(mx.hasDeck||mx.vr2)) mxIniModes(mx).filter(m=>m.id!=='tort').forEach(m=>rows.push(['Matrix Initiative, '+(m.sh||m.l),`${m.r} + ${m.d}D6`]));
   rows.push(['Native language',nativeLang()]);
   rows.push(['Karma Pool',pool+(+S.kPoolBonus||0)],['Good Karma',`${(+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog()} available`]);
   $('sumStats').innerHTML=rows.map(([k,v])=>`<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
@@ -3701,6 +3721,7 @@ $('spAdd').onclick=()=>{const n=$('spName').value;const f=Math.min(S.established
 $('advBuy').onclick=()=>{const x=advTargets().find(t=>t.id===$('advPick').value); if(!x||karmaShort(x.cost)) return; S.adv=S.adv||[]; S.adv.push(Object.assign({cost:x.cost,desc:x.label.replace(/ \(above racial max, GM approval\)/,'')},x.entry)); if(x.entry.kind==='spellF'){const sp=S.powers.find(p=>p.name===x.entry.name); if(sp) sp.cost=x.entry.to;} render();};
 $('initBuy').onclick=()=>{const how=$('initHow').value||'self'; const g=initGrade()+1; if(karmaShort(initCost(g,how))) return; const ord=/Ord$/.test(how)?$('initOrd').value:''; const O=ORDEALS.find(o=>o[0]===ord); const asc=ord==='asc'?$('initAsc').value:''; if(ord==='asc'&&!asc){const n=$('advNote'); if(n){n.textContent='Pick the attribute you give up for the Asceticism ordeal first.'; n.hidden=false;} return;} if(/Ord$/.test(how)&&!O){const n=$('advNote'); if(n){n.textContent='Pick the ordeal first.'; n.hidden=false;} return;} if(/^group/.test(how)&&!mgState().contact){const n=$('advNote'); if(n){n.textContent='Group initiation needs a magical group with an astral contact (GR p. 54). Open “The group” below.'; n.hidden=false;} return;} S.adv=S.adv||[]; S.adv.push({kind:'init',grade:g,how,ord:ord||undefined,asc:asc||undefined,group:/^group/.test(how)?(S.initGroup||''):undefined,cost:initCost(g,how),desc:`Initiated to Grade ${g} (${INIT_HOW[how][1].toLowerCase()}${O?': '+O[1].toLowerCase():''})`}); render();};
 $('initGroup').oninput=e=>{S.initGroup=e.target.value; save();};
+document.addEventListener('change',e=>{const t=e.target.closest&&e.target.closest('[data-gcamo]'); if(!t) return; const g=S.gear[+t.dataset.gcamo]; if(!g) return; if(t.value) g.camo=t.value; else delete g.camo; save(); render();});
 $('skinMine').onchange=e=>{if(e.target.checked){S.skin=$('skinSel').value; SKIN.restorePrev();} else delete S.skin; save(); SKIN_SHOWN=null; render();}; // ticking keeps the pick on this runner and puts the site-wide colors back
 document.addEventListener('change',e=>{const t=e.target.closest&&e.target.closest('[data-sfp]'); if(!t) return; if(t.dataset.sfp==='add'){const keep={t:GSOFT.t,k:GSOFT.k}; GSOFT=Object.assign(softSet(GSOFT,t.dataset.sff,t.value),keep); gearPreview(); return;} const g=S.gear[+t.dataset.sfp]; if(!g||!GEARDB[g.key]) return;
   const v=softSet(Object.assign(softOf(g,GEARDB[g.key].n),g.oth?{oth:true}:{}),t.dataset.sff,t.value); g.sk=v.sk; g.cc=v.cc; g.cs=v.cs; if(v.oth) g.oth=true; else delete g.oth; save(); render();});
@@ -3794,7 +3815,7 @@ function sheetStats(){
   if(wmod.m) rows.push(['Wound modifier',`+${wmod.m} TN`]);
   const mx=matrixInfo();
   if(mx&&(mx.vr2||mx.hasDeck||comp)) rows.push([mx.vr2||mx.hasDeck?'Hacking Pool':'Hacking Pool (with a deck)',mx.pool]);
-  if(mx&&(mx.hasDeck||mx.vr2)) mxIniModes(mx).filter(m=>m.id!=='tort').forEach(m=>rows.push(['Matrix Initiative ('+m.l.charAt(0).toLowerCase()+m.l.slice(1)+')',`${m.r} + ${m.d}D6`]));
+  if(mx&&(mx.hasDeck||mx.vr2)) mxIniModes(mx).filter(m=>m.id!=='tort').forEach(m=>rows.push(['Matrix Initiative, '+(m.sh||m.l),`${m.r} + ${m.d}D6`]));
   rows.push(['Native language',nativeLang()]);
   rows.push(['Karma Pool',pool+(+S.kPoolBonus||0)],['Good Karma',`${(+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog()} available`]);
   return {rows,reaction,dice,wmod,ar,mx,cpool:Math.max(0,Math.floor((qAug+i+w)/2)+cs-ar.poolPenalty),kpool:pool+(+S.kPoolBonus||0),bi:bodyIndexUsed()};
@@ -4011,6 +4032,7 @@ function gearImport(p){const added=[],skipped=[],byIx={},links=[],upd=[]; const 
       if(x.hb&&typeof x.hb==='object') row.hb=JSON.parse(JSON.stringify(x.hb));
       if(x.gel) row.gel=true;
       if(x.loaded) row.loaded=true;
+      if(x.camo&&typeof camoKind==='function'&&camoKind(x.key)&&CAMO_PATTERNS.includes(x.camo)) row.camo=x.camo;
       if(x.sf&&typeof x.sf==='object'&&it.soft){row.sk=String(x.sf.sk||'').slice(0,80); row.cc=String(x.sf.cc||'').slice(0,80); row.cs=String(x.sf.cs||'').slice(0,80);}
       if(had.has(x.key)) dup.push(it.n); S.gear.push(row); byIx[ix]=row; if(forGunItem(x.key)&&(x.forItem!=null||x.forKey)) links.push([row,x]); if(it.src&&it.src!=='core') books[it.src]=true; added.push(it.n);}
     else if(x&&x.name){S.gear.push({name:String(x.name).slice(0,140),cat:'other',qty:1,cost:Math.max(0,+x.cost||0),ess:0}); added.push(String(x.name));}});

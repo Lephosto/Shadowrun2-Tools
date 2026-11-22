@@ -3,7 +3,7 @@
 #b2tabs button{min-height:2.5rem;padding:0 0.9rem;border-radius:999px;background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:600}
 #b2tabs button[aria-selected="true"]{background:var(--accent);color:var(--paper);border-color:var(--accent)}
 #sesBtn{display:none!important}
-#b2strip{position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;gap:0.375rem;padding:0.5rem 0;background:var(--bg)}
+#b2strip{position:sticky;top:var(--jumpH,0px);z-index:14;display:flex;flex-wrap:wrap;gap:0.375rem;padding:0.5rem 0;background:var(--bg)}
 body.b2gn #b2strip,body.b2af #b2strip{display:none}
 .b2chip{display:inline-flex;flex-direction:column;gap:0;padding:0.25rem 0.7rem;border:1px solid var(--line);border-radius:0.5rem;background:var(--paper);min-height:2.5rem;justify-content:center;text-align:left;color:var(--ink);font-weight:400}
 .b2chip small{font-size:0.6875rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em}
@@ -87,18 +87,28 @@ body.b2prac #b2strip{outline:2px dashed var(--warn);outline-offset:2px}
 .b2tag{display:inline-block;font-size:0.6875rem;padding:0 0.375rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle}
 @media (max-width:640px){.b2sc{grid-template-columns:1fr}}
 
-/* what you're wearing */
-#b2wear{margin:0 0 1rem;padding:0.75rem 1rem;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
-.b2wtop{display:flex;flex-wrap:wrap;align-items:flex-end;gap:0.75rem 1.25rem}
-.b2wtop h3{margin:0;font-size:1rem;align-self:center;min-width:5rem}
-.b2wsel{display:flex;flex-wrap:wrap;gap:0.5rem 0.75rem;flex:1 1 30rem;align-items:flex-end}
-.b2wsel .b2f{flex:1 1 12rem;min-width:0}.b2wsel select{min-height:2.75rem;width:100%}
-.b2wsel .b2fg{min-height:2.75rem;display:flex;align-items:center}
-.b2wtot{display:flex;flex-direction:column;align-items:flex-end;min-width:7rem}
-.b2wtot b{font-size:1.75rem;line-height:1.1;font-family:var(--f-mono);color:var(--accent)}
+/* what you're wearing: a panel in Game night, a block in Build's Weapons and armor */
+.b2wearp .b2h{align-items:flex-start}
+.b2wtot{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1}.b2wtot b{font-size:1.75rem;font-family:var(--f-mono);color:var(--accent)}.b2wtot small{color:var(--muted);font-size:0.6875rem}
+.b2wearsel{display:flex;flex-wrap:wrap;gap:0.5rem 0.75rem;align-items:flex-end;margin-top:0.25rem}
+.b2wearsel .b2f{flex:1 1 11rem;min-width:0}.b2wearsel select{min-height:2.75rem;width:100%}
+.b2wearsel .b2wfg{min-height:2.75rem;display:flex;align-items:center}
 .b2wparts{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem;margin-top:0.625rem;font-size:0.8125rem}
 .b2wp{display:inline-flex;gap:0.375rem;align-items:baseline;padding:0.125rem 0.5rem;border:1px solid var(--line);border-radius:999px;background:var(--soft)}
 .b2wp b{font-family:var(--f-mono)}.b2wp-tot{border-color:var(--accent);background:var(--accent-soft)}.b2wp-tot b{color:var(--accent)}
-.b2wop{color:var(--muted)}
-.b2wnote{margin:0.5rem 0 0}
-@media (max-width:640px){.b2wtot{align-items:flex-start}.b2wtop h3{min-width:0}}
+.b2wop{color:var(--muted)}.b2wnote{margin:0.5rem 0 0}
+.b2camo{display:flex;flex-wrap:wrap;gap:0.5rem 0.75rem;align-items:flex-end;margin-top:0.5rem;padding-top:0.5rem;border-top:1px dashed var(--line)}.b2camo .b2f{flex:1 1 7.5rem;min-width:0}.b2camo select{min-height:2.75rem;width:100%}
+.b2camo .b2cfx{flex:2 1 14rem;font-size:0.8125rem}.b2cfx b{font-family:var(--f-mono)}
+#b2wearBuild{margin:0 0 1rem;padding:0.75rem 1rem;border:1px solid var(--line);border-radius:10px;background:var(--soft)}
+#b2wearBuild .b2h h3{margin:0}
+/* layout tidy-ups (2026-11-21) */
+@media (min-width:62em){.b2span2{grid-column:span 2}}
+/* Game night: Initiative, Condition and Wearing share one row on laptop widths too */
+@media (min-width:68em){.b2ngrid{grid-template-columns:minmax(0,0.85fr) minmax(0,1.15fr) minmax(0,1fr)}}
+@media (min-width:68em) and (max-width:85em){.b2ngrid .b2box{width:1.75rem;height:1.75rem}.b2ngrid .b2box.ov{width:1.125rem}}
+.b2sc{grid-template-columns:minmax(9rem,12rem) minmax(0,1fr) minmax(9rem,13rem)}
+@media (max-width:48em){.b2sc{grid-template-columns:1fr}}
+@media (min-width:62em){.b2afgrid{grid-template-columns:minmax(0,1.7fr) minmax(18rem,1fr)}}
+.b2af .b2step .mono{display:inline-block;min-width:2.25rem}
+body.b2gn .layout{grid-template-columns:minmax(0,1fr)!important}body.b2gn .rail{display:none!important}
+@media (max-width:40em){#b2strip{position:static}nav.jump{flex-wrap:wrap;row-gap:0.375rem}#b2tabs{flex:1 1 100%;margin-right:0}#b2tabs button{flex:1 1 auto;padding:0 0.6rem}.b2pracb{flex:1 1 100%}}

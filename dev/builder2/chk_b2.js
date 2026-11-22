@@ -8,7 +8,7 @@ const {chromium}=require('playwright'); let bad=0; const ok=(c,m)=>{if(!c){bad++
  const opts=await p.$$eval('[data-b2=wid] option',x=>x.length); ok(opts>=1,'attack list');
  await p.click('[data-b2a=roll]'); ok((await p.$$('.b2dice .b2die')).length>0,'attack roll');
  await p.click('[data-b2a=copy]'); ok((await p.$eval('#b2r20',e=>e.value).catch(()=>'')).startsWith('&{template:default}'),'roll20 copy');
- await p.click('[data-b2a=ghroll]'); ok((await p.$$eval('.b2pan',x=>x[3].innerText)).match(/success/),'got hit roll');
+ await p.click('[data-b2a=ghroll]'); ok((await p.$$eval('.b2pan',x=>x.find(e=>/^Got hit/.test(e.innerText)).innerText)).match(/success/),'got hit roll');
  await p.click('[data-b2trk=phys][data-v="3"]'); ok((await p.evaluate(()=>document.querySelector('.b2pan .b2h').nextElementSibling&&1)),'monitor');
  await p.click('#b2tabs [data-tab=after]'); await p.click('[data-b2s="af:gk"][data-d="1"]'); const k0=+await p.$eval('#kEarned',e=>e.value); await p.click('[data-b2a=afsave]'); await p.waitForTimeout(200);
  ok(+await p.$eval('#kEarned',e=>e.value)===k0+1,'after-session save adds Karma'); ok((await p.$$('[data-b2snap]')).length===1,'snapshot kept');

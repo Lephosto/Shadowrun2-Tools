@@ -431,6 +431,12 @@ rep("if(e.target.id==='addKit'){const i=BYID[st.sel]; const nl=Object.assign({id
 rep("k.loaded?{loaded:true}:{},k.build?", "k.loaded?{loaded:true}:{},k.sf?{sf:Object.assign({},k.sf)}:{},k.build?")
 rep("  else items.push(Object.assign({key:i.id,qty:1,r:i.r?(st.rate[i.id]??(i.mult!=null?1000:i.r[0])):undefined},", "  else items.push(Object.assign({key:i.id,qty:1,r:i.r?(st.rate[i.id]??(i.mult!=null?1000:i.r[0])):undefined},softKitPart(i),")
 rep("k.gel?'gel-packs':'',", "k.gel?'gel-packs':'',k.sf&&softLabel(k.sf)?'Skill: '+softText(k.sf,(BYID[k.id]||{}).n):'',")
+# camouflage armor: pick the pattern (FoF p. 52, 54); it rides along to the Builder as `camo`
+rep('${softLockerHTML(i)}${kitFeed(i)?', '${softLockerHTML(i)}${camoLockerHTML(i)}${kitFeed(i)?')
+rep("const nl=Object.assign({id:i.id,r:st.rate[i.id]??(i.r?(i.mult!=null?1000:i.r[0]):0)},softKitPart(i),", "const nl=Object.assign({id:i.id,r:st.rate[i.id]??(i.r?(i.mult!=null?1000:i.r[0]):0)},softKitPart(i),camoKitPart(i),")
+rep("k.sf?{sf:Object.assign({},k.sf)}:{},", "k.sf?{sf:Object.assign({},k.sf)}:{},k.camo?{camo:k.camo}:{},")
+rep("items.push(Object.assign({key:i.id,qty:1,r:i.r?(st.rate[i.id]??(i.mult!=null?1000:i.r[0])):undefined},softKitPart(i),", "items.push(Object.assign({key:i.id,qty:1,r:i.r?(st.rate[i.id]??(i.mult!=null?1000:i.r[0])):undefined},softKitPart(i),camoKitPart(i),")
+rep("k.sf&&softLabel(k.sf)?'Skill: '+softText(k.sf,(BYID[k.id]||{}).n):'',", "k.sf&&softLabel(k.sf)?'Skill: '+softText(k.sf,(BYID[k.id]||{}).n):'',k.camo?k.camo+' camouflage':'',")
 open('gear/template2.html','w').write(s)
 d=open('gear_data.json').read()
 page=s.replace('/*DATA*/null',d.replace('</','<\\/'),1)

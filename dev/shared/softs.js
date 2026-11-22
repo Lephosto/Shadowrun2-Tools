@@ -68,3 +68,15 @@ function softSet(v,f,val){v=Object.assign({sk:'',cc:'',cs:''},v); val=String(val
   else if(f==='cc'){if(val!==v.cc){v.cc=val; v.cs='';}}
   else if(f==='cs') v.cs=val;
   return v;}
+// ---------- Camouflage (FoF p. 52, 54, 77) ----------
+// Camo clothing comes in Desert, Snow, Woodland, Urban and Winter Woodland, reversible day/night (FoF p. 52); military armor
+// comes "in standard or custom camouflage patterns" (FoF p. 54). Spotting someone in camouflage that suits the terrain is +4 to the
+// observer's visual Perception target number, and camouflage that doesn't suit it is -2 (FoF p. 77).
+const CAMO_PATTERNS=['Desert','Snow','Woodland','Urban','Winter Woodland'];
+const CAMO_SUITS=new Set(['armor:Camouflage Full Suit','armor:Camouflage Jacket']), CAMO_MIL=new Set(['armor:Light Military Armor','armor:Medium Military Armor','armor:Heavy Military Armor']);
+function camoKind(key){return CAMO_SUITS.has(key)?'suit':CAMO_MIL.has(key)?'mil':'';}
+function camoPickHTML(key,cur,attr,o){o=o||{}; const k=camoKind(key); if(!k) return ''; const q=x=>String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const opts=(k==='mil'?[['','Standard (no camouflage)']]:[['','Pick a pattern']]).concat(CAMO_PATTERNS.map(p=>[p,p]));
+  return `<label class="${o.cls||'sfp'}"><span class="${o.kcls||'sfpk'}">Camouflage pattern</span><select ${attr}>${opts.map(([v,l])=>`<option value="${q(v)}"${v===(cur||'')?' selected':''}>${q(l)}</option>`).join('')}</select></label>`;}
+// what the worn pattern does where you are: +4 when it suits the terrain, -2 when it doesn't (FoF p. 77)
+function camoEffect(pattern,terrain){if(!pattern||!terrain) return null; return pattern===terrain?{mod:4,txt:'suits the terrain: +4 to the target number of anyone trying to spot you'}:{mod:-2,txt:'doesn’t suit the terrain: −2 to the target number of anyone trying to spot you'};}
