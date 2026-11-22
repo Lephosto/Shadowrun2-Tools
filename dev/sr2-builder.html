@@ -152,7 +152,8 @@ tr.gcat td .sub{float:right;font-family:var(--f-mono);letter-spacing:0;text-tran
 body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2):not(.quick){display:none!important}
 .qrow{display:flex;justify-content:space-between;gap:0.75rem;padding:0.4rem 0;border-bottom:1px solid var(--line);font-size:0.875rem}.qrow .mono{white-space:nowrap}.qrow small{display:block;color:var(--muted);font-size:0.75rem}
 .amcard{border:1px solid var(--line);border-radius:6px;padding:0.625rem 0.75rem;margin-bottom:0.625rem;display:grid;gap:0.4rem}.amhead{display:flex;flex-wrap:wrap;gap:0.25rem 0.625rem;align-items:baseline}.amrow{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem 0.625rem}.amk{font-size:0.75rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);min-width:5.5rem}.amv{font-size:1.25rem;font-weight:700}.amv small{font-size:0.8125rem;color:var(--muted);font-weight:500}.ambtn{display:flex;gap:0.375rem;flex-wrap:wrap}.amempty{opacity:.55}.amsel{flex-direction:row;align-items:center;gap:0.375rem}.amsel select{width:auto;font-size:0.8125rem}.amact button{font-size:0.8125rem}.forgun{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem;margin-top:0.25rem}.forgun label{display:inline;text-transform:none;letter-spacing:0;font-weight:600}.forgun select{font-size:0.75rem;width:auto;max-width:14rem;min-height:var(--tap);padding:0.2rem 0.4rem}
-.gdesc{max-width:30rem;font-style:italic}.desc{font-style:normal}
+.gdesc{max-width:30rem;font-style:italic}
+.armrules{margin-top:0.5rem}.armrules>summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:0.875rem}.armrules[open]>summary{margin-bottom:0.25rem}.desc{font-style:normal}
 .mbar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:20;gap:0.5rem;align-items:baseline;padding:0.625rem 1rem calc(0.625rem + env(safe-area-inset-bottom));background:var(--paper);border-top:3px solid var(--line);color:var(--ink);text-decoration:none;font-size:0.8125rem;box-shadow:0 -4px 12px rgba(0,0,0,.08)}
 .mbar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;color:var(--muted)}.mbar b{white-space:nowrap}
 .mbar.bad{border-top-color:var(--bad)}.mbar.warn{border-top-color:var(--warn)}.mbar.ok{border-top-color:var(--ok)}
@@ -201,7 +202,7 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
   .seg{flex-direction:column}.seg button+button{border-left:0;border-top:1px solid var(--line)}
   header.top .row{width:100%}
 }
-.pg{display:inline-block;font:500 var(--t-xs)/1.4 var(--f-mono);letter-spacing:0;text-transform:none;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:0 6px;max-width:100%;overflow-wrap:anywhere;vertical-align:.08em} /* the page-cite chip (same look as .cite in ui.css) */
+.pg{display:inline-block;font:500 var(--t-xs)/1.4 var(--f-mono);letter-spacing:0;text-transform:none;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:0 6px;max-width:100%;width:max-content;align-self:flex-start;overflow-wrap:anywhere;vertical-align:.08em} /* the page-cite chip (same look as .cite in ui.css) */
 [hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 #vehBuild h3{margin:1rem 0 0.25rem}.vbuild{border:1px solid var(--line);border-radius:0.5rem;padding:0.5rem 0.75rem;margin:0.5rem 0;background:var(--paper)}.vbuild>summary{font-size:0.875rem}
@@ -323,7 +324,7 @@ input[type=checkbox],input[type=radio]{width:24px;height:24px;min-height:0;margi
     <div class="col">
 
       <section class="card" id="sec-rules" data-jump="Rules">
-        <h2><span class="num">01</span> Rules</h2>
+        <h2>Rules</h2>
         <div class="seg" id="modeSeg" role="group" aria-label="Priority rules">
           <button data-mode="standard">Standard<small>Metahumans need Race A</small></button>
           <button data-mode="more">More Metahumans<small>Optional rule: metahuman at C or better</small></button>
@@ -337,13 +338,13 @@ input[type=checkbox],input[type=radio]{width:24px;height:24px;min-height:0;margi
       </section>
 
       <section class="card" id="sec-prio" data-jump="Priorities">
-        <h2><span class="num">02</span> Priorities <span class="pg">p. 47</span></h2>
+        <h2>Priorities <span class="pg">p. 47</span></h2>
         <p class="note">Pick one letter per category. Each letter can be used once; picking a letter that's taken clears it from the other category.</p>
         <div class="tbl"><table class="prio"><thead><tr><th>Category</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr></thead><tbody id="prioBody"></tbody></table></div>
       </section>
 
       <section class="card" id="sec-id" data-jump="Identity">
-        <h2><span class="num">03</span> Identity, race and magic</h2>
+        <h2>Identity, race and magic</h2>
         <div class="grid2">
           <label for="fName">Name<input id="fName" placeholder="Full name"></label>
           <label for="fHandle">Street name<input id="fHandle" placeholder="Handle"></label>
@@ -364,13 +365,13 @@ input[type=checkbox],input[type=radio]{width:24px;height:24px;min-height:0;margi
       </section>
 
       <section class="card" id="sec-attr" data-jump="Attributes">
-        <h2><span class="num">04</span> Attributes <span class="pg">p. 43–45</span></h2>
+        <h2>Attributes <span class="pg">p. 43–45</span></h2>
         <div class="tbl"><table><thead><tr><th>Attribute</th><th class="n">Points</th><th class="n">Race</th><th class="n">Rating</th><th class="n">Max</th></tr></thead><tbody id="attrBody"></tbody></table></div>
         <div class="budget" id="attrBudget"></div>
       </section>
 
       <section class="card ses" id="sec-skills" data-jump="Skills">
-        <h2><span class="num">05</span> Skills <span class="pg">p. 45, 66–73</span></h2>
+        <h2>Skills <span class="pg">p. 45, 66–73</span></h2>
         <div class="quick" id="skillQuick"></div>
         <p class="note">Rating 6 at most at creation. A concentration drops the general skill by 1 and raises the concentration by 1. A specialization drops the general skill by 2, keeps the concentration at the bought rating, and raises the specialization by 2.</p>
         <div class="tbl"><table><thead><tr><th>Skill</th><th class="n">Bought</th><th>Narrowed</th><th>Concentration</th><th>Specialization</th><th>Ratings</th><th></th></tr></thead><tbody id="skillBody"></tbody></table></div>
@@ -385,7 +386,7 @@ input[type=checkbox],input[type=radio]{width:24px;height:24px;min-height:0;margi
       </section>
 
       <section class="card ses" id="magicCard" data-jump="Magic">
-        <h2><span class="num">06</span> <span id="magicTitle">Spells and powers</span></h2>
+        <h2><span id="magicTitle">Spells and powers</span></h2>
         <div class="quick" id="powerQuick"></div>
         <p class="note" id="magicNote"></p>
         <div class="grid2" id="totemRow" hidden><label for="totem">Totem <span class="pg">p. 119</span><select id="totem"></select></label><p class="note" id="totemNote" style="align-self:end"></p></div>
@@ -404,7 +405,7 @@ input[type=checkbox],input[type=radio]{width:24px;height:24px;min-height:0;margi
       </section>
 
       <section class="card" id="sec-gear" data-jump="Gear">
-        <h2><span class="num">07</span> Gear, cyberware and money</h2>
+        <h2>Gear, cyberware and money</h2>
         <div class="picker">
           <label for="gCat">Category<select id="gCat"></select></label>
           <label for="gItem" class="grow">Item<select id="gItem"></select></label>
@@ -428,25 +429,25 @@ input[type=checkbox],input[type=radio]{width:24px;height:24px;min-height:0;margi
       </section>
 
       <section class="card ses" id="sec-stash" data-jump="Stash">
-        <h2><span class="num">07e</span> Stash and storage</h2>
+        <h2>Stash and storage</h2>
         <p class="note">Gear you aren't carrying. Drag an item to a column, or use its <b>Move</b> menu. Stashed gear stays yours and keeps its price, but it leaves the weapons and armor tables, the ammo tracker and the at-the-table part of the sheet. Vehicles and drones you own show up as places too, so a rigger can park drones in the van.</p>
         <div class="stboard" id="stBoard"></div>
         <div class="picker" style="margin-top:0.625rem"><label for="stNew" class="grow">New place<input id="stNew" placeholder="Safehouse, coffin motel locker, the van…" maxlength="40"></label><button class="primary" id="stAdd">Add place</button></div>
       </section>
 
       <section class="card ses" id="sec-weap" data-jump="Weapons">
-        <h2><span class="num">07a</span> Weapons and armor <span class="pg">p. 88–100, 242</span></h2>
+        <h2>Weapons and armor <span class="pg">p. 88–100, 242</span></h2>
         <p class="note">Weapons from your gear, with the dice you roll and range bands (target number: range). Open <b>Add-ons</b> under a gun to fit scopes, smartguns, vents, silencers and so on. Only add-ons that fit that gun are offered (core p. 238–241), and their price is added to the gun in Gear.</p>
         <label id="optRecoilRow" for="optRecoil" hidden style="flex-direction:row;align-items:center;gap:0.375rem;text-transform:none;letter-spacing:0;font-size:0.8125rem;margin-bottom:0.5rem"><input type="checkbox" id="optRecoil"> Fields of Fire optional rule: Strength reduces recoil (p. 83)</label>
         <div class="tbl"><table id="weapTbl"><thead><tr><th>Weapon</th><th class="n">Conceal</th><th>Ammo / mode</th><th>Damage</th><th>Dice</th><th>Ranges (m)</th><th>TN mod</th></tr></thead><tbody id="weapBody"></tbody></table></div>
         <h3>Armor</h3>
         <div id="b2wearBuild" hidden></div>
-        <div class="tbl"><table><thead><tr><th>Worn</th><th class="n">Ballistic</th><th class="n">Impact</th><th></th></tr></thead><tbody id="armorBody"></tbody></table></div>
+        <div class="tbl"><table><thead><tr><th>Armor you carry</th><th class="n">Ballistic</th><th class="n">Impact</th><th></th></tr></thead><tbody id="armorBody"></tbody></table></div>
         <div id="armorTotal"></div>
       </section>
 
       <section class="card ses" id="deckCard" data-jump="Deck" hidden>
-        <h2><span class="num">07b</span> Cyberdeck <span class="pg" id="deckPg">p. 172–175</span></h2>
+        <h2>Cyberdeck <span class="pg" id="deckPg">p. 172–175</span></h2>
         <div id="deckStats"></div>
         <div id="vr2Design" hidden></div>
         <h3>Programs <span class="pg" id="progPg"></span></h3>
@@ -456,7 +457,7 @@ input[type=checkbox],input[type=radio]{width:24px;height:24px;min-height:0;margi
       </section>
 
       <section class="card ses" id="rigCard" data-jump="Rigging" hidden>
-        <h2><span class="num">07c</span> Rigging <span class="pg" id="rigPg">p. 85, 104, 264</span></h2>
+        <h2>Rigging <span class="pg" id="rigPg">p. 85, 104, 264</span></h2>
         <div id="rigStats"></div>
         <p class="note">Vehicle stats from the book: core p. 264–265 (cruise/max speed), FoF p. 62–69, or the Rigger 2 list p. 148–166 (one Speed number; Pilot shows Autonav when a vehicle has no Pilot). A red box means that stat isn’t listed here; fill it in from the book.</p>
         <div class="tbl"><table><thead><tr><th>Vehicle</th><th>Hand.</th><th>Speed</th><th>Body</th><th>Armor</th><th>Sig.</th><th>Pilot</th></tr></thead><tbody id="vehBody"></tbody></table></div>
@@ -464,20 +465,20 @@ input[type=checkbox],input[type=radio]{width:24px;height:24px;min-height:0;margi
       </section>
 
       <section class="card ses" id="softCard" data-jump="Skillsofts" hidden>
-        <h2><span class="num">07d</span> Skillsofts <span class="pg">p. 248</span></h2>
+        <h2>Skillsofts <span class="pg">p. 248</span></h2>
         <div class="tbl"><table><thead><tr><th>Soft and the skill on it</th><th class="n">Rating</th><th class="n">Size</th></tr></thead><tbody id="softBody"></tbody></table></div>
         <p class="note" id="softNote"></p>
       </section>
 
       <section class="card" id="sec-contacts" data-jump="Contacts">
-        <h2><span class="num">08</span> Contacts <span class="pg">p. 46</span></h2>
+        <h2>Contacts <span class="pg">p. 46</span></h2>
         <p class="note">Two Contact-level contacts come free. Others cost Resources: Contact 5,000¥, Buddy 10,000¥, Gang/Tribe 50,000¥, Followers 200,000¥. <span id="contactCost"></span></p>
         <div class="tbl"><table><thead><tr><th>Name</th><th>Role</th><th>Level</th><th></th></tr></thead><tbody id="contactBody"></tbody></table></div>
         <div class="row"><button class="primary" id="addContact">Add contact</button></div>
       </section>
 
       <section class="card ses" id="sec-play" data-jump="In play">
-        <h2><span class="num">09</span> In play</h2>
+        <h2>In play</h2>
         <div class="grid2">
           <div><h3>Physical</h3><div class="track" id="trkPhys"></div></div>
           <div><h3>Stun</h3><div class="track" id="trkStun"></div></div>
@@ -1447,7 +1448,7 @@ function initCost(g,how){return Math.floor((6+g)*INIT_HOW[how][0]);}
 // Individual strictures (GR p. 54-55) and group strictures (p. 55); each one the group adopts is -1 to the Astral Contact Test (p. 58).
 const STRICT=[['att','Attendance','i'],['bel','Belief','i'],['exm','Exclusive Membership','i'],['exr','Exclusive Ritual','i'],['fra','Fraternity','i'],['kar','Karma','i'],['obe','Obedience','i'],['sec','Secrecy','i'],['lim','Limited Membership','g'],['lnk','Material Link','g'],['oat','Oath','g']];
 function mgState(){if(!S.mg||typeof S.mg!=='object') S.mg={contact:(S.adv||[]).some(a=>a.kind==='init'&&/^group/.test(a.how)),role:'',members:2,mixed:false,str:{},prev:false,months:0,extOther:0,broken:0,tries:0,log:[]}; if(!S.mg.str) S.mg.str={}; if(!Array.isArray(S.mg.log)) S.mg.log=[]; return S.mg;}
-function r6(){let t=0,d; do{d=1+Math.floor(Math.random()*6); t+=d;}while(d===6); return t;} // Rule of Six (core p. 38)
+function r6(tn){let t=0,d; do{d=1+Math.floor(Math.random()*6); t+=d;}while(d===6&&tn>6&&t<tn); return t;} // Rule of Six: only over TN 6, until the die reaches it (core p. 32)
 function mgBestMagic(){const sk=Math.max(bestRating(/^sorcery/i)||0,bestRating(/^conjuring/i)||0), m=magicNow(); return sk>=m?{n:sk,l:'best Magical Skill'}:{n:m,l:'Magic'};}
 function mgContactTN(M){const nStr=STRICT.filter(([k])=>M.str[k]).length; return Math.max(2,12+(M.mixed?2:0)-nStr-(M.prev?2:0)-Math.max(0,+M.months||0));}
 function mgToday(){const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -1839,11 +1840,11 @@ function renderExtras(){
   }).join('') || `<tr><td colspan="7" class="note">No weapons yet. Add them from the gear list and they show up here with their stats.</td></tr>`;
   // armor
   const ar=armorTotals();
-  $('armorBody').innerHTML=S.gear.map((g,i)=>[g,i]).filter(([g])=>ASTAT[g.key]&&carried(g)).map(([g,i])=>{const [b,im,k]=ASTAT[g.key];return `<tr><td><label style="flex-direction:row;align-items:center;gap:0.375rem;text-transform:none;letter-spacing:0;font-weight:500;font-size:0.875rem;color:var(--ink)"><input type="checkbox" data-am="${i}" ${g.off?'':'checked'}>${esc(GEARDB[g.key].n)}</label></td><td class="n">${k==='helmet'||k==='shield'?'+':''}${k==='fg'?'—':b}</td><td class="n">${k==='helmet'||k==='shield'||k==='fg'?'+':''}${im}${k==='fg'?' vs melee':''}</td><td class="note">${k==='helmet'?'Adds to other armor':k==='heavy'?'Heavy: Combat Pool penalty':k==='mil'?'Military: −1 Combat Pool per 2 over Quickness':''}</td></tr>`;}).join('')||`<tr><td colspan="4" class="note">No armor yet.</td></tr>`;
+  $('armorBody').innerHTML=S.gear.map((g,i)=>[g,i]).filter(([g])=>ASTAT[g.key]&&carried(g)).map(([g,i])=>{const [b,im,k]=ASTAT[g.key];return `<tr><td><span style="font-weight:500">${esc(GEARDB[g.key].n)}</span> <span class="pill${g.off?'':' ok'}">${g.off?'carried':'worn'}</span></td><td class="n">${k==='helmet'||k==='shield'?'+':''}${k==='fg'?'—':b}</td><td class="n">${k==='helmet'||k==='shield'||k==='fg'?'+':''}${im}${k==='fg'?' vs melee':''}</td><td class="note">${k==='helmet'?'Adds to other armor':k==='heavy'?'Heavy: Combat Pool penalty':k==='mil'?'Military: −1 Combat Pool per 2 over Quickness':''}</td></tr>`;}).join('')||`<tr><td colspan="4" class="note">No armor yet.</td></tr>`;
   $('armorTotal').innerHTML=`<div class="stat"><span class="k">Ballistic / Impact worn</span><span class="v big">${ar.b} / ${ar.i}</span></div>
    <div class="stat"><span class="k">Body for damage resistance</span><span class="v">${augAttr('body')+hasDerm()}</span></div>
    ${ar.poolPenalty?`<div class="stat"><span class="k">Armor Combat Pool penalty</span><span class="v bad-text">−${ar.poolPenalty}</span></div>`:''}
-   <p class="note">Only the best body armor counts; a helmet adds to it (p. 242), and a shield adds on top (table ruling). Core partial and full heavy armor already include a helmet. Forearm guards add +1 Impact against melee only (SSC p. 39). Pick what you’re wearing in the Wearing box above, or with the ticks. ${hasDerm()?'Troll dermal armor and ':''}${gearLevel('body:Dermal Plating')?'Dermal plating and ':''}${hasDerm()||gearLevel('body:Dermal Plating')?'add to Body, not to armor.':''}</p>`;
+   <details class="armrules"><summary><span class="pg">p. 242</span> How armor adds up</summary><p class="note">Only the best body armor counts; a helmet adds to it (p. 242), and a shield adds on top (table ruling). Core partial and full heavy armor already include a helmet. Forearm guards add +1 Impact against melee only (SSC p. 39). Pick what you’re wearing in the Wearing box above. ${hasDerm()?'Troll dermal armor and ':''}${gearLevel('body:Dermal Plating')?'Dermal plating and ':''}${hasDerm()||gearLevel('body:Dermal Plating')?'add to Body, not to armor.':''}</p></details>`;
   // traits
   const tr=raceTraitList();
   $('raceTraits').textContent=R().traits;
@@ -3870,12 +3871,12 @@ $('grpBox').addEventListener('click',e=>{const b=e.target.closest('[data-mga]');
   if(a==='join'){if(karmaShort(3)) return; S.adv.push({kind:'mgjoin',cost:3,desc:`${M.role==='found'?'Founded':'Joined'} ${name} (3 Karma, GR p. 58)`}); M.res='';}
   else if(a==='paid'){S.adv.push({kind:'mgjoin',cost:0,desc:`${M.role==='found'?'Founded':'Joined'} ${name} (another member put up the 3 Karma)`});}
   else if(a==='die'){if(karmaShort(3)) return; S.adv.push({kind:'mgdie',n:1,mon:M.log.length,cost:3,desc:`Extra die for ${name}’s Astral Contact Test (GR p. 58)`});}
-  else if(a==='contact'){const mine=S.adv.filter(x=>x.kind==='mgdie'&&x.mon===M.log.length).reduce((s2,x)=>s2+(+x.n||0),0), n=Math.max(0,+M.members||0)+mine+Math.max(0,+M.extOther||0), tn=mgContactTN(M); const r=[]; for(let i=0;i<n;i++) r.push(r6()); const k=r.filter(x=>x>=tn).length;
+  else if(a==='contact'){const mine=S.adv.filter(x=>x.kind==='mgdie'&&x.mon===M.log.length).reduce((s2,x)=>s2+(+x.n||0),0), n=Math.max(0,+M.members||0)+mine+Math.max(0,+M.extOther||0), tn=mgContactTN(M); const r=[]; for(let i=0;i<n;i++) r.push(r6(tn)); const k=r.filter(x=>x>=tn).length;
     M.log.push(`${mgToday()}: ${n} dice vs TN ${tn} → ${r.join(' ')}${k?' · contact made':' · no contact'}`); M.extOther=0;
     if(k){M.contact=true; M.res=`${name} made its astral contact (${k} success${k>1?'es':''} at TN ${tn}). Members can now initiate at the group cost.`;} else M.res=`No contact this month (${r.join(' ')} against TN ${tn}). Extra dice don’t carry over; try again next month.`;}
-  else if(a==='jtest'){const B2=mgBestMagic(), g=initGrade(), t0=Math.max(2,(+M.members||0)-Math.max(0,g)), tn=Math.max(2,M.tries>0?Math.ceil(t0/2):t0); const r=[]; for(let i=0;i<B2.n;i++) r.push(r6()); const k=r.filter(x=>x>=tn).length; M.tries=(+M.tries||0)+1;
+  else if(a==='jtest'){const B2=mgBestMagic(), g=initGrade(), t0=Math.max(2,(+M.members||0)-Math.max(0,g)), tn=Math.max(2,M.tries>0?Math.ceil(t0/2):t0); const r=[]; for(let i=0;i<B2.n;i++) r.push(r6(tn)); const k=r.filter(x=>x>=tn).length; M.tries=(+M.tries||0)+1;
     M.res=k?`In: ${r.join(' ')} → ${k} success${k>1?'es':''} vs TN ${tn}. ${name} accepts you.`:(M.tries>=2?`Not this time: ${r.join(' ')} vs TN ${tn}. That was the second try: the group can’t admit you (GR p. 58).`:`Not yet: ${r.join(' ')} vs TN ${tn}. Try again in 1D6 months (${1+Math.floor(Math.random()*6)} rolled); the TN is halved then.`); if(k){M.tries=0;}}
-  else if(a==='stest'){const g=initGrade(), tn=Math.max(2,2*(g+1)), n=magicNow(); const r=[]; for(let i=0;i<n;i++) r.push(r6()); const k=r.filter(x=>x>=tn).length;
+  else if(a==='stest'){const g=initGrade(), tn=Math.max(2,2*(g+1)), n=magicNow(); const r=[]; for(let i=0;i<n;i++) r.push(r6(tn)); const k=r.filter(x=>x>=tn).length;
     if(k>M.broken){M.res=`Passed: ${r.join(' ')} → ${k} vs TN ${tn}, more than ${M.broken} broken. The slate is wiped clean.`; M.broken=0;} else M.res=`Failed: ${r.join(' ')} → ${k} vs TN ${tn}, need more than ${M.broken}. The group must expel you or lose its astral contact; some hold a hearing and set a quest or deed (GR p. 54).`;}
   render();}); $('initCenter').oninput=e=>{S.initCenter=e.target.value; save();}; $('initHow').onchange=()=>render(); $('initOrd').onchange=()=>render(); $('initAsc').onchange=()=>{};
 $('advNewPick').onchange=()=>render();

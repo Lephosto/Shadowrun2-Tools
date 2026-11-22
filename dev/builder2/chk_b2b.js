@@ -12,7 +12,7 @@ const C={
   await p.selectOption('[data-b2=wid]',want); await p.waitForTimeout(150);
   if(k==='rigger'){await p.selectOption('[data-b2=mode]','b1'); await p.click('[data-b2s=spend][data-d="1"]');}
   if(k==='mage'){ } 
-  seen[k]=await p.$eval('#b2night .b2two',e=>e.innerText);
+  seen[k]=await p.$eval('#b2night .b2one',e=>e.textContent); // textContent: the breakdown sits behind Show the math
   await p.click('[data-b2a=copy]'); console.log('   copy:',await p.$eval('#b2r20',e=>e.value).catch(()=>'-'));
   if(k==='rigger'){await p.selectOption('[data-b2=dmode]','auto'); console.log('   auto:',(await p.$eval('#b2night .b2nums',e=>e.innerText)).replace(/\n+/g,' | '));}
   if(k==='mage'){console.log('   spirits panel:',(await p.$$eval('.b2pan h3',x=>x.map(y=>y.textContent))).join(','));

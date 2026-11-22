@@ -110,6 +110,13 @@ h1{font:700 26px/1 var(--display);margin:0}h2{font:700 18px var(--display);margi
 .orow .rini{display:flex;gap:4px;align-items:center;margin-left:auto}
 .orow .rhit{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
 .orow .rhmsg{flex-basis:100%;color:var(--muted)}
+/* Phase 2: the first panel before a baddie is picked */
+.start h3{margin:16px 0 6px;font-size:var(--t-md)}
+.howto{margin:8px 0 0;padding-left:20px;color:var(--muted)}
+.howto li{margin:2px 0}
+.glist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.newrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:16px}
+.newb{margin-top:12px}
 /*@shared:ui*/
 /* ---------- Shared pieces, the same in all three tools (Phase 1 of the redesign, 2026-11-22) ----------
    Copied in by build.py after each tool's own styles, so these win where they overlap. Colors come only from tokens.css. */
@@ -411,8 +418,8 @@ try{SRHEAD.init('gm');}catch(e){}
 const $=id=>document.getElementById(id), E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const IT=Object.fromEntries(GMITEMS.map(x=>[x.id,x]));
 const L4='LMSD', BOXES={L:1,M:3,S:6,D:10}, SIGN=x=>x>0?'+'+x:x<0?'−'+(-x):'0';
-const d6x=()=>{let t=0,x;do{x=1+Math.floor(Math.random()*6);t+=x;}while(x===6&&t<60);return t;};
-const rollN=n=>Array.from({length:Math.max(0,n)},d6x);
+const d6x=tn=>{let t=0,x;do{x=1+Math.floor(Math.random()*6);t+=x;}while(x===6&&tn>6&&t<tn&&t<60);return t;}; // Rule of Six only over TN 6, stopping once the die reaches it (core p. 32)
+const rollN=(n,tn)=>Array.from({length:Math.max(0,n)},()=>d6x(tn));
 const d6=()=>1+Math.floor(Math.random()*6); const iniRoll=n=>Array.from({length:Math.max(0,n)},d6).reduce((a,x)=>a+x,0); // Initiative dice are added up; the Rule of Six is only for tests (core p. 32, 78)
 const r20=(n,tn)=>tn<=6?`[[${n}d6>${tn}]]`:`[[${n}d6!!6>${tn}]]`;
 const KEY='sr2-gm-v1';
@@ -480,7 +487,10 @@ function catHTML(){const L=ALL().filter(matches).sort(sorts[G.sort]||sorts.name)
      ${nf?'<button class="ghost sm" data-act="clearf">Clear filters</button>':''}</div>
     <span class="note">${L.length} of ${ALL().length}</span></div>
    <div class="items">${L.map(b=>`<button class="it" data-sel="${b.id}" aria-pressed="${G.sel===b.id}"><span class="itn"><b>${E(b.n)}</b><small>${E(isCrit(b)?(b.cls==='veh'?'Drone or vehicle':b.cls==='normal'?'Animal':b.cls==='dragon'?'Dragon':'Paranormal critter'):b.role)} · Body ${b.a[0]} · Init ${b.ini[0]}+${b.ini[1]}D6</small></span><span class="tier t${tier(b)}">${TIER[tier(b)]}</span></button>`).join('')||'<p class="note pad">Nothing matches. Loosen a filter.</p>'}</div></section>
-   <section class="panel detail" aria-label="Stat block">${sel?detailHTML(sel):`<div class="pad"><h2>Pick a baddie</h2><p class="note">Pick one on the left to see the stat block, choose a loadout and add copies to a group. Or make your own with the button below.</p><button data-act="newblock">New stat block</button>${newFormHTML()}</div>`}</section></div>`;}
+   <section class="panel detail" aria-label="Stat block">${sel?detailHTML(sel):`<div class="pad start"><h2>Pick a baddie</h2>
+     <ol class="howto"><li>Pick one on the left to see the stat block.</li><li>Choose a loadout and add copies to a group.</li><li>Run the fight under <b>Encounter</b>; <b>At the table</b> keeps Initiative and damage.</li></ol>
+     <h3>Your groups</h3>${(()=>{const L=G.groups.map(g=>[g,g.m.reduce((a,x)=>a+x.n,0)]); return L.some(([g,n])=>n)?`<ul class="glist">${L.map(([g,n])=>`<li><b>${E(g.name)}</b> <span class="note">${n} ${n===1?'baddie':'baddies'}${g.on?'':' · not in the encounter'}</span></li>`).join('')}</ul>`:'<p class="note">No one in a group yet.</p>';})()}
+     <div class="newrow"><button data-act="newblock" aria-expanded="${!!T.nfOpen}">New stat block</button><span class="note">Type in a baddie of your own: attributes, skills, attack and armor.</span></div>${T.nfOpen?newFormHTML():''}</div>`}</section></div>`;}
 function detailHTML(b){const lk=loadoutKeys(b); const key=G.load[b.id]||(b.gear?'book':isCrit(b)?'none':'medium'); const X=build(b,key,(G.load[b.id+':c']||[]));
   const stat=(k,v)=>`<div class="st"><span class="lbl">${k}</span><b>${E(v)}</b></div>`;
   const a=b.a; const street=['gang','street'].includes(b.role); const LD=street?STREET_LOADOUTS:LOADOUTS;
@@ -502,7 +512,7 @@ function detailHTML(b){const lk=loadoutKeys(b); const key=G.load[b.id]||(b.gear?
    ${b.custom?'<button class="ghost sm" data-act="delblock">Delete this stat block</button>':''}</div>`;}
 function newFormHTML(){const N=T.nf||(T.nf={n:'',kind:'npc',role:'security',a:[4,4,4,3,3,3,'6',3],iniD:1,pro:2,sk:'Firearms 4, Unarmed Combat 3',atk:'7M',armC:0});
   const num=(i,l)=>`<label class="fl"><span class="lbl">${l}</span><input type="number" data-nf="a${i}" value="${N.a[i]}"></label>`;
-  return `<details class="newb" ${T.nfOpen?'open':''}><summary>Type in a stat block</summary><div class="grid2">
+  return `<div class="newb"><div class="grid2">
    <label class="fl wide"><span class="lbl">Name</span><input data-nf="n" value="${E(N.n)}" placeholder="Renraku red samurai"></label>
    <label class="fl"><span class="lbl">Kind</span><select data-nf="kind"><option value="npc" ${N.kind==='npc'?'selected':''}>Person (uses Combat Pool)</option><option value="crit" ${N.kind==='crit'?'selected':''}>Critter (Threat dice, no pools)</option><option value="veh" ${N.kind==='veh'?'selected':''}>Drone or vehicle (Pilot, Sensor, Body and Armor)</option></select></label>
    <label class="fl"><span class="lbl">Who they are</span><select data-nf="role">${ROLES.map(([v,l])=>`<option value="${v}" ${N.role===v?'selected':''}>${l}</option>`).join('')}</select></label>
@@ -511,7 +521,7 @@ function newFormHTML(){const N=T.nf||(T.nf={n:'',kind:'npc',role:'security',a:[4
    <label class="fl"><span class="lbl">Professional Rating 1–4</span><input type="number" data-nf="pro" value="${N.pro}"></label>
    <label class="fl wide"><span class="lbl">Skills (name and rating, commas between)</span><input data-nf="sk" value="${E(N.sk)}"></label>
    <label class="fl"><span class="lbl">Critter or drone attack code</span><input data-nf="atk" value="${E(N.atk)}"></label><label class="fl"><span class="lbl">Critter or vehicle armor</span><input type="number" data-nf="armC" value="${N.armC}"></label><label class="fl"><span class="lbl">Drone Sensor</span><input type="number" data-nf="sen" value="${N.sen||0}"></label>
-   </div><p class="note">Combat Pool works itself out: (Quickness + Intelligence + Willpower) ÷ 2 (core p. 84). Critters attack with Reaction (p. 86). For a drone or vehicle, put its Pilot in Reaction and its Body in Body; it fires with Pilot + half Sensor and resists with Body against Power minus Armor (R2 p. 58; core p. 107–108). The attack code is its weapon’s, such as 7S for an LMG.</p><button data-act="saveblock">Save stat block</button></details>`;}
+   </div><p class="note">Combat Pool works itself out: (Quickness + Intelligence + Willpower) ÷ 2 (core p. 84). Critters attack with Reaction (p. 86). For a drone or vehicle, put its Pilot in Reaction and its Body in Body; it fires with Pilot + half Sensor and resists with Body against Power minus Armor (R2 p. 58; core p. 107–108). The attack code is its weapon’s, such as 7S for an LMG.</p><button data-act="saveblock">Save stat block</button></div>`;}
 // ---------- groups and encounter ----------
 function groupsHTML(){return `<div class="enc"><section class="panel pad"><div class="dh"><h2>Groups</h2><button class="ghost sm" data-act="newgroup">New group</button></div>
   <label class="fl"><span class="lbl">Encounter name</span><input id="encName" value="${E(G.enc)}"></label>
@@ -641,7 +651,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('button'); if(!t)
   else if(a==='rollini'){C.forEach(x=>{G.ini[x.id]=x.b.ini[0]+iniRoll(x.b.ini[1]);});}
   else if(a==='copyini'){copyOut(`&{template:default} {{name=${G.enc}: enemy Initiative}} `+C.map(x=>`{{${x.name}=[[${x.b.ini[0]}+${x.b.ini[1]}d6${wm(x.id)?'-'+wm(x.id):''}]]}}`).join(' '),'Initiative');}
   else if(a==='newturn'){G.ini={}; G.pools={}; G.runners.forEach(r=>r.ini=0); T.roll=null;}
-  else if(c&&(a==='roll'||a==='rres')){const K=T.cur; G.pools[c.id]=poolLeft(c)-K.sp; T.roll={cid:c.id,r:rollN(K.dice),tn:K.tn,pool:K.sp+K.th,res:a==='rres',lvl:K.lvl,stun:K.stun,spell:K.spell}; T.spend=0; T.copy=null;}
+  else if(c&&(a==='roll'||a==='rres')){const K=T.cur; G.pools[c.id]=poolLeft(c)-K.sp; T.roll={cid:c.id,r:rollN(K.dice,K.tn),tn:K.tn,pool:K.sp+K.th,res:a==='rres',lvl:K.lvl,stun:K.stun,spell:K.spell}; T.spend=0; T.copy=null;}
   else if(c&&a==='copyatk'){const K=T.cur; G.pools[c.id]=poolLeft(c)-K.sp; copyOut(`&{template:default} {{name=${c.name}: ${K.A.n}}} {{Dice=${K.dice} (${K.src})}} {{Target number=${K.tn}}} {{Successes=${r20(K.dice,K.tn)}}} {{Damage=${K.dmg||K.A.dmg}}}`,'Attack'); T.spend=0;}
   else if(c&&a==='copyres'){const K=T.cur; G.pools[c.id]=poolLeft(c)-K.sp; copyOut(`&{template:default} {{name=${c.name} resists ${T.gh.pow}${T.gh.lvl}}} {{Target number=${K.tn}}} {{${T.gh.kind==='spellM'?'Willpower':'Body'}=${r20(T.gh.kind==='spellM'?+c.b.a[5]:c.b.a[0]+(c.b.derm||0),K.tn)}}}`+(K.sp+K.th?` {{Pool or Threat=${r20(K.sp+K.th,K.tn)}}}`:'')+` {{If successes tie=${T.gh.lvl}}}`,'Damage resistance'); T.spend=0;}
   else if(c&&a==='mark'){const R=T.roll; if(R&&R.final){const cur=D(c.id), k=R.stun?'s':'p'; G.dmg[c.id]={...cur,[k]:Math.min(k==='p'?11+c.b.a[0]:10,cur[k]+BOXES[R.final])}; T.roll=null;}}

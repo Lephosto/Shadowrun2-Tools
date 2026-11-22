@@ -103,6 +103,13 @@ h1{font:700 26px/1 var(--display);margin:0}h2{font:700 18px var(--display);margi
 .orow .rini{display:flex;gap:4px;align-items:center;margin-left:auto}
 .orow .rhit{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
 .orow .rhmsg{flex-basis:100%;color:var(--muted)}
+/* Phase 2: the first panel before a baddie is picked */
+.start h3{margin:16px 0 6px;font-size:var(--t-md)}
+.howto{margin:8px 0 0;padding-left:20px;color:var(--muted)}
+.howto li{margin:2px 0}
+.glist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.newrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:16px}
+.newb{margin-top:12px}
 /*@shared:ui*/
 /* ---------- Shared pieces, the same in all three tools (Phase 1 of the redesign, 2026-11-22) ----------
    Copied in by build.py after each tool's own styles, so these win where they overlap. Colors come only from tokens.css. */
