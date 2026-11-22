@@ -73,7 +73,7 @@ module.exports.est=function(p,log){const L=m=>log.push(m); const T=420;
   async startingCash(){const t=await p.$eval('#sec-gear',e=>{const m=e.innerText.match(/Starting cash\s+([\d,]+)¥\s*$/m)||e.innerText.match(/Starting cash[^\n]*\n?\s*([\d,]+)¥/); return m?m[1]:null;}); if(!t){L('could not read starting cash'); return 0;} const v=+t.replace(/,/g,''); await type('#nuyenNow',v); return v;},
   async payout(amt,note){await p.fill('#nyAmt',String(amt)); await p.fill('#nyNote',note); await p.click('#nyAdd'); await p.waitForTimeout(200);},
   async raise(start){const v=await p.$eval('#advPick',(s,st)=>{const o=[...s.options].find(o=>o.text.startsWith(st)); return o?o.value:null;},start); if(!v){L(`no Karma option "${start}"`); return false;} await p.selectOption('#advPick',v); await p.click('#advBuy'); await p.waitForTimeout(200); return true;},
-  async learn(name){await p.fill('#advNewName',name); await p.click('#advNew'); await p.waitForTimeout(200);},
+  async learn(name){const has=await p.$$eval('#advNewPick option',(o,n)=>o.some(x=>x.value===n),name); if(has) await p.selectOption('#advNewPick',name); else {await p.selectOption('#advNewPick','__other'); await p.waitForTimeout(100); await p.fill('#advNewName',name);} await p.click('#advNew'); await p.waitForTimeout(200);},
   async initiate(how){const box=await p.$('#initBox'); if(!box||await box.evaluate(e=>e.hidden)){L('no initiation option shown'); return false;} await p.selectOption('#initHow',how); await p.click('#initBuy'); await p.waitForTimeout(200); return true;},
   async karmaLeft(){return p.$eval('#advAvail',e=>e.innerText).catch(()=>'?');},
   async nuyen(){return p.$eval('#nuyenNow',e=>e.value);},

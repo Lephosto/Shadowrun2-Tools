@@ -1,3 +1,4 @@
+const SECN=['no','Blue','Green','Orange','Red']; // Security Code colors, core p. 165
 /* Runner Builder 2: three modes on top of the Builder (Build / Game night / After the session).
    Reads the Builder's own state S and helpers, so every number matches the sheet. Rules cites are printed core pages. */
 (function(){
@@ -253,13 +254,13 @@ function nightHTML(){
     dmgNote=(dmgNote?dmgNote+' · ':'')+'lock on first with a Sensor Test (R2 p. 28, 58); track belts by hand'+(W.hasR2?'':' · Sensor isn’t listed for this vehicle, so it counts as 0');
   } else if(W.kind==='matrix'){
     ctl+=step('tnb','Target number: the node’s System Rating (IC) or the decker’s Bod (GM)',B.tnBase); tn=B.tnBase; rows.push(['System Rating or Bod','core p. 179',String(tn)]);
-    if(!W.v2){ctl+=step('sec','Security Code to beat (GM)',B.sec||0);} else ctl+=step('dfd','Dice (GM, VR2 rules)',B.dfd||4);
-    dmgNote=W.v2?W.note:'successes beyond the target’s'+(B.sec?' and the Security Code '+B.sec:'')+' are boxes on its monitor (core p. 179)';
+    if(!W.v2){ctl+=sel('sec','Node’s Security Code (GM): successes to beat',[[0,'None (GM says no code)'],[1,'Blue: 1 success'],[2,'Green: 2 successes'],[3,'Orange: 3 successes'],[4,'Red: 4 successes']],Math.min(4,B.sec||0));} else ctl+=step('dfd','Dice (GM, VR2 rules)',B.dfd||4);
+    dmgNote=W.v2?W.note:'successes beyond the target’s'+(B.sec?' and the '+SECN[Math.min(4,B.sec)]+' Security Code ('+Math.min(4,B.sec)+')':'')+' are boxes on its monitor (core p. 179)';
   } else if(W.kind==='util'){
-    ctl+=step('tnb','Node’s System Rating (GM)',B.tnBase); tn=B.tnBase; rows.push(['Node’s System Rating','core p. 174',String(tn)]);
-    ctl+=step('sec','Security Code to beat (GM)',B.sec||0);
+    ctl+=step('tnb','Node’s System Rating (GM): the target number',B.tnBase); tn=B.tnBase; rows.push(['Node’s System Rating','core p. 174',String(tn)]);
+    ctl+=sel('sec','Node’s Security Code (GM): successes to beat',[[0,'None (GM says no code)'],[1,'Blue: 1 success'],[2,'Green: 2 successes'],[3,'Orange: 3 successes'],[4,'Red: 4 successes']],Math.min(4,B.sec||0));
     const dk=typeof deckInfo==='function'?deckInfo():null; const ev=dk&&dk.persona?dk.persona.Evasion:0; B._ev=ev;
-    dmgNote=`The node rolls ${tn} dice against your Evasion ${ev}; the utility runs if you beat its successes plus Security Code ${B.sec||0} (core p. 174).`;
+    dmgNote=`The System Rating is the target number; the Security Code color is how many extra successes you need (core p. 165). The node rolls ${tn} dice against your Evasion ${ev}; the utility runs if you get more successes than it does${B.sec?`, with at least ${Math.min(4,B.sec)} past its total for the ${SECN[Math.min(4,B.sec)]} code`:''} (core p. 165, 174).`;
   } else if(W.kind==='cast'){
     spellF=Math.max(1,Math.min(B.force||W.maxF,W.maxF)); B.force=spellF; ctl+=step('force','Force (up to '+W.maxF+')',spellF);
     ctl+=step('tnb','Target number (GM): the spell’s “Target” line',B.tnBase); tn=B.tnBase; rows.push(['Spell’s target number',W.sp.pg||'core p. 150–158',String(tn)]);
@@ -300,7 +301,7 @@ function nightHTML(){
   const rolled=B.roll?B.roll.r.map((v,j)=>`<span class="b2die${v>=B.roll.tn?' hit':''}${j>=B.roll.r.length-B.roll.pool?' pool':''}">${v}</span>`).join(''):'';
   const succ=B.roll?B.roll.r.filter(v=>v>=B.roll.tn).length+(B.roll.kx||0):0;
   let res=B.warn?B.warn:B.spNote&&B.roll&&W.kind==='spirit'?(B.roll.r.filter(v=>v>=B.roll.tn).length+' successes vs TN '+B.roll.tn+' · '+B.spNote):!B.roll?'Sixes roll again and add (Rule of Six, core p. 32).':B.roll.r.every(v=>v===1)&&!B.roll.kx?'All ones: Rule of One (core p. 32).':`${succ} success${succ===1?'':'es'} vs TN ${B.roll.tn}${B.roll.kx?' (with '+B.roll.kx+' from Karma rerolls)':''}`;
-  if(B.roll&&B.roll.node){const N=B.roll.node, need=N.k+(N.sec||0); res+=` · the node rolled ${N.r.join(' ')} → ${N.k} vs your Evasion ${N.ev}${N.sec?', plus Security Code '+N.sec:''}: `+(succ>need?'the utility runs.':'it doesn’t run.');}
+  let nodeFail=false; if(B.roll&&B.roll.node){const N=B.roll.node, sc=N.sec||0, runs=succ>N.k&&succ-N.k>=sc; nodeFail=!runs; res+=` · the node rolled ${N.r.join(' ')} → ${N.k} vs your Evasion ${N.ev}. You need more than ${N.k}${sc?`, with at least ${sc} past it for the ${SECN[sc]} code (${N.k+Math.max(sc,1)} in all)`:''}: `+(runs?'the utility runs.':'it doesn’t run.');}
   B._cur={W,tn,dice,dSrc,dmg,rounds,spend,rows,spellF}; // used by the buttons
   // got hit
   const G=B.gh, spellHit=G.kind==='mana'||G.kind==='phys', mxHit=G.kind==='icp', blackHit=G.kind==='black', derm=hasDerm()||gearLevel('body:Dermal Plating');
@@ -351,7 +352,7 @@ function nightHTML(){
       <div class="b2res"><div class="b2nums"><div><span class="b2k">Dice</span><b>${dice}</b><small>${E(dSrc)}</small></div><div><span class="b2k">Target number</span><b class="b2warn">${tn}</b></div><div><span class="b2k">Damage</span><b>${E(dmg)}</b><small>${E(dmgNote||W.note||'')}</small></div></div>
        <div class="b2row"><button data-b2a="roll" ${W.grp==='off'||notLoaded?'disabled':''}>Roll ${dice} dice${rounds?' · '+rounds+' round'+(rounds>1?'s':''):''}</button><button class="ghost" data-b2a="copy" ${W.grp==='off'?'disabled':''}>Copy for Roll20</button><button class="ghost" data-b2a="newact">New action: refresh pools</button>${(W.kind==='gun'||W.kind==='drone')&&/FA|BF|SA/.test(W.mode)?'<button class="ghost" data-b2a="newphase">New Combat Phase</button>':''}</div>
        ${notLoaded?`<p class="note b2warn">This program isn’t in active memory. Load it first (a Simple Action to start; big programs take longer, core p. 173–174). <button class="ghost" data-b2a="mload">Load it</button></p>`:''}
-       <div class="b2dice" aria-live="polite">${rolled}</div><b class="${succ?'b2ok':''}">${E(res)}</b>${karmaHTML(B.roll,'karma')}${drain}</div></div>${copyBox}</section>
+       <div class="b2dice" aria-live="polite">${rolled}</div><b class="${nodeFail?'b2warn':succ?'b2ok':''}">${E(res)}</b>${karmaHTML(B.roll,'karma')}${drain}</div></div>${copyBox}</section>
    <section class="b2pan"><div class="b2h"><h3>Got hit</h3><span class="note">armor follows what you wear</span></div>
      <div class="b2ctl">${sel('gh:kind','What hit you',Object.entries(HITS),G.kind)}${step('gh:pow',spellHit?'Spell Force':mxHit?'Node’s System Rating':blackHit?'IC Rating':'Incoming Power',G.pow)}${mxHit||blackHit?'':sel('gh:lvl','Damage level',[['L','Light'],['M','Moderate'],['S','Serious'],['D','Deadly']],G.lvl)}${step('gh:att',spellHit?'Caster’s successes':mxHit||blackHit?'IC’s successes':'Attacker’s successes',G.att)}${G.kind==='gel'||mxHit?'':sel('gh:dt','Damage',[['p','Physical'],['s','Stun (Stun spells, stun weapons, pulled blows)']],G.stun?'s':'p')}${(spellHit&&!isMag)||blackHit?'':step('gh:spend',gPoolName+' ('+(mxHit?(B.hpool||0):spellHit?B.mpool:B.pool)+' left)',gSp)}
      ${G.kind==='flech'&&derm?`<label class="b2f b2wide b2chk"><input type="checkbox" data-b2c="gh:fl" ${G.fl?'checked':''}> The code already has flechette’s extra level (an “(f)” code)</label>`:''}</div>
@@ -424,9 +425,10 @@ function act(a){const C=B._cur, W=C&&C.W; B.warn='';
     if(W.kind==='gun'||W.kind==='drone') B.fired+=C.rounds;
     if(W.kind==='spell') B.mpool-=C.spend; else if(W.kind==='matrix') B.hpool-=C.spend; else B.pool-=C.spend; B.spend=0;
     if(a==='roll'){B.roll={r:rollN(C.dice),tn:C.tn,pool:C.spend,kc:0,kx:0}; B.copy=null;
-      if(W.kind==='util'){const nr=rollN(B.tnBase), ev=B._ev||0; B.roll.node={r:nr,k:nr.filter(x=>x>=Math.max(2,ev)).length,ev,sec:B.sec||0};}
+      if(W.kind==='util'){const nr=rollN(B.tnBase), ev=B._ev||0; B.roll.node={r:nr,k:nr.filter(x=>x>=Math.max(2,ev)).length,ev,sec:Math.min(4,B.sec||0)};}
       if(W.kind==='spirit'){const x=(S.spirits||[])[+W.id.slice(1)]; if(x){x.sv=Math.max(0,(+x.sv||0)-1); if(!x.sv) B.warn=null; B.spNote=x.sv?`${x.sv} service${x.sv>1?'s':''} left.`:'That was its last service: it leaves (core p. 140).'; if(!x.sv) S.spirits.splice(+W.id.slice(1),1); render(); return;}}}
     else {const why=C.rows.map(r=>r[0].toLowerCase()+' '+r[2]).join(', '); let t=`&{template:default} {{name=${who()}: ${W.n}}} {{Dice=${C.dice} (${C.dSrc})}} {{Target number=${C.tn} (${why})}} {{Successes=${r20(C.dice,C.tn)}}} {{Damage=${C.dmg}}}`;
+      if((W.kind==='util'||(W.kind==='matrix'&&!W.v2))&&B.sec){const sc=Math.min(4,B.sec); t+=` {{Security Code=${SECN[sc]}: needs ${sc} more success${sc>1?'es':''} than ${W.kind==='util'?'the node rolls':'the target rolls'} (core p. ${W.kind==='util'?174:179})}}`;} else if(W.kind==='util') t+=` {{Needs=more successes than the node rolls (core p. 174)}}`;
       if(W.kind==='gun'&&W.gid){const at=S.ammoT[W.gid]; t+=` {{Rounds=${C.rounds} fired, ${at.in.n} left}}`;}
       if(W.kind==='spell'){const dt=Math.max(2,Math.floor(C.spellF/2)+(W.sp.m||0))+susPen(); t+=` {{Drain=${r20(attrNow('wil')+B.mpool,dt)} vs ${drainText(W.sp,C.spellF)}${C.spellF>magicNow()?' Physical':' Stun'}}}`;}
       copyOut(t,'Attack'); B.roll=null;}
@@ -464,7 +466,7 @@ function act(a){const C=B._cur, W=C&&C.W; B.warn='';
   redraw();}
 function stepper(id,d){
   if(id==='aim'){const W=B._cur.W; B.aim=Math.max(0,Math.min(Math.floor((W.skill||0)/2),(B.aim||0)+d));}
-  else if(id==='sec'){B.sec=Math.max(0,(B.sec||0)+d);}
+  else if(id==='sec'){B.sec=Math.max(0,Math.min(4,(B.sec||0)+d));}
   else if(id==='spf'){B.spf=Math.max(1,(B.spf||3)+d);} else if(id==='spsv'){B.spsv=Math.max(0,(B.spsv==null?1:B.spsv)+d);}
   else if(id==='gm') B.gm+=d; else if(id==='spend') B.spend=Math.max(0,B.spend+d); else if(id==='force') B.force=Math.max(1,(B.force||1)+d);
   else if(id==='tnb') B.tnBase=Math.max(2,B.tnBase+d); else if(id==='dfd') B.dfd=Math.max(1,(B.dfd||4)+d);
@@ -604,7 +606,7 @@ function mount(){
     if(k==='wid'){B.wid=t.value; B.widBy=B.widBy||{}; B.widBy[S.id]=t.value;B.mode='s1';B.rng=0;B.roll=null;B.spend=0;B.aim=0;B.force=0;B.mount=null;}
     else if(k==='mode') B.mode=t.value; else if(k==='dmode'){B.dmode=t.value; B.spend=0;} else if(k==='mount') B.mount=t.value; else if(k==='urb') B.urb=t.value; else if(k==='los') B.los=t.value; else if(k==='spt') B.spt=t.value; else if(k==='susp') B.susp=t.value; else if(k==='rng') B.rng=+t.value; else if(k==='dmglv') B.dmgLv=t.value; else if(k==='amsel') B.amSel=t.value;
     else if(k&&k.startsWith('sit:')) B.sit[k.slice(4)]=t.value; else if(k&&k.startsWith('msit:')) B.msit[k.slice(5)]=t.value;
-    else if(k==='gh:kind'){B.gh.kind=t.value;B.gh.roll=null;} else if(k==='gh:lvl'){B.gh.lvl=t.value;B.gh.roll=null;} else if(k==='gh:dt'){B.gh.stun=t.value==='s';B.gh.roll=null;} else if(k==='dtgt'){B.dtgt=t.value;B.rng=0;} else if(k==='dft'){B.dft=t.value;} else if(k==='ctc'){B.ctc=+t.value;} else if(k==='inim'){B.inim=t.value; B.ini=null;} else if(k==='ctb'||k==='cte'){const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)]; if(C){if(k==='ctb') {C.cb=t.value; delete C.cei;} else C.cei=+t.value; if(typeof save==='function') save();}} else if(k==='vveh'){B.vveh=+t.value;B.vRes='';} else if(k==='vsk'){B.vsk=+t.value;} else if(k==='vtest'){B.vtest=t.value;B.vRes='';} else if(k==='vter'){B.vter=t.value;}
+    else if(k==='gh:kind'){B.gh.kind=t.value;B.gh.roll=null;} else if(k==='gh:lvl'){B.gh.lvl=t.value;B.gh.roll=null;} else if(k==='gh:dt'){B.gh.stun=t.value==='s';B.gh.roll=null;} else if(k==='dtgt'){B.dtgt=t.value;B.rng=0;} else if(k==='dft'){B.dft=t.value;} else if(k==='sec'){B.sec=Math.max(0,Math.min(4,+t.value||0)); B.roll=null;} else if(k==='ctc'){B.ctc=+t.value;} else if(k==='inim'){B.inim=t.value; B.ini=null;} else if(k==='ctb'||k==='cte'){const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)]; if(C){if(k==='ctb') {C.cb=t.value; delete C.cei;} else C.cei=+t.value; if(typeof save==='function') save();}} else if(k==='vveh'){B.vveh=+t.value;B.vRes='';} else if(k==='vsk'){B.vsk=+t.value;} else if(k==='vtest'){B.vtest=t.value;B.vRes='';} else if(k==='vter'){B.vter=t.value;}
     else if(c==='gh:fl'){B.gh.fl=t.checked;B.gh.roll=null;}
     else if(n){const f=n.slice(3), v=Math.max(0,Math.round(+t.value||0)); if(f.startsWith('u:')) B.af.use[f.slice(2)]=v; else B.af[f]=v; B.af.saved=''; return afTotals();}
     else if(c==='af:keepSus'){B.af.keepSus=t.checked; return afTotals();}
