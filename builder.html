@@ -701,7 +701,7 @@ body.b2gear #b2night{display:none!important}
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1795370867603","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmws5gjg3","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795370867586}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1795372571465","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmws6h25j","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795372571447}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--panel',panel2:'--panel-2',ink:'--ink',muted:'--muted',line:'--line',accent:'--brand',accentInk:'--brand-ink',accentSoft:'--brand-soft',price:'--action',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skillweb*/
@@ -4513,15 +4513,35 @@ function karmaHTML(R,key){if(!R) return ''; const next=(R.kc||0)+1; return `<div
 function visCol(){const r=baseRace(); return r==='Troll'||r==='Dwarf'?4:r==='Elf'||r==='Ork'?3:2;}
 // Every kind of vision this runner can use right now, with where it comes from: race, eye implants (on their own or as cybereye options),
 // helmet vision options carried, and a low-light or thermographic scope on the weapon in hand (electronic vision, used through the scope).
-function visKinds(W){const K=[[2,'normal vision']]; const nat=visCol(); if(nat===3) K.push([4,'natural low-light']); if(nat===4) K.push([6,'natural thermographic']);
-  const has=new Map(), add=(col,src)=>{if(!has.has(col)) has.set(col,src);};
+// What the runner's eyes can do. Cybereyes replace the natural eyes (core p. 247: "retinal modification, rather than eye replacement"),
+// so a runner with a pair of cybereyes loses natural low-light or thermographic vision. The books don't say this outright: GM call, see S.keepNatEyes.
+// Eye options on their own (no cybereyes line) are retinal modifications and leave the natural eyes in place. One cybereye (single) leaves one natural eye.
+function eyeKit(){const K={ll:'',th:'',flare:'',mag:0,magSrc:'',pair:false};
+  const opt=(id,src)=>{id=String(id||''); if(/Low-Light Eyes$/.test(id)) K.ll=K.ll||src; if(/Thermographic Eyes$/.test(id)) K.th=K.th||src; if(/Flare Compensation$/.test(id)) K.flare=K.flare||src;
+    const m=id.match(/(Optical|Electronic) Magnification (\d)$/); if(m&&+m[2]>K.mag){K.mag=+m[2]; K.magSrc=src;}};
   (S.gear||[]).forEach(g=>{if(g.at) return; const k=g.key||'';
-    if(k==='head:Low-Light Eyes') add(3,'low-light eyes'); if(k==='head:Thermographic Eyes') add(5,'thermographic eyes');
-    if(k==='head:Cybereyes'&&g.hb&&Array.isArray(g.hb.opts)) g.hb.opts.forEach(o=>{const id=o&&(o.id||o); if(/Low-Light Eyes$/.test(id)) add(3,'cybereyes'); if(/Thermographic Eyes$/.test(id)) add(5,'cybereyes');});
-    if(k==='armor:Helmet option: Low-Light'&&!g.off) add(3,'helmet'); if(k==='armor:Helmet option: Thermographic'&&!g.off) add(5,'helmet');});
-  if(W&&W.scope) W.scope.forEach(v=>{if(/^low/i.test(v)) add(3,'scope'); if(/^therm/i.test(v)) add(5,'scope');});
+    if(k==='head:Cybereyes'){if(!(g.hb&&g.hb.single)) K.pair=true; ((g.hb&&g.hb.opts)||[]).forEach(o=>opt(o&&(o.id||o),'cybereyes'));}
+    else if(/^head:/.test(k)) opt(k,'eye implant');});
+  return K;}
+function natLost(){return eyeKit().pair&&!S.keepNatEyes;}
+// Every kind of vision this runner can use right now: natural (unless cybereyes replaced it), eye implants, carried helmet vision options,
+// and the scope on the weapon in hand when the shot is taken through the scope.
+function visKinds(W){const K=[[2,'normal vision']], E=eyeKit(); const nat=visCol();
+  if(!natLost()){ if(nat===3) K.push([4,'natural low-light']); if(nat===4) K.push([6,'natural thermographic']); }
+  const has=new Map(), add=(col,src)=>{if(!has.has(col)) has.set(col,src);};
+  if(E.ll) add(3,E.ll); if(E.th) add(5,E.th);
+  (S.gear||[]).forEach(g=>{if(g.at||g.off) return; const k=g.key||''; if(k==='armor:Helmet option: Low-Light') add(3,'helmet'); if(k==='armor:Helmet option: Thermographic') add(5,'helmet');});
+  if(W&&W.scope&&sightNow(W)==='scope') W.scope.forEach(v=>{if(/^low/i.test(v)) add(3,'scope'); if(/^therm/i.test(v)) add(5,'scope');});
   has.forEach((src,col)=>K.push([col,(col===3?'low-light':'thermographic')+' ('+src+')'])); return K;}
-// the best vision for a condition: the lowest modifier among the kinds the runner has
+// Sights. Scopes may not be used with smartlink systems (core p. 240); cybereye magnification behaves like an imaging scope of its rating (SSC p. 85).
+// With a smartlink on the gun the shooter picks one for each shot; without one the scope and eye optics are simply used.
+function sightOpts(W){if(!W||W.kind!=='gun') return []; const E=eyeKit(), o=[];
+  if(W.smartOn) o.push(['link','Smartlink ('+SIGN(W.aim)+')']);
+  if((W.scope&&W.scope.length)||W.mag) o.push(['scope','Through the scope'+(W.mag?' (magnification '+W.mag+')':'')+(W.scope&&W.scope.length?' ('+W.scope.join(', ').toLowerCase()+')':'')]);
+  if(E.mag) o.push(['eyes','Eye magnification '+E.mag+' ('+E.magSrc+')']);
+  return o;}
+function sightNow(W){const o=sightOpts(W); if(!W||!W.smartOn) return 'free'; const v=B.sit.sight; return o.some(x=>x[0]===v)?v:'link';}
+// best vision for a condition: the lowest modifier among the kinds the runner has; Flare Compensation removes glare modifiers (core p. 247)
 function visBest(v,K){let b=K[0]; K.forEach(k=>{if(v[k[0]]<v[b[0]]) b=k;}); return b;}
 function visName(W){const K=visKinds(W); return K.length>1?'best of '+K.map(k=>k[1]).join(', '):'normal vision';}
 // ---------- what this runner can attack with ----------
@@ -4539,7 +4559,7 @@ function attacks(){
     else if(WSTAT[g.key]){const [rt,cc,ammo,mode,dmg]=WSTAT[g.key]; const [sk,conc]=RT_SKILL[rt]||['Firearms','']; const sd=skillDiceNow(sk,conc,it.n); const gc=(typeof gunCalc==='function')?gunCalc(g):null;
       const fs=feedSpec(g.key); const fg=fs?feedGuns().find(x=>x.g===g):null;
       out.push({id:'g'+i,g,grp:where,kind:'gun',rt,n:it.n+((+g.qty||1)>1?' ×'+g.qty:''),dice:sd.dice==null?null:sd.dice+(sd.ia||0),skill:sd.chip==='ActiveSoft'?0:(sd.dice||0),diceSrc:sd.dice==null?'no skill: defaulting (core p. 66–68)':sd.how+' '+sd.dice+(sd.chip==='ActiveSoft'?' (ActiveSoft: no Combat Pool, core p. 248)':''),
-        dmg:(gc&&gc.C.dmg)||strDmg(dmg,str),mode:String(mode||''),bands:RANGES[rt]||['','','',''],scope:gc?(gc.C.parts||[]).filter(p=>p.vis).map(p=>p.vis):[],aim:gc?gc.C.aim:0,aimTxt:gc?(gc.C.aimTxt||[]).filter(x=>!/pick the shooter/.test(x)).join(', '):'',rc:gc?(gc.C.rc||0):0,gid:fg?fg.gid:null,cap:fs?fs.cap:null,note:sk+' · '+(it.pg||'')});}});
+        dmg:(gc&&gc.C.dmg)||strDmg(dmg,str),mode:String(mode||''),bands:RANGES[rt]||['','','',''],scope:gc?(gc.C.parts||[]).filter(p=>p.vis).map(p=>p.vis):[],mag:gc?(gc.C.mag||0):0,smartOn:!!(gc&&gc.C.smart&&gc.C.userLv),aim:gc?gc.C.aim:0,aimTxt:gc?(gc.C.aimTxt||[]).filter(x=>!/pick the shooter/.test(x)).join(', '):'',rc:gc?(gc.C.rc||0):0,gid:fg?fg.gid:null,cap:fs?fs.cap:null,note:sk+' · '+(it.pg||'')});}});
   if(isMagician()){const mp=bestRating(/^sorcery/i)+powerFoci();
     S.powers.forEach((p,i)=>{const sp=spellFind(p.name); if(!sp||sp.cat!=='Combat') return;
       out.push({id:'sp'+i,grp:'spell',kind:'spell',n:p.name+' (Force '+(+p.cost||1)+')',maxF:+p.cost||1,sp,dice:null,skill:mp,pool:mp,note:(sp.pg||'')+' · '+(sp.ty==='M'?'mana: target resists with Willpower':'physical: target resists with Body')});});
@@ -4597,8 +4617,11 @@ function nightHTML(){
     if(!modes.find(m=>m[0]===B.mode)) B.mode=modes[0][0]; const md=modes.find(m=>m[0]===B.mode); rounds=md[2];
     ctl+=sel('mode','Firing',modes.map(m=>[m[0],m[1]]),B.mode);
     ctl+=sel('rng','Range',W.bands.map((b,j)=>[j,['Short','Medium','Long','Extreme'][j]+' '+b+' m']),B.rng);
-    tn=[4,5,6,9][B.rng]; rows.push(['Range',W.bands[B.rng]+' m · core p. 88',String(tn)]);
-    if(W.aim){rows.push(['Gun add-ons',W.aimTxt||'smartgun, laser · core p. 89–90',SIGN(W.aim)]); tn+=W.aim;}
+    const SO=sightOpts(W), sn=sightNow(W), EK=eyeKit(); if(W.smartOn&&SO.length>1) ctl+=sel('sit:sight','Sights',SO,sn);
+    // magnification: moves the target that many range categories closer, never below Short (core p. 90, 240); scope and eye optics don't add together
+    const mg=sn==='link'?0:sn==='scope'?W.mag:sn==='eyes'?EK.mag:Math.max(W.mag,EK.mag), rb=Math.max(0,B.rng-mg);
+    tn=[4,5,6,9][rb]; rows.push(['Range',W.bands[B.rng]+' m'+(rb<B.rng?`, magnification ${mg} → ${['short','medium','long','extreme'][rb]} (${sn==='scope'?'scope':sn==='eyes'?EK.magSrc:W.mag>=EK.mag?'scope':EK.magSrc})`:'')+' · core p. 88',String(tn)]);
+    const aimNow=sn==='link'||sn==='free'?W.aim:0; if(aimNow){rows.push(['Gun add-ons',W.aimTxt||'smartgun, laser · core p. 89–90',SIGN(aimNow)]); tn+=aimNow;} else if(W.aim) rows.push(['Smartlink','not with a scope or magnification · core p. 240','0']);
     let rec=0, why='';
     if(B.mode==='s2'){rec=1;why='second shot +1';} else if(B.mode==='b1'){rec=3;why='burst +3';} else if(B.mode==='b2'){rec=6;why='second burst, +6 in all';} else if(B.mode[0]==='f'){rec=B.fired+rounds;why=`+1 per round this phase (${B.fired} before + ${rounds})`;}
     if(rec){const net=Math.max(0,rec-W.rc); rows.push(['Recoil',why+(W.rc?', compensation −'+W.rc:'')+' · core p. 91',SIGN(net)]); tn+=net;}
@@ -4659,8 +4682,9 @@ function nightHTML(){
   }
   // visibility (all but Matrix): the column for this runner's eyes
   if(!['drone','matrix','util','cast'].includes(W.kind)){// melee uses the Visibility Table at half value, rounded down, except Full Darkness (core p. 102)
-    const VK=visKinds(W), mel=W.kind==='melee', vm=(v,bk)=>mel&&v[0]!=='full'?Math.floor(v[bk[0]]/2):v[bk[0]];
-    ctl+=sel('sit:vis','Light and air',VIS.map(v=>{const bk=visBest(v,VK), m=vm(v,bk); return [v[0],v[1]+(m?' ('+SIGN(m)+')':'')];}),B.sit.vis||'n'); const v=VIS.find(x=>x[0]===B.sit.vis); if(v&&v[0]!=='n'){const bk=visBest(v,VK), m=vm(v,bk); rows.push([v[1],'using '+bk[1]+(mel&&v[0]!=='full'?', half in melee · core p. 89, 102':' · core p. 89'),SIGN(m)]); tn+=m;}}
+    const VK=visKinds(W), mel=W.kind==='melee', fl=eyeKit().flare, vm=(v,bk)=>v[0]==='glare'&&fl?0:mel&&v[0]!=='full'?Math.floor(v[bk[0]]/2):v[bk[0]];
+    {const nat=visCol(); if(eyeKit().pair&&nat>2) ctl+=`<label class="b2chk"><input type="checkbox" data-b2c="keepnat" ${S.keepNatEyes?'checked':''}> Cybereyes keep my natural ${nat===3?'low-light':'thermographic'} (GM call)</label>`;}
+    ctl+=sel('sit:vis','Light and air',VIS.map(v=>{const bk=visBest(v,VK), m=vm(v,bk); return [v[0],v[1]+(m?' ('+SIGN(m)+')':'')];}),B.sit.vis||'n'); const v=VIS.find(x=>x[0]===B.sit.vis); if(v&&v[0]!=='n'){const bk=visBest(v,VK), m=vm(v,bk); rows.push([v[1],(v[0]==='glare'&&fl?'Flare Compensation ('+fl+') removes it · core p. 247':'using '+bk[1]+(mel&&v[0]!=='full'?', half in melee · core p. 89, 102':' · core p. 89')),SIGN(m)]); tn+=m;}}
   ctl+=step('gm','GM modifier',B.gm?SIGN(B.gm):'0'); if(B.gm){rows.push(['GM modifier','anything the tables don’t cover',SIGN(B.gm)]); tn+=B.gm;}
   if(w&&W.kind!=='spirit'&&!(W.kind==='drone'&&B.dmode==='auto')){rows.push(['Wounds','core p. 112','+'+w]); tn+=w;}
   {const sp=susPen(); if(sp&&W.kind!=='spirit'&&!(W.kind==='drone'&&B.dmode==='auto')){rows.push(['Sustaining '+susN()+' spell'+(susN()>1?'s':''),'+2 each · core p. 128',SIGN(sp)]); tn+=sp;}}
@@ -5010,6 +5034,7 @@ function mount(){
     else if(k&&k.startsWith('sit:')) B.sit[k.slice(4)]=t.value; else if(k&&k.startsWith('msit:')) B.msit[k.slice(5)]=t.value;
     else if(k==='gh:kind'){B.gh.kind=t.value;B.gh.roll=null;} else if(k==='gh:lvl'){B.gh.lvl=t.value;B.gh.roll=null;} else if(k==='gh:dt'){B.gh.stun=t.value==='s';B.gh.roll=null;} else if(k==='dtgt'){B.dtgt=t.value;B.rng=0;} else if(k==='dft'){B.dft=t.value;} else if(k==='sec'){B.sec=Math.max(0,Math.min(4,+t.value||0)); B.roll=null;} else if(k==='ctc'){B.ctc=+t.value;} else if(k==='inim'){B.inim=t.value; B.ini=null;} else if(k==='ctb'||k==='cte'){const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)]; if(C){if(k==='ctb') {C.cb=t.value; delete C.cei;} else C.cei=+t.value; if(typeof save==='function') save();}} else if(k==='vveh'){B.vveh=+t.value;B.vRes='';} else if(k==='vsk'){B.vsk=+t.value;} else if(k==='vtest'){B.vtest=t.value;B.vRes='';} else if(k==='vter'){B.vter=t.value;}
     else if(c==='gh:fl'){B.gh.fl=t.checked;B.gh.roll=null;}
+    else if(c==='keepnat'){S.keepNatEyes=t.checked; if(typeof save==='function') save();}
     else if(n){const f=n.slice(3), v=Math.max(0,Math.round(+t.value||0)); if(f.startsWith('u:')) B.af.use[f.slice(2)]=v; else B.af[f]=v; B.af.saved=''; return afTotals();}
     else if(c==='af:keepSus'){B.af.keepSus=t.checked; return afTotals();}
     else if(tx){B.af.note=t.value; return;}
