@@ -167,7 +167,7 @@ function attacks(){
   (S.spirits||[]).forEach((x,i)=>{const F=+x.f||1, ST=SPIRITS[x.t]; if(!ST) return;
     out.push({id:'s'+i,grp:'spirit',kind:'spirit',n:ST.n+', Force '+F+((+x.sv||0)?' · '+x.sv+' service'+(x.sv>1?'s':''):''),dice:ST.dice?ST.dice(F):null,diceSrc:ST.dice?ST.dsrc(F):'powers: the GM sets the dice',dmg:ST.dmg?ST.dmg(F):'by power',ranged:!!ST.ranged,reach:ST.reach||0,f:F,note:ST.note(F)});});
   // drones and vehicles (R2 p. 58): a weapon stowed "at" a vehicle in Stash counts as mounted on it
-  S.gear.forEach((v,vi)=>{if(!isVehG(v)||!GEARDB[v.key]) return; const vn=GEARDB[v.key].n, R=typeof R2OBJ!=='undefined'?R2OBJ[v.key]:null, rr=R?R.r:{};
+  S.gear.forEach((v,vi)=>{if(!isVehG(v)||!GEARDB[v.key]) return; const vn=vehName(v), R=typeof R2OBJ!=='undefined'?R2OBJ[v.key]:null, rr=R?R.r:{};
     const sen=parseInt(rr.Se,10)||0, pil=parseInt(rr.P,10)||0, mods=((v.vb&&v.vb.mods)||[]).map(m=>m.id).join(','), gun=bestNow(/^gunnery/i), gunChip=chipNoPool(/^gunnery/i);
     S.gear.forEach((g,i)=>{if(g.at!==vn||!GEARDB[g.key]) return; const it=GEARDB[g.key]; let dmg=null,mode='';
       if(WSTAT[g.key]){dmg=strDmg(String(WSTAT[g.key][4]),0); mode=String(WSTAT[g.key][3]||'');}
@@ -397,7 +397,7 @@ function vehHTML(){const V=S.gear.filter(g=>isVehG(g)&&GEARDB[g.key]); if(!V.len
   const sel=(id,lab,opts,val)=>`<label class="b2f"><span class="b2k">${E(lab)}</span><select data-b2="${id}">${opts.map(([o,t])=>`<option value="${E(o)}" ${String(o)===String(val)?'selected':''}>${E(t)}</option>`).join('')}</select></label>`;
   const step=(id,lab,val)=>`<div class="b2f"><span class="b2k">${E(lab)}</span><div class="b2step"><button class="ghost" data-b2s="${id}" data-d="-1" aria-label="Lower ${E(lab)}">−</button><b>${E(val)}</b><button class="ghost" data-b2s="${id}" data-d="1" aria-label="Raise ${E(lab)}">+</button></div></div>`;
   return `<section class="b2pan"><div class="b2h"><h3>Vehicle tests</h3><span class="note">chases and crashes, core p. 106–107</span></div>
-   <div class="b2ctl">${sel('vveh','Vehicle',V.map((g,j)=>[j,GEARDB[g.key].n]),vi)}${sel('vsk','Skill',sk.length?sk.map((x,j)=>[j,x[0]+' '+x[1]]):[[0,'none']],ski)}
+   <div class="b2ctl">${sel('vveh','Vehicle',V.map((g,j)=>[j,vehName(g)]),vi)}${sel('vsk','Skill',sk.length?sk.map((x,j)=>[j,x[0]+' '+x[1]]):[[0,'none']],ski)}
    ${sel('vtest','Test',[['pos','Position Test (each turn of a chase)'],['crash','Crash Test (Serious damage, no driver action, a ram)']],kind)}
    ${sel('vter','Terrain',[['o','Open'],['n','Normal'],['r','Restricted'],['t','Tight']],ter)}${cp&&!vChip?step('vsp','Control Pool ('+B.cpool+' left)',sp):cp?'<span class="note">Vehicle ActiveSoft: no Control Pool (core p. 248)</span>':''}</div>
    <div class="b2rows"><div class="b2r"><span>Handling</span><b>${hand}</b></div><div class="b2r alt"><span>Terrain</span><b>${SIGN(tm)}</b></div>${woundMods().m?`<div class="b2r"><span>Wounds</span><b class="b2warn">+${woundMods().m}</b></div>`:''}<div class="b2r tot"><span>Target number</span><b>${tn}</b></div></div>

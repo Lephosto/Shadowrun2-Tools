@@ -205,7 +205,8 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
 @media (max-width:40em){.stat .v{white-space:normal;overflow-wrap:anywhere}}
 .grid2 label.wide{grid-column:span 2}@media (max-width:40em){.grid2 label.wide{grid-column:auto}}
 #contactBody input{width:100%;min-width:0}
-.stboard{align-items:start;grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr))}.stboard>*{min-width:0}.sth{flex-wrap:wrap}.sth>*{min-width:0;overflow-wrap:anywhere}
+.stboard{align-items:start;grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr))}.ambuy{flex-wrap:wrap;align-items:flex-end;gap:0.5rem;border-top:1px dashed var(--line);padding-top:0.5rem;margin-top:0.25rem}.stplaces{display:flex;flex-direction:column;gap:0.625rem;min-width:0}
+@media (min-width:48em){.stboard{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.stplaces{position:sticky;top:calc(var(--jumpH,0px) + 4.5rem);max-height:calc(100vh - var(--jumpH,0px) - 6rem);overflow:auto;padding-right:0.25rem}}.stboard>*{min-width:0}.sth{flex-wrap:wrap}.sth>*{min-width:0;overflow-wrap:anywhere}
 .track .ovf button{width:2.5rem}
 [data-pgr]{width:14rem;max-width:100%}
 
@@ -585,7 +586,7 @@ body.b2gn .layout{grid-template-columns:minmax(0,1fr)!important}body.b2gn .rail{
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1795316961981","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwr9d5lv","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795316961968}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1795323043555","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwrczi6h","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795323043542}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--paper',panel2:'--soft',ink:'--ink',muted:'--muted',line:'--line',accent:'--accent',accentInk:'--accent-ink',accentSoft:'--accent-soft',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skillweb*/
@@ -1188,7 +1189,7 @@ const R2_SUPERSEDES=[["Dodge Scoot", "Dodge Scoot"], ["Yamaha Rapier", "Yamaha R
 // Kelmar gel-packs (FoF p. 53): any armor piece with Ballistic/Impact ratings that isn't already Hardened
 function gelOK(it){return !!it&&it.cat==='armor'&&/^\+?\d+\/\+?\d+/.test(it.s||'')&&!/Hardened/.test(it.s||'');}
 const KEYFIX={'elec:BattleTac Master Unit':'elec:Tacticom Master Unit','elec:BattleTac Portable Master Unit':'elec:Tacticom Portable Master Unit','elec:BattleTac Personal Comm Unit':'elec:Tacticom Personal Comm Unit'}; // FoF p. 58 units are the Phillips Tacticom, not BattleTac
-function syncGear(){S.gear.forEach(g=>{if(g&&KEYFIX[g.key]) g.key=KEYFIX[g.key];}); if(typeof cbSync==='function') cbSync(); deckEnforce(); S.gear.forEach(g=>{const it=g.key&&GEARDB[g.key]; if(!it) return; if(WSTAT[g.key]) migrateAcc(g); const r=it.r?Math.min(it.r[1],Math.max(it.r[0],+g.r||it.r[0])):0; g.r=it.r?r:undefined; g.cat=it.cat; g.name=it.n+(it.r?` (${it.r[2]} ${r})`:''); g.cost=gv(it.c,r); g.ess=+gv(it.e,r)||0;
+function syncGear(){S.gear.forEach(g=>{if(g&&KEYFIX[g.key]) g.key=KEYFIX[g.key];}); vehSync(); if(typeof cbSync==='function') cbSync(); deckEnforce(); S.gear.forEach(g=>{const it=g.key&&GEARDB[g.key]; if(!it) return; if(WSTAT[g.key]) migrateAcc(g); const r=it.r?Math.min(it.r[1],Math.max(it.r[0],+g.r||it.r[0])):0; g.r=it.r?r:undefined; g.cat=it.cat; g.name=it.n+(it.r?` (${it.r[2]} ${r})`:''); g.cost=gv(it.c,r); g.ess=+gv(it.e,r)||0;
   if(it.bi!=null){g.bi=+gv(it.bi,r)||0; if(g.cultured&&!it.neural){g.bi=Math.round(g.bi*.75*1000)/1000; g.cost*=4;} g.ess=0;}
   else if(g.grade&&g.grade!=='std'&&CYBER_GRADES[g.grade]&&gradeable(it)){const G=CYBER_GRADES[g.grade]; g.cost=g.cost*G[2]; if(g.ess>0) g.ess=Math.max(.05,Math.ceil(g.ess*G[1]*100-1e-9)/100); g.name+=' · '+G[0];}
   else if(g.grade) g.grade='std';
@@ -1201,7 +1202,8 @@ function syncGear(){S.gear.forEach(g=>{if(g&&KEYFIX[g.key]) g.key=KEYFIX[g.key];
       g.name=it.n+(rcK?` (Rating ${g.r})`:'')+(g.hb.single?' (single eye)':'')+(C.rows.some(x=>x.fixed)?' with helmet':'')+(n.length||(C.extras||[]).length?' + '+n.map(x=>x.n).concat((C.extras||[]).map(x=>x.n)).join(', '):'')+(G?' · '+G[0]:'');}}}
   if(typeof R2OBJ!=='undefined'&&R2OBJ[g.key]&&g.vb&&g.vb.mods&&g.vb.mods.length){const v=vbFixG(g); const r=VB.calc(v,g.vb); g.addons=r.cost; if(g.addons){g.cost+=g.addons; g.name+=' + mods';}}
   if(WSTAT[g.key]&&g.build&&typeof GB!=='undefined'){const r=gunCalc(g); g.addons=r?r.C.cost-r.o.cost:0; if(g.addons){g.cost+=g.addons; g.name+=' + add-ons';}}
-  if(g.gel){ if(gelOK(it)&&bookOn('fof')){g.cost*=5; g.name+=' · gel-packs (Hardened)';} else delete g.gel;}}); forGunSync();}
+  if(g.gel){ if(gelOK(it)&&bookOn('fof')){g.cost*=5; g.name+=' · gel-packs (Hardened)';} else delete g.gel;}
+  if(g.vname&&isVehG(g)) g.name=g.vname+g.name.slice(it.n.length);}); forGunSync();}
 // ammo and spare clips can be tagged with the gun they're for
 function forGunItem(key){return key==='ammo:Spare Clip'||/^ammo:.*(Ammo|Rounds)\b/.test(key||'');}
 function feedSpec(key){const w=WSTAT[key]; if(!w) return null; const a=String(w[2]).trim(), n=parseInt(a,10);
@@ -1222,11 +1224,15 @@ const NOSTASH=new Set(['head','body','prog','soft','bio']);
 function stashable(g){return !!g&&!!(g.key||g.name)&&!NOSTASH.has(g.cat)&&g.key!==CBKEY&&!(+g.ess>0)&&!(+g.bi>0);}
 const carried=g=>!g||!g.at;
 function stashPlaces(){const P=(Array.isArray(S.places)&&S.places.length?S.places:['Stash']).slice();
-  S.gear.forEach(g=>{if(isVehG(g)&&GEARDB[g.key]){const n=GEARDB[g.key].n; if(!P.includes(n)) P.push(n);}});
+  S.gear.forEach(g=>{if(isVehG(g)&&GEARDB[g.key]){const n=vehName(g); if(!P.includes(n)) P.push(n);}});
   S.gear.forEach(g=>{if(g.at&&!P.includes(g.at)) P.push(g.at);}); return P;}
 const isVehG=g=>!!g&&(g.cat==='veh'||g.cat==='r2veh');
-const isVehPlace=n=>S.gear.some(g=>isVehG(g)&&GEARDB[g.key]&&GEARDB[g.key].n===n);
-function stashSync(){S.gear.forEach(g=>{if(g.at&&!stashable(g)) delete g.at; if(g.at&&isVehG(g)&&GEARDB[g.key]&&GEARDB[g.key].n===g.at) delete g.at;});}
+// each vehicle or drone is its own line and its own place: "Ferret RPD-VI Perimeter Drone", then "… #2" for the second one
+const vehName=g=>g&&GEARDB[g.key]?(g.vname||GEARDB[g.key].n):'';
+const isVehPlace=n=>S.gear.some(g=>isVehG(g)&&GEARDB[g.key]&&vehName(g)===n);
+function vehSync(){const n0=S.gear.length; for(let i=0;i<n0;i++){const g=S.gear[i]; if(!isVehG(g)||!GEARDB[g.key]) continue; const q=Math.max(1,Math.floor(+g.qty||1)); if(q>1){g.qty=1; for(let k=1;k<q;k++){const c=JSON.parse(JSON.stringify(g)); delete c.vname; delete c.gid; S.gear.push(c);}}}
+  const used=new Set(); S.gear.forEach(g=>{if(!isVehG(g)||!GEARDB[g.key]) return; const n=GEARDB[g.key].n; let v=g.vname||n; if(used.has(v)){let k=2; while(used.has(n+' #'+k)) k++; v=n+' #'+k;} if(v===n) delete g.vname; else g.vname=v; used.add(v);});}
+function stashSync(){S.gear.forEach(g=>{if(g.at&&!stashable(g)) delete g.at; if(g.at&&isVehG(g)&&vehName(g)===g.at) delete g.at;});}
 // implants never stack: a second set of pheromones is not a thing
 const IMPLANT_CATS=new Set(['head','body','bio','veh','r2veh','deck','prog','prog2','rc','magic','soft']); // implants, vehicles, decks, programs, foci
 function stackable(g){const w=WSTAT[g.key], it=GEARDB[g.key]; return !!it&&!IMPLANT_CATS.has(it.cat)&&!it.e&&(!w||w[0]==='grenade')&&!MSTAT[g.key]&&!g.build&&!g.vb&&!g.hb&&!g.gel&&!g.loaded&&!g.note&&!g.grade&&g.cat!=='veh'&&!(g.at);}
@@ -1238,16 +1244,16 @@ function stashMove(i,to,one){const g=S.gear[i]; if(!g||!stashable(g)) return; to
     if(j>=0){S.gear[j].qty=(+S.gear[j].qty||1)+(+m.qty||1); if(m.used) S.gear[j].used=(+S.gear[j].used||0)+m.used; gearRemoveAt(i);}}}
 function stashHTML(){const P=stashPlaces(); const items=S.gear.map((g,i)=>[g,i]).filter(([g])=>stashable(g));
   if(!items.length) return `<p class="note">No gear to stash yet. Cyberware and other implants always go with you.</p>`;
-  const nm=g=>esc((GEARDB[g.key]?g.name:g.name)||'Item');
-  const opts=(g,here)=>{const q=+g.qty||1, own=isVehG(g)&&GEARDB[g.key]?GEARDB[g.key].n:null; const T=[['',`Carry (on ${esc(S.handle||S.name||'you')})`],...P.filter(p=>p!==own).map(p=>[p,esc(p)])].filter(([v])=>v!==here);
-    return `<option value="">Move…</option>${T.map(([v,l])=>`<option value="a|${esc(v)}">${q>1?'All to ':'To '}${l}</option>`).join('')}${q>1?T.map(([v,l])=>`<option value="1|${esc(v)}">One to ${l}</option>`).join(''):''}`;};
+  const nm=g=>esc((isVehG(g)&&GEARDB[g.key]?vehName(g):g.name)||'Item');
+  const opts=(g,here)=>{const q=+g.qty||1, own=isVehG(g)&&GEARDB[g.key]?vehName(g):null; const T=[['',`Carry (on ${esc(S.handle||S.name||'you')})`],...P.filter(p=>p!==own).map(p=>[p,esc(p)])].filter(([v])=>v!==here);
+    return `<option value="">Move…</option>${T.map(([v,l])=>`<option value="a|${esc(v)}">${q>1?`All ${q} to `:'To '}${l}</option>`).join('')}${q>1?T.map(([v,l])=>`<option value="1|${esc(v)}">One to ${l}</option>`).join(''):''}`;};
   const chip=([g,i])=>`<div class="stchip" draggable="true" data-stdrag="${i}"><span>${nm(g)}${(+g.qty||1)>1?` <i>×${g.qty}</i>`:''}</span><select data-stmove="${i}" aria-label="Move ${nm(g)}">${opts(g,g.at||'')}</select></div>`;
   const catOf=g=>isVehG(g)?'Vehicles and drones':GCATNAME[g.cat]||'Other', order=GCATS.map(c=>c[1]).concat(['Other']);
   const grp=L=>{if(L.length<6) return L.map(chip).join(''); const by={}; L.forEach(x=>{(by[catOf(x[0])]=by[catOf(x[0])]||[]).push(x);});
     return Object.keys(by).sort((a,b)=>order.indexOf(a)-order.indexOf(b)).map(c=>`<div class="stcat">${esc(c)}</div>`+by[c].map(chip).join('')).join('');};
   const col=(place,label,cls,removable)=>{const L=items.filter(([g])=>(g.at||'')===place);
     return `<div class="stcol${cls?' '+cls:''}" data-stdrop="${esc(place)}"><div class="sth"><b>${label}</b><span class="note">${L.length?L.length+' item'+(L.length>1?'s':''):''}${removable&&!L.length?` <button class="x" data-strm="${esc(place)}" aria-label="Remove ${esc(place)}">×</button>`:''}</span></div><div class="stlist">${grp(L)||'<p class="note stempty">Drop gear here.</p>'}</div></div>`;};
-  return col('',`With ${esc(S.handle||S.name||'you')}`,'carry',false)+P.map(p=>col(p,esc(p)+(isVehPlace(p)?' <span class="pg">vehicle</span>':''),'',!isVehPlace(p)&&!(p==='Stash'&&(!S.places||S.places.length<=1)))).join('');}
+  return col('',`With ${esc(S.handle||S.name||'you')}`,'carry',false)+`<div class="stplaces">`+P.map(p=>col(p,esc(p)+(isVehPlace(p)?' <span class="pg">vehicle</span>':''),'',!isVehPlace(p)&&!(p==='Stash'&&(!S.places||S.places.length<=1)))).join('')+`</div>`;}
 function stashSummaryHTML(){const st=S.gear.filter(g=>g.at&&stashable(g)); if(!st.length) return ''; const by={}; st.forEach(g=>{(by[g.at]=by[g.at]||[]).push(g);});
   return Object.entries(by).map(([p,L])=>`<b>${esc(p)}:</b> ${L.map(g=>esc(g.name||'')+((+g.qty||1)>1?' ×'+g.qty:'')).join(', ')}`).join(' · ');}
 // ---- ammo tracker: rounds move from the bought ammo (the pool) into the gun and its spare clips
@@ -1277,22 +1283,37 @@ function ammoSummary(gid){const at=(S.ammoT||{})[gid]; const fg=feedGuns().find(
   const p=amTypes(gid).map(t=>[t,amPool(gid,t)]).filter(x=>x[1]);
   if(!at.in.n&&!at.clips.length&&!p.length) return '';
   return `In gun ${at.in.n}${sp.cap!=null?'/'+sp.cap:''}${at.in.n&&at.in.t?' '+AMSHORT(at.in.t).toLowerCase():''}${at.clips.length?(at.clips.every(c=>!c.n)?` · ${at.clips.length} empty spare clip${at.clips.length>1?'s':''}`:` · spare clips ${at.clips.map(c=>c.n).join(', ')}`):''}${p.length?` · pool ${p.map(([t,n])=>n+' '+AMSHORT(t).toLowerCase()).join(', ')}`:''}`;}
+// quick buy from a gun's card: ammo boxes of 10 and spare clips (core p. 256). The GM still has to OK it.
+const AMQ={};
+function quickAmmoTypes(g){const gn=GEARDB[g.key]?GEARDB[g.key].n:''; return Object.keys(GEARDB).filter(k=>forGunItem(k)&&k!=='ammo:Spare Clip'&&itemVisible(GEARDB[k])).filter(k=>{const n=GEARDB[k].n; if(/Assault Cannon/.test(n)) return /Assault Cannon/i.test(gn); if(/^Barret/.test(n)) return /Barret/i.test(gn); return true;});}
+function quickBuy(gid,what){const fg=feedGuns().find(x=>x.gid===gid); if(!fg) return; const q=AMQ[gid]||{}; const types=quickAmmoTypes(fg.g);
+  const key=what==='clip'?'ammo:Spare Clip':(types.includes(q.t)?q.t:(amTypes(gid)[0]&&types.includes(amTypes(gid)[0])?amTypes(gid)[0]:types[0])); const it=GEARDB[key]; if(!it) return;
+  const n=what==='clip'?1:Math.max(1,Math.min(50,Math.floor(+q.n||1)));
+  let line=S.gear.find(x=>x.key===key&&x.forGun===gid&&!x.at&&plainRow(x)); if(line) line.qty=(+line.qty||1)+n; else S.gear.push({key,qty:n,forGun:gid});
+  const cost=Math.round((+gv(it.c,0)||0)*n), what2=what==='clip'?'a spare clip':`${n} box${n>1?'es':''} of ${AMSHORT(key).toLowerCase()} (${n*10} rounds)`;
+  let paid=''; if(S.established&&S.nuyenNow!==''&&S.nuyenNow!=null&&cost>0){const dt=new Date(); const ds=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); S.nuyenNow=(+S.nuyenNow||0)-cost; S.nyLog=S.nyLog||[]; S.nyLog.push({d:ds,amt:-cost,note:`Quick buy: ${what2} for ${fg.label} (list price, GM OK)`}); paid=` Paid ${fmt(cost)}¥ from nuyen on hand${(+S.nuyenNow)<0?': that’s more than you had':''}.`;}
+  render(); const st=$('saveState'); if(st) st.textContent=`Bought ${what2} for ${fg.label} at list price.${paid} Clear it with your GM.`;}
+function quickBuyHTML(g,gid,label,sp){const types=quickAmmoTypes(g); if(!types.length) return ''; const q=AMQ[gid]||{}; const cur=types.includes(q.t)?q.t:(types.includes(amTypes(gid)[0])?amTypes(gid)[0]:types[0]);
+  return `<div class="amrow ambuy"><span class="amk">Quick buy</span><label class="amsel"><span>Ammo</span> <select data-amqb="${gid}" aria-label="Ammo to buy for ${esc(label)}">${types.map(t=>`<option value="${esc(t)}" ${t===cur?'selected':''}>${esc(AMSHORT(t))} · ${fmt(gv(GEARDB[t].c,0))}¥ per 10</option>`).join('')}</select></label>
+    <label class="amsel"><span>Boxes of 10</span> <input type="number" min="1" max="50" value="${Math.max(1,+q.n||1)}" data-amqn="${gid}" aria-label="Boxes of 10 rounds" style="width:4.5rem"></label>
+    <button class="ghost" data-amq="ammo" data-gid="${gid}">Buy ammo</button>${sp.clip?`<button class="ghost" data-amq="clip" data-gid="${gid}">Buy a spare clip · ${fmt(gv(GEARDB['ammo:Spare Clip'].c,0))}¥</button>`:''}</div>
+    <p class="note">For when you forgot it at the Gear Locker: check with your GM first (availability and street price, core p. 184–185). It goes on this gun’s line at list price${S.established?' and comes out of nuyen on hand':''} (core p. 256).</p>`;}
 function ammoTrackHTML(){const fg=feedGuns().filter(x=>carried(x.g)); if(!fg.length) return `<p class="note">No carried guns that take ammunition${S.gear.some(g=>g.at&&isFeedGun(g))?' (stashed guns aren’t tracked until you carry them)':''}.</p>`;
   return fg.map(({g,gid,label})=>{const sp=feedSpec(g.key); const at=S.ammoT[gid]; const mode=String(WSTAT[g.key][3]||''); const types=amTypes(gid);
     const fire=[['SA|SS|^SA','1','Shot',1],['BF','3','Burst',3],['FA','10','Auto 10',10]].filter(([re])=>new RegExp(re).test(mode)||(re.startsWith('SA')&&!/BF|FA/.test(mode)));
     const ty=t=>t?AMSHORT(t):'empty';
-    const pool=types.map(t=>`<span class="pill">${amPool(gid,t)} ${esc(AMSHORT(t).toLowerCase())}</span>`).join(' ')||'<span class="note">No ammo bought for this gun. Add ammo in the gear list.</span>';
+    const pool=types.map(t=>`<span class="pill">${amPool(gid,t)} ${esc(AMSHORT(t).toLowerCase())}</span>`).join(' ')||'<span class="note">No ammo bought for this gun. Add it in the gear list or with Quick buy below.</span>';
     const hasSpare=at.clips.some(c=>c.n>0);
     return `<div class="amcard"><div class="amhead"><b>${esc(label)}</b><span class="gstat">${esc(sp.feed)} · ${esc(mode)}</span></div>
       <div class="amrow"><span class="amk">In gun</span><span class="amv mono ${at.in.n?'':'bad-text'}">${at.in.n}${sp.cap!=null?`<small>/${sp.cap}</small>`:''}</span><span class="gstat">${esc(at.in.n?ty(at.in.t):sp.belt&&!sp.clip?'belt empty':'empty')}</span>
         <span class="ambtn">${fire.map(([,n,lab,k])=>`<button class="ghost" data-amo="fire" data-amn="${k}" data-gid="${gid}" ${at.in.n?'':'disabled'}>${lab}${k>1?` −${k}`:''}</button>`).join('')}</span></div>
-      ${sp.clip?`<div class="amrow"><span class="amk">Spare clips</span><span class="amclips">${at.clips.length?at.clips.map(c=>`<span class="pill ${c.n?'':'amempty'}" title="${esc(ty(c.t))}">${c.n}${c.n?' '+esc(AMSHORT(c.t).toLowerCase()):''}</span>`).join(' '):'<span class="note">None. Assign Spare Clips to this gun in the gear list.</span>'}</span></div>`:''}
+      ${sp.clip?`<div class="amrow"><span class="amk">Spare clips</span><span class="amclips">${at.clips.length?at.clips.map(c=>`<span class="pill ${c.n?'':'amempty'}" title="${esc(ty(c.t))}">${c.n}${c.n?' '+esc(AMSHORT(c.t).toLowerCase()):''}</span>`).join(' '):'<span class="note">None. Assign Spare Clips to this gun in the gear list, or use Quick buy below.</span>'}</span></div>`:''}
       <div class="amrow"><span class="amk">Pool</span><span>${pool}</span></div>
       <div class="amrow amact">${types.length?`<label class="amsel"><span>Ammo</span> <select data-amosel="${gid}" aria-label="Ammo type for ${esc(label)}">${types.map(t=>`<option value="${esc(t)}" ${t===at.sel?'selected':''}>${esc(AMSHORT(t))} (${amPool(gid,t)})</option>`).join('')}</select></label>`:''}
         ${sp.clip&&at.clips.length?`<button data-amo="swap" data-gid="${gid}" ${hasSpare?'':'disabled'} title="Swap in the fullest spare clip (Simple Action)">Change clip</button>`:''}
         <button data-amo="load" data-gid="${gid}" ${types.length?'':'disabled'} title="${sp.clip?'Refill the clip in the gun':sp.belt?'Feed the belt':'Load rounds'} from the pool">${sp.clip?'Refill gun clip':sp.belt?'Load belt':'Load gun'}</button>
         ${sp.clip&&at.clips.length?`<button data-amo="fill" data-gid="${gid}" ${types.length?'':'disabled'}>Fill spare clips</button>`:''}
-        <button class="ghost" data-amo="unload" data-gid="${gid}" title="Put every loaded round back in the pool">Unload all</button></div></div>`;}).join('');}
+        <button class="ghost" data-amo="unload" data-gid="${gid}" title="Put every loaded round back in the pool">Unload all</button></div>${quickBuyHTML(g,gid,label,sp)}</div>`;}).join('');}
 function forGunHTML(g,i){const fg=feedGuns(); if(!fg.length) return `<div class="gstat">Add a gun to choose which one this is for.</div>`;
   const t=fg.find(x=>x.gid===g.forGun); const bad=t&&g.key==='ammo:Spare Clip'&&!t.clips;
   return `<div class="gstat forgun"><label for="g_fg_${i}">For</label> <select id="g_fg_${i}" data-gr="${i}" data-f="forGun"><option value="">Any gun</option>${fg.map(x=>`<option value="${x.gid}" ${x.gid===g.forGun?'selected':''}>${esc(x.label)}</option>`).join('')}</select>${bad?` <span class="bad-text">${esc(t.label)} doesn’t take clips (${esc(WSTAT[t.g.key][2])}).</span>`:''}</div>`;}
@@ -3694,8 +3715,8 @@ function summary(magicRating,rSpent,rBudget){
   if(adeptOn()){const seen=new Set(); S.powers.forEach(q=>{if(!q.type||PW_MULTI.has(q.type)) return; if(seen.has(q.type)){const L=(allPowers()[q.type]||{}).label||q.type; iss.push(['warn',`${L} is on the powers list twice. Take it once and set the level you want on that line; going up a level costs only the difference.`]);} seen.add(q.type);});}
   if(S.established&&isMagician()) S.powers.forEach(p=>{const f=spellPaid(p); if(f!=null&&(+p.cost||0)>f) iss.push(['warn',`${p.name||'A spell'} is at Force ${p.cost} but Karma was paid for Force ${f}. Raise it under Spend Good Karma so the Karma is counted (p. 133).`]);});
   // factory weapon mounts on drones and vehicles come empty: "weapon not included" (R2 p. 156, 165)
-  {const mt=S.gear.filter(g=>g.key&&/^r2veh:/.test(g.key)&&!g.at).filter(g=>!S.gear.some(w=>w.at===GEARDB[g.key].n&&(WSTAT[w.key]||(w.key||'').startsWith('vweap:')))).filter(g=>{const F=typeof VB!=='undefined'&&VB.FACT&&VB.FACT[GEARDB[g.key].n]; return (F&&/(^|,)(fx_|rt_|tur_)/.test(F[1]||''))||(g.vb&&(g.vb.mods||[]).some(m=>/^(fx_|rt_|tur_|ring|pintle|mis_)/.test(m.id)));});
-   if(mt.length&&!S.gear.some(g=>g.key&&/^vweap:/.test(g.key)||(g.note&&/mount/i.test(g.note)))) iss.push(['warn',`${[...new Set(mt.map(g=>GEARDB[g.key].n))].join(', ')}: the weapon mounts are empty: factory mounts come “weapon not included” (R2), and a mount added in a build-out holds no gun either. Buy a weapon that fits (Weapon Values Table, R2 p. 135) and note which mount it sits in.`]);}
+  {const mt=S.gear.filter(g=>g.key&&/^r2veh:/.test(g.key)&&!g.at).filter(g=>!S.gear.some(w=>w.at===vehName(g)&&(WSTAT[w.key]||(w.key||'').startsWith('vweap:')))).filter(g=>{const F=typeof VB!=='undefined'&&VB.FACT&&VB.FACT[GEARDB[g.key].n]; return (F&&/(^|,)(fx_|rt_|tur_)/.test(F[1]||''))||(g.vb&&(g.vb.mods||[]).some(m=>/^(fx_|rt_|tur_|ring|pintle|mis_)/.test(m.id)));});
+   if(mt.length&&!S.gear.some(g=>g.key&&/^vweap:/.test(g.key)||(g.note&&/mount/i.test(g.note)))) iss.push(['warn',`${[...new Set(mt.map(g=>vehName(g)))].join(', ')}: the weapon mounts are empty: factory mounts come “weapon not included” (R2), and a mount added in a build-out holds no gun either. Buy a weapon that fits (Weapon Values Table, R2 p. 135) and note which mount it sits in.`]);}
   {const dk=typeof deckInfo==='function'?deckInfo():null; if(dk&&!dk.vr2&&dk.persona&&!Object.values(dk.persona).some(v=>+v>0)) iss.push(['warn',`${dk.name}: no persona programs. Bod, Evasion, Masking and Sensors are all 0, so the deck can’t resist or hide from anything. Add them in the deck’s program list; their ratings can total up to 3 × MPCP (${3*(dk.mpcp||0)}) (core p. 174).`]);}
   if(S.phys>10+natBody()) iss.unshift(['bad','This runner is dead: Physical damage went more than Body boxes past the track (p. 111). Keep the sheet for the record; a new runner starts fresh.']);
   // cyberware and bioware are installed once; a quantity above 1 multiplies the Essence
@@ -3720,6 +3741,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.mode){S.mode=b.dataset.mode;render();return;}
   if(b.dataset.cat){const c=b.dataset.cat,L=b.dataset.l; for(const [k] of CATS){ if(k!==c&&S.prio[k]===L) S.prio[k]=''; } S.prio[c]=S.prio[c]===L?'':L; render(); return;}
   if(b.dataset.strm!==undefined){const p=b.dataset.strm; S.places=stashPlaces().filter(x=>x!==p&&!isVehPlace(x)); render(); return;}
+  if(b.dataset.amq){quickBuy(b.dataset.gid,b.dataset.amq); return;}
   if(b.dataset.amo){ammoAct(b.dataset.gid,b.dataset.amo,+b.dataset.amn||0); render(); return;}
   if(b.dataset.nyrm!==undefined){const L=S.nyLog||[];const e=L[+b.dataset.nyrm];if(e){S.nuyenNow=(S.nuyenNow===''||S.nuyenNow==null?0:+S.nuyenNow)-e.amt;L.splice(+b.dataset.nyrm,1);S.nyLog=L;}render();return;}
   if(b.dataset.del==='adv'){const a=(S.adv||[])[+b.dataset.i]; if(a&&a.kind==='spell') S.powers=S.powers.filter(p=>p.lid!==a.lid); if(a&&a.kind==='spellF'){const sp=S.powers.find(p=>p.name===a.name); if(sp&&+sp.cost===+a.to) sp.cost=a.from;} if(a&&a.kind==='newlang') S.langs=(S.langs||[]).filter(L=>L.lid!==a.lid); if(a&&a.kind==='lang'&&a.from!=null){const L=(S.langs||[])[a.idx]; if(L&&+L.rating===+a.to) L.rating=a.from;} if(a&&a.kind==='init'&&+a.grade<initGrade()){$('saveState').textContent='Undo the highest grade first.'; return;}}
@@ -3837,6 +3859,7 @@ $('spAdd').onclick=()=>{const n=$('spName').value;const f=Math.min(S.established
 $('advBuy').onclick=()=>{const x=advTargets().find(t=>t.id===$('advPick').value); if(!x||karmaShort(x.cost)) return; S.adv=S.adv||[]; S.adv.push(Object.assign({cost:x.cost,desc:x.label.replace(/ \(above racial max, GM approval\)/,'')},x.entry)); if(x.entry.kind==='spellF'){const sp=S.powers.find(p=>p.name===x.entry.name); if(sp) sp.cost=x.entry.to;} if(x.entry.kind==='lang'){const L=(S.langs||[])[x.entry.idx]; if(L){S.adv[S.adv.length-1].from=+L.rating||0; L.rating=x.entry.to;}} render();};
 $('initBuy').onclick=()=>{const how=$('initHow').value||'self'; const g=initGrade()+1; if(karmaShort(initCost(g,how))) return; const ord=/Ord$/.test(how)?$('initOrd').value:''; const O=ORDEALS.find(o=>o[0]===ord); const asc=ord==='asc'?$('initAsc').value:''; if(ord==='asc'&&!asc){const n=$('advNote'); if(n){n.textContent='Pick the attribute you give up for the Asceticism ordeal first.'; n.hidden=false;} return;} if(/Ord$/.test(how)&&!O){const n=$('advNote'); if(n){n.textContent='Pick the ordeal first.'; n.hidden=false;} return;} if(/^group/.test(how)&&!mgState().contact){const n=$('advNote'); if(n){n.textContent='Group initiation needs a magical group with an astral contact (GR p. 54). Open “The group” below.'; n.hidden=false;} return;} S.adv=S.adv||[]; S.adv.push({kind:'init',grade:g,how,ord:ord||undefined,asc:asc||undefined,group:/^group/.test(how)?(S.initGroup||''):undefined,cost:initCost(g,how),desc:`Initiated to Grade ${g} (${INIT_HOW[how][1].toLowerCase()}${O?': '+O[1].toLowerCase():''})`}); render();};
 $('initGroup').oninput=e=>{S.initGroup=e.target.value; save();};
+document.addEventListener('change',e=>{const t=e.target; if(t&&t.dataset&&(t.dataset.amqb||t.dataset.amqn)){const gid=t.dataset.amqb||t.dataset.amqn; AMQ[gid]=AMQ[gid]||{}; if(t.dataset.amqb) AMQ[gid].t=t.value; else AMQ[gid].n=+t.value||1;}},true);
 document.addEventListener('change',e=>{const t=e.target.closest&&e.target.closest('[data-gcamo]'); if(!t) return; const g=S.gear[+t.dataset.gcamo]; if(!g) return; if(t.value) g.camo=t.value; else delete g.camo; save(); render();});
 $('skinMine').onchange=e=>{if(e.target.checked){S.skin=$('skinSel').value; SKIN.restorePrev();} else delete S.skin; save(); SKIN_SHOWN=null; render();}; // ticking keeps the pick on this runner and puts the site-wide colors back
 document.addEventListener('change',e=>{const t=e.target.closest&&e.target.closest('[data-sfp]'); if(!t) return; if(t.dataset.sfp==='add'){const keep={t:GSOFT.t,k:GSOFT.k}; GSOFT=Object.assign(softSet(GSOFT,t.dataset.sff,t.value),keep); gearPreview(); return;} const g=S.gear[+t.dataset.sfp]; if(!g||!GEARDB[g.key]) return;
@@ -4364,7 +4387,7 @@ function attacks(){
   (S.spirits||[]).forEach((x,i)=>{const F=+x.f||1, ST=SPIRITS[x.t]; if(!ST) return;
     out.push({id:'s'+i,grp:'spirit',kind:'spirit',n:ST.n+', Force '+F+((+x.sv||0)?' · '+x.sv+' service'+(x.sv>1?'s':''):''),dice:ST.dice?ST.dice(F):null,diceSrc:ST.dice?ST.dsrc(F):'powers: the GM sets the dice',dmg:ST.dmg?ST.dmg(F):'by power',ranged:!!ST.ranged,reach:ST.reach||0,f:F,note:ST.note(F)});});
   // drones and vehicles (R2 p. 58): a weapon stowed "at" a vehicle in Stash counts as mounted on it
-  S.gear.forEach((v,vi)=>{if(!isVehG(v)||!GEARDB[v.key]) return; const vn=GEARDB[v.key].n, R=typeof R2OBJ!=='undefined'?R2OBJ[v.key]:null, rr=R?R.r:{};
+  S.gear.forEach((v,vi)=>{if(!isVehG(v)||!GEARDB[v.key]) return; const vn=vehName(v), R=typeof R2OBJ!=='undefined'?R2OBJ[v.key]:null, rr=R?R.r:{};
     const sen=parseInt(rr.Se,10)||0, pil=parseInt(rr.P,10)||0, mods=((v.vb&&v.vb.mods)||[]).map(m=>m.id).join(','), gun=bestNow(/^gunnery/i), gunChip=chipNoPool(/^gunnery/i);
     S.gear.forEach((g,i)=>{if(g.at!==vn||!GEARDB[g.key]) return; const it=GEARDB[g.key]; let dmg=null,mode='';
       if(WSTAT[g.key]){dmg=strDmg(String(WSTAT[g.key][4]),0); mode=String(WSTAT[g.key][3]||'');}
@@ -4594,7 +4617,7 @@ function vehHTML(){const V=S.gear.filter(g=>isVehG(g)&&GEARDB[g.key]); if(!V.len
   const sel=(id,lab,opts,val)=>`<label class="b2f"><span class="b2k">${E(lab)}</span><select data-b2="${id}">${opts.map(([o,t])=>`<option value="${E(o)}" ${String(o)===String(val)?'selected':''}>${E(t)}</option>`).join('')}</select></label>`;
   const step=(id,lab,val)=>`<div class="b2f"><span class="b2k">${E(lab)}</span><div class="b2step"><button class="ghost" data-b2s="${id}" data-d="-1" aria-label="Lower ${E(lab)}">−</button><b>${E(val)}</b><button class="ghost" data-b2s="${id}" data-d="1" aria-label="Raise ${E(lab)}">+</button></div></div>`;
   return `<section class="b2pan"><div class="b2h"><h3>Vehicle tests</h3><span class="note">chases and crashes, core p. 106–107</span></div>
-   <div class="b2ctl">${sel('vveh','Vehicle',V.map((g,j)=>[j,GEARDB[g.key].n]),vi)}${sel('vsk','Skill',sk.length?sk.map((x,j)=>[j,x[0]+' '+x[1]]):[[0,'none']],ski)}
+   <div class="b2ctl">${sel('vveh','Vehicle',V.map((g,j)=>[j,vehName(g)]),vi)}${sel('vsk','Skill',sk.length?sk.map((x,j)=>[j,x[0]+' '+x[1]]):[[0,'none']],ski)}
    ${sel('vtest','Test',[['pos','Position Test (each turn of a chase)'],['crash','Crash Test (Serious damage, no driver action, a ram)']],kind)}
    ${sel('vter','Terrain',[['o','Open'],['n','Normal'],['r','Restricted'],['t','Tight']],ter)}${cp&&!vChip?step('vsp','Control Pool ('+B.cpool+' left)',sp):cp?'<span class="note">Vehicle ActiveSoft: no Control Pool (core p. 248)</span>':''}</div>
    <div class="b2rows"><div class="b2r"><span>Handling</span><b>${hand}</b></div><div class="b2r alt"><span>Terrain</span><b>${SIGN(tm)}</b></div>${woundMods().m?`<div class="b2r"><span>Wounds</span><b class="b2warn">+${woundMods().m}</b></div>`:''}<div class="b2r tot"><span>Target number</span><b>${tn}</b></div></div>
