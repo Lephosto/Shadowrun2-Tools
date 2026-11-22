@@ -79,6 +79,40 @@ function chipsHTML(){const L=chipLines(); if(!L.length) return ''; const R=chipR
 // Initiative: physical, or one of the Matrix modes (core p. 178; VR2 decks use their own boosts)
 function iniModes(T){const mx=T&&T.mx; if(!mx||typeof mxIniModes!=='function') return []; if(!(mx.hasDeck||mx.vr2||bestRating(/^computer/i)>0)) return []; return mxIniModes(mx);}
 function iniNow(T){const m=iniModes(T).find(x=>x.id===B.inim); return m?{r:m.r,d:m.d,m}:{r:T.reaction,d:T.dice,m:null};}
+// ---------- What you're wearing (core p. 242; SSC p. 39, 40, 70) ----------
+// Pick one body armor, one helmet and one shield from what the runner carries; the rest stay owned but not worn (g.off).
+function wearLines(){return S.gear.map((g,i)=>[g,i]).filter(([g])=>ASTAT[g.key]&&!g.at);}
+function wearHTML(){const L=wearLines(), ar=armorTotals(); if(!L.length&&!ar.parts.length) return '';
+  const nm=g=>GEARDB[g.key]?GEARDB[g.key].n:g.key, BI=g=>{const a=ASTAT[g.key]; return a[0]+'/'+a[1];};
+  const bodies=L.filter(([g])=>armorKind(g.key)==='body'), helms=L.filter(([g])=>armorKind(g.key)==='helmet'), shields=L.filter(([g])=>armorKind(g.key)==='shield'), fgs=L.filter(([g])=>armorKind(g.key)==='fg');
+  const sas=bodies.filter(([g])=>g.hb&&g.hb.helmet&&HB.kind(g.key)==='secarmor');
+  const curBody=ar.bodyG?S.gear.indexOf(ar.bodyG):-1, curShield=ar.shieldG?S.gear.indexOf(ar.shieldG):-1;
+  const curHelm=ar.builtIn?'built':ar.helmG?String(S.gear.indexOf(ar.helmG)):ar.saG?'sa:'+S.gear.indexOf(ar.saG):'';
+  const sel=(k,lab,opts,cur,dis)=>`<label class="b2f"><span class="b2k">${lab}</span><select data-wear="${k}"${dis?' disabled':''}>${opts.map(([v,t])=>`<option value="${v}" ${String(v)===String(cur)?'selected':''}>${E(t)}</option>`).join('')}</select></label>`;
+  const bodySel=bodies.length?sel('body','Body armor',[['','None'],...bodies.map(([g,i])=>[i,nm(g)+' '+BI(g)])],curBody):'';
+  const helmOpts=ar.builtIn?[['built','Built into the '+nm(ar.builtIn)]]:[['','None'],...helms.map(([g,i])=>[i,nm(g)+' +'+BI(g)]),...sas.filter(([g])=>!g.off).map(([g,i])=>['sa:'+i,nm(g)+' helmet +1/2'])];
+  const helmSel=helms.length||sas.length||ar.builtIn?sel('helm','Helmet',helmOpts,curHelm,!!ar.builtIn):'';
+  const shSel=shields.length?sel('shield','Shield',[['','None'],...shields.map(([g,i])=>[i,nm(g)+' +'+BI(g)])],curShield):'';
+  const fgChk=fgs.length?`<label class="b2chk b2fg"><input type="checkbox" data-wear="fg" ${fgs.some(([g])=>!g.off)?'checked':''}> Forearm guards</label>`:'';
+  const sign=(p,v)=>(p.plus&&v>=0?'+':'')+v;
+  const parts=ar.parts.map(p=>`<span class="b2wp b2wp-${p.k}"><span>${E(p.l)}</span><b>${p.k==='helmet'&&ar.builtIn?'in suit':sign(p,p.b)+'/'+sign(p,p.i)}</b></span>`).join('<span class="b2wop" aria-hidden="true">·</span>');
+  const notes=[];
+  if(ar.fg) notes.push('Forearm guards: +1 Impact against melee only, not ranged (SSC p. 39).');
+  if(ar.shieldG) notes.push('The shield adds on top of the helmet (table ruling).');
+  if(ar.builtIn) notes.push('Core heavy armor already includes a helmet (core p. 242); another helmet doesn’t add.');
+  if(ar.bodyG&&/^armor:Form-Fitting/.test(ar.bodyG.key)) notes.push('Form-fitting armor can’t be worn with any other body armor (SSC p. 40).');
+  if(ar.derm) notes.push(`${hasDerm()?'Troll skin':''}${hasDerm()&&gearLevel('body:Dermal Plating')?' and ':''}${gearLevel('body:Dermal Plating')?'Dermal plating':''} add${hasDerm()&&gearLevel('body:Dermal Plating')?'':'s'} to Body for damage resistance, not to armor.`);
+  if(ar.poolPenalty) notes.push(`This armor cuts Combat Pool by ${ar.poolPenalty} (core p. 84${booksOn().fof?'; FoF p. 54':''}).`);
+  return `<div class="b2wtop"><h3>Wearing</h3><div class="b2wsel">${bodySel}${helmSel}${shSel}${fgChk}</div><div class="b2wtot"><span class="b2k">Armor</span><b>${ar.b} / ${ar.i}</b><span class="note">Ballistic / Impact</span></div></div>
+   ${parts?`<div class="b2wparts">${parts}<span class="b2wop" aria-hidden="true">=</span><span class="b2wp b2wp-tot"><span>Total</span><b>${ar.b}/${ar.i}</b></span></div>`:''}
+   ${notes.length?`<p class="note b2wnote">${notes.map(E).join(' ')}</p>`:''}${!L.length?'':''}`;}
+function wearPick(k,v){const L=wearLines(), set=(kind,keep)=>L.filter(([g])=>armorKind(g.key)===kind).forEach(([g,i])=>{if(String(i)===String(keep)) delete g.off; else g.off=true;});
+  if(k==='body') set('body',v);
+  else if(k==='helm'){const sa=String(v).startsWith('sa:')?String(v).slice(3):null; set('helmet',sa!=null?null:v); L.filter(([g])=>g.hb&&g.hb.helmet&&HB.kind(g.key)==='secarmor').forEach(([g,i])=>{if(sa!=null&&String(i)===sa) delete g.helmOff; else g.helmOff=true;});}
+  else if(k==='shield') set('shield',v);
+  else if(k==='fg') L.filter(([g])=>armorKind(g.key)==='fg').forEach(([g])=>{if(v) delete g.off; else g.off=true;});
+  render();}
+document.addEventListener('change',e=>{const t=e.target; if(!t||!t.dataset||t.dataset.wear==null) return; wearPick(t.dataset.wear,t.type==='checkbox'?t.checked:t.value);});
 const d6p=()=>1+Math.floor(Math.random()*6); // plain die: Initiative dice add up, no Rule of Six (core p. 32, 78)
 // spell duration: the book's own code when the list has it (Grimoire, Awakenings), else by category (core p. 150-158)
 function spellDur(n){const sp=spellFind(n); if(!sp) return null; if(sp.dur) return sp.dur; const c=sp.cat;
@@ -502,7 +536,7 @@ function redraw(){const n=$('b2night'); if(n&&B.tab==='night'){const f=document.
 function afTotals(){const n=$('b2after'); if(!n||B.tab!=='after') return; const tmp=document.createElement('div'); tmp.innerHTML=afterHTML(); {const h1=n.querySelector('#b2heal'), h2=tmp.querySelector('#b2heal'); if(h1&&h2) h1.innerHTML=h2.innerHTML;} const a=n.querySelector('#b2afd'), b=tmp.querySelector('#b2afd'); if(a&&b) a.innerHTML=b.innerHTML; const s1=n.querySelector('[data-b2a="afsave"]'), s2=tmp.querySelector('[data-b2a="afsave"]'); if(s1&&s2) s1.disabled=s2.disabled; n.querySelectorAll('[data-b2n]').forEach(i=>{const j=tmp.querySelector(`[data-b2n="${i.dataset.b2n}"]`); if(j&&i!==document.activeElement) i.value=j.value;});}
 function redrawAfter(){const n=$('b2after'); if(n&&B.tab==='after') n.innerHTML=afterHTML();}
 function redrawStrip(){try{practiceBar();}catch(e){}
-const s=$('b2strip'); if(s) s.innerHTML=stripHTML(); const d=$('b2drawer'); if(d){d.hidden=!B.drawer||B.tab!=='build'; if(B.drawer) d.innerHTML=`<div class="b2h"><h3>Checklist</h3><button class="ghost" data-b2a="drawer">Close</button></div><ul class="issues">${$('issues').innerHTML}</ul>`;}}
+const s=$('b2strip'); if(s) s.innerHTML=stripHTML(); {const wv=$('b2wear'); if(wv){const h=B.tab==='after'?'':wearHTML(); wv.hidden=!h; if(h&&!(document.activeElement&&wv.contains(document.activeElement)&&document.activeElement.tagName==='SELECT')) wv.innerHTML=h;}} const d=$('b2drawer'); if(d){d.hidden=!B.drawer||B.tab!=='build'; if(B.drawer) d.innerHTML=`<div class="b2h"><h3>Checklist</h3><button class="ghost" data-b2a="drawer">Close</button></div><ul class="issues">${$('issues').innerHTML}</ul>`;}}
 function setTab(t){B.tab=t; keep(); document.body.classList.toggle('b2gn',t==='night'); document.body.classList.toggle('b2af',t==='after');
   if(typeof sessionSet==='function') sessionSet(t==='night',true);
   document.querySelectorAll('#b2tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
@@ -518,6 +552,7 @@ function mount(){
   // on the public site, link the GM screen next to the Gear Locker link
   {const f=(location.pathname.split('/').pop()||'').toLowerCase(); if(/^https?:$/.test(location.protocol)&&!/claude/.test(location.hostname)&&/builder\.html$/.test(f)){const lt=$('lockerTop'); if(lt){const x=document.createElement('span'); x.className='note'; x.innerHTML=' · <a href="gm-screen.html" target="_blank" rel="noopener">GM screen ↗</a>'; lt.after(x);}}}
   const strip=document.createElement('div'); strip.id='b2strip'; strip.setAttribute('aria-label','Budget'); nav.after(strip);
+  const wear=document.createElement('section'); wear.id='b2wear'; wear.setAttribute('aria-label','Armor you are wearing'); wear.hidden=true; strip.after(wear);
   const drawer=document.createElement('div'); drawer.id='b2drawer'; drawer.hidden=true; strip.after(drawer);
   const lay=document.querySelector('.layout'); const night=document.createElement('section'); night.id='b2night'; night.className='b2wrap'; night.setAttribute('aria-label','Game night');
   const after=document.createElement('section'); after.id='b2after'; after.className='b2wrap'; after.setAttribute('aria-label','After the session'); lay.before(night); lay.before(after);

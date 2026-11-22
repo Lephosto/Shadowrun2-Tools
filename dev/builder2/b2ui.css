@@ -86,3 +86,19 @@ body.b2prac #b2strip{outline:2px dashed var(--warn);outline-offset:2px}
 .b2sc .b2chk{display:flex;min-height:2.75rem}
 .b2tag{display:inline-block;font-size:0.6875rem;padding:0 0.375rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle}
 @media (max-width:640px){.b2sc{grid-template-columns:1fr}}
+
+/* what you're wearing */
+#b2wear{margin:0 0 1rem;padding:0.75rem 1rem;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+.b2wtop{display:flex;flex-wrap:wrap;align-items:flex-end;gap:0.75rem 1.25rem}
+.b2wtop h3{margin:0;font-size:1rem;align-self:center;min-width:5rem}
+.b2wsel{display:flex;flex-wrap:wrap;gap:0.5rem 0.75rem;flex:1 1 30rem;align-items:flex-end}
+.b2wsel .b2f{flex:1 1 12rem;min-width:0}.b2wsel select{min-height:2.75rem;width:100%}
+.b2wsel .b2fg{min-height:2.75rem;display:flex;align-items:center}
+.b2wtot{display:flex;flex-direction:column;align-items:flex-end;min-width:7rem}
+.b2wtot b{font-size:1.75rem;line-height:1.1;font-family:var(--f-mono);color:var(--accent)}
+.b2wparts{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem;margin-top:0.625rem;font-size:0.8125rem}
+.b2wp{display:inline-flex;gap:0.375rem;align-items:baseline;padding:0.125rem 0.5rem;border:1px solid var(--line);border-radius:999px;background:var(--soft)}
+.b2wp b{font-family:var(--f-mono)}.b2wp-tot{border-color:var(--accent);background:var(--accent-soft)}.b2wp-tot b{color:var(--accent)}
+.b2wop{color:var(--muted)}
+.b2wnote{margin:0.5rem 0 0}
+@media (max-width:640px){.b2wtot{align-items:flex-start}.b2wtop h3{min-width:0}}
