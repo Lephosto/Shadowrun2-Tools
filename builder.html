@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SR2 Runner Builder</title>
 <style id="appCss">
+/* gear rows, one line each: the name opens the details (redesign Phase 4) */
+#gearBody .gname{display:inline-flex;align-items:center;gap:4px;min-height:var(--tap);padding:0;border:0;background:none;color:var(--ink);font:600 var(--t-sm) var(--f-body);text-align:left;cursor:pointer}
+#gearBody .gname::before{content:"▸";color:var(--muted);font-size:var(--t-xs)}
+#gearBody .gname[aria-expanded="true"]::before{content:"▾"}
+#gearBody .gname:hover{color:var(--accent)}
+#gearBody .gmore{margin-top:4px}
+.gnote{margin-left:8px;padding:0 8px;border:1px solid var(--line);border-radius:999px;font-size:var(--t-xs);color:var(--muted)}
 /* Layout: a run-sheet. Sticky summary rail on wide screens, single column on phones. Sections are numbered because character creation is a real sequence. */
 /*@shared:tokens*/
 /* ---------- Design tokens, shared by all three tools (color 11b, decided 2026-11-22) ----------
@@ -505,6 +512,96 @@ a.glink{display:inline-flex;align-items:center;min-height:24px}
 /* spacing sweep (2026-11-23): Builder paragraphs whose browser margin (1em of 14px) fell off the steps */
 :where(#modeNote,#raceTraits,#woundNote){margin-block:12px}
 
+/* Runner Builder, redesign Phase 4: the Build tab in steps (b2steps.js). Tokens and the Builder's own skin names only. */
+.b2vh{position:absolute;width:1px;height:1px;margin:0;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+#b2steps,#b2stepbar,#b2stepnav,#b2forstep{display:none}
+body.b2bd #jumpLinks{display:none}
+.layout .col>section.card[data-step]{scroll-margin-top:calc(var(--jumpH,0px) + var(--stripH,0px) + 12px)}
+/* laptop: the steps window beside the page */
+@media (min-width:56.3125em){
+  body.b2bd .layout{grid-template-columns:auto minmax(0,1fr) clamp(17.5rem,24%,27.5rem)}
+  body.b2bd #b2steps{display:flex;flex-direction:column;gap:8px;width:15rem;box-sizing:border-box;position:sticky;top:calc(var(--jumpH,0px) + var(--stripH,0px) + 12px);max-height:calc(100vh - var(--jumpH,0px) - var(--stripH,0px) - 24px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:12px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius)}
+  body.b2bd #b2steps.tucked{width:3.5rem;padding:8px 4px;align-items:center}
+  body.b2bd #b2forstep:not([hidden]){display:block}
+}
+.b2st-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.b2st-head h2{margin:0;font-family:var(--f-body);font-size:var(--t-md)}
+.b2st-karma{margin:0;padding:4px 12px;border-radius:999px;background:var(--brand-soft);color:var(--brand);font-size:var(--t-xs);font-weight:600}
+.b2st-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.b2st{display:flex;align-items:center;gap:8px;width:100%;min-height:2.5rem;padding:4px 8px;border:1px solid transparent;border-radius:var(--radius);background:transparent;color:var(--ink);font:500 var(--t-sm) var(--f-body);text-align:left;cursor:pointer}
+.b2st:hover{border-color:var(--line)}
+.b2st[aria-current="step"]{background:var(--brand-soft);border-color:var(--brand);color:var(--ink);font-weight:600}
+.b2st[aria-disabled="true"]{color:var(--muted);cursor:default}
+.b2st-n{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:1.5rem;height:1.5rem;border-radius:999px;border:1px solid var(--line);background:var(--paper);font:600 var(--t-xs) var(--mono)}
+.b2st[aria-current="step"] .b2st-n{border-color:var(--brand);background:var(--brand);color:var(--brand-ink)}
+.b2st-nm{display:flex;flex-direction:column;flex:1 1 auto;min-width:0}
+.b2st-nm small{font-size:var(--t-xs);font-weight:400;color:var(--muted)}
+.b2st-mk{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:1.5rem;height:1.5rem;border-radius:999px;font:600 var(--t-xs) var(--f-body)}
+.b2st-mk.mk-ok{color:var(--ok);background:var(--ok-soft)}
+.b2st-mk.mk-warn{color:var(--warn);background:var(--warn-soft)}
+.b2st-mk.mk-bad{color:var(--bad);background:var(--bad-soft)}
+.b2st-mk.mk-skip{color:var(--muted)}
+/* tucked: numbered dots tinted by their mark */
+.b2st-open{width:2.5rem;height:2.5rem;padding:0;border:1px solid var(--brand);border-radius:var(--radius);background:var(--brand-soft);color:var(--brand);font:600 var(--t-lg) var(--f-body);cursor:pointer}
+.b2st-dots{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.b2st-dot{width:2rem;height:2rem;min-height:0;padding:0;border-radius:999px;border:2px solid var(--line);background:var(--paper);color:var(--ink);font:600 var(--t-xs) var(--mono);cursor:pointer}
+.b2st-dot.m-ok{border-color:var(--ok)}.b2st-dot.m-warn{border-color:var(--warn)}.b2st-dot.m-bad{border-color:var(--bad)}
+.b2st-dot.m-skip{border-style:dashed;color:var(--muted);cursor:default}
+.b2st-dot[aria-current="step"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+/* For this step, at the top of the rail */
+#b2forstep h3{margin:0 0 8px}
+/* phones and tablets: one step at a time */
+body.b2one .layout .col>section.card.stp-off{display:none!important}
+body.b2one #b2stepbar{display:block;position:sticky;top:calc(var(--jumpH,0px) + var(--stripH,0px));z-index:13;background:var(--bg);padding:4px 0}
+@media (max-width:40em){body.b2one #b2stepbar{top:var(--jumpH,0px)}}
+.b2sb{display:flex;align-items:center;gap:12px;width:100%;min-height:3.5rem;padding:4px 12px;border:1px solid var(--brand);border-radius:var(--radius);background:var(--paper);color:var(--ink);font:400 var(--t-sm) var(--f-body);text-align:left;cursor:pointer}
+.b2sb-t{display:flex;flex-direction:column;flex:1 1 auto;min-width:0}
+.b2sb-t small{font-size:var(--t-xs);color:var(--muted)}
+.b2sb-t b{font-size:var(--t-md)}
+.b2sb-all{font-size:var(--t-xs);font-weight:600;color:var(--brand)}
+body.b2one #b2stepnav{display:flex;gap:8px;position:sticky;bottom:0;z-index:13;padding:8px 0;background:var(--bg);border-top:1px solid var(--line)}
+#b2stepnav button{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-height:3rem;padding:4px 12px;border-radius:var(--radius);font:600 var(--t-md) var(--f-body)}
+#b2stepnav button small{font-size:var(--t-xs);font-weight:400}
+#b2stepnav .b2sn-back{border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+#b2stepnav .b2sn-next{border:1px solid var(--brand);background:var(--brand);color:var(--brand-ink)}
+#b2stepnav button:disabled{opacity:.5;cursor:default}
+#b2stsheet{position:fixed;inset:0;z-index:40}
+#b2stsheet[hidden]{display:none}
+.b2sh-scrim{position:absolute;inset:0;background:var(--scrim)}
+.b2sh-panel{position:absolute;left:0;right:0;bottom:0;max-height:85vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:16px;background:var(--paper);border-radius:var(--radius) var(--radius) 0 0}
+.b2sh-panel .b2st{min-height:3rem}
+/* Between runs: four tabs on the Build tab (Game night keeps its own Gear and ammo view) */
+.b2brt{display:flex;flex-wrap:wrap;gap:4px}
+.b2brt button{min-height:2.5rem;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);font:500 var(--t-sm) var(--f-body)}
+.b2brt button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--paper);font-weight:600}
+#sec-between{display:none}
+body.b2bd #sec-between{display:block}
+body.b2bd #sec-play>h2{display:none}
+body.b2bd.brt-karma #sec-play .brn,body.b2bd.brt-money #sec-play .brk{display:none!important}
+body.b2bd.brt-karma #sec-stash,body.b2bd.brt-karma #sec-export,body.b2bd.brt-karma #sec-text,
+body.b2bd.brt-money #sec-stash,body.b2bd.brt-money #sec-export,body.b2bd.brt-money #sec-text,
+body.b2bd.brt-stash #sec-play,body.b2bd.brt-stash #sec-export,body.b2bd.brt-stash #sec-text,
+body.b2bd.brt-save #sec-play,body.b2bd.brt-save #sec-stash{display:none!important}
+body.session #sec-stash{order:-1}
+/* gear rows: the deck as one row (the one-line rows themselves are styled in the Builder) */
+.gdeck{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-top:4px}
+.gdsum{font:500 var(--t-xs) var(--mono);color:var(--ink)}
+.gdtot{font-size:var(--t-xs);color:var(--muted)}
+.gdeckbtn{min-height:var(--tap);padding:0 12px}
+body.b2bd.b2dk-shut #gearBody tr.gdk{display:none}
+body.b2bd.b2dk-shut #deckCard{display:none!important}
+/* Runner tab (established runners, 4b): its own cards, the Karma heading, and the locked build */
+#sec-over,#sec-money,#sec-built{display:none}
+body.b2run #sec-over,body.b2run #sec-money,body.b2run #sec-built{display:block}
+body.b2run #sec-between{display:none!important}
+body.b2bd.b2run #sec-play>h2{display:block}
+body.b2run #resBudget,body.b2run #sec-gear>.stat{display:none}
+.b2ovr{margin-top:12px}
+.b2fix{display:flex;flex-direction:column;gap:8px}
+.b2fixon{margin:0;padding:8px 12px;border:1px solid var(--warn);border-radius:var(--radius);background:var(--warn-soft)}
+.b2fixlog{margin:0;padding-left:16px}
+body.b2run section.card.b2locked>h2::after{content:"Locked";margin-left:8px;padding:0 8px;border:1px solid var(--line);border-radius:999px;font:500 var(--t-xs) var(--f-body);color:var(--muted);vertical-align:middle}
+
 /*@end:b2css*/
 </style></head><body>
 <div class="wrap" id="appRoot">
@@ -534,7 +631,7 @@ a.glink{display:inline-flex;align-items:center;min-height:24px}
   <div class="layout">
     <div class="col">
 
-      <section class="card" id="sec-rules" data-jump="Rules">
+      <section class="card" id="sec-rules" data-step="rules" data-jump="Rules">
         <h2>Rules</h2>
         <div class="seg" id="modeSeg" role="group" aria-label="Priority rules">
           <button data-mode="standard">Standard<small>Metahumans need Race A</small></button>
@@ -548,13 +645,13 @@ a.glink{display:inline-flex;align-items:center;min-height:24px}
         <p class="note">Books in play decide which gear, spells and adept powers you can pick. The Companion options are off unless your table uses them.</p>
       </section>
 
-      <section class="card" id="sec-prio" data-jump="Priorities">
+      <section class="card" id="sec-prio" data-step="prio" data-jump="Priorities">
         <h2>Priorities <span class="pg">p. 47</span></h2>
         <p class="note">Pick one letter per category. Each letter can be used once; picking a letter that's taken clears it from the other category.</p>
         <div class="tbl"><table class="prio"><thead><tr><th>Category</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr></thead><tbody id="prioBody"></tbody></table></div>
       </section>
 
-      <section class="card" id="sec-id" data-jump="Identity">
+      <section class="card" id="sec-id" data-step="id" data-jump="Identity">
         <h2>Identity, race and magic</h2>
         <div class="grid2">
           <label for="fName">Name<input id="fName" placeholder="Full name"></label>
@@ -575,28 +672,13 @@ a.glink{display:inline-flex;align-items:center;min-height:24px}
         </div>
       </section>
 
-      <section class="card" id="sec-attr" data-jump="Attributes">
+      <section class="card" id="sec-attr" data-step="attr" data-jump="Attributes">
         <h2>Attributes <span class="pg">p. 43–45</span></h2>
         <div class="tbl"><table><thead><tr><th>Attribute</th><th class="n">Points</th><th class="n">Race</th><th class="n">Rating</th><th class="n">Max</th></tr></thead><tbody id="attrBody"></tbody></table></div>
         <div class="budget" id="attrBudget"></div>
       </section>
 
-      <section class="card ses" id="sec-skills" data-jump="Skills">
-        <h2>Skills <span class="pg">p. 45, 66–73</span></h2>
-        <div class="quick" id="skillQuick"></div>
-        <p class="note">Rating 6 at most at creation. A concentration drops the general skill by 1 and raises the concentration by 1. A specialization drops the general skill by 2, keeps the concentration at the bought rating, and raises the specialization by 2.</p>
-        <div class="tbl"><table><thead><tr><th>Skill</th><th class="n">Bought</th><th>Narrowed</th><th>Concentration</th><th>Specialization</th><th>Ratings</th><th></th></tr></thead><tbody id="skillBody"></tbody></table></div>
-        <datalist id="skillList"></datalist>
-        <div class="row"><button class="primary" id="addSkill">Add skill</button></div>
-        <h3>Languages <span class="pg">p. 45, 74</span></h3>
-        <p class="note"><span id="langNative"></span> A Street lifestyle also gives a city dialect at half Intelligence. Other languages cost skill points like any skill.</p>
-        <div class="tbl"><table id="langTbl"><thead><tr><th>Language</th><th class="n">Rating</th><th></th></tr></thead><tbody id="langBody"></tbody></table></div>
-        <div class="row"><button class="primary" id="addLang">Add language</button></div>
-        <div class="budget" id="skillBudget"></div>
-        <div id="swBox" class="swbox"></div>
-      </section>
-
-      <section class="card ses" id="magicCard" data-jump="Magic">
+      <section class="card ses" id="magicCard" data-step="magic" data-jump="Magic">
         <h2><span id="magicTitle">Spells and powers</span></h2>
         <div class="quick" id="powerQuick"></div>
         <p class="note" id="magicNote"></p>
@@ -615,7 +697,22 @@ a.glink{display:inline-flex;align-items:center;min-height:24px}
         <div class="budget" id="powerBudget"></div>
       </section>
 
-      <section class="card" id="sec-gear" data-jump="Gear">
+      <section class="card ses" id="sec-skills" data-step="skills" data-jump="Skills">
+        <h2>Skills <span class="pg">p. 45, 66–73</span></h2>
+        <div class="quick" id="skillQuick"></div>
+        <p class="note">Rating 6 at most at creation. A concentration drops the general skill by 1 and raises the concentration by 1. A specialization drops the general skill by 2, keeps the concentration at the bought rating, and raises the specialization by 2.</p>
+        <div class="tbl"><table><thead><tr><th>Skill</th><th class="n">Bought</th><th>Narrowed</th><th>Concentration</th><th>Specialization</th><th>Ratings</th><th></th></tr></thead><tbody id="skillBody"></tbody></table></div>
+        <datalist id="skillList"></datalist>
+        <div class="row"><button class="primary" id="addSkill">Add skill</button></div>
+        <h3>Languages <span class="pg">p. 45, 74</span></h3>
+        <p class="note"><span id="langNative"></span> A Street lifestyle also gives a city dialect at half Intelligence. Other languages cost skill points like any skill.</p>
+        <div class="tbl"><table id="langTbl"><thead><tr><th>Language</th><th class="n">Rating</th><th></th></tr></thead><tbody id="langBody"></tbody></table></div>
+        <div class="row"><button class="primary" id="addLang">Add language</button></div>
+        <div class="budget" id="skillBudget"></div>
+        <div id="swBox" class="swbox"></div>
+      </section>
+
+      <section class="card" id="sec-gear" data-step="gear" data-jump="Gear">
         <h2>Gear, cyberware and money</h2>
         <div class="picker">
           <label for="gCat">Category<select id="gCat"></select></label>
@@ -639,14 +736,31 @@ a.glink{display:inline-flex;align-items:center;min-height:24px}
         <div class="stat"><span class="k"><b>Starting cash</b></span><span class="v big" id="cashTotal"></span></div>
       </section>
 
-      <section class="card ses" id="sec-stash" data-jump="Stash">
-        <h2>Stash and storage</h2>
-        <p class="note">Gear you aren't carrying. Drag an item to a column, or use its <b>Move</b> menu. Stashed gear stays yours and keeps its price, but it leaves the weapons and armor tables, the ammo tracker and the at-the-table part of the sheet. Vehicles and drones you own show up as places too, so a rigger can park drones in the van.</p>
-        <div class="stboard" id="stBoard"></div>
-        <div class="picker" style="margin-top:8px"><label for="stNew" class="grow">New place<input id="stNew" placeholder="Safehouse, coffin motel locker, the van…" maxlength="40"></label><button class="primary" id="stAdd">Add place</button></div>
+      <section class="card ses" id="deckCard" data-step="gear" data-jump="Deck" hidden="">
+        <h2>Cyberdeck <span class="pg" id="deckPg">p. 172–175</span></h2>
+        <div id="deckStats"></div>
+        <div id="vr2Design" hidden=""></div>
+        <h3>Programs <span class="pg" id="progPg"></span></h3>
+        <p class="note">Tick a program to put it on the deck, then pick its rating (size and price shown); tick Loaded for the ones in active memory for the run. Greyed-out ones don’t fit the free storage. Each one is also a line in Gear.</p>
+        <div id="progList"></div>
+        <div class="budget" id="memBudget"></div>
       </section>
 
-      <section class="card ses" id="sec-weap" data-jump="Weapons">
+      <section class="card ses" id="rigCard" data-step="gear" data-jump="Rigging" hidden="">
+        <h2>Rigging <span class="pg" id="rigPg">p. 85, 104, 264</span></h2>
+        <div id="rigStats"></div>
+        <p class="note">Vehicle stats from the book: core p. 264–265 (cruise/max speed), FoF p. 62–69, or the Rigger 2 list p. 148–166 (one Speed number; Pilot shows Autonav when a vehicle has no Pilot). A red box means that stat isn’t listed here; fill it in from the book.</p>
+        <div class="tbl"><table><thead><tr><th>Vehicle</th><th>Hand.</th><th>Speed</th><th>Body</th><th>Armor</th><th>Sig.</th><th>Pilot</th></tr></thead><tbody id="vehBody"></tbody></table></div>
+        <div id="vehBuild"></div>
+      </section>
+
+      <section class="card ses" id="softCard" data-step="gear" data-jump="Skillsofts" hidden="">
+        <h2>Skillsofts <span class="pg">p. 248</span></h2>
+        <div class="tbl"><table><thead><tr><th>Soft and the skill on it</th><th class="n">Rating</th><th class="n">Size</th></tr></thead><tbody id="softBody"></tbody></table></div>
+        <p class="note" id="softNote"></p>
+      </section>
+
+      <section class="card ses" id="sec-weap" data-step="weap" data-jump="Weapons">
         <h2>Weapons and armor <span class="pg">p. 88–100, 242</span></h2>
         <p class="note">Weapons from your gear, with the dice you roll and range bands (target number: range). Open <b>Add-ons</b> under a gun to fit scopes, smartguns, vents, silencers and so on. Only add-ons that fit that gun are offered (core p. 238–241), and their price is added to the gun in Gear.</p>
         <label id="optRecoilRow" for="optRecoil" hidden="" style="flex-direction:row;align-items:center;gap:4px;text-transform:none;letter-spacing:0;font-size:var(--t-sm);margin-bottom:8px"><input type="checkbox" id="optRecoil"> Fields of Fire optional rule: Strength reduces recoil (p. 83)</label>
@@ -657,38 +771,15 @@ a.glink{display:inline-flex;align-items:center;min-height:24px}
         <div id="armorTotal"></div>
       </section>
 
-      <section class="card ses" id="deckCard" data-jump="Deck" hidden="">
-        <h2>Cyberdeck <span class="pg" id="deckPg">p. 172–175</span></h2>
-        <div id="deckStats"></div>
-        <div id="vr2Design" hidden=""></div>
-        <h3>Programs <span class="pg" id="progPg"></span></h3>
-        <p class="note">Tick a program to put it on the deck, then pick its rating (size and price shown); tick Loaded for the ones in active memory for the run. Greyed-out ones don’t fit the free storage. Each one is also a line in Gear.</p>
-        <div id="progList"></div>
-        <div class="budget" id="memBudget"></div>
-      </section>
-
-      <section class="card ses" id="rigCard" data-jump="Rigging" hidden="">
-        <h2>Rigging <span class="pg" id="rigPg">p. 85, 104, 264</span></h2>
-        <div id="rigStats"></div>
-        <p class="note">Vehicle stats from the book: core p. 264–265 (cruise/max speed), FoF p. 62–69, or the Rigger 2 list p. 148–166 (one Speed number; Pilot shows Autonav when a vehicle has no Pilot). A red box means that stat isn’t listed here; fill it in from the book.</p>
-        <div class="tbl"><table><thead><tr><th>Vehicle</th><th>Hand.</th><th>Speed</th><th>Body</th><th>Armor</th><th>Sig.</th><th>Pilot</th></tr></thead><tbody id="vehBody"></tbody></table></div>
-        <div id="vehBuild"></div>
-      </section>
-
-      <section class="card ses" id="softCard" data-jump="Skillsofts" hidden="">
-        <h2>Skillsofts <span class="pg">p. 248</span></h2>
-        <div class="tbl"><table><thead><tr><th>Soft and the skill on it</th><th class="n">Rating</th><th class="n">Size</th></tr></thead><tbody id="softBody"></tbody></table></div>
-        <p class="note" id="softNote"></p>
-      </section>
-
-      <section class="card" id="sec-contacts" data-jump="Contacts">
+      <section class="card" id="sec-contacts" data-step="contacts" data-jump="Contacts">
         <h2>Contacts <span class="pg">p. 46</span></h2>
         <p class="note">Two Contact-level contacts come free. Others cost Resources: Contact 5,000¥, Buddy 10,000¥, Gang/Tribe 50,000¥, Followers 200,000¥. <span id="contactCost"></span></p>
         <div class="tbl"><table><thead><tr><th>Name</th><th>Role</th><th>Level</th><th></th></tr></thead><tbody id="contactBody"></tbody></table></div>
         <div class="row"><button class="primary" id="addContact">Add contact</button></div>
       </section>
 
-      <section class="card ses" id="sec-play" data-jump="In play">
+
+      <section class="card ses" id="sec-play" data-step="between" data-jump="In play">
         <h2>In play</h2>
         <div class="grid2">
           <div><h3>Physical</h3><div class="track" id="trkPhys"></div></div>
@@ -722,7 +813,14 @@ a.glink{display:inline-flex;align-items:center;min-height:24px}
         <label for="fNotes">Notes<textarea id="fNotes" rows="4" placeholder="Background, gear notes, GM rulings"></textarea></label>
       </section>
 
-      <section class="card" id="sec-export" data-jump="Export">
+      <section class="card ses" id="sec-stash" data-step="between" data-jump="Stash">
+        <h2>Stash and storage</h2>
+        <p class="note">Gear you aren't carrying. Drag an item to a column, or use its <b>Move</b> menu. Stashed gear stays yours and keeps its price, but it leaves the weapons and armor tables, the ammo tracker and the at-the-table part of the sheet. Vehicles and drones you own show up as places too, so a rigger can park drones in the van.</p>
+        <div class="stboard" id="stBoard"></div>
+        <div class="picker" style="margin-top:8px"><label for="stNew" class="grow">New place<input id="stNew" placeholder="Safehouse, coffin motel locker, the van…" maxlength="40"></label><button class="primary" id="stAdd">Add place</button></div>
+      </section>
+
+      <section class="card" id="sec-export" data-step="between" data-jump="Export">
         <h2>Export</h2>
         <p class="note">Each of these is a single file that works on its own, with nothing to install and no internet needed.</p>
         <div class="exp">
@@ -734,7 +832,7 @@ a.glink{display:inline-flex;align-items:center;min-height:24px}
         <div class="note" id="expMsg" role="status"></div>
       </section>
 
-      <section class="card" id="sec-text" data-jump="Save as text">
+      <section class="card" id="sec-text" data-step="between" data-jump="Save as text">
         <h2>Save a copy as text</h2>
         <p class="note">The page remembers your character in this browser only. To move it to another device or share it, copy the code below and paste it into the box on the other side.</p>
         <textarea id="exportBox" rows="3" readonly=""></textarea>
@@ -767,7 +865,7 @@ a.glink{display:inline-flex;align-items:center;min-height:24px}
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1795410322178","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwssy6sq","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795410322167}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1795423707605","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwt0x320","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795423707591}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--panel',panel2:'--panel-2',ink:'--ink',muted:'--muted',line:'--line',accent:'--brand',accentInk:'--brand-ink',accentSoft:'--brand-soft',price:'--action',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skillweb*/
@@ -899,7 +997,7 @@ return {P,LIST,get,now,apply,init,restorePrev};
 // tools on the site carry ?v=CODE so browsers fetch a fresh copy, and on the site the page checks version.txt and offers
 // a refresh when a newer build is out. Saved characters live in browser storage for the whole site, so a refresh keeps them.
 const SRHEAD=(()=>{
-const BUILD='4c5278f'; const built=/^[0-9a-f]{7}$/.test(BUILD);
+const BUILD='6050264'; const built=/^[0-9a-f]{7}$/.test(BUILD);
 const SITE={builder:'builder.html',locker:'gear-locker.html',gm:'gm-screen.html'};
 const FILE={builder:'SR2_Runner_Builder.html',locker:'SR2_Gear_Locker.html',gm:'SR2_GM_Screen.html'};
 function hrefs(){const f=(location.pathname.split('/').pop()||'').toLowerCase();
@@ -3572,7 +3670,7 @@ function essenceCredit(){const has=k=>S.gear.some(g=>g.key===k);let c=0;
   if(has('head:Cyberears')&&!(hbEar&&hbFixG(hbEar).free)) c+=S.gear.filter(g=>g.key&&GEARDB[g.key]&&GEARDB[g.key].ear&&(+g.ess||0)<=.2).reduce((m,g)=>Math.max(m,+g.ess||0),0);
   return c;}
 function essenceUsed(){syncGear();const bioE=S.magic!=='none'?bodyIndexUsed():0;return Math.max(0,S.gear.reduce((a,g)=>a+(+g.ess||0)*(+g.qty||1),0)-essenceCredit()+bioE);} // Awakened pay bioware Body Cost in Essence too (ST p. 5)
-let LASTADD=null; const FOLD=new Set((()=>{try{return JSON.parse(localStorage.getItem('sr2-builder-fold')||'[]');}catch(e){return [];}})());
+const GOPEN=new Set(); let LASTADD=null; const FOLD=new Set((()=>{try{return JSON.parse(localStorage.getItem('sr2-builder-fold')||'[]');}catch(e){return [];}})());
 function foldSave(){try{localStorage.setItem('sr2-builder-fold',JSON.stringify([...FOLD]));}catch(e){}}
 function jumpLinks(){const box=$('jumpLinks'); if(!box) return; const ses=document.body.classList.contains('session');
   box.innerHTML=[...document.querySelectorAll('section.card[data-jump]')].filter(x=>!x.hidden&&x.offsetParent!==null).sort((a,b)=>{const r=a.closest('.rail'),q=b.closest('.rail'); if(window.innerWidth>900&&!!r!==!!q) return r?1:-1; return a.getBoundingClientRect().top-b.getBoundingClientRect().top;}).map(x=>`<a href="#${x.id}">${esc(x.dataset.jump)}</a>`).join(''); if(box.dataset.ses!==String(ses)){box.scrollLeft=0; box.dataset.ses=String(ses);}}
@@ -3789,7 +3887,7 @@ function render(){
     const sub=rows.reduce((a,[g])=>a+(+g.cost||0)*(+g.qty||1),0), es=rows.reduce((a,[g])=>a+(+g.ess||0)*(+g.qty||1),0)-(c==='head'?essenceCredit():0);
     if(LASTADD&&rows.some(([g])=>g.key===LASTADD)) FOLD.delete(c); const fo=FOLD.has(c);
     return `<tr class="gcat${fo?' folded':''}"><td colspan="7"><button class="gfold" data-fold="${c}" aria-expanded="${!fo}">${GCATNAME[c]} <span class="sub" style="float:none">(${rows.length})</span></button><span class="sub">${fmt(sub)}¥${es?` · ${+es.toFixed(2)} Ess`:''}</span></td></tr>`+rows.map(([g,i])=>{const it=g.key&&GEARDB[g.key];const t=(+g.cost||0)*(+g.qty||1);
-      if(it) return `<tr><td>${esc(it.n)}${eraChip(it)} <span class="pg">${it.pg}</span>${lockerLink(g.key)}${it.s?`<div class="gstat">${esc(it.s)}</div>`:''}${DESC[g.key]&&DESC[g.key][0]!==it.s?`<div class="gstat gdesc">${esc(DESC[g.key][0])}</div>`:''}${g.addons?(WSTAT[g.key]&&g.build?`<div class="gstat">Includes add-ons: ${esc(Object.entries(g.build||{}).filter(([k])=>!['ammo','link'].includes(k)).map(([,v])=>GB.accName(v)).join(', '))} (+${fmt(g.addons)}¥ each). Change them under Weapons.</div>`:`<div class="gstat">Includes ${R2OBJ&&R2OBJ[g.key]?'modifications':'options'} (+${fmt(g.addons)}¥ each). Change them in its build-out ${R2OBJ&&R2OBJ[g.key]?'under Rigging':'below this table'}.</div>`):''}${typeof camoKind==='function'&&camoKind(g.key)?`<div class="sfps gsfp">${camoPickHTML(g.key,g.camo,`data-gcamo="${i}"`)}</div>`:''}${it.soft&&it.soft!=='DataSoft'?`<div class="sfps gsfp">${softPickHTML(it.n,Object.assign(softOf(g,it.n),g.oth?{oth:true}:{}),i,{langs:(S.langs||[]).map(L=>L.name).filter(Boolean)})}</div>`:''}${g.note||NOTE_OPEN.has(i)?`<input id="g_note_${i}" data-gr="${i}" data-f="note" value="${esc(g.note)}" placeholder="Note" aria-label="Note for this item" style="margin-top:4px;width:100%;max-width:13.75rem;font-size:var(--t-xs);padding:4px 8px">`:`<button type="button" class="notebtn" data-note="${i}" aria-label="Add a note to this item">+ Note</button>`}${gradeable(it)&&booksOn().ct?`<div><select id="g_gr_${i}" data-gr="${i}" data-f="grade" aria-label="Cyberware grade" style="margin-top:4px;font-size:var(--t-xs)">${Object.entries(CYBER_GRADES).map(([k,[l,e,c]])=>`<option value="${k}" ${(g.grade||'std')===k?'selected':''}>${l}${k==='std'?'':` (Essence ×${e}, price ×${c})`}</option>`).join('')}</select></div>`:''}${gelOK(it)&&booksOn().fof?`<label style="flex-direction:row;align-items:center;gap:4px;text-transform:none;letter-spacing:0;font-size:var(--t-xs);margin-top:4px"><input type="checkbox" id="g_gel_${i}" data-gr="${i}" data-f="gel" ${g.gel?'checked':''}> Gel-packs (FoF p. 53): Hardened, price ×5, Concealability halved, weight +25%</label>`:''}${it.bi!=null&&!it.neural?`<label style="flex-direction:row;align-items:center;gap:4px;text-transform:none;letter-spacing:0;font-size:var(--t-xs);margin-top:4px"><input type="checkbox" id="g_cu_${i}" data-gr="${i}" data-f="cultured" ${g.cultured?'checked':''}> Cultured (Body Index ×.75, price ×4)</label>`:it.neural?'<div class="gstat">Neural bioware: already cultured</div>':''}${forGunItem(g.key)?forGunHTML(g,i):''}</td>
+      if(it) return `<tr><td><button type="button" class="gname" data-gopen="${i}" aria-expanded="${GOPEN.has(i)}">${esc(it.n)}</button>${eraChip(it)}${g.note?'<span class="gnote" title="Has a note">note</span>':''}<div class="gmore"${GOPEN.has(i)?'':' hidden'}><span class="pg">${it.pg}</span>${lockerLink(g.key)}${it.s?`<div class="gstat">${esc(it.s)}</div>`:''}${DESC[g.key]&&DESC[g.key][0]!==it.s?`<div class="gstat gdesc">${esc(DESC[g.key][0])}</div>`:''}${g.addons?(WSTAT[g.key]&&g.build?`<div class="gstat">Includes add-ons: ${esc(Object.entries(g.build||{}).filter(([k])=>!['ammo','link'].includes(k)).map(([,v])=>GB.accName(v)).join(', '))} (+${fmt(g.addons)}¥ each). Change them under Weapons.</div>`:`<div class="gstat">Includes ${R2OBJ&&R2OBJ[g.key]?'modifications':'options'} (+${fmt(g.addons)}¥ each). Change them in its build-out ${R2OBJ&&R2OBJ[g.key]?'under Rigging':'below this table'}.</div>`):''}${typeof camoKind==='function'&&camoKind(g.key)?`<div class="sfps gsfp">${camoPickHTML(g.key,g.camo,`data-gcamo="${i}"`)}</div>`:''}${it.soft&&it.soft!=='DataSoft'?`<div class="sfps gsfp">${softPickHTML(it.n,Object.assign(softOf(g,it.n),g.oth?{oth:true}:{}),i,{langs:(S.langs||[]).map(L=>L.name).filter(Boolean)})}</div>`:''}${g.note||NOTE_OPEN.has(i)?`<input id="g_note_${i}" data-gr="${i}" data-f="note" value="${esc(g.note)}" placeholder="Note" aria-label="Note for this item" style="margin-top:4px;width:100%;max-width:13.75rem;font-size:var(--t-xs);padding:4px 8px">`:`<button type="button" class="notebtn" data-note="${i}" aria-label="Add a note to this item">+ Note</button>`}${gradeable(it)&&booksOn().ct?`<div><select id="g_gr_${i}" data-gr="${i}" data-f="grade" aria-label="Cyberware grade" style="margin-top:4px;font-size:var(--t-xs)">${Object.entries(CYBER_GRADES).map(([k,[l,e,c]])=>`<option value="${k}" ${(g.grade||'std')===k?'selected':''}>${l}${k==='std'?'':` (Essence ×${e}, price ×${c})`}</option>`).join('')}</select></div>`:''}${gelOK(it)&&booksOn().fof?`<label style="flex-direction:row;align-items:center;gap:4px;text-transform:none;letter-spacing:0;font-size:var(--t-xs);margin-top:4px"><input type="checkbox" id="g_gel_${i}" data-gr="${i}" data-f="gel" ${g.gel?'checked':''}> Gel-packs (FoF p. 53): Hardened, price ×5, Concealability halved, weight +25%</label>`:''}${it.bi!=null&&!it.neural?`<label style="flex-direction:row;align-items:center;gap:4px;text-transform:none;letter-spacing:0;font-size:var(--t-xs);margin-top:4px"><input type="checkbox" id="g_cu_${i}" data-gr="${i}" data-f="cultured" ${g.cultured?'checked':''}> Cultured (Body Index ×.75, price ×4)</label>`:it.neural?'<div class="gstat">Neural bioware: already cultured</div>':''}${forGunItem(g.key)?forGunHTML(g,i):''}</div></td>
         <td class="n">${it.r?`${(()=>{const dm=deckRowMax(g); const fixed=it.r[2]==='Deck MPCP'&&dm; return `<input type="number" id="g_r_${i}" data-gr="${i}" data-f="r" min="${it.r[0]}" max="${dm!=null?dm:it.r[1]}" value="${g.r}" style="width:3.5rem" aria-label="${it.r[2]}" title="${fixed?'Set by the deck’s MPCP':it.r[2]+(dm!=null?` (up to ${dm} with this deck)`:'')}" ${fixed?'readonly':''} class="${it.r[2]==='Rating'&&g.r>6?'bad-text':''}">`;})()}`:'—'}</td>
         <td class="n"><input type="number" min="1" id="g_q_${i}" data-gr="${i}" data-f="qty" value="${g.qty||1}" style="width:4.75rem"></td>
         <td class="n mono">${fmt(g.cost)}</td><td class="n mono">${g.ess?+(+g.ess).toFixed(2):g.bi?`${+(+g.bi).toFixed(3)} BI`:'—'}</td><td class="n mono">${fmt(t)}¥</td>
@@ -3868,12 +3966,12 @@ function summary(magicRating,rSpent,rBudget){
   rows.push(['Karma Pool',pool+(+S.kPoolBonus||0)],['Good Karma',`${(+S.kEarned||0)-(+S.kSpent||0)-karmaSpentLog()} available`]);
   $('sumStats').innerHTML=rows.map(([k,v])=>`<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
   // issues
-  const iss=[]; const nb=!S.established;
-  if(!nb) iss.push(['info','Established runner: creation-only limits (priorities, point totals, Resources, rating 6 and Force 6 caps, starting skills) aren’t checked.']);
+  const iss=[]; const nb=!S.established; iss.st='rules'; {const tg=a=>{for(const x of a){if(x&&x.length<3) x[2]=iss.st;} return a;}, P=iss.push, U=iss.unshift; iss.push=function(...a){return P.apply(this,tg(a));}; iss.unshift=function(...a){return U.apply(this,tg(a));};}
+  iss.st='rules'; if(!nb) iss.push(['info','Established runner: creation-only limits (priorities, point totals, Resources, rating 6 and Force 6 caps, starting skills) aren’t checked.']);
   const missing=CATS.filter(([c])=>!S.prio[c]).map(([,l])=>l);
-  if(nb&&missing.length) iss.push(['warn',`Pick a priority for ${missing.join(', ')}.`]);
-  if(nb&&S.optEF&&(S.ef||[]).length&&efNet()!==0) iss.push(['bad',`Edges and Flaws add up to ${efNet()>0?'+':''}${efNet()}; with priorities they must net to zero (SRC p. 22).`]);
-  if(S.optEF){const names=(S.ef||[]).map(x=>x.n);EF_EXCLUSIVE.forEach(([a,b])=>{if(names.includes(a)&&names.includes(b)) iss.push(['warn',`${a} and ${b} overlap; take only one (SRC p. 22).`]);});
+  iss.st='prio'; if(nb&&missing.length) iss.push(['warn',`Pick a priority for ${missing.join(', ')}.`]);
+  iss.st='id'; if(nb&&S.optEF&&(S.ef||[]).length&&efNet()!==0) iss.push(['bad',`Edges and Flaws add up to ${efNet()>0?'+':''}${efNet()}; with priorities they must net to zero (SRC p. 22).`]);
+  iss.st='id'; if(S.optEF){const names=(S.ef||[]).map(x=>x.n);EF_EXCLUSIVE.forEach(([a,b])=>{if(names.includes(a)&&names.includes(b)) iss.push(['warn',`${a} and ${b} overlap; take only one (SRC p. 22).`]);});
     {const boosted=S.magic==='adept'||S.gear.some(g=>/Wired Reflexes|Boosted Reflexes|Synaptic Accelerator|Move-by-Wire|Reaction Enhancer|Reflex Trigger/.test(g.name||''));
      if(names.includes('Adrenaline Surge')&&boosted) iss.push(['bad','Adrenaline Surge isn’t for characters whose Reaction or Initiative is boosted by cyberware, bioware or magic, physical adepts included (SRC p. 24).']);}
     if(names.includes('Magic Resistance')&&S.magic!=='none') iss.push(['bad','Magic Resistance is only for characters who aren’t magically active (SRC p. 33).']);
@@ -3881,49 +3979,49 @@ function summary(magicRating,rSpent,rBudget){
     if(names.includes('Elf Poser')&&S.race!=='Human') iss.push(['bad','Only humans can take Elf Poser (SRC p. 31).']);
     if(names.includes('Human-Looking')&&baseRace()==='Human') iss.push(['warn','Human-Looking is for metahumans.']);
     if(names.includes('Human-Looking')&&(R().base||baseRace()==='Troll')) iss.push(['bad','Only elves, dwarfs and orks can take Human-Looking; trolls and metavariants can’t (SRC p. 32).']);}
-  {const builds=S.gear.filter(g=>g.build); const picked=new Set(builds.flatMap(g=>Object.entries(g.build).filter(([k])=>!['ammo','link'].includes(k)).map(([,v])=>v)));
+  iss.st='weap'; {const builds=S.gear.filter(g=>g.build); const picked=new Set(builds.flatMap(g=>Object.entries(g.build).filter(([k])=>!['ammo','link'].includes(k)).map(([,v])=>v)));
    S.gear.forEach(g=>{if(g.key&&picked.has(g.key)) iss.push(['warn',`${GEARDB[g.key].n} is on a gun’s add-ons and also bought on its own in Gear. Add-ons are already priced into the gun; remove the extra row unless you want a spare.`]);});
    if(S.gear.some(g=>g._migrated)) iss.push(['warn','Your old weapon accessory ticks were turned into add-ons and now count toward Resources. Check the Weapons section.']);}
-  if(!S.optEF&&(S.ef||[]).length) iss.push(['warn','Edges and Flaws are switched off, so the ones picked are ignored.']);
-  if(R().base&&!S.optMeta) iss.push(['warn',`${S.race} is a Companion metavariant, but metavariants are switched off.`]);
-  if(nb&&!raceAllowed(S.race)) iss.push(['bad',`${S.race} isn't allowed at Race ${S.prio.race||'(none)'} under these rules.`]);
-  {const eU=essenceUsed(); if(S.magic!=='none'&&eU>0){const m=magicNow(); iss.push(['warn',`Essence ${+(6-eU).toFixed(2)} lowers Magic to ${m}${initGrade()>0?` (with initiation${injLoss('magic')?`, after ${injLoss('magic')} lost to wounds`:''})`:injLoss('magic')?` (after ${injLoss('magic')} lost to wounds)`:''}${S.magic==='adept'?`, so ${m} power points`:''} (p. 42). Implants cost the Awakened magic.`]);}}
-  if(nb&&!magicAllowed(S.magic)) iss.push(['bad',`${MAGIC_TYPES.find(m=>m[0]===S.magic)[1]} needs Magic priority ${magicNeed(S.magic)}${S.prio.magic?` (you have ${S.prio.magic})`:''}.`]);
-  if(nb&&S.magic==='none'&&S.prio.magic&&['A','B'].includes(S.prio.magic)) iss.push(['warn',`Magic ${S.prio.magic} is assigned but the character is mundane. That priority is wasted.`]);
-  const aBudget=S.prio.attr?ATTR_PTS[S.prio.attr]:0; const aSpent=ATTRS.reduce((a,[k])=>a+(+S.attrs[k]||0),0);
+  iss.st='id'; if(!S.optEF&&(S.ef||[]).length) iss.push(['warn','Edges and Flaws are switched off, so the ones picked are ignored.']);
+  iss.st='id'; if(R().base&&!S.optMeta) iss.push(['warn',`${S.race} is a Companion metavariant, but metavariants are switched off.`]);
+  iss.st='prio'; if(nb&&!raceAllowed(S.race)) iss.push(['bad',`${S.race} isn't allowed at Race ${S.prio.race||'(none)'} under these rules.`]);
+  iss.st='gear'; {const eU=essenceUsed(); if(S.magic!=='none'&&eU>0){const m=magicNow(); iss.push(['warn',`Essence ${+(6-eU).toFixed(2)} lowers Magic to ${m}${initGrade()>0?` (with initiation${injLoss('magic')?`, after ${injLoss('magic')} lost to wounds`:''})`:injLoss('magic')?` (after ${injLoss('magic')} lost to wounds)`:''}${S.magic==='adept'?`, so ${m} power points`:''} (p. 42). Implants cost the Awakened magic.`]);}}
+  iss.st='prio'; if(nb&&!magicAllowed(S.magic)) iss.push(['bad',`${MAGIC_TYPES.find(m=>m[0]===S.magic)[1]} needs Magic priority ${magicNeed(S.magic)}${S.prio.magic?` (you have ${S.prio.magic})`:''}.`]);
+  iss.st='prio'; if(nb&&S.magic==='none'&&S.prio.magic&&['A','B'].includes(S.prio.magic)) iss.push(['warn',`Magic ${S.prio.magic} is assigned but the character is mundane. That priority is wasted.`]);
+  iss.st='attr'; const aBudget=S.prio.attr?ATTR_PTS[S.prio.attr]:0; const aSpent=ATTRS.reduce((a,[k])=>a+(+S.attrs[k]||0),0);
   if(nb&&aBudget&&aSpent!==aBudget) iss.push([aSpent>aBudget?'bad':'warn',`Attribute points: ${aSpent} of ${aBudget} spent.`]);
   ATTRS.forEach(([k,l])=>{const f=attrFinal(k);if(f>attrMax(k)) iss.push(['bad',`${l} ${f} is over the racial maximum of ${attrMax(k)}.`]); if(f<1||(+S.attrs[k]||0)<1) iss.push(['bad',`${l} must be at least 1.`]);});
   ATTRS.forEach(([k,l])=>{const a=advFor('attr',k), mx=attrMax(k); if(a>Math.floor(mx*1.5)) iss.push(['warn',`${l} ${a} is past 1.5 × the racial maximum (${Math.floor(mx*1.5)}). The book says GMs should discourage this (p. 190).`]); else if(a>mx) iss.push(['info',`${l} ${a} is above the racial maximum of ${mx}: needs GM approval and costs double Karma (p. 190).`]);});
-  const sBudget=S.prio.skills?SKILL_PTS[S.prio.skills]:0; const sSpent=S.skills.reduce((a,s)=>a+(+s.rating||0),0)+(S.langs||[]).reduce((a,L)=>a+(+L.rating||0),0);
+  iss.st='skills'; const sBudget=S.prio.skills?SKILL_PTS[S.prio.skills]:0; const sSpent=S.skills.reduce((a,s)=>a+(+s.rating||0),0)+(S.langs||[]).reduce((a,L)=>a+(+L.rating||0),0);
   if(nb&&sBudget&&sSpent!==sBudget) iss.push([sSpent>sBudget?'bad':'warn',`Skill points: ${sSpent} of ${sBudget} spent.`]);
   S.skills.forEach(s=>{ if(nb&&(+s.rating||0)>6) iss.push(['bad',`${s.name||'A skill'} is above 6, the creation maximum.`]); if(s.narrow!=='none'&&!s.conc) iss.push(['warn',`${s.name||'A skill'} needs a concentration name.`]); if(s.narrow==='spec'&&!s.spec) iss.push(['warn',`${s.name||'A skill'} needs a specialization name.`]);});
-  if(nb&&rBudget&&rSpent>rBudget) iss.push([S.mode==='house'&&rSpent-rBudget<=15?'warn':'bad',S.mode==='house'&&rSpent-rBudget<=15?`Resources over by ${fmt(rSpent-rBudget)}¥, inside the 15¥ house allowance.`:`Resources overspent by ${fmt(rSpent-rBudget)}¥.`]);
-  if(S.magic==='none'&&S.skills.some(x=>/^(sorcery|conjuring)$/i.test(x.name||''))) iss.push(['bad','Only magically active characters can take Sorcery or Conjuring (p. 45).']);
-  if(nb&&isMagician()) S.powers.forEach(p=>{if((+p.cost||0)>6&&!/focus|foci/i.test((p.name||'')+(p.note||''))) iss.push(['warn',`${p.name||'A spell'}: starting spells can be Force 6 at most (p. 46).`]);});
-  if(S.powers.some(p=>p.type==='incReflexes')&&gearLevel('body:Wired Reflexes')) iss.push(['warn','Wired Reflexes and Increased Reflexes are both counted. The core book is silent on stacking; most GMs rule they don’t.']);
-  {const m=deckMPCP(); if(m){const per=S.gear.filter(g=>/^prog:Persona: /.test(g.key||'')).reduce((a,g)=>a+(+g.r||0),0); if(per>3*m) iss.push(['bad',`Persona programs total ${per}; the deck's MPCP ${m} allows ${3*m} (p. 174).`]);
+  iss.st='gear'; if(nb&&rBudget&&rSpent>rBudget) iss.push([S.mode==='house'&&rSpent-rBudget<=15?'warn':'bad',S.mode==='house'&&rSpent-rBudget<=15?`Resources over by ${fmt(rSpent-rBudget)}¥, inside the 15¥ house allowance.`:`Resources overspent by ${fmt(rSpent-rBudget)}¥.`]);
+  iss.st='skills'; if(S.magic==='none'&&S.skills.some(x=>/^(sorcery|conjuring)$/i.test(x.name||''))) iss.push(['bad','Only magically active characters can take Sorcery or Conjuring (p. 45).']);
+  iss.st='magic'; if(nb&&isMagician()) S.powers.forEach(p=>{if((+p.cost||0)>6&&!/focus|foci/i.test((p.name||'')+(p.note||''))) iss.push(['warn',`${p.name||'A spell'}: starting spells can be Force 6 at most (p. 46).`]);});
+  iss.st='gear'; if(S.powers.some(p=>p.type==='incReflexes')&&gearLevel('body:Wired Reflexes')) iss.push(['warn','Wired Reflexes and Increased Reflexes are both counted. The core book is silent on stacking; most GMs rule they don’t.']);
+  iss.st='gear'; {const m=deckMPCP(); if(m){const per=S.gear.filter(g=>/^prog:Persona: /.test(g.key||'')).reduce((a,g)=>a+(+g.r||0),0); if(per>3*m) iss.push(['bad',`Persona programs total ${per}; the deck's MPCP ${m} allows ${3*m} (p. 174).`]);
     if(ri>Math.floor(m/4)) iss.push(['bad',`Response Increase ${ri} needs MPCP ${ri*4}+; this deck allows level ${Math.floor(m/4)} (p. 173).`]);
     S.gear.filter(g=>/^deck:(Response Increase|Hitcher)/.test(g.key||'')&&+g.r!==m).forEach(g=>iss.push(['warn',`${g.name}: priced for MPCP ${g.r}, but the deck is MPCP ${m}.`]));
     const hj=S.gear.filter(g=>g.key==='deck:Hitcher Jack').reduce((a,g)=>a+(+g.qty||1),0); if(hj>m) iss.push(['bad',`${hj} hitcher jacks; MPCP ${m} allows ${m}.`]);
     if(nb&&m>6) iss.push(['warn',`Deck MPCP ${m} is above 6. Check with your GM, since gear is capped at rating 6 at creation (p. 46).`]);}
   else if(ri) iss.push(['warn','Response Increase needs a cyberdeck.']);}
   if(ess<0) iss.push(['bad','Essence is below 0. The character dies.']);
-  if(S.magic!=='none'){ const pSpent=+(S.powers.reduce((a,p)=>a+(S.magic==='adept'?powerCost(p).cost:(+p.cost||0)),0)+(isMagician()?fociBond():0)).toFixed(2); const pB=S.magic==='adept'?magicRating:(S.prio.res?FORCE[S.prio.res]:0); if(pSpent>pB&&(nb||S.magic==='adept')) iss.push(['bad',`${S.magic==='adept'?'Power':'Force'} points overspent: ${pSpent} of ${pB}${isMagician()&&fociBond()?` (spells plus ${fociBond()} for bonding foci, p. 46)`:''}.`]); }
-  {const fg=feedGuns(); S.gear.filter(x=>x.key==='ammo:Spare Clip'&&x.forGun).forEach(x=>{const t=fg.find(y=>y.gid===x.forGun); if(t&&!t.clips) iss.push(['warn',`Spare clips assigned to the ${t.label}, which loads ${String(WSTAT[t.g.key][2]).includes('(m)')?'from an internal magazine':'without clips'} (core p. 95).`]);});}
-  if(S.nuyenNow!==''&&S.nuyenNow!=null&&+S.nuyenNow<0) iss.push(['warn',`Nuyen on hand is ${fmt(+S.nuyenNow)}¥. That's more spent than you had.`]);
-  if(nb&&!S.lifestyleOff) iss.push(['warn','Remember to buy a lifestyle from Resources.']);
+  iss.st='magic'; if(S.magic!=='none'){ const pSpent=+(S.powers.reduce((a,p)=>a+(S.magic==='adept'?powerCost(p).cost:(+p.cost||0)),0)+(isMagician()?fociBond():0)).toFixed(2); const pB=S.magic==='adept'?magicRating:(S.prio.res?FORCE[S.prio.res]:0); if(pSpent>pB&&(nb||S.magic==='adept')) iss.push(['bad',`${S.magic==='adept'?'Power':'Force'} points overspent: ${pSpent} of ${pB}${isMagician()&&fociBond()?` (spells plus ${fociBond()} for bonding foci, p. 46)`:''}.`]); }
+  iss.st='weap'; {const fg=feedGuns(); S.gear.filter(x=>x.key==='ammo:Spare Clip'&&x.forGun).forEach(x=>{const t=fg.find(y=>y.gid===x.forGun); if(t&&!t.clips) iss.push(['warn',`Spare clips assigned to the ${t.label}, which loads ${String(WSTAT[t.g.key][2]).includes('(m)')?'from an internal magazine':'without clips'} (core p. 95).`]);});}
+  iss.st='between'; if(S.nuyenNow!==''&&S.nuyenNow!=null&&+S.nuyenNow<0) iss.push(['warn',`Nuyen on hand is ${fmt(+S.nuyenNow)}¥. That's more spent than you had.`]);
+  iss.st='gear'; if(nb&&!S.lifestyleOff) iss.push(['warn','Remember to buy a lifestyle from Resources.']);
   if(nb&&S.gear.some(g=>{const it=g.key&&GEARDB[g.key];return it&&it.r&&it.r[2]==='Rating'&&+g.r>6;})) iss.push(['bad','Some gear is above rating 6, the creation maximum (p. 46).']);
-  if(gearLevel('body:Boosted Reflexes')&&(gearLevel('body:Wired Reflexes')||gearLevel('body:Vehicle Control Rig'))) iss.push(['bad','Boosted Reflexes can never be combined with Wired Reflexes or a Vehicle Control Rig (SSC p. 87).']);
-  if(S.magic==='shamanic'&&!S.totem) iss.push(['warn','Pick a totem for the shaman (p. 119).']);
-  if(isMagician()&&S.gear.filter(g=>BOND[g.key]).length>attrNow('int')) iss.push(['warn',`More foci than Intelligence ${attrNow('int')}; only that many can be active at once (p. 137).`]);
-  if(S.established) S.gear.filter(g=>canBondFocus(g)&&!focusBonded(g)).forEach(g=>iss.push(['warn',`${g.name||GEARDB[g.key].n} isn’t bonded yet. Bond it under Spend Good Karma (${BOND[g.key](+g.r||1)} Karma, p. 137).`]));
-  if(S.gear.some(g=>BOND[g.key]&&!canBondFocus(g))) iss.push(['warn',S.magic==='adept'?'Adepts can bond weapon foci only (AW p. 114); other foci need a magician.':'Foci only work for the Awakened who bond them: magicians, or adepts with weapon foci (p. 137; AW p. 114).']);
-  {const dk=deckInfo(); if(dk){ if(dk.used>dk.am) iss.push(['bad',`Loaded utilities need ${dk.used} Mp; active memory is ${dk.am} Mp.`]); if(dk.stored>dk.sm) iss.push(['bad',`Programs need ${dk.stored} Mp of storage; the deck has ${dk.sm} Mp.`]); if(dk.am>dk.amMax) iss.push(['bad',`Active memory can be expanded to MPCP × 50 = ${dk.amMax} Mp at most (p. 172).`]);}}
-  if(S.gear.some(g=>VSTAT[g.key])&&!gearLevel('body:Vehicle Control Rig')&&S.gear.some(g=>/^veh:.*Drone/.test(g.key||''))) iss.push(['warn','Drones are best run with a Vehicle Control Rig and remote control gear.']);
-  if(armorTotals().poolPenalty) iss.push(['warn',`Armor cuts Combat Pool by ${armorTotals().poolPenalty} (heavy armor: Ballistic over Quickness, p. 84${booksOn().fof?'; military armor: 1 per 2 points over Quickness, FoF p. 54':''}).`]);
-  iss.push(...vr2Issues());
-  if(S.magic==='adept'){const ma=S.powers.filter(p=>p.type==='mysticArmor').reduce((m,p)=>m+(+p.n||0),0); const mg=magicNow(); if(ma>mg) iss.push(['bad',`Mystic Armor ${ma} is above your Magic ${mg} (GR p. 34).`]);}
-  {const bi=bodyIndexUsed(),mx=bodyIndexMax(); if(bi>mx) iss.push(['bad',`Body Index ${+bi.toFixed(3)} is over the limit of ${mx} (unaugmented Body). In system shock: +${Math.ceil(bi-mx-1e-9)} to Body tests (ST p. 7).`]);
+  iss.st='gear'; if(gearLevel('body:Boosted Reflexes')&&(gearLevel('body:Wired Reflexes')||gearLevel('body:Vehicle Control Rig'))) iss.push(['bad','Boosted Reflexes can never be combined with Wired Reflexes or a Vehicle Control Rig (SSC p. 87).']);
+  iss.st='magic'; if(S.magic==='shamanic'&&!S.totem) iss.push(['warn','Pick a totem for the shaman (p. 119).']);
+  iss.st='gear'; if(isMagician()&&S.gear.filter(g=>BOND[g.key]).length>attrNow('int')) iss.push(['warn',`More foci than Intelligence ${attrNow('int')}; only that many can be active at once (p. 137).`]);
+  iss.st='between'; if(S.established) S.gear.filter(g=>canBondFocus(g)&&!focusBonded(g)).forEach(g=>iss.push(['warn',`${g.name||GEARDB[g.key].n} isn’t bonded yet. Bond it under Spend Good Karma (${BOND[g.key](+g.r||1)} Karma, p. 137).`]));
+  iss.st='gear'; if(S.gear.some(g=>BOND[g.key]&&!canBondFocus(g))) iss.push(['warn',S.magic==='adept'?'Adepts can bond weapon foci only (AW p. 114); other foci need a magician.':'Foci only work for the Awakened who bond them: magicians, or adepts with weapon foci (p. 137; AW p. 114).']);
+  iss.st='gear'; {const dk=deckInfo(); if(dk){ if(dk.used>dk.am) iss.push(['bad',`Loaded utilities need ${dk.used} Mp; active memory is ${dk.am} Mp.`]); if(dk.stored>dk.sm) iss.push(['bad',`Programs need ${dk.stored} Mp of storage; the deck has ${dk.sm} Mp.`]); if(dk.am>dk.amMax) iss.push(['bad',`Active memory can be expanded to MPCP × 50 = ${dk.amMax} Mp at most (p. 172).`]);}}
+  iss.st='gear'; if(S.gear.some(g=>VSTAT[g.key])&&!gearLevel('body:Vehicle Control Rig')&&S.gear.some(g=>/^veh:.*Drone/.test(g.key||''))) iss.push(['warn','Drones are best run with a Vehicle Control Rig and remote control gear.']);
+  iss.st='weap'; if(armorTotals().poolPenalty) iss.push(['warn',`Armor cuts Combat Pool by ${armorTotals().poolPenalty} (heavy armor: Ballistic over Quickness, p. 84${booksOn().fof?'; military armor: 1 per 2 points over Quickness, FoF p. 54':''}).`]);
+  iss.st='gear'; iss.push(...vr2Issues());
+  iss.st='magic'; if(S.magic==='adept'){const ma=S.powers.filter(p=>p.type==='mysticArmor').reduce((m,p)=>m+(+p.n||0),0); const mg=magicNow(); if(ma>mg) iss.push(['bad',`Mystic Armor ${ma} is above your Magic ${mg} (GR p. 34).`]);}
+  iss.st='gear'; {const bi=bodyIndexUsed(),mx=bodyIndexMax(); if(bi>mx) iss.push(['bad',`Body Index ${+bi.toFixed(3)} is over the limit of ${mx} (unaugmented Body). In system shock: +${Math.ceil(bi-mx-1e-9)} to Body tests (ST p. 7).`]);
    if(bi&&S.magic!=='none') iss.push(['warn',`Awakened characters pay bioware’s Body Cost in Essence too: ${+bi.toFixed(3)} Essence included (ST p. 5).`]);
    if(gearLevel('bio:Orthoskin')&&(gearLevel('body:Dermal Plating')||hasDerm())) iss.push(['bad','Orthoskin isn’t compatible with dermal armor (ST p. 17).']);
    if(['body:Bone Lacing, Plastic','body:Bone Lacing, Aluminum','body:Bone Lacing, Titanium'].filter(has).length>1) iss.push(['bad','Only one kind of bone lacing: they replace each other (ST p. 42).']);
@@ -3931,30 +4029,32 @@ function summary(magicRating,rSpent,rBudget){
    if(gearLevel('bio:Synaptic Accelerator')&&(gearLevel('body:Wired Reflexes')||gearLevel('body:Boosted Reflexes'))) iss.push(['bad','A synaptic accelerator can’t be combined with boosted or wired reflexes (ST p. 28).']);
    if(gearLevel('bio:Synaptic Accelerator')&&adeptOn()&&S.powers.some(p=>p.type==='incReflexes')) iss.push(['warn','Synaptic accelerator plus Increased Reflexes: Shadowtech only bars boosted and wired reflexes (p. 28). Most GMs treat it like wired reflexes and don’t stack them.']);
    if(S.gear.some(g=>g.grade==='delta')) iss.push(['warn','Deltaware needs a delta clinic; the GM decides if you can get it at all (CT p. 44).']);}
-  {const off=S.gear.filter(g=>{const it=g.key&&GEARDB[g.key];return it&&!bookOn(it.src);}); if(off.length) iss.push(['warn',`${off.length} item${off.length>1?'s are':' is'} from a book that’s switched off: ${off.slice(0,4).map(g=>GEARDB[g.key].n).join(', ')}${off.length>4?'…':''}.`]);}
-  if(booksOn().vr2){const old=S.gear.filter(g=>{const it=g.key&&GEARDB[g.key];return it&&it.m1;}); if(old.length) iss.push(['warn',`Virtual Realities 2.0 replaces Matrix 1.0 decks and programs. Rebuild these with the VR2 deck and programs: ${old.slice(0,4).map(g=>GEARDB[g.key].n).join(', ')}${old.length>4?'…':''}.`]);}
-  if(S.gear.some(g=>g.key==='body:VCR Reflex Trigger')&&!gearLevel('body:Vehicle Control Rig')) iss.push(['bad','A reflex trigger is part of a Vehicle Control Rig; buy the VCR too (R2 p. 17).']);
-  if(booksOn().r2&&gearLevel('body:Vehicle Control Rig')&&deckInfo()) iss.push(['warn',`Rigger decking: +1 to all Matrix target numbers and Hacking Pool −${gearLevel('body:Vehicle Control Rig')} (R2 p. 16).`]);
-  if(adeptOn()){const seen=new Set(); S.powers.forEach(q=>{if(!q.type||PW_MULTI.has(q.type)) return; if(seen.has(q.type)){const L=(allPowers()[q.type]||{}).label||q.type; iss.push(['warn',`${L} is on the powers list twice. Take it once and set the level you want on that line; going up a level costs only the difference.`]);} seen.add(q.type);});}
-  if(S.established&&isMagician()) S.powers.forEach(p=>{const f=spellPaid(p); if(f!=null&&(+p.cost||0)>f) iss.push(['warn',`${p.name||'A spell'} is at Force ${p.cost} but Karma was paid for Force ${f}. Raise it under Spend Good Karma so the Karma is counted (p. 133).`]);});
+  iss.st='gear'; {const off=S.gear.filter(g=>{const it=g.key&&GEARDB[g.key];return it&&!bookOn(it.src);}); if(off.length) iss.push(['warn',`${off.length} item${off.length>1?'s are':' is'} from a book that’s switched off: ${off.slice(0,4).map(g=>GEARDB[g.key].n).join(', ')}${off.length>4?'…':''}.`]);}
+  iss.st='gear'; if(booksOn().vr2){const old=S.gear.filter(g=>{const it=g.key&&GEARDB[g.key];return it&&it.m1;}); if(old.length) iss.push(['warn',`Virtual Realities 2.0 replaces Matrix 1.0 decks and programs. Rebuild these with the VR2 deck and programs: ${old.slice(0,4).map(g=>GEARDB[g.key].n).join(', ')}${old.length>4?'…':''}.`]);}
+  iss.st='gear'; if(S.gear.some(g=>g.key==='body:VCR Reflex Trigger')&&!gearLevel('body:Vehicle Control Rig')) iss.push(['bad','A reflex trigger is part of a Vehicle Control Rig; buy the VCR too (R2 p. 17).']);
+  iss.st='gear'; if(booksOn().r2&&gearLevel('body:Vehicle Control Rig')&&deckInfo()) iss.push(['warn',`Rigger decking: +1 to all Matrix target numbers and Hacking Pool −${gearLevel('body:Vehicle Control Rig')} (R2 p. 16).`]);
+  iss.st='magic'; if(adeptOn()){const seen=new Set(); S.powers.forEach(q=>{if(!q.type||PW_MULTI.has(q.type)) return; if(seen.has(q.type)){const L=(allPowers()[q.type]||{}).label||q.type; iss.push(['warn',`${L} is on the powers list twice. Take it once and set the level you want on that line; going up a level costs only the difference.`]);} seen.add(q.type);});}
+  iss.st='magic'; if(S.established&&isMagician()) S.powers.forEach(p=>{const f=spellPaid(p); if(f!=null&&(+p.cost||0)>f) iss.push(['warn',`${p.name||'A spell'} is at Force ${p.cost} but Karma was paid for Force ${f}. Raise it under Spend Good Karma so the Karma is counted (p. 133).`]);});
   // factory weapon mounts on drones and vehicles come empty: "weapon not included" (R2 p. 156, 165)
-  {const mt=S.gear.filter(g=>g.key&&/^r2veh:/.test(g.key)&&!g.at).filter(g=>!S.gear.some(w=>w.at===vehName(g)&&(WSTAT[w.key]||(w.key||'').startsWith('vweap:')))).filter(g=>{const F=typeof VB!=='undefined'&&VB.FACT&&VB.FACT[GEARDB[g.key].n]; return (F&&/(^|,)(fx_|rt_|tur_)/.test(F[1]||''))||(g.vb&&(g.vb.mods||[]).some(m=>/^(fx_|rt_|tur_|ring|pintle|mis_)/.test(m.id)));});
+  iss.st='gear'; {const mt=S.gear.filter(g=>g.key&&/^r2veh:/.test(g.key)&&!g.at).filter(g=>!S.gear.some(w=>w.at===vehName(g)&&(WSTAT[w.key]||(w.key||'').startsWith('vweap:')))).filter(g=>{const F=typeof VB!=='undefined'&&VB.FACT&&VB.FACT[GEARDB[g.key].n]; return (F&&/(^|,)(fx_|rt_|tur_)/.test(F[1]||''))||(g.vb&&(g.vb.mods||[]).some(m=>/^(fx_|rt_|tur_|ring|pintle|mis_)/.test(m.id)));});
    if(mt.length&&!S.gear.some(g=>g.key&&/^vweap:/.test(g.key)||(g.note&&/mount/i.test(g.note)))) iss.push(['warn',`${[...new Set(mt.map(g=>vehName(g)))].join(', ')}: the weapon mounts are empty: factory mounts come “weapon not included” (R2), and a mount added in a build-out holds no gun either. Buy a weapon that fits (Weapon Values Table, R2 p. 135) and note which mount it sits in.`]);}
-  {const dk=typeof deckInfo==='function'?deckInfo():null; if(dk&&!dk.vr2&&dk.persona&&!Object.values(dk.persona).some(v=>+v>0)) iss.push(['warn',`${dk.name}: no persona programs. Bod, Evasion, Masking and Sensors are all 0, so the deck can’t resist or hide from anything. Add them in the deck’s program list; their ratings can total up to 3 × MPCP (${3*(dk.mpcp||0)}) (core p. 174).`]);}
-  if(S.phys>10+natBody()) iss.unshift(['bad','This runner is dead: Physical damage went more than Body boxes past the track (p. 111). Keep the sheet for the record; a new runner starts fresh.']);
+  iss.st='gear'; {const dk=typeof deckInfo==='function'?deckInfo():null; if(dk&&!dk.vr2&&dk.persona&&!Object.values(dk.persona).some(v=>+v>0)) iss.push(['warn',`${dk.name}: no persona programs. Bod, Evasion, Masking and Sensors are all 0, so the deck can’t resist or hide from anything. Add them in the deck’s program list; their ratings can total up to 3 × MPCP (${3*(dk.mpcp||0)}) (core p. 174).`]);}
+  iss.st='between'; if(S.phys>10+natBody()) iss.unshift(['bad','This runner is dead: Physical damage went more than Body boxes past the track (p. 111). Keep the sheet for the record; a new runner starts fresh.']);
   // cyberware and bioware are installed once; a quantity above 1 multiplies the Essence
-  {const many=S.gear.filter(g=>g.key&&/^(head|body|bio):/.test(g.key)&&(+g.qty||1)>1); if(many.length) iss.push(['bad',`${many.map(g=>GEARDB[g.key].n+' ×'+g.qty).join(', ')}: cyberware and bioware are installed once, so the quantity should be 1 (Essence and Body Index count every copy). For two of something, like a pair of cyberarms, use the build-out.`]);}
+  iss.st='gear'; {const many=S.gear.filter(g=>g.key&&/^(head|body|bio):/.test(g.key)&&(+g.qty||1)>1); if(many.length) iss.push(['bad',`${many.map(g=>GEARDB[g.key].n+' ×'+g.qty).join(', ')}: cyberware and bioware are installed once, so the quantity should be 1 (Essence and Body Index count every copy). For two of something, like a pair of cyberarms, use the build-out.`]);}
   // guns with nothing to shoot
-  {const dry=feedGuns().filter(x=>carried(x.g)&&!amTypes(x.gid).length); if(dry.length) iss.push(['warn',`No ammunition for ${[...new Set(dry.map(x=>x.label))].join(', ')}. Guns come empty: buy ammo in Gear (Ammo and gun accessories, p. 256).`]);}
-  if(karmaAvail()<0) iss.push(['bad',`Good Karma overspent by ${-karmaAvail()}: undo a purchase under Spend Good Karma or add the Karma earned.`]);
+  iss.st='weap'; {const dry=feedGuns().filter(x=>carried(x.g)&&!amTypes(x.gid).length); if(dry.length) iss.push(['warn',`No ammunition for ${[...new Set(dry.map(x=>x.label))].join(', ')}. Guns come empty: buy ammo in Gear (Ammo and gun accessories, p. 256).`]);}
+  iss.st='between'; if(karmaAvail()<0) iss.push(['bad',`Good Karma overspent by ${-karmaAvail()}: undo a purchase under Spend Good Karma or add the Karma earned.`]);
   if(!iss.some(x=>x[0]!=='ok'&&x[0]!=='info')) iss.unshift(['ok','Everything adds up.']);
-  $('issues').innerHTML=iss.map(([t,m])=>`<li class="${t==='warn'?'':t}">${esc(m)}</li>`).join('');
+  $('issues').innerHTML=iss.map(([t,m,st])=>`<li class="${t==='warn'?'':t}" data-step="${st||''}">${esc(m)}</li>`).join('');
   {const todo=iss.filter(x=>x[0]!=='ok'&&x[0]!=='info'), bad=iss.filter(x=>x[0]==='bad').length, mb=$('mbar'); if(mb){mb.className='mbar '+(bad?'bad':todo.length?'warn':'ok'); mb.innerHTML=todo.length?`<b>${todo.length} to check</b><span>${esc(todo[0][1])}</span>`:'<b>✓ Everything adds up</b>';}}
 }
 
 // events
 document.addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.gopen!==undefined){const i=+b.dataset.gopen, open=!GOPEN.has(i); if(open) GOPEN.add(i); else GOPEN.delete(i); b.setAttribute('aria-expanded',String(open)); const m=b.parentElement.querySelector('.gmore'); if(m) m.hidden=!open; return;}
+  if(b.dataset.del==='gear') GOPEN.clear();
   if(b.dataset.note!==undefined){const i=+b.dataset.note; NOTE_OPEN.add(i); render(); const el=$('g_note_'+i); if(el) el.focus(); return;}
   if(b.id==='cbStart'){S.cbody=CB.defPlan(); CB_OPEN=true; render(); return;}
   if(b.id==='cbClear'){S.cbody=null; render(); return;}
@@ -5205,6 +5305,239 @@ function setB2(k,v){const t={value:v};
   setTab(B.tab);
 }
 window.SR2B2={B,attacks,nightHTML,afterHTML,setTab}; window.chipHaveMap=chipHaveMap; // the Skill Web (swHave) counts slotted chips
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mount); else mount();
+})();
+
+/* Runner Builder, redesign Phase 4 (2026-11-23): the Build tab in steps, and the Runner tab once a runner is established.
+   4a: a steps window on laptops (it tucks away), one step at a time on phones and tablets, the Between runs tabs,
+       one-line gear rows (the name opens the details) and the cyberdeck as one row.
+   4b: an established runner's Build tab becomes Runner, in six sections: Overview, Karma, Gear and stash, Contacts,
+       Save and share, and How this runner was built (locked; a GM correction opens it, logged with the GM's note).
+   Nothing here changes how a runner is built: it shows, orders and locks the Builder's own sections (they carry
+   data-step) and reads the Checklist lines (they carry the step they belong to). The GM correction log is the one
+   thing it writes to the runner (S.gmFix). */
+(function(){
+'use strict';
+const STEPS=[['rules','Rules'],['prio','Priorities'],['id','Identity and race'],['attr','Attributes'],['magic','Spells and powers'],
+  ['skills','Skills'],['gear','Gear'],['weap','Weapons and armor'],['contacts','Contacts'],['between','Between runs']];
+const RUN=[['over','Overview'],['karma','Karma'],['gear','Gear and stash'],['contacts','Contacts'],['save','Save and share'],['built','How this runner was built']];
+const RUNSECS={over:['sec-over'],karma:['sec-play','magicCard'],gear:['sec-gear','deckCard','rigCard','softCard','sec-weap','sec-stash','sec-money'],
+  contacts:['sec-contacts'],save:['sec-export','sec-text'],built:['sec-built','sec-rules','sec-prio','sec-id','sec-attr','sec-skills']};
+// a Checklist line's build step, and the Runner section it shows on
+const RUNOF={rules:'built',prio:'built',id:'built',attr:'built',skills:'built',magic:'karma',gear:'gear',weap:'gear',contacts:'contacts',between:'karma'};
+const BRT=['karma','money','stash','save'];
+const KEY='sr2-b2steps';
+const Q={tuck:null,cur:'rules',rcur:'over',brt:'karma',deck:false};
+try{const o=JSON.parse(localStorage.getItem(KEY)||'{}'); if(o&&typeof o==='object') Object.assign(Q,o);}catch(e){}
+if(!STEPS.some(s=>s[0]===Q.cur)) Q.cur='rules';
+if(!RUN.some(s=>s[0]===Q.rcur)) Q.rcur='over';
+if(!BRT.includes(Q.brt)) Q.brt='karma';
+function keepQ(){try{localStorage.setItem(KEY,JSON.stringify(Q));}catch(e){}}
+const $$=(s,r)=>[...(r||document).querySelectorAll(s)];
+const H=s=>esc(String(s));
+const mqWide=window.matchMedia('(min-width:56.3125em)');
+const wide=()=>mqWide.matches;
+const onBuild=()=>{const c=document.body.classList; return !c.contains('b2gn')&&!c.contains('b2af');};
+const reduced=()=>window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+const cssPx=n=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue(n))||0;
+const runner=()=>!!S.established;
+const list=()=>runner()?RUN:STEPS;
+const nm=k=>(list().find(s=>s[0]===k)||['',''])[1];
+const cur=()=>runner()?Q.rcur:Q.cur;
+function setQ(k){if(runner()) Q.rcur=k; else Q.cur=k;}
+const idx=k=>list().findIndex(s=>s[0]===k);
+const word=()=>runner()?'Section':'Step';
+function secs(k){return runner()?(RUNSECS[k]||[]).map(id=>$(id)).filter(Boolean):$$(`.layout .col>section.card[data-step="${k}"]`);}
+function skipped(k){const L=secs(k); return !L.length||L.every(x=>x.hidden);}
+function lines(k){const L=$$('#issues li[data-step]').filter(x=>!x.classList.contains('ok')&&!x.classList.contains('info'));
+  return runner()?L.filter(x=>RUNOF[x.dataset.step]===k):L.filter(x=>x.dataset.step===k);}
+function mark(k){if(skipped(k)) return 'skip'; if(k==='rules'||k==='over'||k==='save') return 'none'; const L=lines(k); return L.some(x=>x.classList.contains('bad'))?'bad':L.length?'warn':'ok';}
+const MK={ok:['✓','Done'],warn:['!','Check this'],bad:['×','Problem'],skip:['–','Not used'],none:['','']};
+function mkHTML(k,m){const [g,t]=MK[m]; if(!g) return ''; const n=lines(k).length;
+  return `<span class="b2st-mk mk-${m}" aria-hidden="true">${g}</span><span class="b2vh">${t}${m==='warn'||m==='bad'?`, ${n} on the Checklist`:''}</span>`;}
+function nextFrom(k,d){const L=list(); let i=idx(k)+d; while(i>=0&&i<L.length){if(!skipped(L[i][0])) return L[i][0]; i+=d;} return null;}
+function tucked(){return Q.tuck==null?window.innerWidth<1200:!!Q.tuck;}
+function kaHTML(){const ka=typeof karmaAvail==='function'?karmaAvail():0; return ka>0?`<p class="b2st-karma">${ka} Good Karma to spend</p>`:'';}
+function listHTML(){const c=cur(); return `<ol class="b2st-list">${list().map(([k,n],i)=>{const m=mark(k), sub=m==='skip'?(k==='magic'?'Mundane: not counted':'Not used'):'';
+  return `<li><button type="button" class="b2st m-${m}" data-st-go="${k}" aria-current="${k===c?'step':'false'}"${m==='skip'?' aria-disabled="true"':''}><span class="b2st-n" aria-hidden="true">${i+1}</span><span class="b2st-nm">${n}${sub?`<small>${sub}</small>`:''}</span>${mkHTML(k,m)}</button></li>`;}).join('')}</ol>`;}
+function winHTML(){const c=cur(), w=runner()?'sections':'steps';
+  if(tucked()) return `<button type="button" class="b2st-open" data-st="open" aria-expanded="false" aria-label="Show the ${w}" title="Show the ${w}"><span aria-hidden="true">›</span></button><ol class="b2st-dots">${list().map(([k,n],i)=>{const m=mark(k);
+    return `<li><button type="button" class="b2st-dot m-${m}" data-st-go="${k}" aria-current="${k===c?'step':'false'}" aria-label="${word()} ${i+1}, ${n}${MK[m][1]?': '+MK[m][1]:''}" title="${n}"${m==='skip'?' aria-disabled="true"':''}>${i+1}</button></li>`;}).join('')}</ol>`;
+  return `<div class="b2st-head"><h2>${runner()?'Runner':'Steps'}</h2><button type="button" class="b2st-tuck ghost" data-st="tuck" aria-expanded="true">Tuck away</button></div>${kaHTML()}${listHTML()}`;}
+// ---------- phone and tablet: one step at a time ----------
+function drawBar(){const el=$('b2stepbar'); if(!el) return; const c=cur(), i=idx(c), sh=$('b2stsheet');
+  el.innerHTML=`<button type="button" class="b2sb" data-st="sheet" aria-haspopup="dialog" aria-expanded="${!!(sh&&!sh.hidden)}"><span class="b2sb-t"><small>${word()} ${i+1} of ${list().length}</small><b>${H(nm(c))}</b></span>${mkHTML(c,mark(c))}<span class="b2sb-all">All ${runner()?'sections':'steps'}</span></button>`;}
+function drawFoot(){const el=$('b2stepnav'); if(!el) return; const c=cur(), p=nextFrom(c,-1), n=nextFrom(c,1);
+  el.innerHTML=`<button type="button" class="b2sn-back" data-st="back"${p?'':' disabled'}><b>Back</b>${p?`<small>${H(nm(p))}</small>`:''}</button><button type="button" class="b2sn-next" data-st="next"${n?'':' disabled'}><b>Next</b>${n?`<small>${H(nm(n))}</small>`:`<small>Last ${runner()?'section':'step'}</small>`}</button>`;}
+function openSheet(on){const sh=$('b2stsheet'); if(!sh) return;
+  if(on){sh.innerHTML=`<div class="b2sh-scrim" data-st="close"></div><div class="b2sh-panel" role="dialog" aria-modal="true" aria-labelledby="b2shT"><div class="b2st-head"><h2 id="b2shT">All ${runner()?'sections':'steps'}</h2><button type="button" class="ghost" data-st="close">Close</button></div>${kaHTML()}${listHTML()}</div>`;
+    sh.hidden=false; drawBar(); const c=sh.querySelector('[aria-current="step"]')||sh.querySelector('button'); if(c) c.focus();}
+  else if(!sh.hidden){sh.hidden=true; sh.innerHTML=''; drawBar(); const b=document.querySelector('#b2stepbar .b2sb'); if(b) b.focus();}}
+// ---------- For this step (laptop rail) ----------
+const statRow=(k,v)=>`<div class="stat"><span class="k">${H(k)}</span><span class="v">${H(v)}</span></div>`;
+function copyOf(id){const e=$(id); return e&&!e.closest('[hidden]')&&e.innerHTML.trim()?e.innerHTML:'';}
+function drawFor(){const f=$('b2forstep'); if(!f) return; const k=cur(), c=S._calc||{}, ka=typeof karmaAvail==='function'?karmaAvail():0; let h='';
+  const ny=c.nuyen==null?'—':fmt(c.nuyen)+'¥';
+  if(runner()){
+    if(k==='karma') h=statRow('Good Karma to spend',String(ka))+copyOf('powerBudget');
+    else if(k==='gear') h=statRow('Nuyen on hand',ny)+statRow('Essence',c.ess==null?'—':String(c.ess))+(c.bi?statRow('Body Index',`${c.bi} of ${c.biMax}`):'');
+    else if(k==='contacts'){const t=(($('contactCost')||{}).textContent||'').trim(); if(t) h=`<p class="note">${H(t)}</p>`;}}
+  else if(k==='attr') h=copyOf('attrBudget'); else if(k==='skills') h=copyOf('skillBudget'); else if(k==='magic') h=copyOf('powerBudget'); else if(k==='id') h=copyOf('efBudget');
+  else if(k==='gear') h=copyOf('resBudget')+statRow('Essence',c.ess==null?'—':String(c.ess))+(c.bi?statRow('Body Index',`${c.bi} of ${c.biMax}`):'');
+  else if(k==='contacts'){const t=(($('contactCost')||{}).textContent||'').trim(); h=`<p class="note">${t?H(t):'Two Contact-level contacts come free.'}</p>`;}
+  else if(k==='between') h=statRow('Good Karma to spend',String(ka))+statRow('Nuyen on hand',ny);
+  f.hidden=!h; f.innerHTML=h?`<h3>For this ${runner()?'section':'step'}: ${H(nm(k))}</h3>${h}`:'';}
+// ---------- gear rows: the deck as one row ----------
+function deckIndex(){const dk=typeof deckInfo==='function'?deckInfo():null; if(!dk) return -1;
+  return S.gear.findIndex(g=>g.key&&GEARDB[g.key]&&(GEARDB[g.key].mpcp||/^deck:Custom cyberdeck/.test(g.key)));}
+function gearPass(){const body=$('gearBody'); if(!body) return; const di=deckIndex(), dk=di>=0?deckInfo():null; let cat='';
+  [...body.rows].forEach(tr=>{if(tr.classList.contains('gcat')){const b=tr.querySelector('[data-fold]'); cat=b?b.dataset.fold:''; tr.classList.toggle('gdk',!!dk&&cat==='prog'); return;}
+    const nb=tr.querySelector('.gname'), i=nb?+nb.dataset.gopen:-1; tr.classList.toggle('gdk',!!dk&&(cat==='deck'||cat==='prog')&&i!==di);});
+  if(dk){const nb=body.querySelector(`.gname[data-gopen="${di}"]`); if(nb){const old=nb.parentElement.querySelector('.gdeck'); if(old) old.remove();
+    const hj=S.gear.filter(g=>g.key==='deck:Hitcher Jack').reduce((a,g)=>a+(+g.qty||1),0);
+    const tot=S.gear.filter(g=>(g.key&&/^(deck|prog2?):/.test(g.key))||(!g.key&&(g.cat==='deck'||g.cat==='prog'))).reduce((a,g)=>a+(+g.cost||0)*(+g.qty||1),0);
+    const parts=[`MPCP ${dk.mpcp}`,dk.ri?`Response ${dk.ri}`:'',hj?`${hj} hitcher${hj>1?'s':''}`:'',`${fmt(dk.am)} Mp active`,`${fmt(dk.sm)} Mp storage`].filter(Boolean);
+    const d=document.createElement('div'); d.className='gdeck';
+    d.innerHTML=`<span class="gdsum">${H(parts.join(' · '))}</span><span class="gdtot">Deck, programs and options: ${fmt(tot)}¥</span><button type="button" class="ghost gdeckbtn" data-st="deck" aria-expanded="${!!Q.deck}" aria-controls="deckCard">${Q.deck?'Close the deck':'Open the deck'}</button>`;
+    nb.parentElement.insertBefore(d,nb.parentElement.querySelector('.gmore'));}}
+  document.body.classList.toggle('b2dk-shut',!!dk&&!Q.deck);}
+// ---------- Between runs: tag the In play section's parts ----------
+function tagPlay(){const sp=$('sec-play'); if(!sp||sp.dataset.brtag) return; sp.dataset.brtag='1'; let mode='brn';
+  [...sp.children].forEach(el=>{if(el.tagName==='H2') return; if(el.tagName==='H3'&&/Spend Good Karma/.test(el.textContent)) mode='brk';
+    if(el.matches('label[for="fNotes"]')||el.querySelector('#kEarned')) return; el.classList.add(mode);});
+  ['kEarned','kSpent','kPoolBonus'].forEach(id=>{const l=document.querySelector(`label[for="${id}"]`); if(l) l.classList.add('brk');});
+  const n=document.querySelector('label[for="nuyenNow"]'); if(n) n.classList.add('brn');}
+// ---------- Runner tab (4b) ----------
+// nuyen, ammo and damage move to their own card on the Runner tab, and back for Build and Game night
+let moved=null;
+function moveMoney(on){const sp=$('sec-play'), mo=$('sec-money'); if(!sp||!mo) return;
+  if(on&&!moved){moved=[]; $$('.brn',sp).forEach(el=>{const ph=document.createComment('brn'); el.parentNode.insertBefore(ph,el); moved.push([el,ph]); mo.appendChild(el);});}
+  else if(!on&&moved){moved.forEach(([el,ph])=>{if(ph.parentNode){ph.parentNode.insertBefore(el,ph); ph.remove();}}); moved=null;}}
+function drawOver(){const o=$('sec-over'); if(!o) return; if(!runner()){o.innerHTML=''; return;}
+  const c=S._calc||{}, T=typeof sheetStats==='function'?sheetStats():{}, ka=typeof karmaAvail==='function'?karmaAvail():0;
+  const tile=(k,v,s)=>`<div class="b2t"><span class="b2k">${H(k)}</span><span class="b2v">${H(v)}</span>${s?`<span class="b2s">${H(s)}</span>`:''}</div>`;
+  const at=ATTRS.map(([k,l])=>{const n=attrNow(k), a=augAttr(k); return tile(l,String(a!==n&&a>n?a:n),a!==n&&a>n?`natural ${n}`:'');}).join('');
+  const nb=typeof natBody==='function'?natBody():0;
+  o.innerHTML=`<h2>Overview</h2><div class="b2big">${at}${tile('Essence',c.ess==null?'—':String(c.ess))}${c.awake?tile('Magic',String(c.magic)):''}${T.reaction!=null?tile('Initiative',`${T.reaction} + ${T.dice}D6`):''}</div>
+    <div class="b2ovr">${statRow('Good Karma to spend',String(ka))}${statRow('Nuyen on hand',c.nuyen==null?'—':fmt(c.nuyen)+'¥')}${statRow('Physical damage',`${+S.phys||0} of 10`)}${statRow('Stun damage',`${+S.stun||0} of 10`)}${T.cpool!=null?statRow('Combat Pool',String(T.cpool)):''}</div>`;}
+// How this runner was built: locked, with a logged GM correction
+let FIX=null;   // {snap,note} while a correction is open
+const FIXKEYS=['mode','established','books','optMeta','optEF','prio','race','magic','attrs','skills','langs','ef'];
+const FIXNAME={mode:'Rules',established:'Established runner',books:'Books in play',optMeta:'Companion options',optEF:'Companion options',prio:'Priorities',race:'Race',magic:'Magic',attrs:'Attributes',skills:'Skills',langs:'Languages',ef:'Edges and Flaws'};
+function lockEls(){const L=[$('sec-prio'),$('sec-attr'),$('sec-skills'),$('modeSeg'),document.querySelector('#sec-rules label.estab'),$('bookRow'),document.querySelector('#sec-rules .books:not(#bookRow)'),$('efBox')];
+  ['fRace','fMagic'].forEach(id=>{const x=$(id); if(x&&x.closest('label')) L.push(x.closest('label'));}); return L.filter(Boolean);}
+function lockBuild(on){lockEls().forEach(el=>{el.inert=!!on; el.classList.toggle('b2locked',!!on);});}
+// sections that are only partly locked say which parts
+const LOCKNOTE={'sec-rules':'Locked on an established runner: the priority rules, books, Companion options and the Established runner box. GM correction opens them.',
+  'sec-id':'Locked on an established runner: race, magic, and Edges and Flaws. Name, street name, tradition and concept stay open.'};
+function lockNotes(on){Object.entries(LOCKNOTE).forEach(([id,t])=>{const s=$(id); if(!s) return; let n=s.querySelector('.b2locknote');
+  if(on){if(!n){n=document.createElement('p'); n.className='note b2locknote'; n.textContent=t; const h=s.querySelector('h2'); s.insertBefore(n,h?h.nextSibling:s.firstChild);}} else if(n) n.remove();});}
+const today=()=>{const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+function drawBuilt(){const b=$('sec-built'); if(!b) return; if(!runner()){b.innerHTML=''; return;}
+  const log=(S.gmFix||[]).slice().reverse();
+  b.innerHTML=`<h2>How this runner was built</h2><p class="note">The choices made when this runner was created: rules and books, priorities, race, attributes and skills. They're locked so the build can't change by accident. Raises and new skills go through Karma.</p>`+
+    (FIX?`<div class="b2fix" role="group" aria-label="GM correction"><p class="b2fixon"><b>Open for a GM correction.</b> Change what the GM approved below, then press Done. Cancel puts everything back.</p>
+      <label for="b2fixNote">What the GM approved<input id="b2fixNote" value="${H(FIX.note||'')}" placeholder="e.g. GM: swap Firearms 4 for Pistols 5"></label>
+      <div class="row"><button type="button" class="primary" data-st="fixdone">Done</button><button type="button" data-st="fixcancel">Cancel</button><span class="note" id="b2fixMsg" role="status">${H(FIX.msg||'')}</span></div></div>`
+    :`<div class="row"><button type="button" data-st="fix">GM correction…</button><span class="note">Opens the build for a change the GM approved, logged with their note.</span></div>`)+
+    (log.length?`<h3>Corrections</h3><ul class="b2fixlog">${log.map(f=>`<li><span class="mono">${H(f.d)}</span> · ${H(f.note)}${f.parts&&f.parts.length?` <span class="note">(${H(f.parts.join(', '))})</span>`:''}</li>`).join('')}</ul>`:'');
+  if(FIX){const n=$('b2fixNote'); if(n&&FIX.focus){FIX.focus=false; n.focus();}}}
+function snapBuild(){const o={}; FIXKEYS.forEach(k=>{o[k]=JSON.stringify(S[k]===undefined?null:S[k]);}); return o;}
+function fixStart(){FIX={snap:snapBuild(),note:'',focus:true}; lockBuild(false); update();}
+function fixEnd(keep){if(!FIX) return; const now=snapBuild(), parts=[...new Set(FIXKEYS.filter(k=>now[k]!==FIX.snap[k]).map(k=>FIXNAME[k]))];
+  if(keep){const note=(($('b2fixNote')||{}).value||'').trim();
+    if(parts.length&&!note){FIX.msg='Add the GM\'s note first.'; FIX.focus=true; drawBuilt(); return;}
+    if(parts.length) S.gmFix=(S.gmFix||[]).concat([{d:today(),note,parts}]);}
+  else FIXKEYS.forEach(k=>{const v=JSON.parse(FIX.snap[k]); if(v===null) delete S[k]; else S[k]=v;});
+  FIX=null; if(typeof save==='function') save(); render();
+  const btn=document.querySelector('#sec-built [data-st="fix"]'); if(btn) btn.focus();}
+function runnerPass(build){const on=build&&runner();
+  document.body.classList.toggle('b2run',on);
+  const bt=document.querySelector('#b2tabs [data-tab="build"]'); if(bt) bt.textContent=runner()?'Runner':'Build';
+  const h=document.querySelector('#sec-play>h2'); if(h) h.textContent=on?'Karma':'In play';
+  moveMoney(on);
+  // the Runner tab's order on a laptop's long page, without moving the cards
+  const order=on?Object.values(RUNSECS).flat():[];
+  $$('.layout .col>section.card').forEach(x=>{const i=order.indexOf(x.id); x.style.order=on?String(i<0?90:i+1):'';});
+  const bar=$('b2stepbar'), nav=$('b2stepnav'); if(bar) bar.style.order=on?'0':''; if(nav) nav.style.order=on?'99':'';
+  if(!runner()&&FIX) FIX=null;
+  lockBuild(on&&!FIX); lockNotes(on&&!FIX);
+  drawOver(); drawBuilt();}
+// ---------- drawing ----------
+let busy=false;
+function update(){if(busy) return; busy=true; try{
+  const b=document.body, build=onBuild(), one=build&&!wide(), run=runner();
+  b.classList.toggle('b2bd',build); b.classList.toggle('b2one',one);
+  BRT.forEach(t=>b.classList.toggle('brt-'+t,build&&!run&&Q.brt===t));
+  $$('#sec-between [data-brt]').forEach(x=>{const on=x.dataset.brt===Q.brt; x.setAttribute('aria-selected',String(on)); x.tabIndex=on?0:-1;});
+  runnerPass(build);
+  if(skipped(cur())) setQ(nextFrom(cur(),1)||nextFrom(cur(),-1)||list()[0][0]);
+  const inCur=new Set(secs(cur()).map(x=>x.id));
+  $$('.layout .col>section.card').forEach(x=>x.classList.toggle('stp-off',one&&!inCur.has(x.id)));
+  const nav=$('b2steps'); if(nav&&build){nav.setAttribute('aria-label',run?'Runner sections':'Steps'); nav.classList.toggle('tucked',tucked()); nav.innerHTML=winHTML();}
+  if(!one) openSheet(false);
+  drawBar(); drawFoot(); drawFor(); gearPass();
+  }finally{busy=false;}}
+function setCur(k){if(cur()===k) return; setQ(k); keepQ(); $$('#b2steps [data-st-go]').forEach(x=>x.setAttribute('aria-current',x.dataset.stGo===k?'step':'false')); drawFor();}
+let lock=0;
+function go(k){if(idx(k)<0||skipped(k)) return;
+  if(document.body.classList.contains('b2one')){setQ(k); keepQ(); openSheet(false); update();
+    const col=document.querySelector('.layout .col'); if(col){const y=col.getBoundingClientRect().top+window.scrollY-cssPx('--jumpH')-8; window.scrollTo(0,Math.max(0,y));}
+    const s=secs(k).find(x=>!x.hidden), h=s&&s.querySelector('h2'); if(h){h.tabIndex=-1; h.focus({preventScroll:true});}
+    return;}
+  lock=Date.now()+1000; setCur(k); const s=secs(k).find(x=>!x.hidden&&x.offsetParent!==null); if(s) s.scrollIntoView({behavior:reduced()?'auto':'smooth',block:'start'});}
+let ticking=false;
+function onScroll(){if(ticking) return; ticking=true; requestAnimationFrame(()=>{ticking=false;
+  if(!onBuild()||!wide()||Date.now()<lock) return; const top=Math.max(cssPx('--jumpH')+cssPx('--stripH')+40,window.innerHeight*0.35); let c=list()[0][0];
+  for(const [k] of list()){const s=secs(k).find(x=>!x.hidden&&x.offsetParent!==null); if(!s) continue; if(s.getBoundingClientRect().top<=top) c=k; else break;}
+  setCur(c);});}
+function card(id,step,label){const s=document.createElement('section'); s.className='card'; s.id=id; s.dataset.step=step; s.dataset.jump=label; return s;}
+function mount(){const lay=document.querySelector('.layout'), col=lay&&lay.querySelector('.col'), rail=lay&&lay.querySelector('.rail');
+  if(!lay||!col||$('b2steps')) return;
+  const nav=document.createElement('nav'); nav.id='b2steps'; nav.className='b2steps'; nav.setAttribute('aria-label','Steps'); lay.insertBefore(nav,lay.firstChild);
+  const bar=document.createElement('div'); bar.id='b2stepbar'; col.insertBefore(bar,col.firstChild);
+  // the Runner tab's own cards (hidden on the Build tab)
+  col.insertBefore(card('sec-over','run','Overview'),bar.nextSibling);
+  // Between runs: a header with four tabs over In play, Stash, Export and Save as text (Build tab only)
+  const br=card('sec-between','between','Between runs');
+  br.innerHTML='<h2>Between runs</h2><div class="b2brt" role="tablist" aria-label="Between runs">'+[['karma','Karma'],['money','Nuyen, ammo and damage'],['stash','Stash'],['save','Save and share']].map(([k,l])=>`<button type="button" role="tab" data-brt="${k}" aria-selected="${k===Q.brt}">${l}</button>`).join('')+'</div>';
+  const sp=$('sec-play'); if(sp) col.insertBefore(br,sp);
+  const mo=card('sec-money','run','Nuyen, ammo and damage'); mo.innerHTML='<h2>Nuyen, ammo and damage</h2>'; col.appendChild(mo);
+  col.appendChild(card('sec-built','run','How this runner was built'));
+  const foot=document.createElement('nav'); foot.id='b2stepnav'; foot.setAttribute('aria-label','Step by step'); col.appendChild(foot);
+  const sheet=document.createElement('div'); sheet.id='b2stsheet'; sheet.hidden=true; document.body.appendChild(sheet);
+  if(rail){const f=document.createElement('section'); f.id='b2forstep'; f.className='card'; f.hidden=true; f.setAttribute('aria-live','polite'); rail.insertBefore(f,rail.firstChild);}
+  tagPlay();
+  document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-st],[data-st-go],[data-brt]'); if(!t) return;
+    if(t.dataset.brt){Q.brt=t.dataset.brt; keepQ(); update(); return;}
+    if(t.dataset.stGo){e.preventDefault(); if(t.getAttribute('aria-disabled')!=='true') go(t.dataset.stGo); return;}
+    const a=t.dataset.st;
+    if(a==='tuck'||a==='open'){Q.tuck=a==='tuck'; keepQ(); update(); const f=document.querySelector(a==='tuck'?'#b2steps .b2st-open':'#b2steps .b2st-tuck'); if(f) f.focus(); return;}
+    if(a==='sheet') return openSheet(true);
+    if(a==='close') return openSheet(false);
+    if(a==='back'||a==='next'){const k=nextFrom(cur(),a==='next'?1:-1); if(k) go(k); return;}
+    if(a==='deck'){Q.deck=!Q.deck; keepQ(); update(); const btn=document.querySelector('#gearBody .gdeckbtn'); if(btn) btn.focus(); return;}
+    if(a==='fix') return fixStart();
+    if(a==='fixdone') return fixEnd(true);
+    if(a==='fixcancel') return fixEnd(false);});
+  document.addEventListener('input',e=>{if(FIX&&e.target&&e.target.id==='b2fixNote'){FIX.note=e.target.value; FIX.msg='';}});
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&!$('b2stsheet').hidden){e.preventDefault(); return openSheet(false);}
+    const t=e.target; if(t&&t.dataset&&t.dataset.brt&&(e.key==='ArrowRight'||e.key==='ArrowLeft'||e.key==='Home'||e.key==='End')){e.preventDefault();
+      const i=BRT.indexOf(t.dataset.brt), j=e.key==='Home'?0:e.key==='End'?BRT.length-1:(i+(e.key==='ArrowRight'?1:-1)+BRT.length)%BRT.length;
+      Q.brt=BRT[j]; keepQ(); update(); const n=document.querySelector(`#sec-between [data-brt="${BRT[j]}"]`); if(n) n.focus();}});
+  const _render=render; render=function(){_render.apply(this,arguments); try{update();}catch(err){console.error(err);}};
+  new MutationObserver(()=>{if(!busy) update();}).observe(document.body,{attributes:true,attributeFilter:['class']});
+  if(mqWide.addEventListener) mqWide.addEventListener('change',update); else if(mqWide.addListener) mqWide.addListener(update);
+  window.addEventListener('resize',()=>{if(Q.tuck==null) update();});
+  window.addEventListener('scroll',onScroll,{passive:true});
+  update();}
+// for checks and for links: show a Between runs tab (on a phone this also opens that step). On the Runner tab, the
+// Karma and Save and share sections stand in for the tabs.
+function show(t){if(BRT.includes(t)) Q.brt=t;
+  if(document.body.classList.contains('b2one')){if(runner()) Q.rcur=t==='karma'?'karma':t==='save'?'save':'gear'; else Q.cur='between';}
+  keepQ(); update();}
+window.SR2STEPS={Q,update,go,show,STEPS,RUN};
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mount); else mount();
 })();
 

@@ -39,7 +39,11 @@ if miss: print('MISSING shared CSS',miss); sys.exit(1)
 # timestamps, left out, so the same sources give the same code). shared/srhead.js shows it, adds ?v=CODE to the links between the tools, and compares it with version.txt on the site.
 import hashlib
 PAGES=['SR2_Runner_Builder_2.html','SR2_Gear_Locker_2.html','SR2_GM_Screen.html']
-VER=hashlib.sha1(''.join(re.sub(r'<script>window\.__SR2_EMBED=.*?</script>','',open(f).read(),flags=re.S) for f in PAGES).encode()).hexdigest()[:7]
+# only the real embed element: the Builder's export code also contains '<script>window.__SR2_EMBED=' inside a template, and a loose
+# pattern there swallowed ~200 KB of the Builder's own code, so changes near the end of its script didn't change the code (fixed 2026-11-23)
+EMB=r'<script>window\.__SR2_EMBED=[^<]*</script>'
+if len(re.findall(EMB,open(PAGES[0]).read()))!=1: sys.exit('version stamp: expected exactly one embedded runner in the Builder page')
+VER=hashlib.sha1(''.join(re.sub(EMB,'',open(f).read()) for f in PAGES).encode()).hexdigest()[:7]
 for f in PAGES+['SR2_Runner_Builder.html','SR2_Gear_Locker.html']:
     if os.path.exists(f): s=open(f).read(); open(f,'w').write(s.replace('@SR2BUILD@',VER))
 open('version.txt','w').write(VER+'\n')

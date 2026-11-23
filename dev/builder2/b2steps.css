@@ -1,0 +1,89 @@
+/* Runner Builder, redesign Phase 4: the Build tab in steps (b2steps.js). Tokens and the Builder's own skin names only. */
+.b2vh{position:absolute;width:1px;height:1px;margin:0;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+#b2steps,#b2stepbar,#b2stepnav,#b2forstep{display:none}
+body.b2bd #jumpLinks{display:none}
+.layout .col>section.card[data-step]{scroll-margin-top:calc(var(--jumpH,0px) + var(--stripH,0px) + 12px)}
+/* laptop: the steps window beside the page */
+@media (min-width:56.3125em){
+  body.b2bd .layout{grid-template-columns:auto minmax(0,1fr) clamp(17.5rem,24%,27.5rem)}
+  body.b2bd #b2steps{display:flex;flex-direction:column;gap:8px;width:15rem;box-sizing:border-box;position:sticky;top:calc(var(--jumpH,0px) + var(--stripH,0px) + 12px);max-height:calc(100vh - var(--jumpH,0px) - var(--stripH,0px) - 24px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:12px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius)}
+  body.b2bd #b2steps.tucked{width:3.5rem;padding:8px 4px;align-items:center}
+  body.b2bd #b2forstep:not([hidden]){display:block}
+}
+.b2st-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.b2st-head h2{margin:0;font-family:var(--f-body);font-size:var(--t-md)}
+.b2st-karma{margin:0;padding:4px 12px;border-radius:999px;background:var(--brand-soft);color:var(--brand);font-size:var(--t-xs);font-weight:600}
+.b2st-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.b2st{display:flex;align-items:center;gap:8px;width:100%;min-height:2.5rem;padding:4px 8px;border:1px solid transparent;border-radius:var(--radius);background:transparent;color:var(--ink);font:500 var(--t-sm) var(--f-body);text-align:left;cursor:pointer}
+.b2st:hover{border-color:var(--line)}
+.b2st[aria-current="step"]{background:var(--brand-soft);border-color:var(--brand);color:var(--ink);font-weight:600}
+.b2st[aria-disabled="true"]{color:var(--muted);cursor:default}
+.b2st-n{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:1.5rem;height:1.5rem;border-radius:999px;border:1px solid var(--line);background:var(--paper);font:600 var(--t-xs) var(--mono)}
+.b2st[aria-current="step"] .b2st-n{border-color:var(--brand);background:var(--brand);color:var(--brand-ink)}
+.b2st-nm{display:flex;flex-direction:column;flex:1 1 auto;min-width:0}
+.b2st-nm small{font-size:var(--t-xs);font-weight:400;color:var(--muted)}
+.b2st-mk{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:1.5rem;height:1.5rem;border-radius:999px;font:600 var(--t-xs) var(--f-body)}
+.b2st-mk.mk-ok{color:var(--ok);background:var(--ok-soft)}
+.b2st-mk.mk-warn{color:var(--warn);background:var(--warn-soft)}
+.b2st-mk.mk-bad{color:var(--bad);background:var(--bad-soft)}
+.b2st-mk.mk-skip{color:var(--muted)}
+/* tucked: numbered dots tinted by their mark */
+.b2st-open{width:2.5rem;height:2.5rem;padding:0;border:1px solid var(--brand);border-radius:var(--radius);background:var(--brand-soft);color:var(--brand);font:600 var(--t-lg) var(--f-body);cursor:pointer}
+.b2st-dots{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.b2st-dot{width:2rem;height:2rem;min-height:0;padding:0;border-radius:999px;border:2px solid var(--line);background:var(--paper);color:var(--ink);font:600 var(--t-xs) var(--mono);cursor:pointer}
+.b2st-dot.m-ok{border-color:var(--ok)}.b2st-dot.m-warn{border-color:var(--warn)}.b2st-dot.m-bad{border-color:var(--bad)}
+.b2st-dot.m-skip{border-style:dashed;color:var(--muted);cursor:default}
+.b2st-dot[aria-current="step"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+/* For this step, at the top of the rail */
+#b2forstep h3{margin:0 0 8px}
+/* phones and tablets: one step at a time */
+body.b2one .layout .col>section.card.stp-off{display:none!important}
+body.b2one #b2stepbar{display:block;position:sticky;top:calc(var(--jumpH,0px) + var(--stripH,0px));z-index:13;background:var(--bg);padding:4px 0}
+@media (max-width:40em){body.b2one #b2stepbar{top:var(--jumpH,0px)}}
+.b2sb{display:flex;align-items:center;gap:12px;width:100%;min-height:3.5rem;padding:4px 12px;border:1px solid var(--brand);border-radius:var(--radius);background:var(--paper);color:var(--ink);font:400 var(--t-sm) var(--f-body);text-align:left;cursor:pointer}
+.b2sb-t{display:flex;flex-direction:column;flex:1 1 auto;min-width:0}
+.b2sb-t small{font-size:var(--t-xs);color:var(--muted)}
+.b2sb-t b{font-size:var(--t-md)}
+.b2sb-all{font-size:var(--t-xs);font-weight:600;color:var(--brand)}
+body.b2one #b2stepnav{display:flex;gap:8px;position:sticky;bottom:0;z-index:13;padding:8px 0;background:var(--bg);border-top:1px solid var(--line)}
+#b2stepnav button{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-height:3rem;padding:4px 12px;border-radius:var(--radius);font:600 var(--t-md) var(--f-body)}
+#b2stepnav button small{font-size:var(--t-xs);font-weight:400}
+#b2stepnav .b2sn-back{border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+#b2stepnav .b2sn-next{border:1px solid var(--brand);background:var(--brand);color:var(--brand-ink)}
+#b2stepnav button:disabled{opacity:.5;cursor:default}
+#b2stsheet{position:fixed;inset:0;z-index:40}
+#b2stsheet[hidden]{display:none}
+.b2sh-scrim{position:absolute;inset:0;background:var(--scrim)}
+.b2sh-panel{position:absolute;left:0;right:0;bottom:0;max-height:85vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:16px;background:var(--paper);border-radius:var(--radius) var(--radius) 0 0}
+.b2sh-panel .b2st{min-height:3rem}
+/* Between runs: four tabs on the Build tab (Game night keeps its own Gear and ammo view) */
+.b2brt{display:flex;flex-wrap:wrap;gap:4px}
+.b2brt button{min-height:2.5rem;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);font:500 var(--t-sm) var(--f-body)}
+.b2brt button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--paper);font-weight:600}
+#sec-between{display:none}
+body.b2bd #sec-between{display:block}
+body.b2bd #sec-play>h2{display:none}
+body.b2bd.brt-karma #sec-play .brn,body.b2bd.brt-money #sec-play .brk{display:none!important}
+body.b2bd.brt-karma #sec-stash,body.b2bd.brt-karma #sec-export,body.b2bd.brt-karma #sec-text,
+body.b2bd.brt-money #sec-stash,body.b2bd.brt-money #sec-export,body.b2bd.brt-money #sec-text,
+body.b2bd.brt-stash #sec-play,body.b2bd.brt-stash #sec-export,body.b2bd.brt-stash #sec-text,
+body.b2bd.brt-save #sec-play,body.b2bd.brt-save #sec-stash{display:none!important}
+body.session #sec-stash{order:-1}
+/* gear rows: the deck as one row (the one-line rows themselves are styled in the Builder) */
+.gdeck{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-top:4px}
+.gdsum{font:500 var(--t-xs) var(--mono);color:var(--ink)}
+.gdtot{font-size:var(--t-xs);color:var(--muted)}
+.gdeckbtn{min-height:var(--tap);padding:0 12px}
+body.b2bd.b2dk-shut #gearBody tr.gdk{display:none}
+body.b2bd.b2dk-shut #deckCard{display:none!important}
+/* Runner tab (established runners, 4b): its own cards, the Karma heading, and the locked build */
+#sec-over,#sec-money,#sec-built{display:none}
+body.b2run #sec-over,body.b2run #sec-money,body.b2run #sec-built{display:block}
+body.b2run #sec-between{display:none!important}
+body.b2bd.b2run #sec-play>h2{display:block}
+body.b2run #resBudget,body.b2run #sec-gear>.stat{display:none}
+.b2ovr{margin-top:12px}
+.b2fix{display:flex;flex-direction:column;gap:8px}
+.b2fixon{margin:0;padding:8px 12px;border:1px solid var(--warn);border-radius:var(--radius);background:var(--warn-soft)}
+.b2fixlog{margin:0;padding-left:16px}
+body.b2run section.card.b2locked>h2::after{content:"Locked";margin-left:8px;padding:0 8px;border:1px solid var(--line);border-radius:999px;font:500 var(--t-xs) var(--f-body);color:var(--muted);vertical-align:middle}

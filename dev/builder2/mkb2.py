@@ -5,7 +5,7 @@ The new code goes inside the Builder's own script (so it reads S and the rules h
 'builder with character' exports) and its CSS inside the Builder's own style. Run from the scratchpad folder."""
 import sys
 s=open('SR2_Runner_Builder.html').read()
-js=open('builder2/b2ui.js').read(); css=open('builder2/b2ui.css').read()
+js=open('builder2/b2ui.js').read()+'\n'+open('builder2/b2steps.js').read(); css=open('builder2/b2ui.css').read()+'\n'+open('builder2/b2steps.css').read()  # Phase 4: the Build tab in steps
 end='\n})();\n</script>'
 if s.count(end)!=1: sys.exit('builder script end not found once')
 s=s.replace(end,'\n/*@b2*/\n'+js+'\n/*@end:b2*/'+end)
