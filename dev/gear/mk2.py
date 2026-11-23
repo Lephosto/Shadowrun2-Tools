@@ -443,6 +443,6 @@ open('gear/template2.html','w').write(s)
 d=open('gear_data.json').read()
 page=s.replace('/*DATA*/null',d.replace('</','<\\/'),1)
 head='<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
-open('gear/sr2-gear-locker2.html','w').write(page)
+open('gear/sr2-gear-locker2.html','w').write('<meta charset="utf-8">\n'+page)  # checks open this bare file: say UTF-8, or Chrome can guess wrong under load
 open('SR2_Gear_Locker_2.html','w').write(head+page+'\n</html>\n')
 print('template2 written,',n_ok,'edits')
