@@ -82,6 +82,7 @@ body.b2run #sec-over,body.b2run #sec-money,body.b2run #sec-built{display:block}
 body.b2run #sec-between{display:none!important}
 body.b2bd.b2run #sec-play>h2{display:block}
 body.b2run #resBudget,body.b2run #sec-gear>.stat{display:none}
+body.b2run #sec-gear>.stat#cashStat.unrolled{display:flex}
 .b2ovr{margin-top:12px}
 .b2fix{display:flex;flex-direction:column;gap:8px}
 .b2fixon{margin:0;padding:8px 12px;border:1px solid var(--warn);border-radius:var(--radius);background:var(--warn-soft)}

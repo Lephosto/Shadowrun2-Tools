@@ -41,7 +41,11 @@ function secs(k){return runner()?(RUNSECS[k]||[]).map(id=>$(id)).filter(Boolean)
 function skipped(k){const L=secs(k); return !L.length||L.every(x=>x.hidden);}
 function lines(k){const L=$$('#issues li[data-step]').filter(x=>!x.classList.contains('ok')&&!x.classList.contains('info'));
   return runner()?L.filter(x=>RUNOF[x.dataset.step]===k):L.filter(x=>x.dataset.step===k);}
-function mark(k){if(skipped(k)) return 'skip'; if(k==='rules'||k==='over'||k==='save') return 'none'; const L=lines(k); return L.some(x=>x.classList.contains('bad'))?'bad':L.length?'warn':'ok';}
+// a step the player hasn't touched yet shows an empty dot, not a tick (only Checklist problems mark it)
+function touched(k){try{const g=S.gear||[], W=x=>typeof WSTAT!=='undefined'&&WSTAT[x.key]||typeof MSTAT!=='undefined'&&MSTAT[x.key]||typeof ASTAT!=='undefined'&&ASTAT[x.key];
+  return {prio:()=>Object.values(S.prio||{}).some(Boolean),id:()=>!!(S.name||S.handle||S.concept),attr:()=>Object.values(S.attrs||{}).some(v=>+v>1),magic:()=>(S.powers||[]).length>0,
+    skills:()=>(S.skills||[]).length>0,gear:()=>g.length>0,weap:()=>g.some(W),contacts:()=>(S.contacts||[]).some(c=>c&&c.name),between:()=>!!S.established||+S.kEarned>0||(S.nyLog||[]).length>0}[k]?.()??true;}catch(e){return true;}}
+function mark(k){if(skipped(k)) return 'skip'; if(k==='rules'||k==='over'||k==='save') return 'none'; const L=lines(k); return L.some(x=>x.classList.contains('bad'))?'bad':L.length?'warn':touched(k)?'ok':'none';}
 const MK={ok:['✓','Done'],warn:['!','Check this'],bad:['×','Problem'],skip:['–','Not used'],none:['','']};
 function mkHTML(k,m){const [g,t]=MK[m]; if(!g) return ''; const n=lines(k).length;
   return `<span class="b2st-mk mk-${m}" aria-hidden="true">${g}</span><span class="b2vh">${t}${m==='warn'||m==='bad'?`, ${n} on the Checklist`:''}</span>`;}
@@ -72,6 +76,8 @@ function drawFor(){const f=$('b2forstep'); if(!f) return; const k=cur(), c=S._ca
     if(k==='karma') h=statRow('Good Karma to spend',String(ka))+copyOf('powerBudget');
     else if(k==='gear') h=statRow('Nuyen on hand',ny)+statRow('Essence',c.ess==null?'—':String(c.ess))+(c.bi?statRow('Body Index',`${c.bi} of ${c.biMax}`):'');
     else if(k==='contacts'){const t=(($('contactCost')||{}).textContent||'').trim(); if(t) h=`<p class="note">${H(t)}</p>`;}}
+  else if(k==='prio'){const P=S.prio||{}, used=Object.values(P).filter(Boolean), left=['A','B','C','D','E'].filter(L=>!used.includes(L)), open=[['race','Race'],['magic','Magic'],['attr','Attributes'],['skills','Skills'],['res','Resources']].filter(([c])=>!P[c]).map(x=>x[1]);
+    h=statRow('Letters left',left.join(' ')||'none')+statRow('Still to pick',open.join(', ')||'none');}
   else if(k==='attr') h=copyOf('attrBudget'); else if(k==='skills') h=copyOf('skillBudget'); else if(k==='magic') h=copyOf('powerBudget'); else if(k==='id') h=copyOf('efBudget');
   else if(k==='gear') h=copyOf('resBudget')+statRow('Essence',c.ess==null?'—':String(c.ess))+(c.bi?statRow('Body Index',`${c.bi} of ${c.biMax}`):'');
   else if(k==='contacts'){const t=(($('contactCost')||{}).textContent||'').trim(); h=`<p class="note">${t?H(t):'Two Contact-level contacts come free.'}</p>`;}
@@ -79,7 +85,9 @@ function drawFor(){const f=$('b2forstep'); if(!f) return; const k=cur(), c=S._ca
   f.hidden=!h; f.innerHTML=h?`<h3>For this ${runner()?'section':'step'}: ${H(nm(k))}</h3>${h}`:'';}
 // ---------- gear rows: the deck as one row ----------
 function deckIndex(){const dk=typeof deckInfo==='function'?deckInfo():null; if(!dk) return -1;
-  return S.gear.findIndex(g=>g.key&&GEARDB[g.key]&&(GEARDB[g.key].mpcp||/^deck:Custom cyberdeck/.test(g.key)));}
+  const cu=S.gear.findIndex(g=>/^deck:Custom cyberdeck/.test(g.key||'')); if(cu>=0) return cu; // the deck in use carries the summary (two decks: the one picked on the Cyberdeck card)
+  const a=typeof activeDeck==='function'?activeDeck():null; if(a) return S.gear.indexOf(a);
+  return S.gear.findIndex(g=>g.key&&GEARDB[g.key]&&GEARDB[g.key].mpcp);}
 function gearPass(){const body=$('gearBody'); if(!body) return; const di=deckIndex(), dk=di>=0?deckInfo():null; let cat='';
   [...body.rows].forEach(tr=>{if(tr.classList.contains('gcat')){const b=tr.querySelector('[data-fold]'); cat=b?b.dataset.fold:''; tr.classList.toggle('gdk',!!dk&&cat==='prog'); return;}
     const nb=tr.querySelector('.gname'), i=nb?+nb.dataset.gopen:-1; tr.classList.toggle('gdk',!!dk&&(cat==='deck'||cat==='prog')&&i!==di);});

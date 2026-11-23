@@ -425,7 +425,7 @@ small{font-size:var(--t-xs)} /* the browser's own 'smaller' lands between the si
           <label for="gRate" id="gRateWrap"><span id="gRateLab">Rating</span><input type="number" id="gRate" min="1" value="1" style="width:4.375rem"></label>
           <button class="primary" id="gAdd">Add</button><label id="gPayWrap" class="xpay" hidden style="flex-direction:row;align-items:center;gap:4px"><input type="checkbox" id="gPay" checked> Pay from nuyen on hand</label>
         </div>
-        <div class="note" id="gPreview" style="margin:-4px 0 8px"></div>
+        <div class="note" id="gPreview" style="margin:-4px 0 8px"></div><p class="bad-text" id="gWarn" role="status" hidden style="margin:-4px 0 8px"></p>
         <div class="sfps" id="gSoft" hidden style="margin:-4px 0 12px"></div>
         <div class="row" style="margin:0 0 4px;gap:4px"><span class="note">Tap a category name to fold it.</span><button class="ghost" id="foldAll" type="button">Fold all</button><button class="ghost" id="openAll" type="button">Open all</button></div>
         <div class="tbl"><table><thead><tr><th>Item</th><th class="n">Rating</th><th class="n">Qty</th><th class="n">Cost each (¥)</th><th class="n">Essence</th><th class="n">Total</th><th></th></tr></thead><tbody id="gearBody"></tbody></table></div>
@@ -437,7 +437,7 @@ small{font-size:var(--t-xs)} /* the browser's own 'smaller' lands between the si
           <label for="lifestyleOff" style="flex-direction:row;align-items:center;gap:4px;text-transform:none;letter-spacing:0;font-size:var(--t-sm)"><input type="checkbox" id="lifestyleOff"> No lifestyle cost (house rule)</label>
         </div>
         <div class="stat"><span class="k">Starting cash: unspent ÷ 10 <span class="pg">p. 47</span></span><span class="v" id="cashFromLeft"></span></div>
-        <div class="stat"><span class="k">Plus 3D6 × 1,000¥ <button id="rollCash" class="ghost">Roll</button></span><span class="v" id="cashRoll"></span></div>
+        <div class="stat" id="cashStat"><span class="k">Plus 3D6 × 1,000¥ <button id="rollCash" class="ghost">Roll</button></span><span class="v" id="cashRoll"></span></div>
         <div class="stat"><span class="k"><b>Starting cash</b></span><span class="v big" id="cashTotal"></span></div>
       </section>
 
@@ -1171,6 +1171,9 @@ function gv(x,r){return typeof x==='function'?x(r):(x||0);}
 // Keep the deck legal (core p. 172–174; VR2 p. 16, 85–87): options are clamped as they change instead of only warned about.
 const CUSTKEY='deck:Custom cyberdeck (VR2 à la carte)';
 const isUtil=g=>/^prog2?:/.test(g.key||'')&&!/^prog:Persona/.test(g.key)&&!!GEARDB[g.key];
+// The deck in use: the one picked on the Cyberdeck card, else the best (highest MPCP, then most storage). Programs live on it.
+function activeDeck(){const D=S.gear.filter(g=>DSTAT[g.key]); if(!D.length) return null; if(S.deckUse){const d=D.find(g=>g.key===S.deckUse); if(d) return d;}
+ return D.reduce((a,b)=>{const A=GEARDB[a.key].mpcp||0,Bm=GEARDB[b.key].mpcp||0; return Bm>A||(Bm===A&&DSTAT[b.key][2]>DSTAT[a.key][2])?b:a;});}
 function deckMax(){ // MPCP of the deck in gear (custom VR2 deck first)
  if(S.gear.some(g=>g.key===CUSTKEY)) return Math.max(1,Math.floor(+(S.vr2deck||{}).mpcp||vr2Default().mpcp));
  return deckMPCP();}
@@ -1180,6 +1183,7 @@ function deckRowMax(g){
  if(/^deck:(Response Increase \d|Hitcher Jack)$/.test(g.key)&&m) return m;
  if(/^prog:Persona: /.test(g.key)&&m&&!cust){const others=S.gear.filter(x=>x!==g&&/^prog:Persona: /.test(x.key||'')).reduce((a,x)=>a+(+x.r||0),0); return Math.max(1,Math.min(it.r[1],3*m-others));}
  if(isUtil(g)&&m&&cust) return Math.min(it.r[1],m);
+ if(/^prog:/.test(g.key)&&isUtil(g)&&!cust){const dk=deckInfo(); if(dk){const sz=r=>GEARDB[g.key].sz(r)||0, room=dk.sm-(dk.stored-sz(+g.r||1)); let x=it.r[1]; while(x>1&&sz(x)>room) x--; return x;}}
  return null;}
 function deckEnforce(){
  const cust=S.gear.some(g=>g.key===CUSTKEY);
@@ -1194,7 +1198,7 @@ function deckEnforce(){
  // hitcher jacks ≤ MPCP (core p. 173)
  let hj=0; S.gear.forEach(g=>{if(g.key==='deck:Hitcher Jack'){g.qty=Math.max(0,Math.min(Math.max(1,Math.floor(+g.qty||1)),m-hj)); hj+=g.qty;}});
  // extra active memory: total ≤ MPCP × 50 (core p. 172)
- const base=!cust&&S.gear.find(g=>DSTAT[g.key]); if(base){let room=DECK.amMax(m)-DSTAT[base.key][1]; S.gear.forEach(g=>{if(g.key==='deck:Extra Active Memory (per Mp)'){g.qty=Math.max(0,Math.min(Math.max(1,Math.floor(+g.qty||1)),room)); room-=g.qty;}});}
+ const base=!cust&&activeDeck(); if(base){let room=DECK.amMax(m)-DSTAT[base.key][1]; S.gear.forEach(g=>{if(g.key==='deck:Extra Active Memory (per Mp)'){g.qty=Math.max(0,Math.min(Math.max(1,Math.floor(+g.qty||1)),room)); room-=g.qty;}});}
  // only one Response Increase (the highest); rows left with nothing to buy are dropped
  const riRows=S.gear.filter(g=>/^deck:Response Increase \d$/.test(g.key||'')); if(riRows.length>1){const top=riRows.reduce((a,b)=>b.key>a.key?b:a); riRows.forEach(g=>{if(g!==top) g.qty=0;});}
  S.gear=S.gear.filter(g=>!(/^deck:(Hitcher Jack|Extra Active Memory \(per Mp\)|Response Increase \d)$/.test(g.key||'')&&g.qty===0));
@@ -1209,7 +1213,7 @@ function deckEnforce(){
  for(let k=S.gear.length-1;k>=0&&used>dk.am;k--){const g=S.gear[k]; if(isUtil(g)&&g.loaded){g.loaded=false; used-=sz(g);}}
  const stored=S.gear.filter(isUtil).reduce((a,g)=>a+sz(g),0);
  if(cust&&stored>S.vr2deck.sm) S.vr2deck.sm=stored; // a custom deck is ordered with room for its programs
- else if(!cust&&stored>dk.sm){let over=stored-dk.sm; for(let k=S.gear.length-1;k>=0&&over>0;k--){const g=S.gear[k]; if(!isUtil(g)) continue; while(+g.r>1&&over>0){const a=sz(g); g.r--; over-=a-sz(g);}}}
+ else if(!cust&&stored>dk.sm){let over=stored-dk.sm; for(let k=S.gear.length-1;k>=0&&over>0;k--){const g=S.gear[k]; if(!isUtil(g)) continue; const r0=+g.r; while(+g.r>1&&over>0){const a=sz(g); g.r--; over-=a-sz(g);} if(+g.r<r0) g.lowered=Math.max(+g.lowered||0,r0);}}
 }
 const R2_SUPERSEDES=[["Dodge Scoot", "Dodge Scoot"], ["Yamaha Rapier", "Yamaha Rapier"], ["Mitsubishi Runabout", "Mitsubishi Runabout"], ["Chrysler-Nissan Jackrabbit", "Chrysler-Nissan Jackrabbit (Elec.)"], ["Ford Americar", "Ford Americar"], ["Eurocar Westwind 2000", "Eurocar Westwind 2000 (Standard)"], ["Toyota Elite", "Toyota Elite"], ["Mitsubishi Nightsky", "Mitsubishi Nightsky"], ["Chrysler-Nissan G12a Hovercraft", "Chrysler-Nissan G12A (Pass.)"], ["Aztech Nightrunner", "Aztech Nightrunner (Standard)"], ["Sendanko Marlin", "Sendanko Marlin"], ["Cessna C750", "Cessna C750 (Standard)"], ["Lear-Cessna Platinum I", "Lear-Cessna Platinum I"], ["Hughes WK-2 Stallion", "Hughes WK-2 Stallion"], ["Ares Dragon", "Ares Dragon"], ["Federated Boeing Commuter", "Federated Boeing Commuter"], ["Surveillance Drone", "Generic Surveillance Drone"], ["Harley Scorpion", "Harley-Davidson Scorpion"], ["Samuvani Chriscraft Otter", "Samuvani Criscraft Otter"], ["Hughes Airstar", "Hughes Aerospace Airstar 2050"], ["Spotter Drone", "GM-Nissan Spotter"], ["Suzuki Aurora", "Suzuki Aurora"], ["Honda Viking", "Honda Viking"], ["GMC MPUV", "GMC MPUV"], ["LAV-103 Striker Light Tank", "LAV-103 Striker Light Tank"], ["Ferret RPD-VI Perimeter Drone", "Ferret RPD-VI Perimeter Drone"], ["Artemis Night Glider", "Artemis Industries Nightglider"], ["LAV-98 Devil Rat APC", "LAV-93 Devil Rat"], ["Aerodesign Condor II LDSD-41", "Aerodesign Systems Condor Series (LDSD-41)"], ["Steel Lynx Combat Drone", "Steel Lynx Ground Combat Drone"], ["Ares Guardian Drone (CSH)", "Ares Guardian Drone"], ["Ares Sentinel P Drone", "Ares Sentinel \"P\" Series Drone"], ["Ares TR-55T Traveler VTOL (CSH)", "Ares TR-55T Traveller"], ["Ares TR-55E Executive VTOL (CSH)", "Ares TR-55E \"President's Edition\" Executive"], ["Ares TR-55C Cargo VTOL (CSH)", "Ares TR-55C Cargoliner"]];
 // Kelmar gel-packs (FoF p. 53): any armor piece with Ballistic/Impact ratings that isn't already Hardened
@@ -1232,9 +1236,13 @@ function syncGear(){S.gear.forEach(g=>{if(g&&KEYFIX[g.key]) g.key=KEYFIX[g.key];
   if(g.vname&&isVehG(g)) g.name=g.vname+g.name.slice(it.n.length);}); forGunSync();}
 // ammo and spare clips can be tagged with the gun they're for
 function forGunItem(key){return key==='ammo:Spare Clip'||/^ammo:.*(Ammo|Rounds)\b/.test(key||'');}
-function feedSpec(key){const w=WSTAT[key]; if(!w) return null; const a=String(w[2]).trim(), n=parseInt(a,10);
-  if(/\(c\)/.test(a)) return {cap:n||0,clip:true,belt:/Belt/.test(a),feed:a};
-  if(a==='Belt') return {cap:null,clip:false,belt:true,feed:a};
+// Range bands in meters; bows, crossbows and thrown weapons scale with Strength (the bow's rating for a bow), grenades too (core p. 88, 96)
+function rangeBands(rt,g,str){let b=RANGES[rt]||['','','',''];
+  if(['bow','lxbow','mxbow','hxbow','knife','shuriken'].includes(rt)){const base=rt==='bow'?(+g.r||str):str; b=b.map((m,j)=>(j?`to ${base*m}`:`0-${base*m}`));}
+  if(rt==='grenade') b=[`0-${str*3}`,`to ${str*5}`,`to ${str*10}`,`to ${str*20}`]; return b;}
+function feedSpec(key){const w=WSTAT[key]; if(!w) return null; const a=String(w[2]).trim(), m0=a.match(/\d+/), n=m0?+m0[0]:NaN;
+  if(/\(c\)/.test(a)) return {cap:n||0,clip:true,belt:/belt/i.test(a),feed:a};
+  if(/^belt$/i.test(a)) return {cap:null,clip:false,belt:true,feed:a};
   const m=a.match(/\((m|b|cy|internal)\)/); if(m&&n) return {cap:n,clip:false,feed:a};
   return null;}
 function isFeedGun(g){return !!(g&&GEARDB[g.key]&&feedSpec(g.key));}
@@ -1340,6 +1348,15 @@ function ammoTrackHTML(){const fg=feedGuns().filter(x=>carried(x.g)); if(!fg.len
         <button data-amo="load" data-gid="${gid}" ${types.length?'':'disabled'} title="${sp.clip?'Refill the clip in the gun':sp.belt?'Feed the belt':'Load rounds'} from the pool">${sp.clip?'Refill gun clip':sp.belt?'Load belt':'Load gun'}</button>
         ${sp.clip&&at.clips.length?`<button data-amo="fill" data-gid="${gid}" ${types.length?'':'disabled'}>Fill spare clips</button>`:''}
         <button class="ghost" data-amo="unload" data-gid="${gid}" title="Put every loaded round back in the pool">Unload all</button></div>${quickBuyHTML(g,gid,label,sp)}</div>`;}).join('');}
+// Gun add-ons bought in the picker are loose parts until fitted: "Fit to" moves one into a free slot of a gun's build (Weapons and armor).
+function fitSlots(key){const A=typeof GB!=='undefined'&&GB.ACC&&GB.ACC[key]; if(!A) return null; const out=[];
+  S.gear.forEach((w,j)=>{const o=WSTAT[w.key]&&gunObj(w); if(!o||!GB.canBuild(o)) return; if(A.ok&&A.ok(o)) return; const ints=GB.integral(o).map(x=>x.slot);
+    const sl=GB.gunSlots(o).find(x=>A.slot.includes(x)&&!ints.includes(x)&&!(w.build&&w.build[x])); if(sl) out.push({j,slot:sl,label:GEARDB[w.key].n+' · '+sl});}); return out;}
+// a gun or vehicle weapon can sit on a drone or vehicle: Game night then fires it with Gunnery through the rig (R2 p. 58). Same as Stash › To the vehicle.
+function mountHTML(g,i){if(!(WSTAT[g.key]&&WSTAT[g.key][0]!=='grenade'||(g.key||'').startsWith('vweap:'))) return ''; const V=S.gear.filter(isVehG).map(vehName).filter(Boolean); if(!V.length) return '';
+  return `<div class="gstat forgun"><label for="g_mnt_${i}">Mounted on</label> <select id="g_mnt_${i}" data-mnt="${i}"><option value="">Not mounted (carried)</option>${[...new Set(V)].map(v=>`<option value="${esc(v)}" ${g.at===v?'selected':''}>${esc(v)}</option>`).join('')}</select>${g.at&&V.includes(g.at)?' Game night fires it from the '+esc(g.at)+' with Gunnery.':''}</div>`;}
+function fitToHTML(g,i){const f=fitSlots(g.key); if(!f) return ''; if(!f.length) return `<div class="gstat">Loose part: no gun you own has a free slot for it. Only add-ons fitted to a gun count in Game night.</div>`;
+  return `<div class="gstat forgun"><label for="g_fit_${i}">Fit to</label> <select id="g_fit_${i}" data-fit="${i}"><option value="">Choose a gun…</option>${f.map(x=>`<option value="${x.j}|${esc(x.slot)}">${esc(x.label)}</option>`).join('')}</select> Loose until fitted; fitted add-ons show in Weapons and armor and count in Game night.</div>`;}
 function forGunHTML(g,i){const fg=feedGuns(); if(!fg.length) return `<div class="gstat">Add a gun to choose which one this is for.</div>`;
   const t=fg.find(x=>x.gid===g.forGun); const bad=t&&g.key==='ammo:Spare Clip'&&!t.clips;
   return `<div class="gstat forgun"><label for="g_fg_${i}">For</label> <select id="g_fg_${i}" data-gr="${i}" data-f="forGun"><option value="">Any gun</option>${fg.map(x=>`<option value="${x.gid}" ${x.gid===g.forGun?'selected':''}>${esc(x.label)}</option>`).join('')}</select>${bad?` <span class="bad-text">${esc(t.label)} doesn’t take clips (${esc(WSTAT[t.g.key][2])}).</span>`:''}</div>`;}
@@ -1576,7 +1593,7 @@ function deckInfo(){
     const persona={Bod:+d.bod||0,Evasion:+d.eva||0,Masking:+d.mask||0,Sensors:+d.sens||0};
     return {name:'Custom cyberdeck (VR2)',mpcp:v.M,h:+d.hard||0,am:+d.am||0,amMax:Infinity,sm:+d.sm||0,ls:null,io:+d.io||0,persona,utils,loose:S.gear.filter(g=>!g.key&&g.cat==='prog'),ri:+d.ri||0,vr2:v,
       used:utils.filter(u=>u.g.loaded).reduce((a,u)=>a+u.size,0),stored:utils.reduce((a,u)=>a+u.size,0)};}
-  const deck=S.gear.find(g=>DSTAT[g.key]); if(!deck) return null;
+  const deck=activeDeck(); if(!deck) return null;
   const it=GEARDB[deck.key],[h,am,sm,ls,io]=DSTAT[deck.key];
   const extraA=S.gear.filter(g=>g.key==='deck:Extra Active Memory (per Mp)').reduce((a,g)=>a+(+g.qty||1),0);
   const extraS=S.gear.filter(g=>g.key==='deck:Extra Storage Memory (per Mp)').reduce((a,g)=>a+(+g.qty||1),0);
@@ -1852,7 +1869,7 @@ function renderExtras(){
       const rch=reach+(baseRace()==='Troll'?1:0);
       return `<tr><td><b>${esc(GEARDB[g.key].n)}</b><div class="gstat">${esc(mskill)} · ${esc(conc)}</div></td><td class="n">${cc??'—'}</td><td>Reach ${rch}</td><td class="mono">${esc(strDmg(dmg,str))}</td><td class="mono">${sd.dice===null?'<span class="bad-text">no skill</span>':sd.dice+(sd.ia?`+${sd.ia}`:'')}<div class="gstat">${esc(sd.how)}</div></td><td colspan="2" class="note">Melee: TN 4 base, opposed (p. 100)</td></tr>`;}
     const [rt,cc,ammo,mode,dmg]=WSTAT[g.key]; const [sk,conc]=RT_SKILL[rt]; const sd=skillDiceFor(sk,conc,GEARDB[g.key].n); const qx=(+g.qty||1)>1?` ×${+g.qty}`:'';
-    let bands=RANGES[rt]; if(['bow','lxbow','mxbow','hxbow','knife','shuriken'].includes(rt)){const base=rt==='bow'?(+g.r||str):str; bands=bands.map((m,j)=>(j?`to ${base*m}`:`0-${base*m}`));} if(rt==='grenade'){bands=[`0-${str*3}`,`to ${str*5}`,`to ${str*10}`,`to ${str*20}`];}
+    const bands=rangeBands(rt,g,str);
     let mod=0,notes=[]; const gc=gunCalc(g); let cfin=cc, dshow=null;
     if(gc){const C=gc.C; mod=C.aim; notes.push(...C.aimTxt.map(x=>x.replace(/ −?\d+$/,'').replace(/ -\d+$/,'')).filter(x=>!/pick the shooter/.test(x)));
       if(C.rc) notes.push(`recoil comp ${C.rc}`); if(C.gyro) notes.push(`gyro ${C.gyro}`); if(C.mag) notes.push(`scope: range ${C.mag} step${C.mag>1?'s':''} closer`); if(C.notice) notes.push(`+${C.notice} to notice the shot`); notes.push(...C.ext);
@@ -1890,7 +1907,8 @@ function renderExtras(){
   if(dk){
     const mx=matrixInfo()||{pool:0,react:0,dice:1,poolHow:''}; const B=booksOn();
     const df=B.vr2?detectionFactor(dk):null;
-    $('deckStats').innerHTML=[['Deck',dk.name+(B.vr2&&!dk.vr2?' <span class="bad-text">(Matrix 1.0 deck)</span>':'')],['MPCP',dk.mpcp],['Hardening',dk.h],['Active memory',`${dk.am} Mp${dk.am>dk.amMax?` <span class="bad-text">(max ${dk.amMax})</span>`:''}`],['Storage',`${dk.sm} Mp`],...(dk.ls!=null?[['Load speed',`${dk.ls} Mp/turn`]]:[]),[B.vr2?'I/O speed':'I/O speed',`${dk.io} ${dk.vr2?'MePS':'Mp/turn'}`],
+    const decks=S.gear.filter(g=>DSTAT[g.key]); const dpick=decks.length>1&&!dk.vr2?`<select id="deckUse" aria-label="Deck in use">${decks.map(g=>`<option value="${esc(g.key)}" ${g===activeDeck()?'selected':''}>${esc(GEARDB[g.key].n)}</option>`).join('')}</select><div class="gstat">You own ${decks.length} decks. Programs and options go on the one in use.</div>`:'';
+    $('deckStats').innerHTML=[['Deck',(dpick||dk.name)+(B.vr2&&!dk.vr2?' <span class="bad-text">(Matrix 1.0 deck)</span>':'')],['MPCP',dk.mpcp],['Hardening',dk.h],['Active memory',`${dk.am} Mp${dk.am>dk.amMax?` <span class="bad-text">(max ${dk.amMax})</span>`:''}`],['Storage',`${dk.sm} Mp`],...(dk.ls!=null?[['Load speed',`${dk.ls} Mp/turn`]]:[]),[B.vr2?'I/O speed':'I/O speed',`${dk.io} ${dk.vr2?'MePS':'Mp/turn'}`],
       ['Persona',`Bod ${dk.persona.Bod} · Evasion ${dk.persona.Evasion} · Masking ${dk.persona.Masking} · Sensors ${dk.persona.Sensors}`],
       ...(df!=null?[['Detection Factor',`${df} <span class="pg">VR2 p. 17</span>`]]:[]),
       ['Hacking Pool',`${mx.pool} <span class="pg">${B.vr2?'VR2 p. 18':'p. 85'}</span>${mx.poolHow?`<div class="gstat">${esc(mx.poolHow)}</div>`:''}`],...mxIniModes(mx).filter(m=>m.id!=='tort'||!mx.hasDeck).map(m=>['Matrix Initiative: '+m.l,`${m.r} + ${m.d}D6 <span class="pg">${m.pg}</span>`])].map(([k,v])=>`<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')
@@ -3000,7 +3018,7 @@ function vbEditor(g,ix){const v=vbFixG(g); if(!v) return ''; const B=g.vb, R=VB.
   F('White Phosphorus Grenade',120,'14M/10L (−1/m)','48'),F('Smoke Grenade',30,'','48'),F('Smoke Grenade (IR)',40,'Blocks thermographic','48')]);
  add('armor','fof',[F('Camouflage Full Suit',800,'3/1 · pick its pattern: Desert, Snow, Woodland, Urban or Winter Woodland; +4 to spot you in matching terrain, −2 in the wrong one (p. 77)','52'),F('Camouflage Jacket',1200,'5/3 · pick its pattern: Desert, Snow, Woodland, Urban or Winter Woodland; +4 to spot you in matching terrain, −2 in the wrong one (p. 77)','52'),
   F('Light Military Armor',25000,'10/7 · Hardened','54'),F('Medium Military Armor',45000,'12/8 · Hardened','54'),F('Heavy Military Armor',70000,'14/9 · Hardened','54'),F('Heavy Military Helmet',2500,'+2/+3','54'),
-  {n:'Gel-Pack Upgrade',c:r=>r*4,r:[1,500000,'Armor cost ¥'],s:'Easier way: tick Gel-packs on the armor itself. This older entry adds 4 × the price you enter (armor ×5 in all)',pg:'FoF p. 53'}]);
+  {n:'Gel-Pack Upgrade',legacy:1,c:r=>r*4,r:[1,500000,'Armor cost ¥'],s:'Easier way: tick Gel-packs on the armor itself. This older entry adds 4 × the price you enter (armor ×5 in all)',pg:'FoF p. 53'}]);
  add('body','fof',[{n:'Smartlink II',c:3200,e:.5,s:'Smartlink Level II: extra −1 at long, −2 at extreme with a rangefinder; called shots +2 instead of +4',pg:'FoF p. 57'}]);
  add('elec','fof',[F('Tacticom Master Unit',60000,'Phillips Tacticom tactical comm system, rating 14','58'),F('Tacticom Portable Master Unit',120000,'Phillips Tacticom, rating 14','58'),F('Tacticom Personal Comm Unit',18500,'Phillips Tacticom, rating 14','58'),
   F('Microwave Link',4800,'Tacticom add-on · Concealability 3 · 1 kg · line of sight','58'),F('Laser Link',2700,'Tacticom add-on · Concealability 4 · 1 kg','58'),F('Satellite Uplink',7500,'Tacticom add-on · 2 kg','58'),F('Nav-Dat GPS',700,'','61')]);
@@ -3436,7 +3454,7 @@ function augAttr(k){const base=attrEff(k)+bioAug(k)+(k==='str'||k==='quick'?gear
   return base;}
 const CONTACT_COST={'Contact':5000,'Buddy':10000,'Gang/Tribe':50000,'Followers':200000};
 function contactCost(){let free=2;return S.contacts.reduce((a,c)=>{const cost=CONTACT_COST[c.level]??5000;if(free>0){free--;return a+Math.max(0,cost-5000);}return a+cost;},0);}
-function deckMPCP(){return S.gear.reduce((m,g)=>{const it=g.key&&GEARDB[g.key];return it&&it.mpcp?Math.max(m,it.mpcp):m;},0);}
+function deckMPCP(){const d=activeDeck(); return d?(GEARDB[d.key].mpcp||0):0;}
 function nativeLang(){return Math.max(1,attrFinal('int'))+2;} // set at creation; raising Intelligence later doesn’t raise it (p. 45)
 function attrFinal(k){const m=(R().mod[k]||0);return (+S.attrs[k]||0)+m;}
 function adeptOn(){return S.magic==='adept';}
@@ -3508,6 +3526,7 @@ if(typeof SKINENV!=='undefined'){SKINENV.runner=()=>(S&&S.skin)||null; SKINENV.p
 function skinSync(){try{const want=SKIN.now(); if(want!==SKIN_SHOWN){SKIN.apply(want,false); SKIN_SHOWN=want;} const m=$('skinMine'); if(m) m.checked=!!S.skin;}catch(e){}}
 function render(){
   skinSync(); try{SRHEAD.sub((S.name||'New runner')+(S.concept?' · '+S.concept:''));}catch(e){}
+  {const ks=GCATS.filter(([k])=>CAT[k].some(itemVisible)).map(c=>c[0]).join(); if(ks!==GCATKEYS){GCATKEYS=ks; fillGearCats(); gearRateReset(); gearPreview();}}
   if($('gCat')&&['deck','prog'].includes($('gCat').value)){const was=$('gItem').value; fillGearItems(); if($('gItem').value!==was) gearPreview();}
   // mode
   document.querySelectorAll('#modeSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===S.mode));
@@ -3583,7 +3602,7 @@ function render(){
   $('bookRow').innerHTML=`<span class="k">Books in play</span><label class="bk"><input type="checkbox" checked disabled> Core rulebook</label>`+BOOKS.map(([k,l])=>`<label class="bk"><input type="checkbox" data-book="${k}" ${booksOn()[k]?'checked':''}> ${l}</label>`).join('');
   $('optRecoilRow').hidden=!booksOn().fof; $('optRecoil').checked=!!S.optRecoil;
   const rBudget=S.prio.res?RES[S.prio.res]:0; let rSpent=0;
-  syncGear();
+  syncGear(); payCheck(); if(PAYMSG){const m=PAYMSG; PAYMSG=''; setTimeout(()=>{$('saveState').textContent=m;},0);}
   S.gear.forEach(g=>{rSpent+=(+g.cost||0)*(+g.qty||1);});
   const order=GCATS.map(c=>c[0]);
   const groups=order.map(c=>[c,S.gear.map((g,i)=>[g,i]).filter(([g])=>(GCATNAME[g.cat]?g.cat:'other')===c)]).filter(x=>x[1].length);
@@ -3592,7 +3611,7 @@ function render(){
     const sub=rows.reduce((a,[g])=>a+(+g.cost||0)*(+g.qty||1),0), es=rows.reduce((a,[g])=>a+(+g.ess||0)*(+g.qty||1),0)-(c==='head'?essenceCredit():0);
     if(LASTADD&&rows.some(([g])=>g.key===LASTADD)) FOLD.delete(c); const fo=FOLD.has(c);
     return `<tr class="gcat${fo?' folded':''}"><td colspan="7"><button class="gfold" data-fold="${c}" aria-expanded="${!fo}">${GCATNAME[c]} <span class="sub" style="float:none">(${rows.length})</span></button><span class="sub">${fmt(sub)}¥${es?` · ${+es.toFixed(2)} Ess`:''}</span></td></tr>`+rows.map(([g,i])=>{const it=g.key&&GEARDB[g.key];const t=(+g.cost||0)*(+g.qty||1);
-      if(it) return `<tr><td><button type="button" class="gname" data-gopen="${i}" aria-expanded="${GOPEN.has(i)}">${esc(it.n)}</button>${eraChip(it)}${g.note?'<span class="gnote" title="Has a note">note</span>':''}<div class="gmore"${GOPEN.has(i)?'':' hidden'}><span class="pg">${it.pg}</span>${lockerLink(g.key)}${it.s?`<div class="gstat">${esc(it.s)}</div>`:''}${DESC[g.key]&&DESC[g.key][0]!==it.s?`<div class="gstat gdesc">${esc(DESC[g.key][0])}</div>`:''}${g.addons?(WSTAT[g.key]&&g.build?`<div class="gstat">Includes add-ons: ${esc(Object.entries(g.build||{}).filter(([k])=>!['ammo','link'].includes(k)).map(([,v])=>GB.accName(v)).join(', '))} (+${fmt(g.addons)}¥ each). Change them under Weapons.</div>`:`<div class="gstat">Includes ${R2OBJ&&R2OBJ[g.key]?'modifications':'options'} (+${fmt(g.addons)}¥ each). Change them in its build-out ${R2OBJ&&R2OBJ[g.key]?'under Rigging':'below this table'}.</div>`):''}${typeof camoKind==='function'&&camoKind(g.key)?`<div class="sfps gsfp">${camoPickHTML(g.key,g.camo,`data-gcamo="${i}"`)}</div>`:''}${it.soft&&it.soft!=='DataSoft'?`<div class="sfps gsfp">${softPickHTML(it.n,Object.assign(softOf(g,it.n),g.oth?{oth:true}:{}),i,{langs:(S.langs||[]).map(L=>L.name).filter(Boolean)})}</div>`:''}${g.note||NOTE_OPEN.has(i)?`<input id="g_note_${i}" data-gr="${i}" data-f="note" value="${esc(g.note)}" placeholder="Note" aria-label="Note for this item" style="margin-top:4px;width:100%;max-width:13.75rem;font-size:var(--t-xs);padding:4px 8px">`:`<button type="button" class="notebtn" data-note="${i}" aria-label="Add a note to this item">+ Note</button>`}${gradeable(it)&&booksOn().ct?`<div><select id="g_gr_${i}" data-gr="${i}" data-f="grade" aria-label="Cyberware grade" style="margin-top:4px;font-size:var(--t-xs)">${Object.entries(CYBER_GRADES).map(([k,[l,e,c]])=>`<option value="${k}" ${(g.grade||'std')===k?'selected':''}>${l}${k==='std'?'':` (Essence ×${e}, price ×${c})`}</option>`).join('')}</select></div>`:''}${gelOK(it)&&booksOn().fof?`<label style="flex-direction:row;align-items:center;gap:4px;text-transform:none;letter-spacing:0;font-size:var(--t-xs);margin-top:4px"><input type="checkbox" id="g_gel_${i}" data-gr="${i}" data-f="gel" ${g.gel?'checked':''}> Gel-packs (FoF p. 53): Hardened, price ×5, Concealability halved, weight +25%</label>`:''}${it.bi!=null&&!it.neural?`<label style="flex-direction:row;align-items:center;gap:4px;text-transform:none;letter-spacing:0;font-size:var(--t-xs);margin-top:4px"><input type="checkbox" id="g_cu_${i}" data-gr="${i}" data-f="cultured" ${g.cultured?'checked':''}> Cultured (Body Index ×.75, price ×4)</label>`:it.neural?'<div class="gstat">Neural bioware: already cultured</div>':''}${forGunItem(g.key)?forGunHTML(g,i):''}</div></td>
+      if(it) return `<tr><td><button type="button" class="gname" data-gopen="${i}" aria-expanded="${GOPEN.has(i)}">${esc(it.n)}</button>${eraChip(it)}${g.note?'<span class="gnote" title="Has a note">note</span>':''}<div class="gmore"${GOPEN.has(i)?'':' hidden'}><span class="pg">${it.pg}</span>${lockerLink(g.key)}${it.s?`<div class="gstat">${esc(it.s)}</div>`:''}${DESC[g.key]&&DESC[g.key][0]!==it.s?`<div class="gstat gdesc">${esc(DESC[g.key][0])}</div>`:''}${g.addons?(WSTAT[g.key]&&g.build?`<div class="gstat">Includes add-ons: ${esc(Object.entries(g.build||{}).filter(([k])=>!['ammo','link'].includes(k)).map(([,v])=>GB.accName(v)).join(', '))} (+${fmt(g.addons)}¥ each). Change them under Weapons.</div>`:`<div class="gstat">Includes ${R2OBJ&&R2OBJ[g.key]?'modifications':'options'} (+${fmt(g.addons)}¥ each). Change them in its build-out ${R2OBJ&&R2OBJ[g.key]?'under Rigging':'below this table'}.</div>`):''}${typeof camoKind==='function'&&camoKind(g.key)?`<div class="sfps gsfp">${camoPickHTML(g.key,g.camo,`data-gcamo="${i}"`)}</div>`:''}${it.soft&&it.soft!=='DataSoft'?`<div class="sfps gsfp">${softPickHTML(it.n,Object.assign(softOf(g,it.n),g.oth?{oth:true}:{}),i,{langs:(S.langs||[]).map(L=>L.name).filter(Boolean)})}</div>`:''}${g.note||NOTE_OPEN.has(i)?`<input id="g_note_${i}" data-gr="${i}" data-f="note" value="${esc(g.note)}" placeholder="Note" aria-label="Note for this item" style="margin-top:4px;width:100%;max-width:13.75rem;font-size:var(--t-xs);padding:4px 8px">`:`<button type="button" class="notebtn" data-note="${i}" aria-label="Add a note to this item">+ Note</button>`}${gradeable(it)&&booksOn().ct?`<div><select id="g_gr_${i}" data-gr="${i}" data-f="grade" aria-label="Cyberware grade" style="margin-top:4px;font-size:var(--t-xs)">${Object.entries(CYBER_GRADES).map(([k,[l,e,c]])=>`<option value="${k}" ${(g.grade||'std')===k?'selected':''}>${l}${k==='std'?'':` (Essence ×${e}, price ×${c})`}</option>`).join('')}</select></div>`:''}${gelOK(it)&&booksOn().fof?`<label style="flex-direction:row;align-items:center;gap:4px;text-transform:none;letter-spacing:0;font-size:var(--t-xs);margin-top:4px"><input type="checkbox" id="g_gel_${i}" data-gr="${i}" data-f="gel" ${g.gel?'checked':''}> Gel-packs (FoF p. 53): Hardened, price ×5, Concealability halved, weight +25%</label>`:''}${it.bi!=null&&!it.neural?`<label style="flex-direction:row;align-items:center;gap:4px;text-transform:none;letter-spacing:0;font-size:var(--t-xs);margin-top:4px"><input type="checkbox" id="g_cu_${i}" data-gr="${i}" data-f="cultured" ${g.cultured?'checked':''}> Cultured (Body Index ×.75, price ×4)</label>`:it.neural?'<div class="gstat">Neural bioware: already cultured</div>':''}${forGunItem(g.key)?forGunHTML(g,i):fitToHTML(g,i)}${mountHTML(g,i)}</div></td>
         <td class="n">${it.r?`${(()=>{const dm=deckRowMax(g); const fixed=it.r[2]==='Deck MPCP'&&dm; return `<input type="number" id="g_r_${i}" data-gr="${i}" data-f="r" min="${it.r[0]}" max="${dm!=null?dm:it.r[1]}" value="${g.r}" style="width:3.5rem" aria-label="${it.r[2]}" title="${fixed?'Set by the deck’s MPCP':it.r[2]+(dm!=null?` (up to ${dm} with this deck)`:'')}" ${fixed?'readonly':''} class="${it.r[2]==='Rating'&&g.r>6?'bad-text':''}">`;})()}`:'—'}</td>
         <td class="n"><input type="number" min="1" id="g_q_${i}" data-gr="${i}" data-f="qty" value="${g.qty||1}" style="width:4.75rem"></td>
         <td class="n mono">${fmt(g.cost)}</td><td class="n mono">${g.ess?+(+g.ess).toFixed(2):g.bi?`${+(+g.bi).toFixed(3)} BI`:'—'}</td><td class="n mono">${fmt(t)}¥</td>
@@ -3611,6 +3630,7 @@ function render(){
   $('lifestyleOff').checked=!!S.lifestyleOff; $('established').checked=!!S.established;
   const left=Math.max(0,rBudget-rSpent); const fromLeft=Math.floor(left/10); STARTCASH=fromLeft+(S.cashRoll?S.cashRoll.total:0);
   $('cashFromLeft').textContent=fmt(fromLeft)+'¥';
+  $('cashStat').classList.toggle('unrolled',!S.cashRoll);
   $('cashRoll').textContent=S.cashRoll?`${S.cashRoll.dice.join(' + ')} = ${fmt(S.cashRoll.total)}¥`:'not rolled';
   $('cashTotal').textContent=fmt(fromLeft+(S.cashRoll?S.cashRoll.total:0))+'¥';
   // contacts
@@ -3711,7 +3731,8 @@ function summary(magicRating,rSpent,rBudget){
     if(nb&&m>6) iss.push(['warn',`Deck MPCP ${m} is above 6. Check with your GM, since gear is capped at rating 6 at creation (p. 46).`]);}
   else if(ri) iss.push(['warn','Response Increase needs a cyberdeck.']);}
   if(ess<0) iss.push(['bad','Essence is below 0. The character dies.']);
-  iss.st='magic'; if(S.magic!=='none'){ const pSpent=+(S.powers.reduce((a,p)=>a+(S.magic==='adept'?powerCost(p).cost:(+p.cost||0)),0)+(isMagician()?fociBond():0)).toFixed(2); const pB=S.magic==='adept'?magicRating:(S.prio.res?FORCE[S.prio.res]:0); if(pSpent>pB&&(nb||S.magic==='adept')) iss.push(['bad',`${S.magic==='adept'?'Power':'Force'} points overspent: ${pSpent} of ${pB}${isMagician()&&fociBond()?` (spells plus ${fociBond()} for bonding foci, p. 46)`:''}.`]); }
+  iss.st='magic'; if(S.magic!=='none'){ const pSpent=+(S.powers.reduce((a,p)=>a+(S.magic==='adept'?powerCost(p).cost:(+p.cost||0)),0)+(isMagician()?fociBond():0)).toFixed(2); const pB=S.magic==='adept'?magicRating:(S.prio.res?FORCE[S.prio.res]:0); if(pSpent>pB&&(nb||S.magic==='adept')) iss.push(['bad',`${S.magic==='adept'?'Power':'Force'} points overspent: ${pSpent} of ${pB}${isMagician()&&fociBond()?` (spells plus ${fociBond()} for bonding foci, p. 46)`:''}.`]);
+    else if(pSpent<pB&&(nb||S.magic==='adept')) iss.push([nb?'warn':'info',`${+(pB-pSpent).toFixed(2)} ${S.magic==='adept'?'Power':'Force'} point${pB-pSpent===1?'':'s'} not spent yet (${pSpent} of ${pB}).`]); }
   iss.st='weap'; {const fg=feedGuns(); S.gear.filter(x=>x.key==='ammo:Spare Clip'&&x.forGun).forEach(x=>{const t=fg.find(y=>y.gid===x.forGun); if(t&&!t.clips) iss.push(['warn',`Spare clips assigned to the ${t.label}, which loads ${String(WSTAT[t.g.key][2]).includes('(m)')?'from an internal magazine':'without clips'} (core p. 95).`]);});}
   iss.st='between'; if(S.nuyenNow!==''&&S.nuyenNow!=null&&+S.nuyenNow<0) iss.push(['warn',`Nuyen on hand is ${fmt(+S.nuyenNow)}¥. That's more spent than you had.`]);
   iss.st='gear'; if(nb&&!S.lifestyleOff) iss.push(['warn','Remember to buy a lifestyle from Resources.']);
@@ -3742,8 +3763,10 @@ function summary(magicRating,rSpent,rBudget){
   iss.st='magic'; if(S.established&&isMagician()) S.powers.forEach(p=>{const f=spellPaid(p); if(f!=null&&(+p.cost||0)>f) iss.push(['warn',`${p.name||'A spell'} is at Force ${p.cost} but Karma was paid for Force ${f}. Raise it under Spend Good Karma so the Karma is counted (p. 133).`]);});
   // factory weapon mounts on drones and vehicles come empty: "weapon not included" (R2 p. 156, 165)
   iss.st='gear'; {const mt=S.gear.filter(g=>g.key&&/^r2veh:/.test(g.key)&&!g.at).filter(g=>!S.gear.some(w=>w.at===vehName(g)&&(WSTAT[w.key]||(w.key||'').startsWith('vweap:')))).filter(g=>{const F=typeof VB!=='undefined'&&VB.FACT&&VB.FACT[GEARDB[g.key].n]; return (F&&/(^|,)(fx_|rt_|tur_)/.test(F[1]||''))||(g.vb&&(g.vb.mods||[]).some(m=>/^(fx_|rt_|tur_|ring|pintle|mis_)/.test(m.id)));});
-   if(mt.length&&!S.gear.some(g=>g.key&&/^vweap:/.test(g.key)||(g.note&&/mount/i.test(g.note)))) iss.push(['warn',`${[...new Set(mt.map(g=>vehName(g)))].join(', ')}: the weapon mounts are empty: factory mounts come “weapon not included” (R2), and a mount added in a build-out holds no gun either. Buy a weapon that fits (Weapon Values Table, R2 p. 135) and note which mount it sits in.`]);}
-  iss.st='gear'; {const dk=typeof deckInfo==='function'?deckInfo():null; if(dk&&!dk.vr2&&dk.persona&&!Object.values(dk.persona).some(v=>+v>0)) iss.push(['warn',`${dk.name}: no persona programs. Bod, Evasion, Masking and Sensors are all 0, so the deck can’t resist or hide from anything. Add them in the deck’s program list; their ratings can total up to 3 × MPCP (${3*(dk.mpcp||0)}) (core p. 174).`]);}
+   if(mt.length) iss.push(['warn',`${[...new Set(mt.map(g=>vehName(g)))].join(', ')}: the weapon mounts are empty. Factory mounts come “weapon not included” (R2), and a mount added in a build-out holds no gun either. Buy a weapon that fits (Weapon Values Table, R2 p. 135), then set Mounted on in its gear row (or move it onto the vehicle in Stash). Game night then fires it with Gunnery (R2 p. 58).`]);}
+  iss.st='gear'; if(!S.cashRoll&&(S.prio.res||S.established)) iss.push(['warn',`Starting cash isn’t rolled yet: every runner also gets 3D6 × 1,000¥ (core p. 47). Press Roll next to Resources in Gear${S.established?'; it goes into nuyen on hand':''}.`]);
+  S.gear.filter(g=>g.lowered&&isUtil(g)&&+g.lowered>+g.r).forEach(g=>iss.push(['warn',`${GEARDB[g.key].n} is rating ${g.r}: rating ${g.lowered} doesn’t fit the deck’s storage any more (core p. 172). Buy Extra Storage Memory, then set the rating again.`]));
+  {const dk=typeof deckInfo==='function'?deckInfo():null; if(dk&&!dk.vr2&&dk.persona&&!Object.values(dk.persona).some(v=>+v>0)) iss.push(['warn',`${dk.name}: no persona programs. Bod, Evasion, Masking and Sensors are all 0, so the deck can’t resist or hide from anything. Add them in the deck’s program list; their ratings can total up to 3 × MPCP (${3*(dk.mpcp||0)}) (core p. 174).`]);}
   iss.st='between'; if(S.phys>10+natBody()) iss.unshift(['bad','This runner is dead: Physical damage went more than Body boxes past the track (p. 111). Keep the sheet for the record; a new runner starts fresh.']);
   // cyberware and bioware are installed once; a quantity above 1 multiplies the Essence
   iss.st='gear'; {const many=S.gear.filter(g=>g.key&&/^(head|body|bio):/.test(g.key)&&(+g.qty||1)>1); if(many.length) iss.push(['bad',`${many.map(g=>GEARDB[g.key].n+' ×'+g.qty).join(', ')}: cyberware and bioware are installed once, so the quantity should be 1 (Essence and Body Index count every copy). For two of something, like a pair of cyberarms, use the build-out.`]);}
@@ -3766,7 +3789,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.cbdel!==undefined&&cbOn()){const [sd,ix]=b.dataset.cbdel.split('|'); S.cbody.limbs[sd].acc.splice(+ix,1); CB_OPEN=true; render(); return;}
   if(b.dataset.hbadd!==undefined){const ix=+b.dataset.hbadd,g=S.gear[ix]; hbFixG(g); const x=HB.addable(g.key,g.hb,HBENV).yes.find(y=>y.id===b.dataset.id); if(x) g.hb.opts.push({id:x.id,r:x.r}); HB_OPEN.add(ix); HB_GUIDE.add(ix); render(); return;}
   if(b.dataset.hbdel!==undefined){const ix=+b.dataset.hbdel,g=S.gear[ix]; if(g.hb) g.hb.opts.splice(+b.dataset.j,1); hbFixG(g); HB_OPEN.add(ix); render(); return;}
-  if(b.dataset.mode){S.mode=b.dataset.mode;render();return;}
+  if(b.dataset.mode){S.mode=b.dataset.mode; if(S.mode==='house') S.irErrata=true; render();return;} // the table's house rules use the Increased Reflexes errata (+2 dice = 3 PP)
   if(b.dataset.cat){const c=b.dataset.cat,L=b.dataset.l; for(const [k] of CATS){ if(k!==c&&S.prio[k]===L) S.prio[k]=''; } S.prio[c]=S.prio[c]===L?'':L; render(); return;}
   if(b.dataset.strm!==undefined){const p=b.dataset.strm; S.places=stashPlaces().filter(x=>x!==p&&!isVehPlace(x)); render(); return;}
   if(b.dataset.amq){quickBuy(b.dataset.gid,b.dataset.amq); return;}
@@ -3783,8 +3806,8 @@ document.addEventListener('input',e=>{
   if(t.dataset.inj){S.inj=S.inj||{}; S.inj[t.dataset.inj]=t.dataset.inj==='note'?t.value:Math.max(0,Math.floor(+t.value||0)); rerenderSoon(t); return;}
   if(t.dataset.sk!==undefined){if(t.tagName==='SELECT') return; const s=S.skills[+t.dataset.sk];s[t.dataset.f]=t.dataset.f==='rating'?+t.value:t.value;rerenderSoon(t);return;}
   if(t.dataset.pw!==undefined){const p=S.powers[+t.dataset.pw];const f=t.dataset.f; if(t.tagName==='SELECT') return; p[f]=['cost','n'].includes(f)?+t.value:t.value;rerenderSoon(t);return;}
-  if(['gCat','gItem','gRate'].includes(t.id)){if(t.id==='gCat')fillGearItems();gearPreview();return;}
-  if(t.dataset.gr!==undefined){if(t.tagName==='SELECT'||t.type==='checkbox')return;const g=S.gear[+t.dataset.gr];g[t.dataset.f]=['qty','cost','ess','r'].includes(t.dataset.f)?+t.value:t.value;if(t.dataset.f==='r'&&g.key){const dm=deckRowMax(g);if(dm!=null&&g.r>dm)g.r=dm;}rerenderSoon(t);return;}
+  if(['gCat','gItem','gRate'].includes(t.id)){if(t.id==='gCat')fillGearItems(); if(t.id!=='gRate') gearRateReset(); gearWarn(''); gearPreview();return;}
+  if(t.dataset.gr!==undefined){if(t.tagName==='SELECT'||t.type==='checkbox')return;const g=S.gear[+t.dataset.gr];g[t.dataset.f]=['qty','cost','ess','r'].includes(t.dataset.f)?+t.value:t.value;if(t.dataset.f==='r'&&g.key){delete g.lowered; const dm=deckRowMax(g);if(dm!=null&&g.r>dm){const want=g.r; g.r=dm; if(isUtil(g)) gearWarn(`${GEARDB[g.key].n} ${want} doesn’t fit the deck’s free storage; rating ${dm} is the most that fits. Buy Extra Storage Memory (Cyberdecks) to make room.`);}}rerenderSoon(t);return;}
   if(t.dataset.ct!==undefined){S.contacts[+t.dataset.ct][t.dataset.f]=t.value;if(t.tagName==='SELECT')render();else save();return;}
   if(t.dataset.ef!==undefined){const x=S.ef[+t.dataset.ef];if(t.dataset.f==='note'){x.note=t.value;save();return;}const d=EFDB[x.n];let v=+t.value||0;if(d){v=Math.min(Math.max(d.min,d.max),Math.max(Math.min(d.min,d.max),v)); if(d.steps&&!d.steps.includes(v)) v=d.steps.reduce((a,b)=>Math.abs(b-v)<Math.abs(a-v)?b:a);}x.v=v;rerenderSoon(t);return;}
   if(t.dataset.lg!==undefined){const L=S.langs[+t.dataset.lg];L[t.dataset.f]=t.dataset.f==='rating'?+t.value:t.value;rerenderSoon(t);return;}
@@ -3803,6 +3826,7 @@ document.addEventListener('change',e=>{
   if(t.id==='optEF'){S.optEF=t.checked;render();return;}
   if(t.id==='fMagic'){S.magic=t.value;render();return;}
   if(t.id==='lifestyleOff'){S.lifestyleOff=t.checked;render();return;}
+  if(t.id==='deckUse'){S.deckUse=t.value;render();return;}
   if(t.id==='established'){S.established=t.checked; if(t.checked&&(S.nuyenNow===''||S.nuyenNow==null)&&STARTCASH>0){const d=new Date(); S.nuyenNow=STARTCASH; S.nyLog=S.nyLog||[]; S.nyLog.push({d:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),amt:STARTCASH,note:'Starting cash, from the Resources section'});} if(t.checked){S.gear.forEach(g=>{if(BOND[g.key]&&!g.bondPaid) g.bondPaid='fp';}); S.powers.forEach(p=>{if(p.name!=null&&p.base==null&&!p.lid) p.base=+p.cost||0;});} render();return;}
   if(t.id==='swSel'){SWSEL=t.value;renderDefaulting();return;}
   if(t.id==='swBase'){SWBASE=Math.max(2,Math.min(12,+t.value||4));renderDefaulting();return;}
@@ -3811,6 +3835,8 @@ document.addEventListener('change',e=>{
   if(t.dataset.gr!==undefined&&t.dataset.f==='cultured'){S.gear[+t.dataset.gr].cultured=t.checked;render();return;}
   if(t.dataset.stmove!==undefined&&t.value){const [n,to]=t.value.split(/\|(.*)/s); stashMove(+t.dataset.stmove,to,n==='1'); render(); return;}
   if(t.dataset.amosel){const at=(S.ammoT||{})[t.dataset.amosel]; if(at){at.sel=t.value;} render(); return;}
+  if(t.dataset.mnt!==undefined){const i=+t.dataset.mnt; stashMove(i,t.value,(+(S.gear[i]||{}).qty||1)>1); render(); return;}
+  if(t.dataset.fit!==undefined&&t.value){const i=+t.dataset.fit, a=S.gear[i], [j,slot]=t.value.split('|'), w=S.gear[+j]; if(a&&w){w.build=w.build||{}; w.build[slot]=a.key; WB_OPEN.add(+j); a.qty=(+a.qty||1)-1; if(a.qty<=0){S.gear.splice(i,1); GOPEN.clear();} render(); $('saveState').textContent=`Fitted the ${GEARDB[w.build[slot]].n} to the ${GEARDB[w.key].n} (${slot}).`;} return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='forGun'){const g=S.gear[+t.dataset.gr]; if(t.value) g.forGun=t.value; else delete g.forGun; render();return;}
   if(t.dataset.gr!==undefined&&t.dataset.f==='gel'){S.gear[+t.dataset.gr].gel=t.checked;render();return;}
   if(t.dataset.sk!==undefined&&t.tagName==='SELECT'){const s=S.skills[+t.dataset.sk],f=t.dataset.f,v=t.value;
@@ -3854,22 +3880,44 @@ function deckPickOk(key){
  const m=deckMax(), has=k=>S.gear.some(g=>g.key===k);
  let r=key.match(/^deck:Response Increase (\d)$/); if(r) return !!m&&+r[1]<=DECK.riMax(m)&&![1,2,3].some(L=>has('deck:Response Increase '+L));
  if(key==='deck:Hitcher Jack') return !!m&&S.gear.filter(g=>g.key===key).reduce((a,g)=>a+(+g.qty||1),0)<m;
- if(key==='deck:Extra Active Memory (per Mp)'){const b=S.gear.find(g=>DSTAT[g.key]); if(!b) return false; return DSTAT[b.key][1]+S.gear.filter(g=>g.key===key).reduce((a,g)=>a+(+g.qty||1),0)<m*50;}
+ if(key==='deck:Extra Active Memory (per Mp)'){const b=activeDeck(); if(!b) return false; return DSTAT[b.key][1]+S.gear.filter(g=>g.key===key).reduce((a,g)=>a+(+g.qty||1),0)<m*50;}
  if(/^deck:Extra Storage Memory/.test(key)) return !!S.gear.find(g=>DSTAT[g.key]);
  if(/^prog:Persona: /.test(key)) return !has(key)&&!S.gear.some(g=>g.key===CUSTKEY);
  return true;}
-function fillGearItems(){const c=$('gCat').value;if(!CAT[c]){$('gItem').innerHTML='';return;}const cur=$('gItem').value;$('gItem').innerHTML=CAT[c].filter(it=>itemVisible(it)&&deckPickOk(c+':'+it.n)).map(it=>`<option value="${esc(c+':'+it.n)}" ${c+':'+it.n===cur?'selected':''}>${esc(it.n)}</option>`).join('');}
+function fillGearItems(){const c=$('gCat').value;if(!CAT[c]){$('gItem').innerHTML='';return;}const cur=$('gItem').value;$('gItem').innerHTML=CAT[c].filter(it=>!it.legacy&&itemVisible(it)&&deckPickOk(c+':'+it.n)).map(it=>`<option value="${esc(c+':'+it.n)}" ${c+':'+it.n===cur?'selected':''}>${esc(it.n)}</option>`).join('');}
 let GSOFT={sk:'',cc:'',cs:'',t:''}; // the skill picked for a skillsoft before it's added (core p. 248)
 function gearPreview(){const it=GEARDB[$('gItem').value]; if(!it){$('gPreview').textContent='';$('gSoft').hidden=true;return;}
   {const st=it.soft&&it.soft!=='DataSoft'?softSpec(it.n):null; $('gSoft').hidden=!st; if(st){if(GSOFT.t!==st.t||GSOFT.k!==st.k) GSOFT={sk:'',cc:'',cs:'',t:st.t,k:st.k}; $('gSoft').innerHTML=softPickHTML(it.n,GSOFT,'add',{langs:(S.langs||[]).map(L=>L.name).filter(Boolean)});}}
   $('gRateWrap').hidden=!it.r; let r=0; if(it.r){$('gRateLab').textContent=it.r[2];const el=$('gRate');el.min=it.r[0];el.max=it.r[1];r=Math.min(it.r[1],Math.max(it.r[0],+el.value||it.r[0]));}
-  const e=+gv(it.e,r)||0; $('gPreview').innerHTML=esc(`${fmt(gv(it.c,r))}¥${e?` · ${+e.toFixed(2)} Essence`:''}${it.s?' · '+it.s:''} · ${it.pg}${it.r&&it.r[2]==='Rating'&&r>6?' · over the rating 6 limit at creation (p. 46)':''}`)+(DESC[$('gItem').value]?'<br>'+descHTML($('gItem').value):'');}
+  const e=+gv(it.e,r)||0; $('gPreview').innerHTML=esc(`${fmt(gv(it.c,r))}¥${e?` · ${+e.toFixed(2)} Essence`:''}${it.s?' · '+it.s:''} · ${it.pg}${it.r&&it.r[2]==='Rating'&&r>6?' · over the rating 6 limit at creation (p. 46)':''}`)+(DESC[$('gItem').value]?'<br>'+descHTML($('gItem').value):'')+(typeof GB!=='undefined'&&GB.ACC&&GB.ACC[$('gItem').value]?'<br><b>Gun add-on.</b> Fit it from the gun’s Add-ons in Weapons and armor, or buy it here and use Fit to on its row. A loose one doesn’t count in Game night.':'');}
+// a new item (or a new runner) starts the rating box at the item's lowest rating, so an old number can't carry over unseen
+function gearRateReset(){const it=GEARDB[$('gItem').value]; if(it&&it.r) $('gRate').value=it.r[0];}
+function gearWarn(m){const w=$('gWarn'); if(!w) return; w.textContent=m||''; w.hidden=!m; if(m) $('saveState').textContent=m;}
+// Pay as you go (established runner, Pay from nuyen on hand): any change made in the gear, deck, rigging, skillsoft or weapons
+// cards that raises the gear's list value is paid from nuyen on hand. Lowering a quantity never refunds (× on the log entry undoes a charge).
+let PAYSNAP=null, PAYARM=false, PAYMSG='';
+const gearVal=g=>Math.round((+g.cost||0)*(+g.qty||1));
+function payCheck(){
+  const snap=new Map(S.gear.map(g=>[g,[gearVal(g),+g.qty||1]]));
+  if(PAYARM&&PAYSNAP&&PAYSNAP._S===S&&S.established&&$('gPay')&&$('gPay').checked&&S.nuyenNow!==''&&S.nuyenNow!=null){
+    let before=0,after=0; PAYSNAP.forEach(v=>before+=v[0]); snap.forEach(v=>after+=v[0]); const net=after-before;
+    if(net>0){const parts=[]; S.gear.forEach(g=>{const v=snap.get(g), p=PAYSNAP.get(g), nm=(GEARDB[g.key]||{}).n||g.name||'item'; if(!p){if(v[0]>0) parts.push(nm+(v[1]>1?' ×'+v[1]:''));} else if(v[0]>p[0]) parts.push(v[1]>p[1]?`${v[1]-p[1]} more ${nm}`:`${nm} (upgrade)`);});
+      const d=new Date(), ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      S.nuyenNow=(+S.nuyenNow||0)-net; S.nyLog=S.nyLog||[]; S.nyLog.push({d:ds,amt:-net,note:(parts.length?'Bought '+parts.join(', '):'Gear changes')+' (list price)'});
+      PAYMSG=`Paid ${fmt(net)}¥ from nuyen on hand: ${parts.join(', ')||'gear changes'}${(+S.nuyenNow)<0?'. That’s more than you had':''}.`;}}
+  PAYARM=false; snap._S=S; PAYSNAP=snap;}
+['input','change','click'].forEach(ev=>document.addEventListener(ev,e=>{const t=e.target; if(!t||!t.closest) return; if(t.closest('#sec-gear,#deckCard,#rigCard,#softCard,#sec-weap')&&!(t.dataset&&(t.dataset.f==='note'||t.dataset.note!==undefined))&&!t.closest('[id^="xfer"]')) PAYARM=true;},true));
+let GCATKEYS='';
 fillGearCats();
 $('gAdd').onclick=()=>{const k=$('gItem').value,it=GEARDB[k]; if(!it) return;
   if(it.soft&&it.soft!=='DataSoft'){const st=softSpec(it.n); if(!GSOFT.sk||st.k!=='gen'&&!GSOFT.cc||st.k==='spec'&&!GSOFT.cs){$('saveState').textContent='Pick the skill on the chip first'+(st.k==='conc'?', down to the concentration':st.k==='spec'?', down to the specialization':'')+'.'; const f=$('gSoft').querySelector('select,input'); if(f) f.focus(); return;}}
-  LASTADD=k; const row={key:k,qty:1,r:it.r?(it.r[2]==='Deck MPCP'&&deckMPCP()?deckMPCP():(+$('gRate').value||it.r[0])):undefined}; if(it.soft&&it.soft!=='DataSoft'){row.sk=GSOFT.sk; row.cc=GSOFT.cc||''; row.cs=GSOFT.cs||''; if(GSOFT.oth) row.oth=true; GSOFT={sk:'',cc:'',cs:'',t:''};} S.gear.push(row); render(); gearPreview();
-  // an established runner buying here pays out of nuyen on hand, at list price (the Gear Locker's Fixer panel has street prices)
-  if(S.established&&$('gPay')&&$('gPay').checked&&S.nuyenNow!==''&&S.nuyenNow!=null){const c=Math.round((+row.cost||0)*(+row.qty||1)); if(c>0){const dt=new Date(); const ds=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); S.nuyenNow=(+S.nuyenNow||0)-c; S.nyLog=S.nyLog||[]; S.nyLog.push({d:ds,amt:-c,note:'Bought '+it.n+' (list price)'}); render(); $('saveState').textContent=`Paid ${fmt(c)}¥ for ${it.n} at list price${(+S.nuyenNow)<0?': that’s more than you had':''}.`;}}};
+  const rr=it.r?(it.r[2]==='Deck MPCP'&&deckMPCP()?deckMPCP():Math.min(it.r[1],Math.max(it.r[0],+$('gRate').value||it.r[0]))):undefined;
+  // a Matrix 1.0 program must fit the deck's free storage at the rating asked for (core p. 172); never shrink it quietly
+  if(/^prog:/.test(k)&&!/^prog:Persona/.test(k)&&!S.gear.some(g=>g.key===CUSTKEY)){const dk=deckInfo(); if(dk&&it.sz){const sz=r=>it.sz(r)||0, free=dk.sm-dk.stored; if(sz(rr)>free){let fit=0; for(let x=rr-1;x>=1;x--) if(sz(x)<=free){fit=x;break;}
+    gearWarn(`${it.n} ${rr} takes ${sz(rr)} Mp, but the ${dk.name} has ${Math.max(0,free)} Mp of storage free. ${fit?`Rating ${fit} fits now, or buy`:'Buy'} Extra Storage Memory (Cyberdecks) first.`); return;}}}
+  gearWarn('');
+  LASTADD=k; const row={key:k,qty:1,r:rr}; if(it.soft&&it.soft!=='DataSoft'){row.sk=GSOFT.sk; row.cc=GSOFT.cc||''; row.cs=GSOFT.cs||''; if(GSOFT.oth) row.oth=true; GSOFT={sk:'',cc:'',cs:'',t:''};} PAYARM=true; S.gear.push(row); render(); gearRateReset(); gearPreview();};
+  // an established runner buying here pays out of nuyen on hand at list price: payCheck() in render does it (the Gear Locker's Fixer panel has street prices)
 $('addGear').onclick=()=>{S.gear.push({name:'',qty:1,cost:0,ess:0,cat:'other'});render();$('g_n_'+(S.gear.length-1)).focus();};
 function efPreview(){const d=EFDB[$('efPick').value]; $('efPrev').textContent=d?`${d.n} (${d.dpg}): ${d.desc}`:'';}
 $('efPick').addEventListener('change',efPreview);
