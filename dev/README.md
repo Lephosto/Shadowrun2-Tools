@@ -6,7 +6,7 @@ This folder builds `builder.html` and `gear-locker.html` in the site root. It co
 
 ```
 python3 build.py      # set SR2_SITE=/path/to/site to choose where builder.html and gear-locker.html are copied
-./runall.sh           # every regression check (needs Node, Python 3 and Playwright)
+# the regression checks live in the private test repo; copy them beside these sources to run ./runall.sh
 ```
 
 The build runs these steps in order:
@@ -34,7 +34,7 @@ The build runs these steps in order:
 | `shared/skillweb.js` | Skill Web (not wired into the pages yet). |
 | `builder2/mkb2.py`, `builder2/b2ui.js`, `builder2/b2ui.css` | The live Runner Builder's three modes. The code goes inside the Builder's own script, so it reads the character and rules helpers directly and travels with 'builder with character' exports. Game night: big stats, one attack panel (weapon, firing mode, ammo, ranged and melee modifiers, pools, Roll20 copy), Got hit, skill checks, powers and spells. After the session: Karma, nuyen, damage and used-up gear, saved with a snapshot. It also stores a few numbers (`S._gm`) for the GM screen. The older single-page layouts (`builder-classic.html`, `gear-locker-classic.html`) were retired on 2026-11-21. |
 | `gm/` | The GM screen: `gm_data.js` (stat blocks with printed pages, suggested loadouts), `gm.js`, `gm.css`, `gm.html`, built by `mkgm.py` into `gm-screen.html`. |
-| `chk*.js`, `gear/chk*.js`, `v2/` | Regression tests. `runall.sh` runs them; `v2/` checks the live Gear Locker, including the older Locker checks run against it. |
+| Tests | Kept in a private repository since 2026-11-23 (the regression checks, the archetype and crew play-tests, and the battle simulations). They are copied beside these sources to run. |
 | `books_tools/` | Scripts that turn the rulebook PDFs into per-page text with printed page numbers, and search them. They need the PDFs; no book text is stored here. |
 | (Skill Web map) | Draft lives as a claude.ai artifact, waiting for review. |
 
