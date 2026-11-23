@@ -14,6 +14,7 @@
   /* five type sizes; nothing smaller than 12px */
   --t-xs:12px; --t-sm:14px; --t-md:16px; --t-lg:20px; --t-xl:28px;
   --tap:24px; --radius:8px;
+  --scrim:rgba(0,0,0,.45); /* the dimmed page behind a bottom sheet */
   color-scheme:light;
 }
 @media (max-width:40em){:root{--tap:44px}}
