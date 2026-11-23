@@ -326,7 +326,7 @@ body.b2gn #sec-play h3:first-of-type,body.b2gn #trkPhys,body.b2gn #trkStun,body.
 .b2row{display:flex;flex-wrap:wrap;gap:0.375rem;align-items:center}
 .b2boxes{display:flex;flex-wrap:wrap;gap:0.25rem;align-items:center}
 .b2box{width:2rem;height:2rem;min-height:0;padding:0;border-radius:0.3rem;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font:600 0.75rem var(--mono)}
-.b2box.mk{border-color:var(--muted)}.b2box.on{background:var(--bad);border-color:var(--bad);color:var(--paper)}.b2box.ov{width:1.25rem}.b2box.ov.on{background:var(--hit,var(--bad))}
+.b2box.mk{border-color:var(--muted)}.b2box.on{background:var(--bad);border-color:var(--bad);color:var(--paper)}.b2box.ov{width:1.5rem}.b2box.ov.on{background:var(--hit,var(--bad))}
 .b2ovl{font-size:0.75rem;color:var(--muted);margin:0 0.25rem}
 .b2ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,11.5rem),1fr));gap:0.5rem}
 .b2f{display:flex;flex-direction:column;gap:0.25rem;min-width:0}
@@ -399,7 +399,7 @@ body.b2prac #b2strip{outline:2px dashed var(--warn);outline-offset:2px}
 @media (min-width:62em){.b2span2{grid-column:span 2}}
 /* Game night: Initiative, Condition and Wearing share one row on laptop widths too */
 @media (min-width:68em){.b2ngrid{grid-template-columns:minmax(0,0.85fr) minmax(0,1.15fr) minmax(0,1fr)}}
-@media (min-width:68em) and (max-width:85em){.b2ngrid .b2box{width:1.75rem;height:1.75rem}.b2ngrid .b2box.ov{width:1.125rem}}
+@media (min-width:68em) and (max-width:85em){.b2ngrid .b2box{width:1.75rem;height:1.75rem}.b2ngrid .b2box.ov{width:1.5rem}}
 .b2sc{grid-template-columns:minmax(9rem,12rem) minmax(0,1fr) minmax(9rem,13rem)}
 @media (max-width:48em){.b2sc{grid-template-columns:1fr}}
 @media (min-width:62em){.b2afgrid{grid-template-columns:minmax(0,1.7fr) minmax(18rem,1fr)}}
@@ -438,6 +438,61 @@ body.b2gear #b2night{display:none!important}
 .b2math>summary{cursor:pointer;color:var(--brand);font-weight:600;padding:2px 0}
 .b2math[open]>summary{margin-bottom:0.5rem}
 #b2wearBuild:not([hidden]) ~ #armorTotal .stat:first-child{display:none} /* the Wearing box above already shows the total */
+/* Phase 3: vitals bar, Attack top row and Situation, Spend Karma */
+.b2vit{position:sticky;top:var(--jumpH,0px);z-index:15;background:var(--bg);padding:0.375rem 0;margin-bottom:0.5rem}
+.b2vrow{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem 1.25rem;padding:0.375rem 0.75rem;background:var(--panel);border:1px solid var(--line);border-radius:0.625rem}
+.b2vbox{display:inline-flex;flex-direction:column;gap:3px;padding:0.25rem 0.5rem;min-height:2.75rem;justify-content:center;background:transparent;border:1px solid var(--line);border-radius:0.5rem;color:var(--ink);cursor:pointer}
+.b2mb{display:inline-flex;align-items:center;gap:2px}.b2mb .b2k{width:1rem;font-size:0.75rem}
+.b2mb i{display:inline-block;width:8px;height:14px;border:1px solid var(--line);border-radius:2px;background:var(--panel)}
+.b2mb i.on{background:var(--bad);border-color:var(--bad)}.b2mb.st i.on{background:var(--warn);border-color:var(--warn)}
+.b2vi{display:inline-flex;flex-direction:column;min-width:0}.b2vi b{font-family:var(--mono);font-size:1rem}.b2vi small{color:var(--muted);font-size:0.75rem}
+.b2vs{display:inline-flex;align-items:center;gap:0.25rem}.b2vs button{width:2rem;min-height:2rem;padding:0}
+.b2vtuck,.b2vdrop{display:none}
+#b2cond{scroll-margin-top:calc(var(--jumpH,0px) + 4.5rem)}
+.b2atop{display:grid;grid-template-columns:minmax(14rem,18rem) minmax(0,1fr) minmax(12rem,14rem);gap:0.75rem;align-items:start}
+.b2aw,.b2amid,.b2apool{display:flex;flex-direction:column;gap:0.5rem;min-width:0}
+.b2ammo .b2am{display:flex;flex-wrap:wrap;gap:0.375rem;align-items:center}
+.b2pills{display:flex;flex-wrap:wrap;gap:0.375rem}
+.b2pill{min-height:2.5rem;padding:0 0.75rem;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--ink);font-weight:500;cursor:pointer}
+.b2pill.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.b2pill:focus-visible,.b2sitb:focus-visible,.b2tuck:focus-visible,.b2vbox:focus-visible,.b2vtuck:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.b2sitbar{display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;margin:0.75rem 0 0.5rem}
+.b2sitb{flex:1 1 16rem;min-height:2.75rem;text-align:left;padding:0 0.875rem;border:1px solid var(--line);border-radius:0.5rem;background:var(--panel);color:var(--ink);cursor:pointer;font-weight:500}
+.b2sitb.set{background:var(--brand-soft);border-color:var(--brand)}
+.b2sitbg{display:none}
+.b2sit{border:1px solid var(--brand);border-radius:0.625rem;background:var(--panel-2);padding:0.75rem;margin-bottom:0.75rem}
+.b2sith{display:flex;flex-wrap:wrap;gap:0.25rem 0.75rem;align-items:baseline;margin-bottom:0.5rem}
+.b2sitg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.75rem 1rem}
+.b2sitf{display:flex;justify-content:flex-end;gap:0.5rem;margin-top:0.75rem}.b2sitf button{min-height:2.75rem;min-width:7rem}
+.b2one{display:grid;grid-template-columns:minmax(0,1fr) 15rem;gap:0.75rem;align-items:start}
+.b2aside{display:flex;flex-direction:column;gap:0.5rem}.b2aside button{min-height:2.75rem;width:100%}
+.b2kt{margin-top:0.25rem}
+.b2tuck{background:none;border:0;padding:0.5rem 0;min-height:2.75rem;color:var(--brand);font-weight:600;cursor:pointer;text-align:left}
+.b2kpan{display:flex;flex-direction:column;gap:0.625rem;padding:0.75rem;border:1px dashed var(--line);border-radius:0.5rem}
+.b2kgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.625rem}
+.b2kopt{display:flex;justify-content:space-between;align-items:center;gap:0.75rem;padding:0.5rem 0.625rem;border:1px solid var(--line);border-radius:0.5rem;background:var(--panel)}
+.b2kopt>div{display:flex;flex-direction:column;min-width:0;flex:1 1 auto}.b2kopt>.b2step{flex:none;flex-direction:row}.b2kopt small{color:var(--muted);font-size:0.75rem}
+.b2kopt button{min-height:2.75rem;white-space:nowrap}
+@media (max-width:62em){.b2atop{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.b2amid{grid-column:1/-1;order:3}}
+@media (max-width:48em){.b2one{grid-template-columns:minmax(0,1fr)}.b2kgrid{grid-template-columns:minmax(0,1fr)}.b2sitg{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:40em){
+ .b2vit{padding:0.25rem 0}
+ .b2vrow{display:none}
+ .b2vtuck{display:flex;width:100%;align-items:center;gap:0.5rem;min-height:44px;padding:0.25rem 0.625rem;background:var(--panel);border:1px solid var(--line);border-radius:0.625rem;color:var(--ink);cursor:pointer;text-align:left}
+ .b2vtuck .b2vmore{flex:1 1 auto;min-width:0;text-align:right;font-size:0.8125rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .b2vtuck .b2mb i{width:6px;height:12px}
+ .b2vdrop{display:flex;flex-wrap:wrap;gap:0.75rem 1.25rem;position:absolute;left:0;right:0;top:100%;padding:0.75rem;background:var(--panel);border:1px solid var(--line);border-radius:0.625rem;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+ .b2vdrop>button{flex:1 1 100%;min-height:44px}
+ .b2vs button{width:44px;min-height:44px}
+ .b2atop{grid-template-columns:minmax(0,1fr)}.b2amid{order:0}
+ .b2pill{min-height:44px}
+ .b2sitbg{display:block;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.45)}
+ .b2sit{position:fixed;left:0;right:0;bottom:0;z-index:61;margin:0;max-height:82vh;overflow-y:auto;border-radius:0.875rem 0.875rem 0 0;padding:1rem 1rem calc(1rem + env(safe-area-inset-bottom,0px))}
+ .b2sitf{display:flex;gap:0.5rem;position:sticky;bottom:calc(-1rem - env(safe-area-inset-bottom,0px));margin:0.75rem -1rem calc(-1rem - env(safe-area-inset-bottom,0px));padding:0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom,0px));background:var(--panel-2);border-top:1px solid var(--line)}
+ .b2sitf button{flex:1 1 0;min-height:44px}
+ .b2roll{width:100%;min-height:48px}
+ .b2one .b2row{flex-direction:column;align-items:stretch}
+}
 
 /*@end:b2css*/
 </style></head><body>
@@ -701,7 +756,7 @@ body.b2gear #b2night{display:none!important}
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1795372571465","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmws6h25j","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795372571447}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1795405615840","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwsq5bd3","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795405615826}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--panel',panel2:'--panel-2',ink:'--ink',muted:'--muted',line:'--line',accent:'--brand',accentInk:'--brand-ink',accentSoft:'--brand-soft',price:'--action',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skillweb*/
@@ -4381,7 +4436,7 @@ let ST={}; try{ST=JSON.parse(localStorage.getItem('sr2-b2')||'{}')||{};}catch(e)
 const keep=()=>{try{localStorage.setItem('sr2-b2',JSON.stringify({tab:B.tab,gv:B.gv}));}catch(e){}};
 // per-session table state (not saved with the character)
 const B={tab:ST.tab||'build',gv:ST.gv==='gear'?'gear':'play',wid:'unarmed',mode:'s1',rng:0,amSel:'',sit:{},msit:{},gm:0,spend:0,force:0,dmgLv:'M',tnBase:4,fired:0,pool:null,poolMax:null,karma:null,roll:null,copy:null,
-  gh:{kind:'ball',pow:9,lvl:'M',fl:true,att:0,spend:0,roll:null}, sk:{tn:4,res:''}, ini:null, af:{gk:0,kp:0,nin:0,nout:0,note:'',phys:null,stun:null,use:{},saved:''}};
+  gh:{kind:'ball',pow:9,lvl:'M',fl:true,att:0,spend:0,roll:null,kdSrc:[]}, sk:{tn:4,res:''}, ini:null, af:{gk:0,kp:0,kbuy:0,nin:0,nout:0,note:'',phys:null,stun:null,use:{},saved:''}, kfrom:'own', kvote:false, kdSrc:[], kOpen:null, tkOpen:false, sitOpen:false, vitOpen:false, faN:3};
 // ---------- rules tables (core p. 89, 101) ----------
 // Visibility Table (core p. 89). Columns: normal, low-light cybernetic/electronic, low-light natural, thermographic cybernetic/electronic, thermographic natural.
 // "If the table listing is split by a slash, the first modifier is for cybernetic or electronic vision and the second for natural, metahuman vision."
@@ -4509,7 +4564,32 @@ function spellDur(n){const sp=spellFind(n); if(!sp) return null; if(sp.dur) retu
   return 'S';}
 const DURN={I:'Instant',S:'Sustained',P:'Permanent'};
 // Karma Pool rerolls are rolled by hand at the table: the tool only charges the Karma (1, then 2, 3 … on the same test) and takes the extra successes (core p. 191)
-function karmaHTML(R,key){if(!R) return ''; const next=(R.kc||0)+1; return `<div class="b2karma"><span class="b2k">Karma Pool, rolled by hand</span><div class="b2row"><button class="ghost" data-b2a="${key}" ${B.karma>=next?'':'disabled'}>Reroll my failures: −${next} Karma Pool</button>${R.kc?`<div class="b2step"><button class="ghost" data-b2s="${key}x" data-d="-1" aria-label="Fewer successes from rerolls">−</button><b>+${R.kx||0}</b><button class="ghost" data-b2s="${key}x" data-d="1" aria-label="More successes from rerolls">+</button></div><small>successes from ${R.kc} reroll${R.kc>1?'s':''}</small>`:''}</div><small>Pick up the dice that failed, roll them for real and add what hits. Each reroll on the same test costs 1 more (core p. 191). Karma Pool left: ${B.karma}. <button class="ghost" data-b2a="kref">New scene: refresh it</button></small></div>`;}
+const sv=()=>{if(typeof save==='function') save();};
+function tkGet(){if(!S.tk||typeof S.tk!=='object') S.tk={tot:0,left:0}; S.tk.tot=Math.max(0,+S.tk.tot||0); S.tk.left=Math.max(0,Math.min(S.tk.tot,+S.tk.left||0)); return S.tk;}
+// Spend Karma (core p. 191): buy dice before a roll; after it, re-roll the failures (1, 2, 3...), buy a success (needs a real one; gone for good) or avoid an all-ones disaster.
+// From your own Karma Pool or from Team Karma, which needs a majority vote of the players at the table (the GM breaks a tie).
+function karmaTuck(R,ctx,kdMax){const T=sheetStats(), tk=tkGet(), team=B.kfrom==='team', vote=!!B.kvote, st=ctx==='gh'?B.gh:B, kd=(st.kdSrc||[]).length;
+  const have=team?(vote?tk.left:0):B.karma, nat=R?R.r.filter(x=>x>=R.tn).length:0, fail=R?R.r.filter(x=>x<R.tn).length:0, ones=!!R&&R.r.length>0&&R.r.every(x=>x===1), done=!!(R&&R.oops), next=R?(R.kc||0)+1:1, open=B.kOpen===ctx;
+  const line=`Spend Karma · yours ${B.karma}/${T.kpool}${tk.tot||tk.left?` · team ${tk.left}/${tk.tot}`:''}${kd?` · ${kd} Karma ${kd>1?'dice':'die'} ready`:''}${R&&(R.kc||R.ks||R.oops)?' · used on this roll':''}`;
+  if(!open) return `<div class="b2kt"><button class="b2tuck" data-b2a="ktuck:${ctx}" aria-expanded="false"><span aria-hidden="true">▸</span> ${E(line)}</button></div>`;
+  const kstep=(id,lab,val,canUp)=>`<div class="b2step"><button class="ghost" data-b2s="${id}" data-d="-1" aria-label="Fewer ${E(lab)}" ${val>0?'':'disabled'}>−</button><b>${val}</b><button class="ghost" data-b2s="${id}" data-d="1" aria-label="More ${E(lab)}" ${canUp?'':'disabled'}>+</button></div>`;
+  const opt=(t,help,ctl)=>`<div class="b2kopt"><div><b>${t}</b><small>${help}</small></div>${ctl}</div>`;
+  const why=team&&!vote?'Tick the team vote first.':'';
+  return `<div class="b2kt open"><button class="b2tuck" data-b2a="ktuck:${ctx}" aria-expanded="true"><span aria-hidden="true">▾</span> ${E(line)}</button><div class="b2kpan">
+   <div class="b2f b2pf"><span class="b2k">Spend from</span><div class="b2pills" role="radiogroup" aria-label="Spend from"><button type="button" class="b2pill${team?'':' on'}" role="radio" aria-checked="${!team}" data-b2a="kfrom:own">Your Karma Pool · ${B.karma}</button><button type="button" class="b2pill${team?' on':''}" role="radio" aria-checked="${team}" data-b2a="kfrom:team">Team Karma · ${tk.left}</button></div></div>
+   ${team?`<label class="b2chk"><input type="checkbox" data-b2c="kvote" ${vote?'checked':''}> The team voted yes: a majority of the players at the table, and the GM breaks a tie (core p. 191)</label>`:''}
+   <div class="b2kgrid">
+    ${opt('Buy Karma dice',`1 point a die, up to ${kdMax} (your dice before any pool dice). They go into your next roll.`,kstep(ctx+':kd','Karma dice',kd,kd<kdMax&&have>=1))}
+    ${opt(`Re-roll the ${R?fail+' ':''}failed dice`,`Costs ${next}. Each re-roll on the same test costs 1 more.`,`<button class="ghost" data-b2a="${ctx}:re" ${R&&!done&&fail&&have>=next?'':'disabled'}>Re-roll · −${next}</button>`)}
+    ${opt('Buy 1 success',`Needs at least one real success. The point is gone for good${team?', from Team Karma too':': it comes off your sheet when you save After the session'}.`,`<button class="ghost" data-b2a="${ctx}:buy" ${R&&!done&&nat&&have>=1?'':'disabled'}>Buy · −1</button>`)}
+    ${opt('Avoid disaster','All ones: 1 point makes it a plain failure. No more Karma on that test.',`<button class="ghost" data-b2a="${ctx}:oops" ${ones&&!done&&have>=1?'':'disabled'}>Avoid · −1</button>`)}
+   </div>${why?`<p class="note">${why}</p>`:''}${R&&(R.kd||R.kc||R.ks||R.oops)?`<p class="note">On this roll: ${E(kNote(R))}.</p>`:''}
+   <button class="b2tuck" data-b2a="tkopen" aria-expanded="${!!B.tkOpen}"><span aria-hidden="true">${B.tkOpen?'▾':'▸'}</span> Adjust Team Karma</button>
+   ${B.tkOpen?`<div class="b2ctl"><div class="b2f"><span class="b2k">Team Karma left</span>${kstep('tkleft','Team Karma left',tk.left,tk.left<tk.tot)}</div><div class="b2f"><span class="b2k">Team Karma pool</span>${kstep('tktot','Team Karma pool',tk.tot,true)}</div></div><p class="note">Sheets don’t share this: whoever keeps it for the team sets it here. It refills every scene, and points spent buying successes are gone for good (core p. 191).</p>`:''}
+  </div></div>`;}
+function kNote(R){return [R.kd?R.kd+' Karma '+(R.kd>1?'dice':'die'):'',R.kc?'re-rolled '+(R.kc>1?R.kc+' times':'once'):'',R.ks?R.ks+' success'+(R.ks>1?'es':'')+' bought':'',R.oops?'disaster avoided':''].filter(Boolean).join(', ');}
+function kPay(n){const tk=tkGet(); if(B.kfrom==='team'){if(!B.kvote||tk.left<n) return false; tk.left-=n; sv(); return true;} if(B.karma<n) return false; B.karma-=n; return true;}
+function kdTake(st,mx){const L=st.kdSrc||[]; while(L.length>mx){const x=L.pop(); if(x==='team'){tkGet().left++; sv();} else B.karma++;} const n=L.length; st.kdSrc=[]; return n;}
 function visCol(){const r=baseRace(); return r==='Troll'||r==='Dwarf'?4:r==='Elf'||r==='Ork'?3:2;}
 // Every kind of vision this runner can use right now, with where it comes from: race, eye implants (on their own or as cybereye options),
 // helmet vision options carried, and a low-light or thermographic scope on the weapon in hand (electronic vision, used through the scope).
@@ -4600,7 +4680,7 @@ function nightHTML(){
   if(B.poolMax!==T.cpool){B.poolMax=T.cpool; B.pool=T.cpool;} if(B.karma==null) B.karma=T.kpool;
   const mpMax=isMag?bestRating(/^sorcery/i)+powerFoci():0; if(B.mpool==null||B.mpMax!==mpMax){B.mpMax=mpMax;B.mpool=mpMax;}
   const big=[['Body',String(augAttr('body')),hasDerm()?'+1 dermal: '+bodyR+' to resist':bodyR+' dice to resist'],['Armor',ar.b+' / '+ar.i,'Ballistic / Impact worn'],['Reaction',String(T.reaction),''],['Initiative',`${T.reaction-w} + ${T.dice}D6`,w?'wounds −'+w:''],
-    ['Combat Pool',`${B.pool} / ${T.cpool}`,'refreshes each action'],['Karma Pool',`${B.karma} / ${T.kpool}`,''],...(S.magic!=='none'?[['Magic',String(magicNow()),'Essence '+(6-essenceUsed()).toFixed(2).replace(/\.?0+$/,'')]]:[]),...(isMag?[['Magic Pool',`${B.mpool} / ${mpMax}`,'']]:[]),['Wounds',w?'+'+w:'0','to every target number'],...(isMag&&susN()?[['Sustaining',susN()+' spell'+(susN()>1?'s':''),'+'+susPen()+' to every target number']]:[])];
+    ...(S.magic!=='none'?[['Magic',String(magicNow()),'Essence '+(6-essenceUsed()).toFixed(2).replace(/\.?0+$/,'')]]:[]),...(isMag?[['Magic Pool',`${B.mpool} / ${mpMax}`,'']]:[]),...(isMag&&susN()?[['Sustaining',susN()+' spell'+(susN()>1?'s':''),'+'+susPen()+' to every target number']]:[])];
   const tile=([k,v,sub])=>`<div class="b2t"><span class="b2k">${E(k)}</span><b class="b2v${k==='Wounds'&&w?' b2warn':''}">${E(v)}</b><span class="b2s">${E(sub)}</span></div>`;
   // condition monitor
   const dkI=typeof deckInfo==='function'?deckInfo():null; const B10=natBody(); const boxes=(k,n,ov)=>Array.from({length:n},(_,j)=>{const v=ov?11+j:j+1, on=v<=S[k]; const lv={1:'L',3:'M',6:'S',10:'D'}[v]||'';
@@ -4611,13 +4691,19 @@ function nightHTML(){
   const rows=[]; let tn=4, ctl='', dmg=W.dmg, dmgNote='', rounds=0, dice=0, dSrc='', pmax=0, maxSp=0, spellF=0;
   const sel=(id,lab,opts,val,extra)=>`<label class="b2f"><span class="b2k">${E(lab)}</span><select data-b2="${id}"${extra||''}>${opts.map(([v,t])=>`<option value="${E(v)}" ${String(v)===String(val)?'selected':''}>${E(t)}</option>`).join('')}</select></label>`;
   const step=(id,lab,val)=>`<div class="b2f"><span class="b2k">${E(lab)}</span><div class="b2step"><button class="ghost" data-b2s="${id}" data-d="-1" aria-label="Lower ${E(lab)}">−</button><b>${E(val)}</b><button class="ghost" data-b2s="${id}" data-d="1" aria-label="Raise ${E(lab)}">+</button></div></div>`;
+  // Phase 3: one-tap buttons, and a Situation panel for what rarely changes between shots
+  const pills=(id,lab,opts,val)=>`<div class="b2f b2pf"><span class="b2k">${E(lab)}</span><div class="b2pills" role="radiogroup" aria-label="${E(lab)}">${opts.map(([v,t])=>{const on=String(v)===String(val); return `<button type="button" class="b2pill${on?' on':''}" role="radio" aria-checked="${on}" data-b2p="${E(id)}" data-v="${E(v)}">${E(t)}</button>`;}).join('')}</div></div>`;
+  let top='', situ='', poolCtl='', ammoLine=''; const sitSum=[]; const sitAdd=(short,v,force)=>{if(v||force) sitSum.push([short,v||0]);};
+  const modePills=modes=>{const nm={s1:'Single shot',s2:'Second shot +1',b1:'Burst · 3 rounds',b2:'Second burst +3'}; const pm=modes.filter(m=>m[0][0]!=='f').map(m=>[m[0],nm[m[0]]||m[1]]); if(modes.some(m=>m[0][0]==='f')) pm.push(['fa','Full auto']);
+    return pills('mode','Firing mode',pm,B.mode[0]==='f'?'fa':B.mode)+(B.mode[0]==='f'?step('fan','Full-auto rounds (3–10)',+B.mode.slice(1)):'');};
+  const sitPills=(id,lab,opts,skip)=>{const cur=B.sit[id]||opts[0][0], o=opts.find(x=>x[0]===cur)||opts[0]; situ+=pills('sit:'+id,lab,opts.map(x=>[x[0],x[1]+(x[2]?' '+SIGN(x[2]):'')]),cur); if(o!==opts[0]){rows.push([o[1],lab.toLowerCase()+' · core p. 89',SIGN(o[2])]); tn+=o[2]; sitAdd(o[1].toLowerCase(),o[2]);}};
   const vc=visCol();
   if(W.kind==='gun'){
     const M=W.mode; const modes=[]; if(/SS|SA/.test(M)||!/BF|FA/.test(M)) modes.push(['s1','Single shot',1]); if(/SA/.test(M)) modes.push(['s2','Second shot this action',1]); if(/BF/.test(M)) modes.push(['b1','Burst (3 rounds)',3],['b2','Second burst this action',3]); if(/FA/.test(M)) [3,4,5,6,7,8,9,10].forEach(n=>modes.push(['f'+n,`Full-auto burst, ${n} rounds`,n]));
     if(!modes.find(m=>m[0]===B.mode)) B.mode=modes[0][0]; const md=modes.find(m=>m[0]===B.mode); rounds=md[2];
-    ctl+=sel('mode','Firing',modes.map(m=>[m[0],m[1]]),B.mode);
-    ctl+=sel('rng','Range',W.bands.map((b,j)=>[j,['Short','Medium','Long','Extreme'][j]+' '+b+' m']),B.rng);
-    const SO=sightOpts(W), sn=sightNow(W), EK=eyeKit(); if(W.smartOn&&SO.length>1) ctl+=sel('sit:sight','Sights',SO,sn);
+    top+=modePills(modes);
+    top+=pills('rng','Range',W.bands.map((b,j)=>[j,['Short','Medium','Long','Extreme'][j]+' '+b+' m · '+[4,5,6,9][j]]),B.rng);
+    const SO=sightOpts(W), sn=sightNow(W), EK=eyeKit(); if(W.smartOn&&SO.length>1) top+=sel('sit:sight','Sights',SO,sn);
     // magnification: moves the target that many range categories closer, never below Short (core p. 90, 240); scope and eye optics don't add together
     const mg=sn==='link'?0:sn==='scope'?W.mag:sn==='eyes'?EK.mag:Math.max(W.mag,EK.mag), rb=Math.max(0,B.rng-mg);
     tn=[4,5,6,9][rb]; rows.push(['Range',W.bands[B.rng]+' m'+(rb<B.rng?`, magnification ${mg} → ${['short','medium','long','extreme'][rb]} (${sn==='scope'?'scope':sn==='eyes'?EK.magSrc:W.mag>=EK.mag?'scope':EK.magSrc})`:'')+' · core p. 88',String(tn)]);
@@ -4627,65 +4713,66 @@ function nightHTML(){
     if(rec){const net=Math.max(0,rec-W.rc); rows.push(['Recoil',why+(W.rc?', compensation −'+W.rc:'')+' · core p. 91',SIGN(net)]); tn+=net;}
     if(B.mode==='b1'||B.mode==='b2'){dmg=bump(pow(W.dmg,3),1); dmgNote='burst: +3 Power, +1 level (core p. 92)';}
     if(B.mode[0]==='f'){dmg=bump(pow(W.dmg,rounds),Math.floor(rounds/3)); dmgNote=`full auto: +${rounds} Power, +${Math.floor(rounds/3)} level (core p. 92–93); Complex Action`;}
-    SITS.forEach(([id,lab,opts])=>{ctl+=sel('sit:'+id,lab,opts.map(o=>[o[0],o[1]+(o[2]?' ('+SIGN(o[2])+')':'')]),B.sit[id]||opts[0][0]); const o=opts.find(x=>x[0]===B.sit[id]); if(o&&o!==opts[0]){rows.push([o[1],lab.toLowerCase()+' · core p. 89',SIGN(o[2])]); tn+=o[2];}});
-    ctl+=step('aim','Take Aim actions (max '+Math.floor((W.skill||0)/2)+')',B.aim||0);
-    if(B.aim){rows.push(['Aimed shot',B.aim+' Simple Action'+(B.aim>1?'s':'')+' · core p. 82',SIGN(-B.aim)]); tn-=B.aim;}
-    if(W.gid){const at=(S.ammoT||{})[W.gid]; if(at){const types=amTypes(W.gid); ctl+=`<div class="b2f b2wide"><span class="b2k">Loaded</span><div class="b2am"><b>${at.in.n}${W.cap!=null?'/'+W.cap:''}</b> ${E(at.in.n?AMSHORT(at.in.t):'empty')}${at.clips.length?' · spare clips '+at.clips.map(c=>c.n).join(', '):''}
+    SITS.forEach(([id,lab,opts])=>sitPills(id,lab,opts));
+    situ+=step('aim','Take Aim actions (max '+Math.floor((W.skill||0)/2)+')',B.aim||0);
+    if(B.aim){rows.push(['Aimed shot',B.aim+' Simple Action'+(B.aim>1?'s':'')+' · core p. 82',SIGN(-B.aim)]); tn-=B.aim; sitAdd('aim '+B.aim,-B.aim);}
+    if(W.gid){const at=(S.ammoT||{})[W.gid]; if(at){const types=amTypes(W.gid); ammoLine=`<div class="b2f b2wide b2ammo"><span class="b2k">Loaded</span><div class="b2am"><b>${at.in.n}${W.cap!=null?'/'+W.cap:''}</b> ${E(at.in.n?AMSHORT(at.in.t):'empty')}${at.clips.length?' · spare clips '+at.clips.map(c=>c.n).join(', '):''}
         ${types.length?`<select data-b2="amsel" aria-label="Ammo to load">${types.map(t=>`<option value="${E(t)}" ${t===at.sel?'selected':''}>${E(AMSHORT(t))} (${amPool(W.gid,t)} left)</option>`).join('')}</select><button class="ghost" data-b2a="load">Load</button>`:''}${at.clips.some(c=>c.n>0)?'<button class="ghost" data-b2a="swap">Change clip</button>':''}</div></div>`;
         if(at.in.n<rounds) dmgNote=(dmgNote?dmgNote+' · ':'')+'not enough rounds loaded';}}
   } else if(W.kind==='melee'){
     tn=4; rows.push(['Melee','opposed: the defender rolls too · core p. 100','4']);
     const vo=VIS.find(v=>v[0]===B.sit.vis);
-    MSITS.forEach(([id,lab,opts])=>{ctl+=sel('msit:'+id,id==='reach'?lab+' (yours: '+W.reach+')':lab,opts.map(o=>{const v=id==='reach'?o[2]-W.reach:o[2]; return [o[0],o[1]+(v?' ('+SIGN(v)+')':'')];}),B.msit[id]||opts[0][0]);
-      const o=opts.find(x=>x[0]===(B.msit[id]||opts[0][0])); if(id==='reach'){const v=o[2]-W.reach; if(v){rows.push(['Reach '+W.reach+' vs '+o[2],'core p. 101',SIGN(v)]); tn+=v;} return;} if(o!==opts[0]){rows.push([lab+': '+o[1].toLowerCase(),'core p. 101',SIGN(o[2])]); tn+=o[2];}});
-    if(W.dice==null){ctl+=step('dfd','Defaulting dice (GM)',B.dfd||4); ctl+=step('tnb','Base target number (GM)',B.tnBase);}
+    MSITS.forEach(([id,lab,opts])=>{const cur=B.msit[id]||opts[0][0], o=opts.find(x=>x[0]===cur)||opts[0];
+      if(id==='reach'){top+=pills('msit:reach',lab+' (yours: '+W.reach+')',opts.map(x=>{const v=x[2]-W.reach; return [x[0],x[1]+(v?' · '+SIGN(v):'')];}),cur); const v=o[2]-W.reach; if(v){rows.push(['Reach '+W.reach+' vs '+o[2],'core p. 101',SIGN(v)]); tn+=v;} return;}
+      situ+=pills('msit:'+id,lab,opts.map(x=>[x[0],x[1]+(x[2]?' '+SIGN(x[2]):'')]),cur); if(o!==opts[0]){rows.push([lab+': '+o[1].toLowerCase(),'core p. 101',SIGN(o[2])]); tn+=o[2]; sitAdd(o[1].toLowerCase(),o[2]);}});
+    if(W.dice==null){top+=step('dfd','Defaulting dice (GM)',B.dfd||4); top+=step('tnb','Base target number (GM)',B.tnBase);}
   } else if(W.kind==='drone'){
     const M=W.mode; const modes=[]; if(/SS|SA/.test(M)||!/BF|FA/.test(M)) modes.push(['s1','Single shot',1]); if(/SA/.test(M)) modes.push(['s2','Second shot this phase',1]); if(/BF/.test(M)) modes.push(['b1','Burst (3 rounds)',3],['b2','Second burst this phase',3]); if(/FA/.test(M)) [3,4,5,6,7,8,9,10].forEach(n=>modes.push(['f'+n,`Full-auto burst, ${n} rounds`,n]));
     if(!modes.find(m=>m[0]===B.mode)) B.mode=modes[0][0]; const md=modes.find(m=>m[0]===B.mode); rounds=md[2];
     const mnt=B.mount||W.mount, auto=B.dmode==='auto';
-    ctl+=sel('dmode','Who’s shooting',[['rig','You, rigged in: Gunnery'],['auto','The drone on its own: Pilot']],auto?'auto':'rig');
-    ctl+=sel('mode','Firing',modes.map(m=>[m[0],m[1]]),B.mode);
-    ctl+=sel('mount','Mount',[['fixed','Fixed mount or turret: recoil halved'],['ring','Ring mount: −6 recoil'],['pintle','Pintle mount: −2 recoil'],['none','No vehicle mount']],mnt);
-    const vt=B.dtgt!=='p'; ctl+=sel('dtgt','Target',[['v','A vehicle or drone: sensor-enhanced gunnery'],['p','A person: ordinary ranged combat']],vt?'v':'p');
-    if(vt){ctl+=step('tnb','Target’s Signature (GM)',B.tnBase); tn=B.tnBase; rows.push(['Target’s Signature','sensor-enhanced gunnery · R2 p. 58',String(tn)]);
-    ctl+=sel('urb','Where',[['n','Not urban',0],['u','Urban: industrial or built-up (+2)',2]],B.urb||'n'); if(B.urb==='u'){rows.push(['Urban environment','R2 p. 58','+2']); tn+=2;}
-    ctl+=sel('los','Line of sight',[['i','Interrupted (0)'],['d','Direct and clear (−3)']],B.los||'i'); if(B.los==='d'){rows.push(['Direct line of sight','R2 p. 58','−3']); tn-=3;}}
-    else {ctl+=sel('rng','Range (GM, from the weapon’s range table)',[0,1,2,3].map(j=>[j,['Short','Medium','Long','Extreme'][j]]),B.rng); tn=[4,5,6,9][B.rng]; rows.push(['Range','core p. 88; sensor-enhanced gunnery is for vehicle targets (R2 p. 58)',String(tn)]);
-      SITS.forEach(([id,lab,opts])=>{if(id==='two'||id==='me') return; ctl+=sel('sit:'+id,lab,opts.map(o=>[o[0],o[1]+(o[2]?' ('+SIGN(o[2])+')':'')]),B.sit[id]||opts[0][0]); const o=opts.find(x=>x[0]===B.sit[id]); if(o&&o!==opts[0]){rows.push([o[1],lab.toLowerCase()+' · core p. 89',SIGN(o[2])]); tn+=o[2];}});}
+    top+=sel('dmode','Who’s shooting',[['rig','You, rigged in: Gunnery'],['auto','The drone on its own: Pilot']],auto?'auto':'rig');
+    top+=modePills(modes);
+    situ+=sel('mount','Mount',[['fixed','Fixed mount or turret: recoil halved'],['ring','Ring mount: −6 recoil'],['pintle','Pintle mount: −2 recoil'],['none','No vehicle mount']],mnt);
+    const vt=B.dtgt!=='p'; top+=sel('dtgt','Target',[['v','A vehicle or drone: sensor-enhanced gunnery'],['p','A person: ordinary ranged combat']],vt?'v':'p');
+    if(vt){top+=step('tnb','Target’s Signature (GM)',B.tnBase); tn=B.tnBase; rows.push(['Target’s Signature','sensor-enhanced gunnery · R2 p. 58',String(tn)]);
+    situ+=pills('urb','Where',[['n','Not urban'],['u','Urban, built-up +2']],B.urb||'n'); if(B.urb==='u'){rows.push(['Urban environment','R2 p. 58','+2']); tn+=2; sitAdd('urban',2);}
+    situ+=pills('los','Line of sight',[['i','Interrupted'],['d','Direct and clear −3']],B.los||'i'); if(B.los==='d'){rows.push(['Direct line of sight','R2 p. 58','−3']); tn-=3; sitAdd('direct line of sight',-3);}}
+    else {top+=pills('rng','Range (GM, from the weapon’s range table)',[0,1,2,3].map(j=>[j,['Short · 4','Medium · 5','Long · 6','Extreme · 9'][j]]),B.rng); tn=[4,5,6,9][B.rng]; rows.push(['Range','core p. 88; sensor-enhanced gunnery is for vehicle targets (R2 p. 58)',String(tn)]);
+      SITS.forEach(([id,lab,opts])=>{if(id==='two'||id==='me') return; sitPills(id,lab,opts);});}
     let rec=0, why=''; if(B.mode==='s2'){rec=1;why='second shot +1';} else if(B.mode==='b1'){rec=3;why='burst +3';} else if(B.mode==='b2'){rec=6;why='second burst, +6 in all';} else if(B.mode[0]==='f'){rec=B.fired+rounds;why=`+1 per round this phase (${B.fired} before + ${rounds})`;}
     if(rec){const net=mnt==='fixed'?Math.floor(rec/2):mnt==='ring'?Math.max(0,rec-6):mnt==='pintle'?Math.max(0,rec-2):rec; rows.push(['Recoil',why+(mnt==='fixed'?', halved on the mount':mnt==='ring'?', ring −6':mnt==='pintle'?', pintle −2':'')+' · R2 p. 58',SIGN(net)]); tn+=net;}
     if(B.mode==='b1'||B.mode==='b2'){dmg=bump(pow(W.dmg,3),1); dmgNote='burst: +3 Power, +1 level (core p. 92)';}
     if(B.mode[0]==='f'){dmg=bump(pow(W.dmg,rounds),Math.floor(rounds/3)); dmgNote=`full auto: +${rounds} Power, +${Math.floor(rounds/3)} level (core p. 92–93)`;}
     dmgNote=(dmgNote?dmgNote+' · ':'')+'lock on first with a Sensor Test (R2 p. 28, 58); track belts by hand'+(W.hasR2?'':' · Sensor isn’t listed for this vehicle, so it counts as 0');
   } else if(W.kind==='matrix'){
-    ctl+=step('tnb','Target number: the node’s System Rating (IC) or the decker’s Bod (GM)',B.tnBase); tn=B.tnBase; rows.push(['System Rating or Bod','core p. 179',String(tn)]);
-    if(!W.v2){ctl+=sel('sec','Node’s Security Code (GM): successes to beat',[[0,'None (GM says no code)'],[1,'Blue: 1 success'],[2,'Green: 2 successes'],[3,'Orange: 3 successes'],[4,'Red: 4 successes']],Math.min(4,B.sec||0));} else ctl+=step('dfd','Dice (GM, VR2 rules)',B.dfd||4);
+    top+=step('tnb','Target number: the node’s System Rating (IC) or the decker’s Bod (GM)',B.tnBase); tn=B.tnBase; rows.push(['System Rating or Bod','core p. 179',String(tn)]);
+    if(!W.v2){top+=sel('sec','Node’s Security Code (GM): successes to beat',[[0,'None (GM says no code)'],[1,'Blue: 1 success'],[2,'Green: 2 successes'],[3,'Orange: 3 successes'],[4,'Red: 4 successes']],Math.min(4,B.sec||0));} else top+=step('dfd','Dice (GM, VR2 rules)',B.dfd||4);
     dmgNote=W.v2?W.note:'successes beyond the target’s'+(B.sec?' and the '+SECN[Math.min(4,B.sec)]+' Security Code ('+Math.min(4,B.sec)+')':'')+' are boxes on its monitor (core p. 179)';
   } else if(W.kind==='util'){
-    ctl+=step('tnb','Node’s System Rating (GM): the target number',B.tnBase); tn=B.tnBase; rows.push(['Node’s System Rating','core p. 174',String(tn)]);
-    ctl+=sel('sec','Node’s Security Code (GM): successes to beat',[[0,'None (GM says no code)'],[1,'Blue: 1 success'],[2,'Green: 2 successes'],[3,'Orange: 3 successes'],[4,'Red: 4 successes']],Math.min(4,B.sec||0));
+    top+=step('tnb','Node’s System Rating (GM): the target number',B.tnBase); tn=B.tnBase; rows.push(['Node’s System Rating','core p. 174',String(tn)]);
+    top+=sel('sec','Node’s Security Code (GM): successes to beat',[[0,'None (GM says no code)'],[1,'Blue: 1 success'],[2,'Green: 2 successes'],[3,'Orange: 3 successes'],[4,'Red: 4 successes']],Math.min(4,B.sec||0));
     const dk=typeof deckInfo==='function'?deckInfo():null; const ev=dk&&dk.persona?dk.persona.Evasion:0; B._ev=ev;
     dmgNote=`The System Rating is the target number; the Security Code color is how many extra successes you need (core p. 165). The node rolls ${tn} dice against your Evasion ${ev}; the utility runs if you get more successes than it does${B.sec?`, with at least ${Math.min(4,B.sec)} past its total for the ${SECN[Math.min(4,B.sec)]} code`:''} (core p. 165, 174).`;
   } else if(W.kind==='cast'){
-    spellF=Math.max(1,Math.min(B.force||W.maxF,W.maxF)); B.force=spellF; ctl+=step('force','Force (up to '+W.maxF+')',spellF);
-    ctl+=step('tnb','Target number (GM): the spell’s “Target” line',B.tnBase); tn=B.tnBase; rows.push(['Spell’s target number',W.sp.pg||'core p. 150–158',String(tn)]);
+    spellF=Math.max(1,Math.min(B.force||W.maxF,W.maxF)); B.force=spellF; top+=step('force','Force (up to '+W.maxF+')',spellF);
+    top+=step('tnb','Target number (GM): the spell’s “Target” line',B.tnBase); tn=B.tnBase; rows.push(['Spell’s target number',W.sp.pg||'core p. 150–158',String(tn)]);
     dmg=DURN[W.dur]||'—'; dmgNote=(W.dur==='S'?'Sustained: add it under Sustaining when it works. ':'')+(W.sp.cat==='Health'?'Health spells: successes count against the spell’s target; a magician’s own tests get no Magic Pool help from others. ':'')+'Effects follow the spell’s description in the book.';
   } else if(W.kind==='spirit'){
-    if(W.ranged){ctl+=step('tnb','Base target number (GM)',B.tnBase); tn=B.tnBase; rows.push(['Base target number','Ranged Combat, range '+(W.f*2)+' m · core p. 144',String(tn)]);}
+    if(W.ranged){top+=step('tnb','Base target number (GM)',B.tnBase); tn=B.tnBase; rows.push(['Base target number','Ranged Combat, range '+(W.f*2)+' m · core p. 144',String(tn)]);}
     else {tn=4; rows.push(['Melee','opposed: the defender rolls too · core p. 100','4']);}
-    if(W.dice==null) ctl+=step('dfd','Dice (GM)',B.dfd||4);
+    if(W.dice==null) top+=step('dfd','Dice (GM)',B.dfd||4);
     dmgNote=W.note;
   } else if(W.kind==='spell'){
-    spellF=Math.max(1,Math.min(B.force||W.maxF,W.maxF)); B.force=spellF; ctl+=step('force','Force (up to '+W.maxF+')',spellF);
-    ctl+=step('tnb',`Target’s ${W.sp.ty==='M'?'Willpower':'Body'} (GM)`,B.tnBase); tn=B.tnBase; rows.push([`Target’s ${W.sp.ty==='M'?'Willpower':'Body'}`,'combat spell · core p. 129',String(tn)]);
-    ctl+=sel('dmglv','Spell’s damage level',[['L','Light'],['M','Moderate'],['S','Serious'],['D','Deadly']],B.dmgLv); dmg=B.dmgLv+' · Force '+spellF; dmgNote='target resists against the Force; armor doesn’t help (core p. 129, 149)';
+    spellF=Math.max(1,Math.min(B.force||W.maxF,W.maxF)); B.force=spellF; top+=step('force','Force (up to '+W.maxF+')',spellF);
+    top+=step('tnb',`Target’s ${W.sp.ty==='M'?'Willpower':'Body'} (GM)`,B.tnBase); tn=B.tnBase; rows.push([`Target’s ${W.sp.ty==='M'?'Willpower':'Body'}`,'combat spell · core p. 129',String(tn)]);
+    top+=sel('dmglv','Spell’s damage level',[['L','Light'],['M','Moderate'],['S','Serious'],['D','Deadly']],B.dmgLv); dmg=B.dmgLv+' · Force '+spellF; dmgNote='target resists against the Force; armor doesn’t help (core p. 129, 149)';
   }
   // visibility (all but Matrix): the column for this runner's eyes
   if(!['drone','matrix','util','cast'].includes(W.kind)){// melee uses the Visibility Table at half value, rounded down, except Full Darkness (core p. 102)
     const VK=visKinds(W), mel=W.kind==='melee', fl=eyeKit().flare, vm=(v,bk)=>v[0]==='glare'&&fl?0:mel&&v[0]!=='full'?Math.floor(v[bk[0]]/2):v[bk[0]];
-    {const nat=visCol(); if(eyeKit().pair&&nat>2) ctl+=`<label class="b2chk"><input type="checkbox" data-b2c="keepnat" ${S.keepNatEyes?'checked':''}> Cybereyes keep my natural ${nat===3?'low-light':'thermographic'} (GM call)</label>`;}
-    ctl+=sel('sit:vis','Light and air',VIS.map(v=>{const bk=visBest(v,VK), m=vm(v,bk); return [v[0],v[1]+(m?' ('+SIGN(m)+')':'')];}),B.sit.vis||'n'); const v=VIS.find(x=>x[0]===B.sit.vis); if(v&&v[0]!=='n'){const bk=visBest(v,VK), m=vm(v,bk); rows.push([v[1],(v[0]==='glare'&&fl?'Flare Compensation ('+fl+') removes it · core p. 247':'using '+bk[1]+(mel&&v[0]!=='full'?', half in melee · core p. 89, 102':' · core p. 89')),SIGN(m)]); tn+=m;}}
-  ctl+=step('gm','GM modifier',B.gm?SIGN(B.gm):'0'); if(B.gm){rows.push(['GM modifier','anything the tables don’t cover',SIGN(B.gm)]); tn+=B.gm;}
+    {const nat=visCol(); if(eyeKit().pair&&nat>2) situ+=`<label class="b2chk b2wide"><input type="checkbox" data-b2c="keepnat" ${S.keepNatEyes?'checked':''}> Cybereyes keep my natural ${nat===3?'low-light':'thermographic'} (GM call)</label>`;}
+    situ+=pills('sit:vis','Light and air ('+visName(W)+')',VIS.map(v=>{const bk=visBest(v,VK), m=vm(v,bk); return [v[0],v[1]+(m?' '+SIGN(m):'')];}),B.sit.vis||'n'); const v=VIS.find(x=>x[0]===B.sit.vis); if(v&&v[0]!=='n'){const bk=visBest(v,VK), m=vm(v,bk); rows.push([v[1],(v[0]==='glare'&&fl?'Flare Compensation ('+fl+') removes it · core p. 247':'using '+bk[1]+(mel&&v[0]!=='full'?', half in melee · core p. 89, 102':' · core p. 89')),SIGN(m)]); tn+=m; sitAdd(v[1].toLowerCase(),m,1);}}
+  situ+=step('gm','GM modifier',B.gm?SIGN(B.gm):'0'); if(B.gm){rows.push(['GM modifier','anything the tables don’t cover',SIGN(B.gm)]); tn+=B.gm; sitAdd('GM',B.gm);}
   if(w&&W.kind!=='spirit'&&!(W.kind==='drone'&&B.dmode==='auto')){rows.push(['Wounds','core p. 112','+'+w]); tn+=w;}
   {const sp=susPen(); if(sp&&W.kind!=='spirit'&&!(W.kind==='drone'&&B.dmode==='auto')){rows.push(['Sustaining '+susN()+' spell'+(susN()>1?'s':''),'+2 each · core p. 128',SIGN(sp)]); tn+=sp;}}
   if(W.kind==='melee'&&W.dice==null) tn+=B.tnBase-4;
@@ -4699,18 +4786,20 @@ function nightHTML(){
   else if(W.kind==='drone'){const auto=B.dmode==='auto', h=B.dtgt==='p'?0:Math.floor(W.sen/2); maxSp=auto||W.gunChip?0:Math.min(B.pool,W.gun||0); const sp=Math.min(B.spend,maxSp); dice=(auto?W.pil:W.gun)+h+sp; dSrc=(auto?'Pilot '+W.pil:'Gunnery '+(W.gunChip?'chip ':'')+W.gun+(W.gunChip?' (ActiveSoft: no Combat Pool, core p. 248)':''))+(B.dtgt==='p'?'':' + half Sensor ('+h+')')+(sp?' + '+sp+' Combat Pool':'');}
   else {maxSp=aimLock?0:Math.min(B.pool,W.skill||0); const sp=Math.min(B.spend,maxSp); dice=(W.dice==null?(B.dfd||4):W.dice)+sp; dSrc=(W.dice==null?'defaulting, GM-set':W.diceSrc)+(sp?' + '+sp+' Combat Pool':'');}
   const spend=Math.min(B.spend,maxSp);
-  if((W.kind==='matrix'||W.kind==='util')&&!W.v2) ctl+=step('spend','Hacking Pool ('+B.hpool+' left, up to the rating '+W.rating+')',spend);
-  else if(W.kind!=='spirit'&&W.kind!=='matrix'&&W.kind!=='util'&&!(W.kind==='drone'&&B.dmode==='auto')) ctl+=step('spend',(W.kind==='cast'?'Magic Pool':poolName)+' ('+(W.kind==='spell'||W.kind==='cast'?B.mpool:B.pool)+' left'+(W.kind!=='spell'&&W.kind!=='cast'?', max '+maxSp+' on this attack':'')+')',spend);
+  const kOK=!(W.kind==='spirit'||(W.kind==='drone'&&B.dmode==='auto')), kdBase=kOK?Math.max(0,dice-spend):0; B._kdMax=Object.assign(B._kdMax||{},{atk:kdBase});
+  const kdA=Math.min((B.kdSrc||[]).length,kdBase); if(kdA){dice+=kdA; dSrc+=' + '+kdA+' Karma';}
+  if((W.kind==='matrix'||W.kind==='util')&&!W.v2) poolCtl+=step('spend','Hacking Pool ('+B.hpool+' left, up to the rating '+W.rating+')',spend);
+  else if(W.kind!=='spirit'&&W.kind!=='matrix'&&W.kind!=='util'&&!(W.kind==='drone'&&B.dmode==='auto')) poolCtl+=step('spend',(W.kind==='cast'?'Magic Pool':poolName)+' ('+(W.kind==='spell'||W.kind==='cast'?B.mpool:B.pool)+' left'+(W.kind!=='spell'&&W.kind!=='cast'?', max '+maxSp+' on this attack':'')+')',spend);
   const notLoaded=(W.kind==='matrix'||W.kind==='util')&&!W.loaded;
   if(aimLock) rows.push(['No Combat Pool dice','aiming over more than one Combat Phase · core p. 82','—']);
   const rowsHTML=rows.map(([k,s,v],j)=>`<div class="b2r${j%2?' alt':''}"><span>${E(k)} <small>${E(s)}</small></span><b class="${/^\+[1-9]/.test(v)?'b2warn':/^−/.test(v)?'b2ok':''}">${E(v)}</b></div>`).join('')+`<div class="b2r tot"><span>Target number</span><b>${tn}</b></div>`;
   let drain='';
   if(W.kind==='spell'||W.kind==='cast'){const sp=W.sp, dt=Math.max(2,Math.floor(spellF/2)+(sp.m||0))+susPen(), dl=sp.lv, phys=spellF>magicNow(); drain=`<div class="b2drain"><b>Drain</b> ${E(drainText(sp,spellF))}${susPen()?' (target number '+dt+' with sustaining)':''}${phys?' Physical (Force over Magic)':' Stun'} · resist with Willpower ${attrNow('wil')} plus Magic Pool held back; every 2 successes drop it a level (core p. 129). <button class="primary" data-b2a="drain">Roll Drain</button> ${resHTML(B.drainRes)}</div>`;}
   const rolled=B.roll?dieTiles(B.roll):'';
-  const succ=B.roll?B.roll.r.filter(v=>v>=B.roll.tn).length+(B.roll.kx||0):0;
-  let res=B.warn?B.warn:B.spNote&&B.roll&&W.kind==='spirit'?(B.roll.r.filter(v=>v>=B.roll.tn).length+' successes vs TN '+B.roll.tn+' · '+B.spNote):!B.roll?'Sixes roll again and add (Rule of Six, core p. 32).':B.roll.r.every(v=>v===1)&&!B.roll.kx?'All ones: Rule of One (core p. 32).':`${succ} success${succ===1?'':'es'}${B.roll.kx?' (with '+B.roll.kx+' from Karma rerolls)':''}`;
+  const succ=B.roll?B.roll.r.filter(v=>v>=B.roll.tn).length+(B.roll.ks||0):0;
+  let res=B.warn?B.warn:B.spNote&&B.roll&&W.kind==='spirit'?(B.roll.r.filter(v=>v>=B.roll.tn).length+' successes vs TN '+B.roll.tn+' · '+B.spNote):!B.roll?'Sixes roll again and add (Rule of Six, core p. 32).':B.roll.r.every(v=>v===1)&&!B.roll.ks?(B.roll.oops?'All ones, but Karma made it a plain failure (core p. 191).':'All ones: Rule of One (core p. 32).'):`${succ} success${succ===1?'':'es'}${kNote(B.roll)?' (Karma: '+kNote(B.roll)+')':''}`;
   let nodeFail=false; if(B.roll&&B.roll.node){const N=B.roll.node, sc=N.sec||0, runs=succ>N.k&&succ-N.k>=sc; nodeFail=!runs; res+=` · the node rolled ${N.r.join(' ')} → ${N.k} vs your Evasion ${N.ev}. You need more than ${N.k}${sc?`, with at least ${sc} past it for the ${SECN[sc]} code (${N.k+Math.max(sc,1)} in all)`:''}: `+(runs?'the utility runs.':'it doesn’t run.');}
-  B._cur={W,tn,dice,dSrc,dmg,rounds,spend,rows,spellF}; // used by the buttons
+  B._cur={W,tn,dice,dSrc,dmg,rounds,spend,rows,spellF,kd:kdA}; // used by the buttons
   const amods=`TN ${tn}: `+(rows.filter(([k,x,v])=>v&&!/^(\+?0|—|−0)$/.test(String(v))).map(([k,x,v])=>k+' '+v).join(', ')||'no modifiers')+` · ${dice} dice`;
   // got hit
   const G=B.gh, spellHit=G.kind==='mana'||G.kind==='phys', mxHit=G.kind==='icp', blackHit=G.kind==='black', derm=hasDerm()||gearLevel('body:Dermal Plating');
@@ -4722,14 +4811,16 @@ function nightHTML(){
   const mpcp=dkI?(+dkI.mpcp||0):0; if(mxHit&&(B.hpool==null)){const mx=typeof matrixInfo==='function'?matrixInfo():null; B.hpMax=mx&&!chipNoPool(/^computer/i)?mx.pool:0; B.hpool=B.hpMax;}
   const gBase=mxHit?mpcp:(G.kind==='mana'||(blackHit&&G.stun))?attrNow('wil'):blackHit?natBody():bodyR, gSp=mxHit?Math.min(G.spend,B.hpool||0):spellHit?(isMag?Math.min(G.spend,B.mpool):0):blackHit?0:Math.min(G.spend,B.pool);
   const gPoolName=mxHit?'Hacking Pool':spellHit?'Magic Pool (spell defense)':'Combat Pool';
-  let gRes=''; if(G.roll){const R=G.roll,k=R.r.filter(x=>x>=R.tn).length+(R.kx||0),pk=R.r.slice(R.r.length-R.pool).filter(x=>x>=R.tn).length; R.boxes=null; R.final=null;
+  let gRes=''; if(G.roll){const R=G.roll,k=R.r.filter(x=>x>=R.tn).length+(R.ks||0),pk=R.r.slice(R.r.length-R.pool).filter(x=>x>=R.tn).length; R.boxes=null; R.final=null;
     if(G.att===0){gRes=R.kind==='mana'||R.kind==='phys'?'The caster had no successes: the spell has no effect (core p. 131).':'The attacker had no successes: it misses, no damage (core p. 90–91).';}
     else if(R.kind==='icp'){const n=Math.max(0,G.att-k); R.boxes=n; R.mx=true; gRes=`${k} success${k===1?'':'es'} vs ${G.att}: `+(n?`${n} box${n>1?'es':''} on your persona (10 crash the deck and dump you, core p. 179).`:'your persona shrugs it off.');}
     else if(R.kind==='black'){const n=Math.floor(Math.max(0,G.att-k)/2); R.boxes=n; gRes=`${k} success${k===1?'':'es'} vs the IC’s ${G.att}: `+(n?`${n} Light wound${n>1?'s':''} (${n} box${n>1?'es':''} ${R.stun?'Stun':'Physical'}; core p. 171).`:'no damage.');}
     else if((R.kind==='mana'||R.kind==='phys')&&k>G.att) gRes=`${k} successes vs the caster’s ${G.att}: you win, the spell doesn’t affect you (core p. 131).`;
     else if(R.pool&&pk>G.att&&!(R.kind==='mana'||R.kind==='phys')) gRes=`${k} successes; Combat Pool alone beat the attacker’s ${G.att}: a complete miss (core p. 91).`;
     else {const d=k-G.att, idx=L4.indexOf(R.lvl)+(d<0?Math.floor(-d/2):-Math.floor(d/2)); R.final=idx<0?null:L4[Math.min(3,idx)]; gRes=`${k} success${k===1?'':'es'} vs the attacker’s ${G.att}: `+(R.final?`takes ${R.final} ${R.stun?'Stun':'Physical'} (${BOXES[R.final]} box${BOXES[R.final]>1?'es':''}).`:'no damage.');}}
-  B._gh={gTn,gBase,gSp,gLv,armV,gPow,spellHit};
+  if(G.roll&&kNote(G.roll)) gRes+=' Karma: '+kNote(G.roll)+'.';
+  B._kdMax=Object.assign(B._kdMax||{},{gh:gBase}); const kdG=Math.min((G.kdSrc||[]).length,gBase);
+  B._gh={gTn,gBase,gSp,gLv,armV,gPow,spellHit,kd:kdG};
   const ghRolled=G.roll?dieTiles(G.roll):'';
   // skills
   const skl=[]; S.skills.filter(x=>x.name).forEach(x=>skillPartsNow(x).forEach(p=>{if(p.r) skl.push([p.label,p.r,p.chip]);}));
@@ -4741,34 +4832,51 @@ function nightHTML(){
   if(S.magic==='adept') pw=S.powers.map(p=>{const c=powerCost(p); const P=allPowers()[p.type||'custom']||POWERS.custom; return `<details class="b2card"><summary><b>${E(p.type==='custom'?p.name:P.label)}</b><small>${c.cost} PP${P.pg?' · '+E(P.pg):''}</small></summary><p>${E(c.desc||'')}</p></details>`;}).join('');
   else if(isMag) pw=S.powers.map(p=>{const sp=spellFind(p.name); return `<details class="b2card"><summary><b>${E(p.name)}</b><small>Force ${+p.cost||1}${sp?' · '+E(sp.cat)+' · '+(sp.ty==='M'?'mana':'physical')+(sp.pg?' · '+E(sp.pg):''):''}</small></summary><p>${sp?'Drain '+E(drainText(sp,+p.cost||1)):''}${p.note?' · '+E(p.note):''}</p></details>`;}).join('');
   const copyBox=B.copy?`<div class="b2copy"><label for="b2r20" class="b2k">${E(B.copy.msg)}</label><input id="b2r20" readonly value="${E(B.copy.text)}"></div>`:'';
-  return `${gmHitsHTML()}<div class="b2big">${big.map(tile).join('')}</div>
+  const sitN=sitSum.reduce((a,x)=>a+x[1],0), sitLab=sitSum.length?`Situation: ${SIGN(sitN)} (${sitSum.map(x=>x[0]).join(', ')})`:'Situation: none';
+  const vit=(()=>{const tk=tkGet(), mb=n=>Array.from({length:10},(_,j)=>`<i class="${j<n?'on':''}"></i>`).join(''), ph=Math.min(10,S.phys), sn=Math.min(10,S.stun);
+    const ini=B.ini==null?'—':String(Math.max(0,B.ini-w)), passes=B.ini==null?'':(()=>{const o=[];for(let x=Math.max(0,B.ini-w);x>0;x-=10)o.push(x);return o.length>1?'passes '+o.join(', '):'';})();
+    let rd=''; if(W.kind==='gun'&&W.gid){const at=(S.ammoT||{})[W.gid]; if(at) rd=`<span class="b2vi"><span class="b2k">Rounds</span><b>${at.in.n}${W.cap!=null?'/'+W.cap:''}</b></span>`;}
+    const boxes2=`<span class="b2mb"><span class="b2k">P</span>${mb(ph)}</span><span class="b2mb st"><span class="b2k">S</span>${mb(sn)}</span>`;
+    const items=`<span class="b2vi${w?' b2warn':''}"><span class="b2k">Wounds</span><b>${w?`+${w} TN, −${w} Init`:'unhurt'}</b></span>
+      <span class="b2vi"><span class="b2k">Initiative</span><b>${ini}</b>${passes?`<small>${passes}</small>`:''}</span>
+      <span class="b2vi"><span class="b2k">Combat Pool</span><span class="b2vs"><button class="ghost" data-b2s="vpool" data-d="-1" aria-label="Combat Pool down one">−</button><b>${B.pool}/${T.cpool}</b><button class="ghost" data-b2s="vpool" data-d="1" aria-label="Combat Pool up one">+</button></span></span>
+      ${isMag?`<span class="b2vi"><span class="b2k">Magic Pool</span><b>${B.mpool}/${mpMax}</b></span>`:''}
+      <span class="b2vi"><span class="b2k">Karma</span><b>${B.karma}/${T.kpool}</b>${tk.tot?`<small>team ${tk.left}/${tk.tot}</small>`:''}</span>${rd}`;
+    const condTxt=`Physical ${S.phys}, Stun ${S.stun}`;
+    return `<div class="b2vit" role="region" aria-label="Vitals"><div class="b2vrow"><button class="b2vbox" data-b2a="jumpcond" aria-label="${condTxt}. Go to the condition monitor">${boxes2}</button>${items}</div>
+     <button class="b2vtuck" data-b2a="vit" aria-expanded="${!!B.vitOpen}" aria-label="Vitals: ${condTxt}${w?', wounds +'+w:''}. Show more">${boxes2}${w?`<b class="b2warn">+${w}</b>`:''}<span class="b2vmore">${B.ini==null?'':'Init '+ini+' · '}Pool ${B.pool} · Karma ${B.karma}</span><span aria-hidden="true">${B.vitOpen?'▴':'▾'}</span></button>
+     ${B.vitOpen?`<div class="b2vdrop">${items}<button class="primary" data-b2a="jumpcond">Mark damage</button></div>`:''}</div>`;})();
+  return `${vit}${gmHitsHTML()}<div class="b2big">${big.map(tile).join('')}</div>
   <div class="b2grid b2ngrid">
    <section class="b2pan"><div class="b2h"><h3>Initiative</h3><span class="mono">${iniNow(T).r} + ${iniNow(T).d}D6${w?' − '+w:''}</span></div>
      ${iniModes(T).length?`<label class="b2f b2inim"><span class="b2k">Where</span><select data-b2="inim"><option value="" ${!B.inim?'selected':''}>Physical world: ${T.reaction} + ${T.dice}D6</option>${iniModes(T).map(m=>`<option value="${m.id}" ${B.inim===m.id?'selected':''}>Matrix, ${E(m.l.charAt(0).toLowerCase()+m.l.slice(1))}: ${m.r} + ${m.d}D6</option>`).join('')}</select></label>`:''}
      <div class="b2ini"><b>${B.ini==null?'—':Math.max(0,B.ini-w)}</b><span>${B.ini==null?'Roll to see your passes':'Acts on '+(()=>{const o=[];for(let x=Math.max(0,B.ini-w);x>0;x-=10)o.push(x);return o.join(', ')||'—';})()}</span></div>
      <div class="b2row"><button class="primary" data-b2a="ini">Roll Initiative</button><button class="ghost" data-b2a="cini">Copy for Roll20</button></div><p class="note">Each pass is 10 lower; wounds come off the total (core p. 78).${iniNow(T).m?` In the Matrix, wired reflexes, magic and a VCR add nothing (core p. 178)${iniNow(T).m.id==='kb'?'; keyboard only halves Reaction, rounded down here, and keeps the response-increase dice':''}. Talking with the physical world by voice or screen costs 1D6 of Matrix Initiative under VR2 (p. 120).`:''}</p></section>
-   <section class="b2pan"><div class="b2h"><h3>Condition</h3><span class="${w||S.phys>10?'b2warn':'b2ok'}">${E(cond)}</span></div>
+   <section class="b2pan" id="b2cond"><div class="b2h"><h3>Condition</h3><span class="${w||S.phys>10?'b2warn':'b2ok'}">${E(cond)}</span></div>
      <span class="b2k">Physical</span><div class="b2boxes">${boxes('phys',10)}<span class="b2ovl">overflow</span>${boxes('phys',B10,true)}</div>
      <span class="b2k">Stun</span><div class="b2boxes">${boxes('stun',10)}</div>
      ${S.phys>10&&S.phys<=10+B10?`<div class="b2dying"><b>Bleeding out.</b> One more box every 10 minutes until someone stabilizes you; past ${10+B10} boxes you’re dead (core p. 111). To stabilize (core p. 115): First Aid, a Biotech test at the Deadly target number (10, “special”) within the first hour, then your own natural Body test against 10 if it fails; a trauma patch gives another natural Body test against 4 + dermal armor. A Heal or Treat spell or a DocWagon crew also works. Karma Pool can reroll your own Body tests.</div>`:''}
      ${dkI&&!dkI.vr2?`<span class="b2k">Persona (Matrix)</span><div class="b2boxes">${Array.from({length:10},(_,j)=>{const v=j+1,on=v<=(S.mxDmg||0); return `<button class="b2box${on?' on':''}" data-b2trk="mxDmg" data-v="${v}" aria-pressed="${on}" aria-label="Persona box ${v}"></button>`;}).join('')}</div>${(S.mxDmg||0)>=10?'<p class="note b2warn">Crashed: the deck dumps you (dump shock, core p. 165, 179). It’s back to full when restarted.</p>':''}`:''}${T.wmod.pain?`<p class="note">Pain Resistance ${T.wmod.pain} is already taken off the wound modifier.</p>`:''}</section>
    ${wearPanelHTML()}
-   <section class="b2pan b2full"><div class="b2h"><h3>Attack</h3><span class="note">weapon, mode, ammo and modifiers in one place; rolling or copying spends rounds and pool dice</span></div>
-     <label class="b2f b2wide"><span class="b2k">Attack with</span><select data-b2="wid" class="b2wsel">${groups}</select></label>
+   <section class="b2pan b2full b2atk"><div class="b2h"><h3>Attack</h3><span class="note">pick and roll; what rarely changes between shots sits under Situation</span></div>
+     <div class="b2atop"><div class="b2aw"><label class="b2f b2wide"><span class="b2k">Attack with</span><select data-b2="wid" class="b2wsel">${groups}</select></label>${ammoLine}</div><div class="b2amid">${top}</div><div class="b2apool">${poolCtl}</div></div>
      ${W.grp==='off'?'<p class="note b2warn">This one isn’t on you: move it to your carried gear in Stash before you can use it.</p>':''}
-     <div class="b2ctl">${ctl}<div class="b2f"><span class="b2k">&nbsp;</span><button class="ghost" data-b2a="clear">Clear modifiers</button></div></div>
+     <div class="b2sitbar"><button class="b2sitb${sitSum.length?' set':''}" data-b2a="sit" aria-expanded="${!!B.sitOpen}" aria-controls="b2sit">${E(sitLab)} <span aria-hidden="true">${B.sitOpen?'▴':'▾'}</span></button><button class="ghost" data-b2a="clear">Clear</button></div>
+     ${B.sitOpen?`<div class="b2sitbg" data-b2a="sitdone"></div><div class="b2sit" id="b2sit" role="dialog" aria-label="Situation"><div class="b2sith"><b>Situation</b><span class="note">${E(sitLab.replace(/^Situation: /,''))}</span></div><div class="b2sitg">${situ}</div><div class="b2sitf"><button class="ghost" data-b2a="clear">Clear</button><button class="primary" data-b2a="sitdone">Done</button></div></div>`:''}
      <div class="b2one">
       <div class="b2res"><div class="b2nums"><div><span class="b2k">Dice</span><b>${dice}</b><small>${E(dSrc)}</small></div><div><span class="b2k">Target number</span><b class="b2warn">${tn}</b></div><div><span class="b2k">Damage</span><b>${E(dmg)}</b><small>${E(dmgNote||W.note||'')}</small></div></div>
-       <div class="b2row"><button class="primary" data-b2a="roll" ${W.grp==='off'||notLoaded?'disabled':''}>Roll ${dice} dice${rounds?' · '+rounds+' round'+(rounds>1?'s':''):''}</button><button class="ghost" data-b2a="copy" ${W.grp==='off'?'disabled':''}>Copy for Roll20</button><button class="ghost" data-b2a="newact">New action: refresh pools</button>${(W.kind==='gun'||W.kind==='drone')&&/FA|BF|SA/.test(W.mode)?'<button class="ghost" data-b2a="newphase">New Combat Phase</button>':''}</div>
+       <div class="b2row"><button class="primary b2roll" data-b2a="roll" ${W.grp==='off'||notLoaded?'disabled':''}>Roll ${dice} dice${rounds?' · '+rounds+' round'+(rounds>1?'s':''):''}</button></div>
        ${notLoaded?`<p class="note b2warn">This program isn’t in active memory. Load it first (a Simple Action to start; big programs take longer, core p. 173–174). <button class="ghost" data-b2a="mload">Load it</button></p>`:''}
-       <div class="b2rc" aria-live="polite">${B.roll?`<b class="b2rc-big${nodeFail?' b2warn':''}">${E(res)}</b><div class="b2dice">${rolled}</div>`:`<p class="note">${E(res)}</p>`}<div class="b2rc-mods">${E(amods)}</div></div><details class="b2math"><summary>Show the math</summary><div class="b2rows">${rowsHTML}</div></details>${karmaHTML(B.roll,'karma')}${drain}</div></div>${copyBox}</section>
+       <div class="b2rc" aria-live="polite">${B.roll?`<b class="b2rc-big${nodeFail?' b2warn':''}">${E(res)}</b><div class="b2dice">${rolled}</div>`:`<p class="note">${E(res)}</p>`}<div class="b2rc-mods">${E(amods)}</div></div><details class="b2math"><summary>Show the math</summary><div class="b2rows">${rowsHTML}</div></details>${kOK?karmaTuck(B.roll,'atk',kdBase):`<p class="note">Karma Pool is for your own tests; this is the ${W.kind==='spirit'?'spirit’s':'drone’s'} roll.</p>`}${drain}</div>
+      <div class="b2aside"><button class="ghost" data-b2a="copy" ${W.grp==='off'?'disabled':''}>Copy for Roll20</button><button class="ghost" data-b2a="newact">New action: refresh pools</button><button class="ghost" data-b2a="newturn">New Combat Turn</button><button class="ghost" data-b2a="newscene">New scene</button>
+       <p class="note">Pools refresh at the start of each of your actions (core p. 78, 84). A new Combat Turn also clears Initiative. A new scene refills Karma Pool and Team Karma (core p. 191).</p></div></div>${copyBox}</section>
    <section class="b2pan"><div class="b2h"><h3>Got hit</h3><span class="note">armor follows what you wear</span></div>
      <div class="b2ctl">${sel('gh:kind','What hit you',Object.entries(HITS),G.kind)}${step('gh:pow',spellHit?'Spell Force':mxHit?'Node’s System Rating':blackHit?'IC Rating':'Incoming Power',G.pow)}${mxHit||blackHit?'':sel('gh:lvl','Damage level',[['L','Light'],['M','Moderate'],['S','Serious'],['D','Deadly']],G.lvl)}${step('gh:att',spellHit?'Caster’s successes':mxHit||blackHit?'IC’s successes':'Attacker’s successes',G.att)}${G.kind==='gel'||mxHit?'':sel('gh:dt','Damage',[['p','Physical'],['s','Stun (Stun spells, stun weapons, pulled blows)']],G.stun?'s':'p')}${(spellHit&&!isMag)||blackHit?'':step('gh:spend',gPoolName+' ('+(mxHit?(B.hpool||0):spellHit?B.mpool:B.pool)+' left)',gSp)}
      ${G.kind==='flech'&&derm?`<label class="b2f b2wide b2chk"><input type="checkbox" data-b2c="gh:fl" ${G.fl?'checked':''}> The code already has flechette’s extra level (an “(f)” code)</label>`:''}</div>
      ${mxHit?'<p class="note">Resist with your MPCP plus Hacking Pool (core p. 179). Damage goes on the persona monitor below.</p>':blackHit?'<p class="note">Hanging tough: Body (Willpower for Stun) against the IC Rating; hardening counts as armor; every 2 extra IC successes is a Light wound (core p. 171). Jacking out is a Willpower test against the IC Rating.</p>':''}
-     <div class="b2nums"><div><span class="b2k">Dice</span><b>${gBase+gSp}</b><small>${mxHit?'MPCP '+gBase:G.kind==='mana'||(blackHit&&G.stun)?'Willpower '+gBase:blackHit?'natural Body '+gBase:'Body '+bodyR+(hasDerm()?' with dermal armor':'')}${gSp?' + '+gSp+' '+gPoolName:''}</small></div><div><span class="b2k">If successes tie</span><b>${gLv}${G.kind==='gel'?' Stun':''}</b><small>${G.kind==='flech'&&G.fl&&derm?'dermal armor cancels flechette’s extra level (core p. 93)':G.kind==='gel'?'gel: Power −2, Stun (core p. 95)':G.kind==='apds'?'core p. 277':'core p. 91'}</small></div></div>
-     <div class="b2row"><button class="primary" data-b2a="ghroll">Roll ${gBase+gSp} dice</button><button class="ghost" data-b2a="ghcopy">Copy for Roll20</button><button class="ghost" data-b2a="ghmark" ${G.roll&&(G.roll.final||G.roll.boxes)?'':'disabled'}>Mark it on the monitor</button></div>
-     <div class="b2rc" aria-live="polite">${G.roll?`<b class="b2rc-big">${E(gRes)}</b><div class="b2dice">${ghRolled}</div>`:`<p class="note">Pool dice have an outline: if they alone beat the attacker, it’s a complete miss.</p>`}<div class="b2rc-mods">${E(`TN ${gTn}: `+(spellHit?`Force ${G.pow}`:`Power ${gPow}, armor −${armV}`)+(susPen()?`, sustaining +${susPen()}`:'')+` · ${gBase+gSp} dice`)}</div></div><details class="b2math"><summary>Show the math</summary><div class="b2rows"><div class="b2r"><span>${spellHit?'Spell Force':'Power'+(G.kind==='gel'?' ('+G.pow+' − 2 for gel)':'')}</span><b>${spellHit?G.pow:gPow}</b></div><div class="b2r alt"><span>Armor: ${E(armWhy)}</span><b>${spellHit?'—':'−'+armV}</b></div>${susPen()?`<div class="b2r"><span>Sustaining ${susN()} spell${susN()>1?'s':''} <small>core p. 128</small></span><b class="b2warn">+${susPen()}</b></div>`:''}<div class="b2r tot"><span>Target number${mxHit?' (the node’s System Rating)':blackHit?' (IC Rating'+(hard?' − Hardening '+hard:'')+')':spellHit?'':' (never below 2 before sustaining)'}</span><b>${gTn}</b></div></div></details>${G.roll&&G.att?karmaHTML(G.roll,'ghk'):''}</section>
+     <div class="b2nums"><div><span class="b2k">Dice</span><b>${gBase+gSp+kdG}</b><small>${mxHit?'MPCP '+gBase:G.kind==='mana'||(blackHit&&G.stun)?'Willpower '+gBase:blackHit?'natural Body '+gBase:'Body '+bodyR+(hasDerm()?' with dermal armor':'')}${kdG?' + '+kdG+' Karma':''}${gSp?' + '+gSp+' '+gPoolName:''}</small></div><div><span class="b2k">If successes tie</span><b>${gLv}${G.kind==='gel'?' Stun':''}</b><small>${G.kind==='flech'&&G.fl&&derm?'dermal armor cancels flechette’s extra level (core p. 93)':G.kind==='gel'?'gel: Power −2, Stun (core p. 95)':G.kind==='apds'?'core p. 277':'core p. 91'}</small></div></div>
+     <div class="b2row"><button class="primary" data-b2a="ghroll">Roll ${gBase+gSp+kdG} dice</button><button class="ghost" data-b2a="ghcopy">Copy for Roll20</button><button class="ghost" data-b2a="ghmark" ${G.roll&&(G.roll.final||G.roll.boxes)?'':'disabled'}>Mark it on the monitor</button></div>
+     <div class="b2rc" aria-live="polite">${G.roll?`<b class="b2rc-big">${E(gRes)}</b><div class="b2dice">${ghRolled}</div>`:`<p class="note">Pool dice have an outline: if they alone beat the attacker, it’s a complete miss.</p>`}<div class="b2rc-mods">${E(`TN ${gTn}: `+(spellHit?`Force ${G.pow}`:`Power ${gPow}, armor −${armV}`)+(susPen()?`, sustaining +${susPen()}`:'')+` · ${gBase+gSp+kdG} dice`)}</div></div><details class="b2math"><summary>Show the math</summary><div class="b2rows"><div class="b2r"><span>${spellHit?'Spell Force':'Power'+(G.kind==='gel'?' ('+G.pow+' − 2 for gel)':'')}</span><b>${spellHit?G.pow:gPow}</b></div><div class="b2r alt"><span>Armor: ${E(armWhy)}</span><b>${spellHit?'—':'−'+armV}</b></div>${susPen()?`<div class="b2r"><span>Sustaining ${susN()} spell${susN()>1?'s':''} <small>core p. 128</small></span><b class="b2warn">+${susPen()}</b></div>`:''}<div class="b2r tot"><span>Target number${mxHit?' (the node’s System Rating)':blackHit?' (IC Rating'+(hard?' − Hardening '+hard:'')+')':spellHit?'':' (never below 2 before sustaining)'}</span><b>${gTn}</b></div></div></details>${karmaTuck(G.att?G.roll:null,'gh',gBase)}</section>
    ${chipsHTML()}
    <section class="b2pan"><div class="b2h"><h3>Skill checks</h3>${step('sk:tn','Target number',B.sk.tn)}</div>
      <div class="b2skills">${skl.map(([n,r,ch])=>{const x=ch?0:ia.filter(p=>n===p.skill||n.startsWith(p.skill)).reduce((a,p)=>a+(+p.n||0),0); return `<div class="b2r${ch?' b2chipped':''}"><span>${E(n)}${ch?' <span class="b2tag">chip</span>':''}</span><b>${r}${x?'+'+x:''}</b><span class="b2row"><button class="ghost" data-b2k="${E(n)}" data-d="${r+x}">Roll</button><button class="ghost" data-b2k="${E(n)}" data-d="${r+x}" data-copy="1" aria-label="Copy ${E(n)} for Roll20">Roll20</button></span></div>`;}).join('')||'<p class="note">No skills.</p>'}</div>
@@ -4843,7 +4951,7 @@ function act(a){const C=B._cur, W=C&&C.W; B.warn='';
     if(W.kind==='gun'&&W.gid){const at=(S.ammoT||{})[W.gid]; if(at){if(at.in.n<C.rounds){B.warn='Not enough rounds loaded: load or change the clip first.'; return redraw();} ammoAct(W.gid,'fire',C.rounds);}}
     if(W.kind==='gun'||W.kind==='drone') B.fired+=C.rounds;
     if(W.kind==='spell') B.mpool-=C.spend; else if(W.kind==='matrix') B.hpool-=C.spend; else B.pool-=C.spend; B.spend=0;
-    if(a==='roll'){B.roll={r:rollN(C.dice,C.tn),tn:C.tn,pool:C.spend,kc:0,kx:0}; B.copy=null;
+    const kd=kdTake(B,C.kd||0); if(a==='roll'){B.roll={r:rollN(C.dice,C.tn),tn:C.tn,pool:C.spend,kc:0,ks:0,kd}; B.copy=null;
       if(W.kind==='util'){const ev=B._ev||0, nr=rollN(B.tnBase,Math.max(2,ev)); B.roll.node={r:nr,k:nr.filter(x=>x>=Math.max(2,ev)).length,ev,sec:Math.min(4,B.sec||0)};}
       if(W.kind==='spirit'){const x=(S.spirits||[])[+W.id.slice(1)]; if(x){x.sv=Math.max(0,(+x.sv||0)-1); if(!x.sv) B.warn=null; B.spNote=x.sv?`${x.sv} service${x.sv>1?'s':''} left.`:'That was its last service: it leaves (core p. 140).'; if(!x.sv) S.spirits.splice(+W.id.slice(1),1); render(); return;}}}
     else {const why=C.rows.map(r=>r[0].toLowerCase()+' '+r[2]).join(', '); let t=`&{template:default} {{name=${who()}: ${W.n}}} {{Dice=${C.dice} (${C.dSrc})}} {{Target number=${C.tn} (${why})}} {{Successes=${r20(C.dice,C.tn)}}} {{Damage=${C.dmg}}}`;
@@ -4852,7 +4960,13 @@ function act(a){const C=B._cur, W=C&&C.W; B.warn='';
       if(W.kind==='spell'){const dt=Math.max(2,Math.floor(C.spellF/2)+(W.sp.m||0))+susPen(); t+=` {{Drain=${r20(attrNow('wil')+B.mpool,dt)} vs ${drainText(W.sp,C.spellF)}${C.spellF>magicNow()?' Physical':' Stun'}}}`;}
       copyOut(t,'Attack'); B.roll=null;}
     if(W.kind==='gun'&&W.gid){render(); return;}}
-  else if(a==='karma'||a==='ghk'){const R=a==='karma'?B.roll:B.gh.roll; if(R){const c=(R.kc||0)+1; if(B.karma>=c){B.karma-=c; R.kc=c;}}}
+  else if(a==='kfrom:own'||a==='kfrom:team'){B.kfrom=a.slice(6);}
+  else if(a.startsWith('ktuck:')){const c=a.slice(6); B.kOpen=B.kOpen===c?null:c;}
+  else if(a==='tkopen'){B.tkOpen=!B.tkOpen;}
+  else if(/^(atk|gh):(re|buy|oops)$/.test(a)){const [c,op]=a.split(':'), R=c==='gh'?B.gh.roll:B.roll; if(R&&!R.oops){
+    if(op==='re'){const n=(R.kc||0)+1, P=R.parts||R.r.parts; if(R.r.some(x=>x<R.tn)&&kPay(n)){R.kc=n; R.r.forEach((v,j)=>{if(v<R.tn){const t=[]; R.r[j]=d6x(R.tn,t); if(P) P[j]=t[0];}});}}
+    else if(op==='buy'){if(R.r.some(x=>x>=R.tn)&&kPay(1)){R.ks=(R.ks||0)+1; if(B.kfrom==='team'){const tk=tkGet(); tk.tot=Math.max(0,tk.tot-1); sv();} else B.af.kbuy=(B.af.kbuy||0)+1;}}
+    else if(op==='oops'){if(R.r.length&&R.r.every(x=>x===1)&&kPay(1)) R.oops=true;}}}
   else if(a==='vroll'||a==='vref'){if(a==='vref'){B.cpool=B.cpMax; B.vRes=''; return redraw();} const V=S.gear.filter(g=>isVehG(g)&&GEARDB[g.key]); const v=V[Math.min(B.vveh||0,V.length-1)]; if(!v) return; const R=typeof R2OBJ!=='undefined'?R2OBJ[v.key]:null, rr=R?R.r:{}; const hand=parseInt(String(rr.H||'').split('/')[0],10)||4, cruise=parseInt(String(rr.Sp||'').split('/')[0],10)||0;
     const sk=[]; S.skills.filter(x=>x.name&&VSKILLS.test(x.name)).forEach(x=>skillPartsNow(x).forEach(p=>{if(p.r) sk.push([p.label,p.r,p.chip]);})); chipsOn().forEach(([g])=>{const n=chipSkill(g), v=chipInfo(g); if(n&&(VSKILLS.test(v.sk)||VSKILLS.test(n))&&!sk.some(x=>chipEq(x[0],n))) sk.push([n,+g.r||0,true]);}); const skill=sk[Math.min(B.vsk||0,Math.max(0,sk.length-1))]||['',0];
     const kind=B.vtest||'pos', ter=B.vter||'n', tm=(kind==='pos'?{o:0,n:1,r:2,t:4}:{o:-1,n:0,t:2,r:4})[ter], tn=Math.max(2,hand+tm+woundMods().m+susPen()); const sp=skill[2]&&chipNoPool(VSKILLS)?0:Math.min(B.vsp||0,B.cpool||0); B.cpool=(B.cpool||0)-sp; B.vsp=0;
@@ -4874,14 +4988,18 @@ function act(a){const C=B._cur, W=C&&C.W; B.warn='';
     B.conjRes=[RR(r,tn,{head:`Conjuring a ${SPIRITS[t].n.toLowerCase()}, Force ${F}`,mods:`TN ${tn}: Force ${F}${wsMods(w,susPen())} · Conjuring ${sk} dice`,tail:k?`It comes, owing ${k} service${k>1?'s':''}.`:'No spirit comes.'}),
       RR(dr,F,{head:`Drain: ${lv0} ${phys?'Physical':'Stun'}`,mods:`TN ${F} (the Force) · Charisma ${cha} dice`,tail:(dl?`Take ${dl} ${phys?'Physical':'Stun'} (mark it on the monitor).`:'No Drain.')+(dl==='D'?' Drain that knocks you out frees the spirit (core p. 139–140).':'')})];
     render(); return;}
-  else if(a==='newact'){const T=sheetStats(); B.pool=T.cpool; B.mpool=B.mpMax; B.hpool=B.hpMax; B.roll=null;}
+  else if(a==='newact'||a==='newturn'||a==='newscene'){const T=sheetStats(); B.pool=T.cpool; B.mpool=B.mpMax; B.hpool=B.hpMax; B.roll=null; B.fired=0; B.kvote=false; // pools refresh each action (core p. 78, 84)
+    if(a!=='newact') B.ini=null; if(a==='newscene'){B.karma=T.kpool; const tk=tkGet(); tk.left=tk.tot; sv();}} // Karma Pool and Team Karma refill each scene (core p. 191)
   else if(a==='newphase'){B.fired=0;}
-  else if(a==='clear'){B.sit={};B.msit={};B.gm=0;B.aim=0;}
+  else if(a==='clear'){const sg=B.sit.sight, rc=B.msit.reach; B.sit=sg?{sight:sg}:{}; B.msit=rc?{reach:rc}:{}; B.gm=0;B.aim=0;B.urb=null;B.los=null;B.mount=null;}
+  else if(a==='sit'){B.sitOpen=!B.sitOpen;} else if(a==='sitdone'){B.sitOpen=false;}
+  else if(a==='vit'){B.vitOpen=!B.vitOpen;}
+  else if(a==='jumpcond'){B.vitOpen=false; redraw(); const c=$('b2cond'); if(c) c.scrollIntoView({behavior:'smooth',block:'start'}); return;}
   else if(a==='load'||a==='swap'){if(W.gid){if(a==='load'&&B.amSel) S.ammoT[W.gid].sel=B.amSel; ammoAct(W.gid,a); render(); return;}}
   else if(a==='drain'){const sp=W.sp, F=C.spellF, dt=Math.max(2,Math.floor(F/2)+(sp.m||0))+susPen(), n=attrNow('wil')+B.mpool, r=rollN(n,dt), k=r.filter(x=>x>=dt).length; const lv0=sp.lv==='W'||sp.lv==='X'?null:sp.lv;
     const dm=`TN ${dt}: half the Force (${F})${sp.m?(sp.m>0?' +':' −')+Math.abs(sp.m):''}${susPen()?', sustaining +'+susPen():''} · Willpower ${attrNow('wil')} + Magic Pool ${B.mpool}`;
     if(!lv0) B.drainRes=RR(r,dt,{head:'Drain',mods:dm,tail:'The Drain level depends on the target (core p. 129).'}); else {const idx=L4.indexOf(lv0)-Math.floor(k/2); B.drainRes=RR(r,dt,{head:'Drain',mods:dm,tail:idx<0?'No Drain.':`${L4[idx]} ${F>magicNow()?'Physical':'Stun'} Drain.`});}}
-  else if(a==='ghroll'){const g=B._gh, k=B.gh.kind; B.gh.roll={r:rollN(g.gBase+g.gSp,g.gTn),pool:g.gSp,tn:g.gTn,lvl:g.gLv,stun:k==='gel'||(!!B.gh.stun&&k!=='icp'),kind:k,kc:0,kx:0}; if(k==='icp') B.hpool=Math.max(0,(B.hpool||0)-g.gSp); else if(k==='mana'||k==='phys') B.mpool=Math.max(0,B.mpool-g.gSp); else B.pool-=g.gSp; B.gh.spend=0;}
+  else if(a==='ghroll'){const g=B._gh, k=B.gh.kind; const kd=kdTake(B.gh,g.kd||0); B.gh.roll={r:rollN(g.gBase+kd+g.gSp,g.gTn),pool:g.gSp,tn:g.gTn,lvl:g.gLv,stun:k==='gel'||(!!B.gh.stun&&k!=='icp'),kind:k,kc:0,ks:0,kd}; if(k==='icp') B.hpool=Math.max(0,(B.hpool||0)-g.gSp); else if(k==='mana'||k==='phys') B.mpool=Math.max(0,B.mpool-g.gSp); else B.pool-=g.gSp; B.gh.spend=0;}
   else if(a==='ghcopy'){const g=B._gh; B.pool-=g.gSp; copyOut(`&{template:default} {{name=${who()} resists ${B.gh.pow}${B.gh.lvl}, ${HITS[B.gh.kind].toLowerCase()}}} {{Target number=${g.gTn}${g.spellHit?' (the Force)':' (Power '+g.gPow+' − armor '+g.armV+')'}}} {{Resist dice=${r20(g.gBase,g.gTn)}}}`+(g.gSp?` {{Combat Pool=${r20(g.gSp,g.gTn)}}}`:'')+` {{If successes tie=${g.gLv}${B.gh.kind==='gel'?' Stun':''}; every 2 more than the attacker drops a level}}`,'Damage resistance'); B.gh.spend=0;}
   else if(a==='ghmark'){const R=B.gh.roll; const n=R?(R.boxes!=null&&R.boxes!==undefined&&(R.mx||R.kind==='black')?R.boxes:R.final?BOXES[R.final]:0):0;
     if(R&&n){if(R.mx) S.mxDmg=Math.min(10,(S.mxDmg||0)+n); else if(R.stun){const tot=S.stun+n; S.stun=Math.min(10,tot); if(tot>10) S.phys=Math.min(10+natBody()+1,S.phys+(tot-10)); /* Stun past 10 carries into Physical, core p. 111 */} else S.phys=Math.min(10+natBody()+1,S.phys+n); B.gh.roll=null; render(); return;}}
@@ -4895,7 +5013,11 @@ function stepper(id,d){
   else if(id==='gh:pow'){B.gh.pow=Math.max(1,B.gh.pow+d);B.gh.roll=null;} else if(id==='gh:att') B.gh.att=Math.max(0,B.gh.att+d); else if(id==='gh:spend') B.gh.spend=Math.max(0,B.gh.spend+d);
   else if(id==='sk:tn') B.sk.tn=Math.max(2,B.sk.tn+d);
   else if(id==='vsp'){B.vsp=Math.max(0,Math.min(B.cpool||0,(B.vsp||0)+d));}
-  else if(id==='karmax'||id==='ghkx'){const R=id==='karmax'?B.roll:B.gh.roll; if(R){const fail=R.r.filter(x=>x<R.tn).length; R.kx=Math.max(0,Math.min(fail,(R.kx||0)+d));}}
+  else if(id==='atk:kd'||id==='gh:kd'){const c=id.slice(0,-3), st=c==='gh'?B.gh:B, mx=(B._kdMax||{})[c]||0; st.kdSrc=st.kdSrc||[];
+    if(d>0){if(st.kdSrc.length<mx&&kPay(1)) st.kdSrc.push(B.kfrom==='team'?'team':'own');} else if(st.kdSrc.length){const x=st.kdSrc.pop(); if(x==='team'){tkGet().left++; sv();} else B.karma++;}}
+  else if(id==='tkleft'||id==='tktot'){const tk=tkGet(); if(id==='tktot'){tk.tot=Math.max(0,tk.tot+d); tk.left=Math.min(tk.left,tk.tot); if(d>0&&tk.left===tk.tot-1) tk.left=tk.tot;} else tk.left=Math.max(0,Math.min(tk.tot,tk.left+d)); sv();}
+  else if(id==='vpool'){const T=sheetStats(); B.pool=Math.max(0,Math.min(T.cpool,B.pool+d));}
+  else if(id==='fan'){B.faN=Math.max(3,Math.min(10,(+B.mode.slice(1)||B.faN||3)+d)); B.mode='f'+B.faN;}
   else if(id.startsWith('af:')){const k=id.slice(3), stepv={nin:1000,nout:1000}[k]||1; if(k.startsWith('u:')){const u=k.slice(2); B.af.use[u]=Math.max(0,(B.af.use[u]||0)+d);} else B.af[k]=Math.max(0,(B.af[k]==null?(k==='phys'?S.phys:k==='stun'?S.stun:0):B.af[k])+d*stepv); B.af.saved=''; return redrawAfter();}
   redraw();}
 // ---------- After the session ----------
@@ -4905,15 +5027,16 @@ function afterHTML(){const a=B.af, ny=S.nuyenNow===''||S.nuyenNow==null?0:+S.nuy
   const ph=a.phys==null?S.phys:a.phys, st=a.stun==null?S.stun:a.stun;
   const field=(k,lab,help,v,unit)=>`<div class="b2af"><div><b>${E(lab)}</b><small>${E(help)}</small></div><div class="b2step"><button class="ghost" data-b2s="af:${k}" data-d="-1" aria-label="Less ${E(lab)}">−</button><input type="number" inputmode="numeric" data-b2n="af:${k}" value="${v}" aria-label="${E(lab)}"><button class="ghost" data-b2s="af:${k}" data-d="1" aria-label="More ${E(lab)}">+</button><span class="mono">${E(unit)}</span></div></div>`;
   const cons=consumables(); const left=([g])=>/^ammo:/.test(g.key)?(+g.qty||1)*10-(+g.used||0):(+g.qty||1);
-  const diff=[['Good Karma available',ka,ka+a.gk],['Karma Pool',T.kpool,T.kpool+a.kp],['Nuyen on hand',fmt(ny)+'¥',fmt(ny+a.nin-a.nout)+'¥'],['Physical / Stun',S.phys+' / '+S.stun,ph+' / '+st],
+  const diff=[['Good Karma available',ka,ka+a.gk],['Karma Pool',T.kpool,T.kpool+a.kp-(a.kbuy||0)],['Nuyen on hand',fmt(ny)+'¥',fmt(ny+a.nin-a.nout)+'¥'],['Physical / Stun',S.phys+' / '+S.stun,ph+' / '+st],
     ...cons.filter(([g])=>a.use['c'+S.gear.indexOf(g)]).map(([g,i])=>[g.name||GEARDB[g.key].n,left([g,i]),left([g,i])-(a.use['c'+i]||0)])];
   const neg=ny+a.nin-a.nout<0, over=cons.some(([g,i])=>left([g,i])-(a.use['c'+i]||0)<0);
   const notes=[]; if(neg) notes.push(['bad','Nuyen would go below zero. Check the numbers.']); if(over) notes.push(['bad','More used up than the sheet shows. Saving sets those to zero.']);
+  if(a.kbuy) notes.push(['',`${a.kbuy} Karma Pool point${a.kbuy>1?'s':''} spent buying successes ${a.kbuy>1?'are':'is'} gone for good; earned Karma replaces ${a.kbuy>1?'them':'it'} (core p. 191).`]);
   const sus=isMagician()?(S.sus||[]):[]; if(sus.length) diff.push(['Sustained spells',sus.map(x=>x.n).join(', '),a.keepSus?'kept':'dropped']); notes.push(['','After saving, spend any new Karma under Spend Good Karma in Build.']); // always shown, so the Save button doesn't move while someone is reaching for it
   notes.push(['',practicing()?'Practice session: this is undone when you end practice.':'This updates the real sheet. For a practice run, start a practice session at the top first.']);
   const sn=snaps();
   return `<div class="b2grid b2afgrid"><section class="b2pan b2afmain"><div class="b2h"><h3>What happened at the table</h3></div>
-   ${field('gk','Good Karma earned','what the GM awarded (core p. 190–191)',a.gk,'K')}${field('kp','Added to the Karma Pool','if the GM gave a Karma Pool point',a.kp,'K')}
+   ${field('gk','Good Karma earned','what the GM awarded (core p. 190–191)',a.gk,'K')}${field('kp','Added to the Karma Pool','if the GM gave a Karma Pool point',a.kp,'K')}${field('kbuy','Karma Pool burned','points spent buying successes (core p. 191); the Attack panel counts them for you',a.kbuy||0,'K')}
    ${field('nin','Nuyen in','pay, loot sold',a.nin,'¥')}${field('nout','Nuyen out','bribes, bills, gifts',a.nout,'¥')}
    <label class="b2f b2wide"><span class="b2k">Note for the nuyen log</span><input type="text" data-b2t="af:note" value="${E(a.note)}" placeholder="the run, who paid, what the GM ruled"></label>
    ${field('phys','Physical boxes still marked','carried to next session',ph,'box')}${field('stun','Stun boxes still marked','usually rested off',st,'box')}
@@ -4927,14 +5050,14 @@ function afterHTML(){const a=B.af, ny=S.nuyenNow===''||S.nuyenNow==null?0:+S.nuy
    <h4>Snapshots</h4>${sn.length?sn.map((x,j)=>`<div class="b2r"><span>${E(x.t)}</span><button class="ghost" data-b2snap="${j}">Restore</button></div>`).join(''):'<p class="note">None yet. Each save keeps the sheet as it was, so a session can be undone.</p>'}</section></div>`;}
 function afSave(){const a=B.af; const sn=snaps(); const d=new Date(), ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   sn.unshift({t:ds+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' · before this update',s:JSON.stringify(S)}); try{localStorage.setItem('sr2-b2-snaps-'+(S.id||'x'),JSON.stringify(sn.slice(0,10)));}catch(e){}
-  S.kEarned=(+S.kEarned||0)+a.gk; S.kPoolBonus=(+S.kPoolBonus||0)+a.kp;
+  S.kEarned=(+S.kEarned||0)+a.gk; S.kPoolBonus=(+S.kPoolBonus||0)+a.kp-(a.kbuy||0);
   const ny=S.nuyenNow===''||S.nuyenNow==null?0:+S.nuyenNow; S.nyLog=S.nyLog||[];
   if(a.nin){S.nyLog.push({d:ds,amt:a.nin,note:a.note||'After the session'});} if(a.nout){S.nyLog.push({d:ds,amt:-a.nout,note:a.note||'After the session'});} if(a.nin||a.nout) S.nuyenNow=ny+a.nin-a.nout;
   if(a.phys!=null) S.phys=a.phys; if(a.stun!=null) S.stun=a.stun;
   consumables().forEach(([g,i])=>{const u=a.use['c'+i]||0; if(!u) return; if(/^ammo:/.test(g.key)) g.used=Math.min((+g.qty||1)*10,(+g.used||0)+u); else {g.qty=Math.max(0,(+g.qty||1)-u);}});
   if(!a.keepSus&&isMagician()) S.sus=[];
   S.gear=S.gear.filter(g=>!(GEARDB[g.key]&&(g.cat==='med'||g.cat==='boom')&&(+g.qty)<=0));
-  B.af={gk:0,kp:0,nin:0,nout:0,note:'',phys:null,stun:null,use:{},keepSus:false,saved:'Saved. The sheet is updated and the old version is kept as a snapshot.'}; render();}
+  B.af={gk:0,kp:0,kbuy:0,nin:0,nout:0,note:'',phys:null,stun:null,use:{},keepSus:false,saved:'Saved. The sheet is updated and the old version is kept as a snapshot.'}; render();}
 
 // ---------- healing: a suggestion only, the player still sets the boxes (core p. 112–113) ----------
 const HEAL=[null,{n:'Light',wtn:2,tn:4,base:[24,'hrs'],min:[2,'hrs'],life:'Low'},{n:'Moderate',wtn:4,tn:6,base:[10,'days'],min:[1,'day'],life:'Middle'},{n:'Serious',wtn:6,tn:8,base:[20,'days'],min:[2,'days'],life:'High'},{n:'Deadly',wtn:null,tn:10,base:[30,'days'],min:[3,'days'],life:'Hospitalized'}];
@@ -4973,7 +5096,9 @@ function stripHTML(){const c=S._calc||{}; const iss=[...document.querySelectorAl
 function shareGM(){const T=sheetStats(); const g={r:T.reaction,d:T.dice,cp:T.cpool,b:augAttr('body')+hasDerm(),a:[T.ar.b,T.ar.i]}; const o=S._gm||{};
   if(o.r!==g.r||o.d!==g.d||o.cp!==g.cp||o.b!==g.b||String(o.a)!==String(g.a)){S._gm=g; save();}}
 // ---------- mount ----------
-function redraw(){const n=$('b2night'); if(n&&B.tab==='night'){const f=document.activeElement, id=f&&f.dataset?(f.dataset.b2||f.dataset.b2s+'|'+f.dataset.d||f.dataset.b2a):null; n.innerHTML=nightHTML(); if(id){const q=n.querySelector(`[data-b2="${id}"]`)||n.querySelector(`[data-b2a="${id}"]`); if(q) q.focus();}}}
+function redraw(){const n=$('b2night'); if(n&&B.tab==='night'){const f=document.activeElement, d=f&&n.contains(f)&&f.dataset?f.dataset:null;
+  const q=d?(d.b2?`[data-b2="${d.b2}"]`:d.b2p?`[data-b2p="${d.b2p}"][data-v="${d.v}"]`:d.b2s?`[data-b2s="${d.b2s}"][data-d="${d.d}"]`:d.b2a?`[data-b2a="${d.b2a}"]`:d.b2c?`[data-b2c="${d.b2c}"]`:null):null;
+  n.innerHTML=nightHTML(); if(q){let e=null; try{e=n.querySelector(q);}catch(x){} if(e&&!e.disabled&&e.offsetParent!==null) e.focus({preventScroll:true});}}}
 function afTotals(){const n=$('b2after'); if(!n||B.tab!=='after') return; const tmp=document.createElement('div'); tmp.innerHTML=afterHTML(); {const h1=n.querySelector('#b2heal'), h2=tmp.querySelector('#b2heal'); if(h1&&h2) h1.innerHTML=h2.innerHTML;} const a=n.querySelector('#b2afd'), b=tmp.querySelector('#b2afd'); if(a&&b) a.innerHTML=b.innerHTML; const s1=n.querySelector('[data-b2a="afsave"]'), s2=tmp.querySelector('[data-b2a="afsave"]'); if(s1&&s2) s1.disabled=s2.disabled; n.querySelectorAll('[data-b2n]').forEach(i=>{const j=tmp.querySelector(`[data-b2n="${i.dataset.b2n}"]`); if(j&&i!==document.activeElement) i.value=j.value;});}
 function redrawAfter(){const n=$('b2after'); if(n&&B.tab==='after') n.innerHTML=afterHTML();}
 function redrawStrip(){try{practiceBar();}catch(e){}
@@ -5000,7 +5125,7 @@ function mount(){
   const lay=document.querySelector('.layout'); const night=document.createElement('section'); night.id='b2night'; night.className='b2wrap'; night.setAttribute('aria-label','Game night');
   const after=document.createElement('section'); after.id='b2after'; after.className='b2wrap'; after.setAttribute('aria-label','After the session'); const gv=document.createElement('div'); gv.id='b2gv'; gv.setAttribute('role','tablist'); gv.setAttribute('aria-label','Game night view'); gv.innerHTML='<button role="tab" type="button" data-gv="play">Play</button><button role="tab" type="button" data-gv="gear">Gear and ammo</button>'; gv.addEventListener('click',e=>{const b=e.target.closest('[data-gv]'); if(b) setGv(b.dataset.gv);});
   lay.before(gv); lay.before(night); lay.before(after);
-  document.addEventListener('click',e=>{const t=e.target.closest('[data-tab],[data-b2a],[data-b2s],[data-b2trk],[data-b2k],[data-b2snap],[data-b2sv],[data-b2sprm],[data-b2sus]'); if(!t||!t.closest('#b2tabs,#b2night,#b2after,#b2strip,#b2drawer,#b2pracBtn,#b2prac')) return;
+  document.addEventListener('click',e=>{const t=e.target.closest('[data-tab],[data-b2p],[data-b2a],[data-b2s],[data-b2trk],[data-b2k],[data-b2snap],[data-b2sv],[data-b2sprm],[data-b2sus]'); if(!t||!t.closest('#b2tabs,#b2night,#b2after,#b2strip,#b2drawer,#b2pracBtn,#b2prac')) return;
     if(t.dataset.tab) return setTab(t.dataset.tab);
     if(t.dataset.b2a==='drawer'){B.drawer=!B.drawer; return redrawStrip();}
     if(t.dataset.b2a==='afsave') return afSave();
@@ -5014,6 +5139,7 @@ function mount(){
     if(t.dataset.b2a==='spadd'){const d=new Date(); S.spirits=(S.spirits||[]).concat([{t:B.spt||(S.magic==='hermetic'?'earth':'nature'),f:B.spf||3,sv:B.spsv==null?1:B.spsv,on:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}]); render(); return;}
     if(t.dataset.b2sv){const [i,d]=t.dataset.b2sv.split('|'); const x=(S.spirits||[])[+i]; if(x){x.sv=Math.max(0,(+x.sv||0)+(+d));} render(); return;}
     if(t.dataset.b2sprm!=null){S.spirits.splice(+t.dataset.b2sprm,1); render(); return;}
+    if(t.dataset.b2p){if(t.disabled) return; if(setB2(t.dataset.b2p,t.dataset.v)) redraw(); return;}
     if(t.dataset.b2a) return act(t.dataset.b2a);
     if(t.dataset.b2s) return stepper(t.dataset.b2s,+t.dataset.d);
     if(t.dataset.b2trk){const k=t.dataset.b2trk, v=+t.dataset.v; S[k]=(S[k]||0)===v?v-1:v; render(); return;}
@@ -5029,17 +5155,22 @@ function mount(){
     if(tx){B.af.note=t.value; return;}},true);
   document.addEventListener('change',e=>{const t=e.target; if(!t.closest||!t.closest('#b2night,#b2after')) return;
     const k=t.dataset.b2, c=t.dataset.b2c, n=t.dataset.b2n, tx=t.dataset.b2t;
-    if(k==='wid'){B.wid=t.value; B.widBy=B.widBy||{}; B.widBy[S.id]=t.value;B.mode='s1';B.rng=0;B.roll=null;B.spend=0;B.aim=0;B.force=0;B.mount=null;}
-    else if(k==='mode') B.mode=t.value; else if(k==='dmode'){B.dmode=t.value; B.spend=0;} else if(k==='mount') B.mount=t.value; else if(k==='urb') B.urb=t.value; else if(k==='los') B.los=t.value; else if(k==='spt') B.spt=t.value; else if(k==='susp') B.susp=t.value; else if(k==='rng') B.rng=+t.value; else if(k==='dmglv') B.dmgLv=t.value; else if(k==='amsel') B.amSel=t.value;
-    else if(k&&k.startsWith('sit:')) B.sit[k.slice(4)]=t.value; else if(k&&k.startsWith('msit:')) B.msit[k.slice(5)]=t.value;
-    else if(k==='gh:kind'){B.gh.kind=t.value;B.gh.roll=null;} else if(k==='gh:lvl'){B.gh.lvl=t.value;B.gh.roll=null;} else if(k==='gh:dt'){B.gh.stun=t.value==='s';B.gh.roll=null;} else if(k==='dtgt'){B.dtgt=t.value;B.rng=0;} else if(k==='dft'){B.dft=t.value;} else if(k==='sec'){B.sec=Math.max(0,Math.min(4,+t.value||0)); B.roll=null;} else if(k==='ctc'){B.ctc=+t.value;} else if(k==='inim'){B.inim=t.value; B.ini=null;} else if(k==='ctb'||k==='cte'){const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)]; if(C){if(k==='ctb') {C.cb=t.value; delete C.cei;} else C.cei=+t.value; if(typeof save==='function') save();}} else if(k==='vveh'){B.vveh=+t.value;B.vRes='';} else if(k==='vsk'){B.vsk=+t.value;} else if(k==='vtest'){B.vtest=t.value;B.vRes='';} else if(k==='vter'){B.vter=t.value;}
-    else if(c==='gh:fl'){B.gh.fl=t.checked;B.gh.roll=null;}
-    else if(c==='keepnat'){S.keepNatEyes=t.checked; if(typeof save==='function') save();}
+    if(k){if(setB2(k,t.value)) redraw(); return;}
+    if(c==='gh:fl'){B.gh.fl=t.checked;B.gh.roll=null;}
+    else if(c==='kvote'){B.kvote=t.checked;}
+    else if(c==='keepnat'){S.keepNatEyes=t.checked; sv();}
     else if(n){const f=n.slice(3), v=Math.max(0,Math.round(+t.value||0)); if(f.startsWith('u:')) B.af.use[f.slice(2)]=v; else B.af[f]=v; B.af.saved=''; return afTotals();}
     else if(c==='af:keepSus'){B.af.keepSus=t.checked; return afTotals();}
     else if(tx){B.af.note=t.value; return;}
     else return;
     redraw();});
+function setB2(k,v){const t={value:v};
+    if(k==='wid'){B.wid=t.value; B.widBy=B.widBy||{}; B.widBy[S.id]=t.value;B.mode='s1';B.rng=0;B.roll=null;B.spend=0;B.aim=0;B.force=0;B.mount=null;}
+    else if(k==='mode') B.mode=t.value==='fa'?'f'+(B.faN||3):t.value; else if(k==='dmode'){B.dmode=t.value; B.spend=0;} else if(k==='mount') B.mount=t.value; else if(k==='urb') B.urb=t.value; else if(k==='los') B.los=t.value; else if(k==='spt') B.spt=t.value; else if(k==='susp') B.susp=t.value; else if(k==='rng') B.rng=+t.value; else if(k==='dmglv') B.dmgLv=t.value; else if(k==='amsel') B.amSel=t.value;
+    else if(k&&k.startsWith('sit:')) B.sit[k.slice(4)]=t.value; else if(k&&k.startsWith('msit:')) B.msit[k.slice(5)]=t.value;
+    else if(k==='gh:kind'){B.gh.kind=t.value;B.gh.roll=null;} else if(k==='gh:lvl'){B.gh.lvl=t.value;B.gh.roll=null;} else if(k==='gh:dt'){B.gh.stun=t.value==='s';B.gh.roll=null;} else if(k==='dtgt'){B.dtgt=t.value;B.rng=0;} else if(k==='dft'){B.dft=t.value;} else if(k==='sec'){B.sec=Math.max(0,Math.min(4,+t.value||0)); B.roll=null;} else if(k==='ctc'){B.ctc=+t.value;} else if(k==='inim'){B.inim=t.value; B.ini=null;} else if(k==='ctb'||k==='cte'){const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)]; if(C){if(k==='ctb') {C.cb=t.value; delete C.cei;} else C.cei=+t.value; if(typeof save==='function') save();}} else if(k==='vveh'){B.vveh=+t.value;B.vRes='';} else if(k==='vsk'){B.vsk=+t.value;} else if(k==='vtest'){B.vtest=t.value;B.vRes='';} else if(k==='vter'){B.vter=t.value;}
+    else return false;
+    return true;}
   document.addEventListener('input',e=>{const t=e.target; if(t&&t.dataset&&t.dataset.b2in==='suson') B.suson=t.value;});
   document.addEventListener('change',e=>{const t=e.target; if(!t||!t.dataset) return; const d=t.dataset;
     if(d.b2chip!=null){const g=S.gear[+d.b2chip]; if(!g) return; if(t.checked){const why=chipBlock(g,chipsOn()); if(why){t.checked=false; return;} g.slot=true;} else delete g.slot; B.hpool=null; B.hpMax=null; render(); return;}
