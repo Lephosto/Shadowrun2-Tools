@@ -32,11 +32,19 @@ for f in ['sr2-builder.html','gear/template.html','gm/gm.css','gm/gm.html','gear
         for m in re.finditer(r'/\*@shared:'+name+r'\*/\n(.*?)\n/\*@end:'+name+r'\*/',s,re.S):
             if m.group(1)!=body: bad.append((f,name))
 if bad: print('MISMATCH',bad); sys.exit(1)
-site='/home/claude/shadowrun2-tools'
-if os.path.isdir(site) and not os.environ.get('NOSITE'):
-    shutil.copy('SR2_Runner_Builder_2.html',site+'/builder.html')  # the classic layout was retired 2026-11-21
-    shutil.copy('SR2_Gear_Locker_2.html',site+'/gear-locker.html'); shutil.copy('SR2_GM_Screen.html',site+'/gm-screen.html')
 CSSN=[n for n in SH if os.path.exists('shared/'+n+'.css')]
 miss=[(f,n) for f in ['SR2_Runner_Builder_2.html','SR2_Gear_Locker_2.html','SR2_GM_Screen.html'] for n in CSSN+['srhead'] if '/*@shared:'+n+'*/\n'+SH[n]+'\n/*@end:'+n+'*/' not in open(f).read()]
 if miss: print('MISSING shared CSS',miss); sys.exit(1)
-print(f'built: shared blocks builder {nb}, locker {nl}, gm {ng}; {len(SH)} shared modules; all blocks match')
+# version stamp (2026-11-23): a short code from the three built pages (the Builder's embedded blank runner, with its random id and
+# timestamps, left out, so the same sources give the same code). shared/srhead.js shows it, adds ?v=CODE to the links between the tools, and compares it with version.txt on the site.
+import hashlib
+PAGES=['SR2_Runner_Builder_2.html','SR2_Gear_Locker_2.html','SR2_GM_Screen.html']
+VER=hashlib.sha1(''.join(re.sub(r'<script>window\.__SR2_EMBED=.*?</script>','',open(f).read(),flags=re.S) for f in PAGES).encode()).hexdigest()[:7]
+for f in PAGES+['SR2_Runner_Builder.html','SR2_Gear_Locker.html']:
+    if os.path.exists(f): s=open(f).read(); open(f,'w').write(s.replace('@SR2BUILD@',VER))
+open('version.txt','w').write(VER+'\n')
+site='/home/claude/shadowrun2-tools'
+if os.path.isdir(site) and not os.environ.get('NOSITE'):
+    shutil.copy('SR2_Runner_Builder_2.html',site+'/builder.html')  # the classic layout was retired 2026-11-21
+    shutil.copy('SR2_Gear_Locker_2.html',site+'/gear-locker.html'); shutil.copy('SR2_GM_Screen.html',site+'/gm-screen.html'); shutil.copy('version.txt',site+'/version.txt')
+print(f'built: shared blocks builder {nb}, locker {nl}, gm {ng}; {len(SH)} shared modules; all blocks match; version {VER}')

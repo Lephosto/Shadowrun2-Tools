@@ -32,6 +32,9 @@ input[type=checkbox],input[type=radio]{width:24px;height:24px;min-height:0;margi
 .srh-id{display:flex;flex-direction:column;min-width:0;margin-right:auto}
 .srh-name{font:600 var(--t-xl)/1.15 var(--f-display);letter-spacing:.01em;color:var(--ink);margin:0}
 .srh-sub{font:400 var(--t-xs)/1.4 var(--f-body);color:var(--muted);min-height:1.4em}
+.srh-ver{font:400 var(--t-xs)/1.4 var(--f-mono);color:var(--muted)}
+.srh-new{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px;padding:8px 12px;border:1px solid var(--brand);border-radius:var(--radius);background:var(--brand-soft);color:var(--ink);font:500 var(--t-sm)/1.4 var(--f-body)}
+.srh-new button{min-height:var(--tap);padding:0 14px;border-radius:var(--radius);font:600 var(--t-sm)/1 var(--f-body);cursor:pointer}
 .srh-tools{display:flex;gap:4px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
 .srh-tools a{display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:7px;font:500 var(--t-sm)/1 var(--f-body);color:var(--muted);text-decoration:none;white-space:nowrap}
 .srh-tools a:hover{color:var(--brand)}

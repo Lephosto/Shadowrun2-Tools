@@ -15,8 +15,9 @@ The build runs these steps in order:
 2. Run `extract.js` to turn the builder's item data into `gear_data.json`.
 3. Run `gear/mk.py` to build the old-layout Gear Locker (kept for reference), then `gear/mk2.py` to build the live Gear Locker from the same template with the new layout.
 4. Run `builder2/mkb2.py` to build the live Runner Builder (Build / Game night / After the session) on top of `sr2-builder.html`, and `gm/mkgm.py` to build the GM screen with the Gear Locker items embedded. `build.py` does all of this.
-4. Check that every injected block matches its source module.
-5. Copy the Runner Builder and the new-layout Gear Locker (`SR2_Gear_Locker_2.html`) to the site as `builder.html` and `gear-locker.html`.
+5. Check that every injected block matches its source module.
+6. Stamp the version: a 7-character code made from the three built pages (the Builder's embedded blank runner left out, so the same sources always give the same code). It replaces `@SR2BUILD@` in `shared/srhead.js` inside each page and goes into `version.txt`. Each tool shows "Version CODE" in its header; on the site, the links between the tools carry `?v=CODE`, and a page whose code differs from the site's `version.txt` offers a refresh. Saved characters live in browser storage for the whole site, so a refresh keeps them.
+7. Copy the Runner Builder, the new-layout Gear Locker (`SR2_Gear_Locker_2.html`), the GM screen and `version.txt` to the site as `builder.html`, `gear-locker.html`, `gm-screen.html` and `version.txt`. Push `version.txt` together with the pages, or the refresh notice compares against an old code.
 
 ## Files
 
