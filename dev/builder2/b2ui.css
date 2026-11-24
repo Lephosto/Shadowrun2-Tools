@@ -17,7 +17,6 @@ body.b2af .layout,body.b2af .sesnote,body.b2af .mbar{display:none!important}
 body.b2gn .sesnote{display:none!important}
 body.b2gn #sec-weap,body.b2gn #sec-sum,body.b2gn #sec-dice,body.b2gn #sec-skills,body.b2gn #magicCard{display:none!important}
 body.b2gn #sec-play h3:first-of-type,body.b2gn #trkPhys,body.b2gn #trkStun,body.b2gn #woundNote{display:none!important}
-.b2big{display:grid;grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr));gap:8px;margin-bottom:12px}
 .b2t{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:8px 12px;display:flex;flex-direction:column}
 .b2k{font-size:var(--t-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
 .b2v{font-family:var(--mono);font-size:var(--t-xl);line-height:1.15}
@@ -153,7 +152,7 @@ body.b2gear #b2night{display:none!important}
 .b2mb i.on{background:var(--bad);border-color:var(--bad)}.b2mb.st i.on{background:var(--warn);border-color:var(--warn)}
 .b2vi{display:inline-flex;flex-direction:column;min-width:0}.b2vi b{font-family:var(--mono);font-size:var(--t-md)}.b2vi small{color:var(--muted);font-size:var(--t-xs)}
 .b2vs{display:inline-flex;align-items:center;gap:4px}.b2vs button{width:2rem;min-height:2rem;padding:0}
-.b2vtuck,.b2vdrop{display:none}
+.b2vtuck{display:none}
 #b2cond{scroll-margin-top:calc(var(--jumpH,0px) + 4.5rem)}
 .b2atop{display:grid;grid-template-columns:minmax(14rem,18rem) minmax(0,1fr) minmax(12rem,14rem);gap:12px;align-items:start}
 .b2aw,.b2amid,.b2apool{display:flex;flex-direction:column;gap:8px;min-width:0}
@@ -187,8 +186,6 @@ body.b2gear #b2night{display:none!important}
  .b2vtuck{display:flex;width:100%;align-items:center;gap:8px;min-height:44px;padding:4px 12px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);color:var(--ink);cursor:pointer;text-align:left}
  .b2vtuck .b2vmore{flex:1 1 auto;min-width:0;text-align:right;font-size:var(--t-sm);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
  .b2vtuck .b2mb i{width:6px;height:12px}
- .b2vdrop{display:flex;flex-wrap:wrap;gap:12px 16px;position:absolute;left:0;right:0;top:100%;padding:12px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,.18)}
- .b2vdrop>button{flex:1 1 100%;min-height:44px}
  .b2vs button{width:44px;min-height:44px}
  .b2atop{grid-template-columns:minmax(0,1fr)}.b2amid{order:0}
  .b2pill{min-height:44px}
@@ -210,3 +207,57 @@ a.glink{display:inline-flex;align-items:center;min-height:24px}
 #b2night .b2sub{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}#b2night .b2sub h4{margin:0 0 8px;font-size:var(--t-sm)}
 #b2night details.b2sub summary{cursor:pointer;min-height:var(--tap);display:flex;align-items:center}
 #b2night .b2tally{margin:8px 0;padding-left:16px;display:flex;flex-direction:column;gap:4px;font-size:var(--t-sm)}
+
+/* fix8 (2026-11-23): one slim vitals line with drop-downs, Attack beside Got hit, More tests tabs, phone tabs, hit codes */
+.b2vg{display:inline-flex;align-items:center;gap:4px}
+.b2vb{min-height:2.25rem;padding:0 12px}.b2vdd{width:2.25rem;padding:0}
+.b2vchip{display:inline-flex;flex-direction:column;align-items:flex-start;gap:0;padding:4px 8px;min-height:2.75rem;justify-content:center;background:transparent;border:1px solid var(--line);border-radius:var(--radius);color:var(--ink);font-weight:400;cursor:pointer;text-align:left}
+.b2vchip b{font-family:var(--mono);font-size:var(--t-md)}.b2vchip small{color:var(--muted);font-size:var(--t-xs);max-width:11rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.b2vbox[aria-expanded="true"],.b2vchip[aria-expanded="true"],.b2vdd[aria-expanded="true"]{background:var(--brand-soft);border-color:var(--brand)}
+.b2vchip:focus-visible,.b2vb:focus-visible,.b2mtabs button:focus-visible,.b2ntabs button:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.b2vpan{position:absolute;left:0;top:100%;z-index:16;width:min(40rem,100%)}
+.b2vp{position:relative;margin-top:4px;max-height:calc(100vh - var(--jumpH,0px) - 8rem);overflow-y:auto;overscroll-behavior:contain;border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.b2vp>.b2pan{border-color:var(--brand)}
+.b2vp .b2h{padding-right:5.5rem}
+.b2vx{position:absolute;top:12px;right:12px;z-index:1;min-height:2.25rem}
+.b2ntabs{display:none}
+.b2top2{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start;margin-bottom:12px}
+@media (min-width:68em){.b2top2{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}}
+.b2mtw{display:flex;flex-direction:column;gap:12px}
+.b2mtabs{display:inline-flex;flex-wrap:wrap;gap:4px;padding:4px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);align-self:flex-start}
+.b2mtabs button{border:0;background:transparent;color:var(--muted);font-weight:500;border-radius:var(--radius);padding:0 16px;min-height:2.5rem}
+.b2mtabs button[aria-selected="true"]{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.b2mtp{display:none}.b2mtp.on{display:block}.b2mtp.b2grid.on{display:grid}
+.b2hit{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px}.b2hit button{min-height:2.75rem}.b2hit .mono{font-size:var(--t-sm)}.b2hit .note{flex:1 1 100%;margin:0}
+.b2paste{display:flex;gap:8px;align-items:flex-end}.b2paste .b2f{flex:1 1 auto}.b2paste input{font-family:var(--mono);font-size:var(--t-sm);min-height:2.75rem;width:100%}.b2paste button{min-height:2.75rem}
+.b2gh>.note{margin:0}
+#b2tabs .b2ts,#b2who,#b2pracMenu{display:none}
+@media (max-width:40em){
+  .b2vit.open .b2vrow{display:flex;position:absolute;left:0;right:0;top:100%;z-index:16;margin-top:4px;gap:12px 16px;padding:12px;max-height:calc(100vh - var(--jumpH,0px) - 8rem);overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+  .b2vpan{width:100%}
+  .b2vb,.b2vchip,.b2vbox{min-height:44px}.b2vdd{width:44px;min-height:44px}.b2vx{min-height:44px}
+  .b2ntabs{display:flex;margin-top:4px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .b2ntabs button{flex:1 1 0;min-width:0;min-height:44px;padding:0 4px;border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;color:var(--muted);font-weight:500;white-space:nowrap}
+  .b2ntabs button[aria-selected="true"]{border-bottom-color:var(--brand);color:var(--brand);font-weight:600}
+  .b2mtabs{display:none}
+  #b2night .b2top2>[data-nt]:not(.nton){display:none}
+  #b2night .b2top2{margin-bottom:0}
+  #b2night .b2mtp{display:none}#b2night .b2mtp.nton{display:block}#b2night .b2mtp.b2grid.nton{display:grid}
+  .b2paste button{min-height:44px}
+  #b2tabs{flex-wrap:nowrap}#b2tabs button{min-width:0;padding:0 8px;white-space:nowrap}
+  #b2tabs .b2tl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+  #b2tabs .b2ts{display:inline}
+  #b2pracBtn{display:none!important}
+  .srh.open #b2pracMenu{display:inline-flex;align-items:center;justify-content:center}
+  #srhSub{display:none}
+  #b2who{display:inline-flex;align-items:center;gap:4px;align-self:flex-start;max-width:100%;min-height:44px;padding:0;border:0;background:transparent;color:var(--ink);font:600 var(--t-sm)/1.2 var(--f-body);cursor:pointer;text-align:left}
+  #b2who span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+/* Attack at two thirds of a laptop: weapon and pool on the left, firing mode and range on the right, so Roll stays on the first screen */
+@media (min-width:68em){.b2top2 .b2atop{grid-template-columns:minmax(12rem,16rem) minmax(0,1fr)}.b2top2 .b2aw{grid-column:1;grid-row:1}.b2top2 .b2apool{grid-column:1;grid-row:2}.b2top2 .b2amid{grid-column:2;grid-row:1/span 2}}
+/* the vitals line on two text lines: label, then value with its note beside it (fix8) */
+.b2vrow .b2vi,.b2vrow .b2vchip{display:inline-grid;grid-template-columns:auto auto;column-gap:4px;align-items:baseline;justify-content:start}
+.b2vrow .b2vi>.b2k,.b2vrow .b2vchip>.b2k{grid-column:1/-1}
+.b2vrow .b2vi>.b2vs{grid-column:1/-1}
+.b2vrow .b2vchip small{max-width:9rem}
+@media (min-width:40.0625em){body.b2gn nav.jump #b2gv{margin:0 0 0 auto}nav.jump #b2gv button{min-height:2rem}}

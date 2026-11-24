@@ -51,7 +51,7 @@ const PROGUI=(()=>{
 const X=s=>String(s??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
 const OPEN={};
 // rows: [{id,n,pg,desc,tag,on,r,ropts:[[r,label]],loaded,canLoad,loadTxt,price,from,why,more}], groups: [[title,[names]]], extra rows group first
-function group(title,rows,K,intro,first){const nOn=rows.filter(r=>r.on).length, nYes=rows.filter(r=>!r.on&&!r.why).length;
+function group(title,rows,K,intro,first,plain){const nOn=rows.filter(r=>r.on).length, nYes=rows.filter(r=>!r.on&&!r.why).length;
   const open=title in OPEN?OPEN[title]:(nOn>0||!!first);
   const items=rows.map(r=>{let c='';
     if(r.on){ if(r.ropts&&r.ropts.length) c+=`<label class="vck-s">${X(r.rlab||'Rating')} <select data-pgr="${K}" data-pgid="${X(r.id)}" aria-label="${X(r.n)} ${X(r.rlab||'rating')}">${r.ropts.map(([v,l])=>`<option value="${v}"${v===r.r?' selected':''}>${X(l)}</option>`).join('')}</select></label>`;
@@ -61,9 +61,9 @@ function group(title,rows,K,intro,first){const nOn=rows.filter(r=>r.on).length, 
     } else if(!r.why) c=`<span class="vck-n">${X(r.from)}</span>`;
     else c=`<span class="vck-w">${X(r.why)}</span>`;
     return `<li class="vck ${r.on?'on':r.why?'no':'off'}"><div class="vck-h"><label><input type="checkbox" data-pgck="${K}" data-pgid="${X(r.id)}"${r.on?' checked':''}${!r.on&&r.why?' disabled':''}> <b>${X(r.n)}</b>${r.tag||''}</label><span class="vck-p">${X(r.pg||'')}</span></div><div class="vck-c">${c}</div>${r.desc?`<details class="vck-d"><summary>What it does</summary><p>${X(r.desc)}</p></details>`:''}</li>`;}).join('');
-  return `<details class="vgrp" data-pggrp="${X(title)}"${open?' open':''}><summary><b>${X(title)}</b><span class="vgrp-n">${nOn?nOn+' on the deck · ':''}${nYes} more fit${rows.length-nOn-nYes?` · ${rows.length-nOn-nYes} don’t`:''}</span></summary>${intro?`<p class="vck-fac">${X(intro)}</p>`:''}<ul class="vcl">${items}</ul></details>`;}
-function render(sets,K){ // sets: [{title,rows,intro}]
-  return `<div class="vcheck"><div class="vck-bar"><button type="button" class="vck-b" data-pgall="1">Open all</button><button type="button" class="vck-b" data-pgall="0">Close all</button></div>${(L=>L.map((s,i)=>group(s.title,s.rows,K,s.intro,i===0&&!L.some(x=>x.rows.some(r=>r.on)))).join(''))(sets.filter(s=>s.rows.length))}</div>`;}
+  return `<details class="vgrp" data-pggrp="${X(title)}"${open?' open':''}><summary><b>${X(title)}</b><span class="vgrp-n">${plain?`${nOn} on the deck`:`${nOn?nOn+' on the deck · ':''}${nYes} more fit${rows.length-nOn-nYes?` · ${rows.length-nOn-nYes} don’t`:''}`}</span></summary>${intro?`<p class="vck-fac">${X(intro)}</p>`:''}<ul class="vcl">${items}</ul></details>`;}
+function render(sets,K,o){ // sets: [{title,rows,intro,plain}]; o.nobar leaves out Open all / Close all
+  return `<div class="vcheck">${o&&o.nobar?'':`<div class="vck-bar"><button type="button" class="vck-b" data-pgall="1">Open all</button><button type="button" class="vck-b" data-pgall="0">Close all</button></div>`}${(L=>L.map((s,i)=>group(s.title,s.rows,K,s.intro,i===0&&!L.some(x=>x.rows.some(r=>r.on)),s.plain)).join(''))(sets.filter(s=>s.rows.length))}</div>`;}
 // split programs into the book's groups; anything unlisted goes last
 function split(list,vr2,nameOf){const G=PROG_GROUPS[vr2?'vr2':'core'], seen=new Set(), out=G.map(([t,names])=>({title:t,rows:names.map(n=>{const x=list.find(p=>nameOf(p)===n); if(x) seen.add(x); return x;}).filter(Boolean)}));
   const rest=list.filter(p=>!seen.has(p)); if(rest.length) out.push({title:'Other programs',rows:rest}); return out;}

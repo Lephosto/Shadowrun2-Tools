@@ -12,16 +12,17 @@ const STEPS=[['rules','Rules'],['prio','Priorities'],['id','Identity and race'],
   ['skills','Skills'],['gear','Gear'],['weap','Weapons and armor'],['contacts','Contacts'],['between','Between runs']];
 const RUN=[['over','Overview'],['karma','Karma'],['gear','Gear and stash'],['contacts','Contacts'],['save','Save and share'],['built','How this runner was built']];
 const RUNSECS={over:['sec-over'],karma:['sec-play','magicCard'],gear:['sec-gear','deckCard','rigCard','softCard','sec-weap','sec-stash','sec-money'],
-  contacts:['sec-contacts'],save:['sec-export','sec-text'],built:['sec-built','sec-rules','sec-prio','sec-id','sec-attr','sec-skills']};
+  contacts:['sec-contacts'],save:['sec-export'],built:['sec-built','sec-rules','sec-prio','sec-id','sec-attr','sec-skills']};
 // a Checklist line's build step, and the Runner section it shows on
 const RUNOF={rules:'built',prio:'built',id:'built',attr:'built',skills:'built',magic:'karma',gear:'gear',weap:'gear',contacts:'contacts',between:'karma'};
 const BRT=['karma','money','stash','save'];
 const KEY='sr2-b2steps';
-const Q={tuck:null,cur:'rules',rcur:'over',brt:'karma',deck:false};
+const Q={tuck:null,cur:'rules',rcur:'over',brt:'karma',deck:false,bopen:false};
 try{const o=JSON.parse(localStorage.getItem(KEY)||'{}'); if(o&&typeof o==='object') Object.assign(Q,o);}catch(e){}
 if(!STEPS.some(s=>s[0]===Q.cur)) Q.cur='rules';
 if(!RUN.some(s=>s[0]===Q.rcur)) Q.rcur='over';
 if(!BRT.includes(Q.brt)) Q.brt='karma';
+Q.bopen=false; // the build record starts folded on every visit (fix8)
 function keepQ(){try{localStorage.setItem(KEY,JSON.stringify(Q));}catch(e){}}
 const $$=(s,r)=>[...(r||document).querySelectorAll(s)];
 const H=s=>esc(String(s));
@@ -133,7 +134,9 @@ function lockNotes(on){Object.entries(LOCKNOTE).forEach(([id,t])=>{const s=$(id)
 const today=()=>{const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 function drawBuilt(){const b=$('sec-built'); if(!b) return; if(!runner()){b.innerHTML=''; return;}
   const log=(S.gmFix||[]).slice().reverse();
-  b.innerHTML=`<h2>How this runner was built</h2><p class="note">The choices made when this runner was created: rules and books, priorities, race, attributes and skills. They're locked so the build can't change by accident. Raises and new skills go through Karma.</p>`+
+  const open=!!(Q.bopen||FIX), P=S.prio||{}, pr=[['race','Race'],['magic','Magic'],['attr','Attributes'],['skills','Skills'],['res','Resources']].map(([k,l])=>P[k]?l+' '+P[k]:'').filter(Boolean).join(' · ');
+  b.innerHTML=`<h2>How this runner was built</h2>${pr?`<p class="b2bsum">${H(pr)}</p>`:''}<p class="note">The choices made when this runner was created: rules and books, priorities, race, attributes and skills. They're locked so the build can't change by accident. Raises and new skills go through Karma.</p>`+
+    (FIX?'':`<div class="row"><button type="button" class="primary" data-st="bopen" aria-expanded="${open}" aria-controls="sec-rules sec-prio sec-id sec-attr sec-skills">${open?'Fold the build':'Open the build'}</button><span class="note">${open?'The five cards below are the record: rules, priorities, identity and race, attributes, skills.':'Rules, priorities, identity and race, attributes and skills, as five locked cards.'}</span></div>`)+
     (FIX?`<div class="b2fix" role="group" aria-label="GM correction"><p class="b2fixon"><b>Open for a GM correction.</b> Change what the GM approved below, then press Done. Cancel puts everything back.</p>
       <label for="b2fixNote">What the GM approved<input id="b2fixNote" value="${H(FIX.note||'')}" placeholder="e.g. GM: swap Firearms 4 for Pistols 5"></label>
       <div class="row"><button type="button" class="primary" data-st="fixdone">Done</button><button type="button" data-st="fixcancel">Cancel</button><span class="note" id="b2fixMsg" role="status">${H(FIX.msg||'')}</span></div></div>`
@@ -141,7 +144,7 @@ function drawBuilt(){const b=$('sec-built'); if(!b) return; if(!runner()){b.inne
     (log.length?`<h3>Corrections</h3><ul class="b2fixlog">${log.map(f=>`<li><span class="mono">${H(f.d)}</span> · ${H(f.note)}${f.parts&&f.parts.length?` <span class="note">(${H(f.parts.join(', '))})</span>`:''}</li>`).join('')}</ul>`:'');
   if(FIX){const n=$('b2fixNote'); if(n&&FIX.focus){FIX.focus=false; n.focus();}}}
 function snapBuild(){const o={}; FIXKEYS.forEach(k=>{o[k]=JSON.stringify(S[k]===undefined?null:S[k]);}); return o;}
-function fixStart(){FIX={snap:snapBuild(),note:'',focus:true}; lockBuild(false); update();}
+function fixStart(){FIX={snap:snapBuild(),note:'',focus:true}; Q.bopen=true; keepQ(); lockBuild(false); update();}
 function fixEnd(keep){if(!FIX) return; const now=snapBuild(), parts=[...new Set(FIXKEYS.filter(k=>now[k]!==FIX.snap[k]).map(k=>FIXNAME[k]))];
   if(keep){const note=(($('b2fixNote')||{}).value||'').trim();
     if(parts.length&&!note){FIX.msg='Add the GM\'s note first.'; FIX.focus=true; drawBuilt(); return;}
@@ -160,6 +163,7 @@ function runnerPass(build){const on=build&&runner();
   const bar=$('b2stepbar'), nav=$('b2stepnav'); if(bar) bar.style.order=on?'0':''; if(nav) nav.style.order=on?'99':'';
   if(!runner()&&FIX) FIX=null;
   lockBuild(on&&!FIX); lockNotes(on&&!FIX);
+  document.body.classList.toggle('b2bfold',on&&!Q.bopen&&!FIX); // fix8: the build record is folded until asked for
   drawOver(); drawBuilt();}
 // ---------- drawing ----------
 let busy=false;
@@ -215,6 +219,7 @@ function mount(){const lay=document.querySelector('.layout'), col=lay&&lay.query
     if(a==='close') return openSheet(false);
     if(a==='back'||a==='next'){const k=nextFrom(cur(),a==='next'?1:-1); if(k) go(k); return;}
     if(a==='deck'){Q.deck=!Q.deck; keepQ(); update(); const btn=document.querySelector('#gearBody .gdeckbtn'); if(btn) btn.focus(); return;}
+    if(a==='bopen'){Q.bopen=!Q.bopen; keepQ(); update(); const btn=document.querySelector('#sec-built [data-st="bopen"]'); if(btn) btn.focus(); if(Q.bopen&&wide()){const r=$('sec-rules'); if(r&&r.offsetParent!==null) r.scrollIntoView({behavior:reduced()?'auto':'smooth',block:'nearest'});} return;}
     if(a==='fix') return fixStart();
     if(a==='fixdone') return fixEnd(true);
     if(a==='fixcancel') return fixEnd(false);});

@@ -171,7 +171,7 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
 .wbs{display:flex;flex-direction:column;gap:0;min-width:0;text-transform:none;letter-spacing:0;font-weight:500}.wbs>span{font-size:var(--t-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}.wbs select{width:100%;min-width:0}.wbs em{font-style:normal;font-size:var(--t-xs)}
 .wbw{margin:4px 0;padding:4px 8px;border-left:3px solid var(--warn);font-size:var(--t-xs);background:var(--warn-soft)}
 .wbfx{margin:4px 0 0;padding-left:16px;font-size:var(--t-xs);color:var(--muted);max-width:60ch}
-.exp{display:grid;grid-template-columns:repeat(auto-fit,minmax(13.75rem,1fr));gap:12px;margin:8px 0}.exp .note{margin:4px 0 0}
+.exp{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr));gap:12px;margin:8px 0}.exp .note{margin:4px 0 0}.expc{display:flex;flex-direction:column;gap:8px;min-width:0;padding:12px;border:1px solid var(--line);border-radius:var(--radius)}.expc h3{margin:0;font-size:var(--t-md)}.expc .note{margin:0}.expc textarea{width:100%}
 .filebtn{display:inline-flex;flex-direction:row;cursor:pointer;text-transform:none;letter-spacing:0;font-size:var(--t-sm);font-weight:500;color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);padding:8px 12px;background:var(--card)}.filebtn input{position:absolute;opacity:0;width:1px;height:1px}.filebtn:focus-within{outline:2px solid var(--accent)}
 @media print{.top .row,#confirmBox{display:none}}
 @media (max-width:40em){
@@ -525,25 +525,16 @@ small{font-size:var(--t-xs)} /* the browser's own 'smaller' lands between the si
         <div class="picker" style="margin-top:8px"><label for="stNew" class="grow">New place<input id="stNew" placeholder="Safehouse, coffin motel locker, the van…" maxlength="40"></label><button class="primary" id="stAdd">Add place</button></div>
       </section>
 
-      <section class="card" id="sec-export" data-step="between" data-jump="Export">
-        <h2>Export</h2>
-        <p class="note">Each of these is a single file that works on its own, with nothing to install and no internet needed.</p>
+      <section class="card" id="sec-export" data-step="between" data-jump="Save and share">
+        <h2>Save and share</h2>
+        <p class="note">The page keeps your character in this browser only. To keep a copy, move it to another device or share it, use one of these. The files work on their own, with nothing to install and no internet needed.</p>
         <div class="exp">
-          <div><button id="expSheet" class="primary">Character sheet (.html)</button><p class="note">A clean, read-only sheet of this character. Open it in any browser and print it or save it as a PDF.</p></div>
-          <div><button id="expBuilder">Builder with this character (.html)</button><p class="note">A full copy of this builder that opens with this character loaded. Keep editing it offline.</p></div>
-          <div><button id="expJson">Character file (.json)</button><p class="note">Just the character data, to load back in here later.</p></div>
-          <div><label for="openJson" class="filebtn">Open a character file<input type="file" id="openJson" accept=".json,application/json"></label><p class="note">Loads a .json character file into the builder.</p></div>
+          <div class="expc"><h3>Printable sheet</h3><p class="note">A clean, read-only sheet of this character. Open it in any browser and print it or save it as a PDF.</p><div class="row"><button id="expSheet" class="primary">Character sheet (.html)</button></div></div>
+          <div class="expc"><h3>Files</h3><p class="note">The character data, to load back in here later, or a full copy of this builder that opens with this character loaded.</p><div class="row"><button id="expJson">Character file (.json)</button><button id="expBuilder">Builder with this character (.html)</button><label for="openJson" class="filebtn">Open a character file<input type="file" id="openJson" accept=".json,application/json"></label></div></div>
+          <div class="expc"><h3>Text code</h3><p class="note">Copy the code into a message or a note, then paste it into the box on the other side.</p><textarea id="exportBox" rows="3" readonly aria-label="Character code"></textarea><div class="row"><button id="copyExport">Copy character code</button><span class="note" id="copyMsg"></span></div></div>
+          <div class="expc"><h3>Load a runner</h3><p class="note">Paste a character code here, or a gear code from the Gear Locker.</p><textarea id="importBox" rows="3" placeholder="Paste a character code, or a gear code from the Gear Locker" aria-label="Paste a character code or a gear code"></textarea><div class="row"><button id="doImport">Load pasted character</button><span class="note" id="importMsg"></span></div></div>
         </div>
         <div class="note" id="expMsg" role="status"></div>
-      </section>
-
-      <section class="card" id="sec-text" data-step="between" data-jump="Save as text">
-        <h2>Save a copy as text</h2>
-        <p class="note">The page remembers your character in this browser only. To move it to another device or share it, copy the code below and paste it into the box on the other side.</p>
-        <textarea id="exportBox" rows="3" readonly></textarea>
-        <div class="row"><button id="copyExport">Copy character code</button><span class="note" id="copyMsg"></span></div>
-        <textarea id="importBox" rows="3" placeholder="Paste a character code, or a gear code from the Gear Locker"></textarea>
-        <div class="row"><button id="doImport">Load pasted character</button><span class="note" id="importMsg"></span></div>
       </section>
     </div>
 
@@ -787,7 +778,7 @@ const PROGUI=(()=>{
 const X=s=>String(s??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
 const OPEN={};
 // rows: [{id,n,pg,desc,tag,on,r,ropts:[[r,label]],loaded,canLoad,loadTxt,price,from,why,more}], groups: [[title,[names]]], extra rows group first
-function group(title,rows,K,intro,first){const nOn=rows.filter(r=>r.on).length, nYes=rows.filter(r=>!r.on&&!r.why).length;
+function group(title,rows,K,intro,first,plain){const nOn=rows.filter(r=>r.on).length, nYes=rows.filter(r=>!r.on&&!r.why).length;
   const open=title in OPEN?OPEN[title]:(nOn>0||!!first);
   const items=rows.map(r=>{let c='';
     if(r.on){ if(r.ropts&&r.ropts.length) c+=`<label class="vck-s">${X(r.rlab||'Rating')} <select data-pgr="${K}" data-pgid="${X(r.id)}" aria-label="${X(r.n)} ${X(r.rlab||'rating')}">${r.ropts.map(([v,l])=>`<option value="${v}"${v===r.r?' selected':''}>${X(l)}</option>`).join('')}</select></label>`;
@@ -797,9 +788,9 @@ function group(title,rows,K,intro,first){const nOn=rows.filter(r=>r.on).length, 
     } else if(!r.why) c=`<span class="vck-n">${X(r.from)}</span>`;
     else c=`<span class="vck-w">${X(r.why)}</span>`;
     return `<li class="vck ${r.on?'on':r.why?'no':'off'}"><div class="vck-h"><label><input type="checkbox" data-pgck="${K}" data-pgid="${X(r.id)}"${r.on?' checked':''}${!r.on&&r.why?' disabled':''}> <b>${X(r.n)}</b>${r.tag||''}</label><span class="vck-p">${X(r.pg||'')}</span></div><div class="vck-c">${c}</div>${r.desc?`<details class="vck-d"><summary>What it does</summary><p>${X(r.desc)}</p></details>`:''}</li>`;}).join('');
-  return `<details class="vgrp" data-pggrp="${X(title)}"${open?' open':''}><summary><b>${X(title)}</b><span class="vgrp-n">${nOn?nOn+' on the deck · ':''}${nYes} more fit${rows.length-nOn-nYes?` · ${rows.length-nOn-nYes} don’t`:''}</span></summary>${intro?`<p class="vck-fac">${X(intro)}</p>`:''}<ul class="vcl">${items}</ul></details>`;}
-function render(sets,K){ // sets: [{title,rows,intro}]
-  return `<div class="vcheck"><div class="vck-bar"><button type="button" class="vck-b" data-pgall="1">Open all</button><button type="button" class="vck-b" data-pgall="0">Close all</button></div>${(L=>L.map((s,i)=>group(s.title,s.rows,K,s.intro,i===0&&!L.some(x=>x.rows.some(r=>r.on)))).join(''))(sets.filter(s=>s.rows.length))}</div>`;}
+  return `<details class="vgrp" data-pggrp="${X(title)}"${open?' open':''}><summary><b>${X(title)}</b><span class="vgrp-n">${plain?`${nOn} on the deck`:`${nOn?nOn+' on the deck · ':''}${nYes} more fit${rows.length-nOn-nYes?` · ${rows.length-nOn-nYes} don’t`:''}`}</span></summary>${intro?`<p class="vck-fac">${X(intro)}</p>`:''}<ul class="vcl">${items}</ul></details>`;}
+function render(sets,K,o){ // sets: [{title,rows,intro,plain}]; o.nobar leaves out Open all / Close all
+  return `<div class="vcheck">${o&&o.nobar?'':`<div class="vck-bar"><button type="button" class="vck-b" data-pgall="1">Open all</button><button type="button" class="vck-b" data-pgall="0">Close all</button></div>`}${(L=>L.map((s,i)=>group(s.title,s.rows,K,s.intro,i===0&&!L.some(x=>x.rows.some(r=>r.on)),s.plain)).join(''))(sets.filter(s=>s.rows.length))}</div>`;}
 // split programs into the book's groups; anything unlisted goes last
 function split(list,vr2,nameOf){const G=PROG_GROUPS[vr2?'vr2':'core'], seen=new Set(), out=G.map(([t,names])=>({title:t,rows:names.map(n=>{const x=list.find(p=>nameOf(p)===n); if(x) seen.add(x); return x;}).filter(Boolean)}));
   const rest=list.filter(p=>!seen.has(p)); if(rest.length) out.push({title:'Other programs',rows:rest}); return out;}
@@ -1628,7 +1619,13 @@ function progChecklistHTML(dk){
       const base={id:key,n,pg:it.pg,desc:DESC[key]?DESC[key][0]:''};
       if(g){const ropts=[]; for(let x=1;x<=Math.max(v,room);x++) ropts.push([x,`${x} · ${fmt(gv(it.c,x))}¥`]); return {...base,on:true,r:v,ropts,price:`${fmt(gv(it.c,v))}¥`};}
       return room>=1?{...base,on:false,from:`from ${fmt(gv(it.c,1))}¥ at rating 1`}:{...base,on:false,why:`The chips already total ${3*M} (3 × MPCP)`};})});}
-  return PROGUI.render(sets,'D');}
+  // fix8 (2026-11-23): an established runner's deck lists what is on it first; the full checklist opens on request
+  if(S.established&&!PROGALL){const per=sets.filter(x=>x.title==='Persona chips').flatMap(x=>x.rows.filter(r=>r.on)), own=sets.filter(x=>x.title!=='Persona chips').flatMap(x=>x.rows.filter(r=>r.on));
+    return (own.length||per.length?PROGUI.render([...(per.length?[{title:'Persona chips',rows:per,plain:true}]:[]),...(own.length?[{title:'Programs on this deck',rows:own,plain:true}]:[])],'D',{nobar:true}):'<p class="note">No programs on this deck yet.</p>')
+      +`<div class="row"><button type="button" class="ghost" data-progall="1" aria-expanded="false" aria-controls="progList">Show every program</button><span class="note">Every program in the books, to add one or change what’s here. The Marketplace buys them for nuyen.</span></div>`;}
+  return (S.established?`<div class="row"><button type="button" class="ghost" data-progall="0" aria-expanded="true" aria-controls="progList">Show only my programs</button></div>`:'')+PROGUI.render(sets,'D');}
+var PROGALL=false;
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-progall]'); if(!b) return; PROGALL=b.dataset.progall==='1'; render(); const n=document.querySelector('#progList [data-progall]'); if(n) n.focus({preventScroll:true});});
 function fociBond(){return S.gear.filter(g=>BOND[g.key]).reduce((a,g)=>a+BOND[g.key](+g.r||1)*(+g.qty||1),0);}
 function powerFoci(){return S.gear.filter(g=>g.key==='magic:Power Focus'&&focusBonded(g)).reduce((a,g)=>a+(+g.r||0),0);}
 

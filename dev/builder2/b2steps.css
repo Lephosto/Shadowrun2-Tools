@@ -64,9 +64,9 @@ body.b2one #b2stepnav{display:flex;gap:8px;position:sticky;bottom:0;z-index:13;p
 body.b2bd #sec-between{display:block}
 body.b2bd #sec-play>h2{display:none}
 body.b2bd.brt-karma #sec-play .brn,body.b2bd.brt-money #sec-play .brk{display:none!important}
-body.b2bd.brt-karma #sec-stash,body.b2bd.brt-karma #sec-export,body.b2bd.brt-karma #sec-text,
-body.b2bd.brt-money #sec-stash,body.b2bd.brt-money #sec-export,body.b2bd.brt-money #sec-text,
-body.b2bd.brt-stash #sec-play,body.b2bd.brt-stash #sec-export,body.b2bd.brt-stash #sec-text,
+body.b2bd.brt-karma #sec-stash,body.b2bd.brt-karma #sec-export,
+body.b2bd.brt-money #sec-stash,body.b2bd.brt-money #sec-export,
+body.b2bd.brt-stash #sec-play,body.b2bd.brt-stash #sec-export,
 body.b2bd.brt-save #sec-play,body.b2bd.brt-save #sec-stash{display:none!important}
 body.session #sec-stash{order:-1}
 /* gear rows: the deck as one row (the one-line rows themselves are styled in the Builder) */
@@ -88,3 +88,7 @@ body.b2run #sec-gear>.stat#cashStat.unrolled{display:flex}
 .b2fixon{margin:0;padding:8px 12px;border:1px solid var(--warn);border-radius:var(--radius);background:var(--warn-soft)}
 .b2fixlog{margin:0;padding-left:16px}
 body.b2run section.card.b2locked>h2::after{content:"Locked";margin-left:8px;padding:0 8px;border:1px solid var(--line);border-radius:999px;font:500 var(--t-xs) var(--f-body);color:var(--muted);vertical-align:middle}
+
+/* fix8 (2026-11-23): How this runner was built folds to one card on the Runner tab; Open the build shows the five locked cards */
+body.b2run.b2bfold #sec-rules,body.b2run.b2bfold #sec-prio,body.b2run.b2bfold #sec-id,body.b2run.b2bfold #sec-attr,body.b2run.b2bfold #sec-skills{display:none!important}
+.b2bsum{margin:0;font:500 var(--t-sm)/1.5 var(--f-body);color:var(--muted)}
