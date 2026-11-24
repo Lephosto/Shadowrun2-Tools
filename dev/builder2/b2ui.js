@@ -111,20 +111,23 @@ function iniNow(T){const m=iniModes(T).find(x=>x.id===B.inim); return m?{r:m.r,d
 function camoHTML(ar){const g=ar.bodyG; if(!g||typeof camoKind!=='function'||!camoKind(g.key)) return ''; const gi=S.gear.indexOf(g), pat=g.camo||'', terr=S.terrain||'', side=g.camoSide||'day', tod=S.tod||'day';
   const fx=camoEffect(pat,terr); const wrong=pat&&terr&&pat===terr&&side!==tod;
   const sel=(attr,lab,opts,cur)=>`<label class="b2f"><span class="b2k">${lab}</span><select ${attr}>${opts.map(([v,t])=>`<option value="${v}" ${v===cur?'selected':''}>${E(t)}</option>`).join('')}</select></label>`;
-  return `<div class="b2camo">${camoPickHTML(g.key,pat,`data-camo="${gi}"`,{cls:'b2f',kcls:'b2k'})}
-    ${pat?sel(`data-camoside="${gi}"`,'Side out',[['day','Day side'],['night','Night side']],side):''}
+  // fix8: the pattern is part of the garment (bought in one pattern, reversible day and night; FoF p. 52), so it is set on the gear row and shown in the Body armor menu, not picked here
+  return `<div class="b2camo"><span class="b2k b2camoh">Camouflage · FoF p. 52, 77</span>
     ${sel('data-terrain','Where you are',[['','Pick the terrain'],...CAMO_PATTERNS.map(p=>[p,p])],terr)}
+    ${pat?sel(`data-camoside="${gi}"`,'Side out',[['day','Day side'],['night','Night side']],side):''}
     ${sel('data-tod','Time',[['day','Day'],['night','Night']],tod)}
-    <div class="b2cfx">${!pat?(camoKind(g.key)==='mil'?'Standard military finish: no camouflage modifier.':'Pick the pattern this one was bought in.'):!terr?'Pick where you are to see the Perception modifier.':`<b>${fx.mod>0?'+':''}${fx.mod}</b> ${E(pat)} ${E(fx.txt)} (FoF p. 77).${wrong?' The '+side+' side is out at '+tod+'; the patterns are reversible (FoF p. 52), so turn it, or it’s the GM’s call.':''} Moving counts as “action very obvious” (core p. 185).`}</div></div>`;}
+    <div class="b2cfx">${!pat?(camoKind(g.key)==='mil'?'Standard military finish: no camouflage modifier.':'No pattern recorded for this one: set it on its row under Gear.'):!terr?'Pick where you are to see the Perception modifier.':`<b>${SIGN(fx.mod)}</b> ${E(pat)} ${E(fx.txt)} (FoF p. 77).${wrong?' The '+side+' side is out at '+tod+'; the patterns are reversible (FoF p. 52), so turn it, or it’s the GM’s call.':''} Moving counts as “action very obvious” (core p. 185).`}</div></div>`;}
 document.addEventListener('change',e=>{const t=e.target; if(!t||!t.dataset) return; const d=t.dataset;
   if(d.camo!=null){const g=S.gear[+d.camo]; if(g){if(t.value) g.camo=t.value; else delete g.camo; render();} return;}
   if(d.camoside!=null){const g=S.gear[+d.camoside]; if(g){g.camoSide=t.value; render();} return;}
   if(d.terrain!=null){S.terrain=t.value; render(); return;}
   if(d.tod!=null){S.tod=t.value; render(); return;}});
+function armorAgainst(ar){return {ball:ar.b,imp:ar.i,gel:ar.i,blast:ar.i,flech:Math.max(2*ar.i,ar.b),apds:Math.floor(ar.b/2)};} // core p. 93 (flechette), 95 (gel), 97 (blast), 277 (APDS)
+function wearName(g){return (GEARDB[g.key]?GEARDB[g.key].n:g.key)+(g.camo?', '+g.camo:'');}
 function wearLines(){return S.gear.map((g,i)=>[g,i]).filter(([g])=>ASTAT[g.key]&&!g.at);}
 function wearPanelHTML(){const h=wearHTML(); return `<section class="b2pan b2wearp" aria-label="Armor you are wearing">${h||'<div class="b2h"><h3>Wearing</h3></div><p class="note">No armor carried. Buy some under Gear; stashed armor doesn’t count.</p>'}</section>`;}
 function wearHTML(){const L=wearLines(), ar=armorTotals(); if(!L.length&&!ar.parts.length) return '';
-  const nm=g=>GEARDB[g.key]?GEARDB[g.key].n:g.key, BI=g=>{const a=ASTAT[g.key]; return a[0]+'/'+a[1];};
+  const nm=wearName, BI=g=>{const a=ASTAT[g.key]; return a[0]+'/'+a[1];};
   const bodies=L.filter(([g])=>armorKind(g.key)==='body'), helms=L.filter(([g])=>armorKind(g.key)==='helmet'), shields=L.filter(([g])=>armorKind(g.key)==='shield'), fgs=L.filter(([g])=>armorKind(g.key)==='fg');
   const sas=bodies.filter(([g])=>g.hb&&g.hb.helmet&&HB.kind(g.key)==='secarmor');
   const curBody=ar.bodyG?S.gear.indexOf(ar.bodyG):-1, curShield=ar.shieldG?S.gear.indexOf(ar.shieldG):-1;
@@ -136,7 +139,8 @@ function wearHTML(){const L=wearLines(), ar=armorTotals(); if(!L.length&&!ar.par
   const shSel=shields.length?sel('shield','Shield',[['','None'],...shields.map(([g,i])=>[i,nm(g)+' +'+BI(g)])],curShield):'';
   const fgChk=fgs.length?`<label class="b2chk b2wfg"><input type="checkbox" data-wear="fg" ${fgs.some(([g])=>!g.off)?'checked':''}> Forearm guards</label>`:'';
   const sign=(p,v)=>(p.plus&&v>=0?'+':'')+v;
-  const parts=ar.parts.map(p=>`<span class="b2wp b2wp-${p.k}"><span>${E(p.l)}</span><b>${p.k==='helmet'&&ar.builtIn?'in suit':sign(p,p.b)+'/'+sign(p,p.i)}</b></span>`).join('<span class="b2wop" aria-hidden="true">·</span>');
+  const parts=ar.parts.map(p=>`<div class="b2wrow"><span>${E(p.l)}</span><b>${p.k==='helmet'&&ar.builtIn?'in suit':sign(p,p.b)+' / '+sign(p,p.i)}</b></div>`).join('');
+  const AV=armorAgainst(ar), vs=[['Bullets','Ballistic',AV.ball],['Melee, thrown, gel','Impact',AV.imp],['Grenade blast','Impact · core p. 97',AV.blast],['Flechette','double Impact or Ballistic · core p. 93',AV.flech],['APDS','Ballistic halved · core p. 277',AV.apds]];
   const notes=[];
   if(ar.fg) notes.push('Forearm guards: +1 Impact against melee only, not ranged (SSC p. 39).');
   if(ar.shieldG) notes.push('The shield adds on top of the helmet (table ruling).');
@@ -145,8 +149,10 @@ function wearHTML(){const L=wearLines(), ar=armorTotals(); if(!L.length&&!ar.par
   if(ar.derm) notes.push(`${hasDerm()?'Troll skin':''}${hasDerm()&&gearLevel('body:Dermal Plating')?' and ':''}${gearLevel('body:Dermal Plating')?'Dermal plating':''} add${hasDerm()&&gearLevel('body:Dermal Plating')?'':'s'} to Body for damage resistance, not to armor.`);
   if(ar.poolPenalty) notes.push(`This armor cuts Combat Pool by ${ar.poolPenalty} (core p. 84${booksOn().fof?'; FoF p. 54':''}).`);
   return `<div class="b2h"><h3>Wearing</h3><span class="b2wtot"><b>${ar.b} / ${ar.i}</b><small>Ballistic / Impact</small></span></div>
-   <div class="b2wearsel">${bodySel}${helmSel}${shSel}${fgChk}</div>${camoHTML(ar)}
-   ${parts?`<div class="b2wparts">${parts}<span class="b2wop" aria-hidden="true">=</span><span class="b2wp b2wp-tot"><span>Total</span><b>${ar.b}/${ar.i}</b></span></div>`:''}
+   <div class="b2wearsel">${bodySel}${helmSel}${shSel}${fgChk}</div>
+   <div class="b2wgrid"><div class="b2wbox"><span class="b2k">How it adds up · core p. 242</span>${parts||'<div class="b2wrow"><span>Nothing worn</span><b>0 / 0</b></div>'}<div class="b2wrow tot"><b>Total</b><b>${ar.b} / ${ar.i}</b></div><p class="b2wvs1">Against: bullets ${AV.ball} · melee, thrown, gel and blasts ${AV.imp} · flechette ${AV.flech} · APDS ${AV.apds}</p></div>
+   <div class="b2wbox b2wvs"><span class="b2k">Against what hits you</span>${vs.map(([n,w,v])=>`<div class="b2wrow"><span>${E(n)} <small>${E(w)}</small></span><b>${v}</b></div>`).join('')}</div></div>
+   ${camoHTML(ar)}
    ${notes.length?`<p class="note b2wnote">${notes.map(E).join(' ')}</p>`:''}`;}
 function wearPick(k,v){const L=wearLines(), set=(kind,keep)=>L.filter(([g])=>armorKind(g.key)===kind).forEach(([g,i])=>{if(String(i)===String(keep)) delete g.off; else g.off=true;});
   if(k==='body') set('body',v);
@@ -445,7 +451,7 @@ function nightHTML(){
   const amods=`TN ${tn}: `+(rows.filter(([k,x,v])=>v&&!/^(\+?0|—|−0)$/.test(String(v))).map(([k,x,v])=>k+' '+v).join(', ')||'no modifiers')+` · ${dice} dice`;
   // got hit
   const G=B.gh, spellHit=G.kind==='mana'||G.kind==='phys', mxHit=G.kind==='icp', blackHit=G.kind==='black', derm=hasDerm()||gearLevel('body:Dermal Plating');
-  const armV=G.kind==='ball'?ar.b:G.kind==='imp'||G.kind==='gel'||G.kind==='blast'?ar.i:G.kind==='flech'?Math.max(2*ar.i,ar.b):G.kind==='apds'?Math.floor(ar.b/2):0;
+  const armV=armorAgainst(ar)[G.kind]||0;
   const armWhy=G.kind==='ball'?'Ballistic '+ar.b:G.kind==='imp'||G.kind==='blast'?'Impact '+ar.i:G.kind==='gel'?'Impact '+ar.i+' (gel)':G.kind==='flech'?`higher of double Impact (${2*ar.i}) or Ballistic (${ar.b})`:G.kind==='apds'?`Ballistic ${ar.b} halved, rounded down (GM call)`:'armor doesn’t help against spells';
   const hard=dkI?(+dkI.h||0):0;
   const v2d=!!(dkI&&dkI.vr2), v2a=v2d?v2Armor():0; const gPow=G.kind==='gel'?G.pow-2:G.pow, gTn=mxHit?(v2d?Math.max(2,G.pow-v2a):G.pow):blackHit?Math.max(2,G.pow-hard):(spellHit?G.pow:Math.max(2,gPow-armV))+susPen();
@@ -493,7 +499,7 @@ function nightHTML(){
     let rd=''; if(W.kind==='gun'&&W.gid){const at=(S.ammoT||{})[W.gid]; if(at) rd=`<span class="b2vi"><span class="b2k">Rounds</span><b>${at.in.n}${W.cap!=null?'/'+W.cap:''}</b></span>`;}
     const boxes2=`<span class="b2mb"><span class="b2k">P</span>${mb(ph)}</span><span class="b2mb st"><span class="b2k">S</span>${mb(sn)}</span>`;
     const condTxt=`Physical ${S.phys}, Stun ${S.stun}`, dd=d=>`data-b2a="drop" data-d="${d}" aria-expanded="${B.drop===d}" aria-controls="b2vp-${d}"`;
-    const wornN=ar.bodyG&&GEARDB[ar.bodyG.key]?GEARDB[ar.bodyG.key].n:'', ess=(6-essenceUsed()).toFixed(2).replace(/\.?0+$/,'');
+    const wornN=ar.bodyG?wearName(ar.bodyG):'', ess=(6-essenceUsed()).toFixed(2).replace(/\.?0+$/,'');
     const items=`<button type="button" class="b2vbox" ${dd('cond')} aria-label="${condTxt}. Open the condition monitor">${boxes2}</button>
       <span class="b2vi${w?' b2warn':''}"><span class="b2k">Wounds</span><b>${w?`+${w} TN, −${w} Init`:'unhurt'}</b></span>
       <span class="b2vg"><span class="b2vi"><span class="b2k">Initiative ${I.r}${w?' − '+w:''} + ${I.d}D6</span><b>${ini}</b>${passes?`<small>${passes}</small>`:''}</span><button type="button" class="primary b2vb" data-b2a="ini">Roll</button><button type="button" class="ghost b2vb b2vdd" ${dd('ini')} aria-label="Initiative details: where you are and Copy for Roll20"><span aria-hidden="true">▾</span></button></span>
@@ -509,7 +515,7 @@ function nightHTML(){
     return `<div class="b2vit${B.vitOpen?' open':''}" role="region" aria-label="Vitals"><div class="b2vrow" id="b2vrow">${items}</div>
      <button type="button" class="b2vtuck" data-b2a="vit" aria-expanded="${!!B.vitOpen}" aria-controls="b2vrow" aria-label="Vitals: ${condTxt}${w?', wounds +'+w:''}. Show more">${boxes2}${w?`<b class="b2warn">+${w}</b>`:''}<span class="b2vmore">${B.ini==null?'':'Init '+ini+' · '}Pool ${B.pool} · Karma ${B.karma}</span><span aria-hidden="true">${B.vitOpen?'▴':'▾'}</span></button>
      ${ntabs}
-     <div class="b2vpan">${vp('cond',`<section class="b2pan" id="b2cond"><div class="b2h"><h3>Condition</h3><span class="${w||S.phys>10?'b2warn':'b2ok'}">${E(cond)}</span></div>
+     ${B.drop==='wear'?'<button type="button" class="b2vscrim" data-b2a="drop" data-d="wear" tabindex="-1" aria-label="Close Wearing"></button>':''}<div class="b2vpan b2vpan-${B.drop||'none'}">${vp('cond',`<section class="b2pan" id="b2cond"><div class="b2h"><h3>Condition</h3><span class="${w||S.phys>10?'b2warn':'b2ok'}">${E(cond)}</span></div>
      <span class="b2k">Physical</span><div class="b2boxes">${boxes('phys',10)}<span class="b2ovl">overflow</span>${boxes('phys',B10,true)}</div>
      <span class="b2k">Stun</span><div class="b2boxes">${boxes('stun',10)}</div>
      ${S.phys>10&&S.phys<=10+B10?`<div class="b2dying"><b>Bleeding out.</b> One more box every 10 minutes until someone stabilizes you; past ${10+B10} boxes you’re dead (core p. 111). To stabilize (core p. 115): First Aid, a Biotech test at the Deadly target number (10, “special”) within the first hour, then your own natural Body test against 10 if it fails; a trauma patch gives another natural Body test against 4 + dermal armor. A Heal or Treat spell or a DocWagon crew also works. Karma Pool can reroll your own Body tests.</div>`:''}
@@ -832,10 +838,13 @@ function stripHTML(){const c=S._calc||{}; const iss=[...document.querySelectorAl
 function shareGM(){const T=sheetStats(); const g={r:T.reaction,d:T.dice,cp:T.cpool,b:augAttr('body')+hasDerm(),a:[T.ar.b,T.ar.i]}; const o=S._gm||{};
   if(o.r!==g.r||o.d!==g.d||o.cp!==g.cp||o.b!==g.b||String(o.a)!==String(g.a)){S._gm=g; save();}}
 // ---------- mount ----------
-function dropClose(){if(!B.drop&&!B.vitOpen) return false; B.drop=null; B.vitOpen=false; const v=document.querySelector('#b2night .b2vit'); if(v){v.classList.remove('open'); v.querySelectorAll('.b2vp').forEach(p=>p.hidden=true); v.querySelectorAll('[data-b2a="drop"],[data-b2a="vit"]').forEach(b=>b.setAttribute('aria-expanded','false'));} return true;}
+function dropPlace(n){const v=n&&n.querySelector('.b2vit'), pan=v&&v.querySelector('.b2vpan'); if(!pan) return; pan.style.left=''; if(!B.drop||!window.matchMedia('(min-width:40.0625em)').matches) return;
+  const o=v.querySelector(`.b2vrow [data-b2a="drop"][data-d="${B.drop}"]`); if(!o||o.offsetParent===null) return; const a=o.closest('.b2vg')||o, x=a.getBoundingClientRect().left-v.getBoundingClientRect().left;
+  pan.style.left=Math.max(0,Math.min(x,v.clientWidth-pan.offsetWidth))+'px';} // fix8: the drop-down opens under the thing that was clicked
+function dropClose(){if(!B.drop&&!B.vitOpen) return false; B.drop=null; B.vitOpen=false; const v=document.querySelector('#b2night .b2vit'); if(v){v.classList.remove('open'); v.querySelectorAll('.b2vp').forEach(p=>p.hidden=true); v.querySelectorAll('.b2vscrim').forEach(x=>x.remove()); v.querySelectorAll('[data-b2a="drop"],[data-b2a="vit"]').forEach(b=>b.setAttribute('aria-expanded','false'));} return true;}
 function redraw(){const n=$('b2night'); if(n&&B.tab==='night'){const f=document.activeElement, d=f&&n.contains(f)&&f.dataset?f.dataset:null;
   const q=d?(d.b2?`[data-b2="${d.b2}"]`:d.b2p?`[data-b2p="${d.b2p}"][data-v="${d.v}"]`:d.b2s?`[data-b2s="${d.b2s}"][data-d="${d.d}"]`:d.b2a?`[data-b2a="${d.b2a}"]${d.d?`[data-d="${d.d}"]`:''}`:d.b2c?`[data-b2c="${d.b2c}"]`:null):null;
-  n.innerHTML=nightHTML(); if(q){let e=null; try{e=n.querySelector(q);}catch(x){} if(e&&!e.disabled&&e.offsetParent!==null) e.focus({preventScroll:true});}}}
+  n.innerHTML=nightHTML(); dropPlace(n); if(q){let e=null; try{e=n.querySelector(q);}catch(x){} if(e&&!e.disabled&&e.offsetParent!==null) e.focus({preventScroll:true});}}}
 function afTotals(){const n=$('b2after'); if(!n||B.tab!=='after') return; const tmp=document.createElement('div'); tmp.innerHTML=afterHTML(); {const h1=n.querySelector('#b2heal'), h2=tmp.querySelector('#b2heal'); if(h1&&h2) h1.innerHTML=h2.innerHTML;} const a=n.querySelector('#b2afd'), b=tmp.querySelector('#b2afd'); if(a&&b) a.innerHTML=b.innerHTML; const s1=n.querySelector('[data-b2a="afsave"]'), s2=tmp.querySelector('[data-b2a="afsave"]'); if(s1&&s2) s1.disabled=s2.disabled; n.querySelectorAll('[data-b2n]').forEach(i=>{const j=tmp.querySelector(`[data-b2n="${i.dataset.b2n}"]`); if(j&&i!==document.activeElement) i.value=j.value;});}
 function redrawAfter(){const n=$('b2after'); if(n&&B.tab==='after') n.innerHTML=afterHTML();}
 function redrawStrip(){try{practiceBar();}catch(e){}

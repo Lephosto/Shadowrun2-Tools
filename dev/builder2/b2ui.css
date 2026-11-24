@@ -92,10 +92,7 @@ body.b2prac #b2strip{outline:2px dashed var(--warn);outline-offset:2px}
 .b2wearsel{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:flex-end;margin-top:4px}
 .b2wearsel .b2f{flex:1 1 11rem;min-width:0}.b2wearsel select{min-height:2.75rem;width:100%}
 .b2wearsel .b2wfg{min-height:2.75rem;display:flex;align-items:center}
-.b2wparts{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:8px;font-size:var(--t-sm)}
-.b2wp{display:inline-flex;gap:4px;align-items:baseline;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:var(--soft)}
-.b2wp b{font-family:var(--f-mono)}.b2wp-tot{border-color:var(--accent);background:var(--accent-soft)}.b2wp-tot b{color:var(--accent)}
-.b2wop{color:var(--muted)}.b2wnote{margin:8px 0 0}
+.b2wnote{margin:8px 0 0}
 .b2camo{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:flex-end;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}.b2camo .b2f{flex:1 1 7.5rem;min-width:0}.b2camo select{min-height:2.75rem;width:100%}
 .b2camo .b2cfx{flex:2 1 14rem;font-size:var(--t-sm)}.b2cfx b{font-family:var(--f-mono)}
 #b2wearBuild{margin:0 0 16px;padding:12px 16px;border:1px solid var(--line);border-radius:var(--radius);background:var(--soft)}
@@ -261,3 +258,21 @@ a.glink{display:inline-flex;align-items:center;min-height:24px}
 .b2vrow .b2vi>.b2vs{grid-column:1/-1}
 .b2vrow .b2vchip small{max-width:9rem}
 @media (min-width:40.0625em){body.b2gn nav.jump #b2gv{margin:0 0 0 auto}nav.jump #b2gv button{min-height:2rem}}
+/* Wearing (fix8, from the armor popover mockup): how it adds up and what it counts as against each hit; camouflage without a pattern menu; a bottom sheet on phones */
+.b2wgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+.b2wbox{display:flex;flex-direction:column;gap:4px;padding:12px;background:var(--panel2);border-radius:var(--radius);min-width:0}
+.b2wrow{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.b2wrow b{font-family:var(--f-mono)}.b2wrow small{color:var(--muted);font-size:var(--t-xs)}
+.b2wrow.tot{border-top:1px solid var(--line);padding-top:4px}.b2wrow.tot b:last-child{color:var(--accent)}
+@media (max-width:48em){.b2wgrid{grid-template-columns:minmax(0,1fr)}}
+.b2camoh{flex:1 1 100%}
+.b2vpan-wear{width:min(44rem,100%)}
+.b2vscrim{display:none}
+@media (max-width:40em){
+  .b2vscrim{display:block;position:fixed;inset:0;z-index:60;min-height:0;border:0;padding:0;border-radius:0;background:var(--scrim)}
+  #b2vp-wear{position:fixed;left:0;right:0;bottom:0;z-index:61;margin:0;max-height:85vh;border-radius:var(--radius) var(--radius) 0 0;box-shadow:0 -8px 24px rgba(0,0,0,.18)}
+  #b2vp-wear>.b2pan{border-radius:var(--radius) var(--radius) 0 0;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+}
+.b2wrow.tot b:first-child{font-family:var(--f-body)}
+.b2wvs1{display:none;margin:4px 0 0;font-size:var(--t-xs);color:var(--muted)}
+.b2camo .b2cfx{flex:1 1 100%;padding:8px 12px;border-radius:var(--radius);background:var(--panel2)}
+@media (max-width:40em){.b2wvs{display:none}.b2wvs1{display:block}.b2wearsel .b2f{flex:1 1 9rem}.b2vpan.b2vpan-wear{z-index:61}}
