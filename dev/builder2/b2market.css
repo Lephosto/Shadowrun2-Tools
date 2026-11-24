@@ -1,0 +1,40 @@
+/* Marketplace tab (2026-11-23); approved mockup: Phase 4 design board, row 3 */
+body.b2mk #b2market{display:block}
+body.b2mk .layout,body.b2mk .sesnote,body.b2mk .mbar,body.b2mk #b2strip,body.b2mk #b2gv{display:none!important}
+.mkgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+@media (min-width:62em){.mkgrid{grid-template-columns:minmax(0,1fr) minmax(18rem,24rem)}.mkside{position:sticky;top:calc(var(--jumpH,0px) + 16px)}}
+.mkmain,.mkside{display:flex;flex-direction:column;gap:16px;min-width:0}
+.mkadd{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;padding:12px;background:var(--panel-2);border-radius:var(--radius)}
+.mkgrow{flex:1 1 14rem}.mkadd input{width:100%;min-height:var(--tap)}.mkadd button{min-height:var(--tap)}
+.mklist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.mkline{display:grid;grid-template-columns:minmax(10rem,1.4fr) auto minmax(14rem,1.6fr) minmax(10rem,1.4fr) auto;gap:8px 12px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line)}
+.mkline:last-child{border-bottom:0}
+.mkline.ok{background:var(--ok-soft)}.mkline.no{background:var(--bad-soft)}
+.mkname{display:flex;flex-direction:column;min-width:0}.mkname b{font-weight:600}.mkname small,.mkstat small{color:var(--muted);font-size:var(--t-xs)}
+.mkctl{display:flex;gap:8px}.mkq{display:flex;flex-direction:column;gap:4px}.mkq input{width:4.5rem;min-height:var(--tap);font-family:var(--f-mono)}
+.mknums{display:flex;flex-wrap:wrap;gap:4px 12px}.mknums span{display:flex;flex-direction:column}.mknums small{font-size:var(--t-xs);color:var(--muted);text-transform:uppercase;letter-spacing:0.05em}.mknums b{font-family:var(--f-mono);font-weight:500}
+.mkprice{color:var(--price)}
+.mkstat{display:flex;flex-direction:column;gap:4px;min-width:0}.mkstat button{align-self:flex-start;min-height:var(--tap)}
+.mkx{width:var(--tap);min-height:var(--tap);padding:0;justify-self:end}
+.mkwho,.mkpay{gap:12px}.mkwho select{min-height:var(--tap);width:100%}
+.mkchips{display:flex;flex-wrap:wrap;gap:8px}.mkchips span{padding:4px 12px;border-radius:999px;background:var(--panel-2)}.mkchips b{font-family:var(--f-mono)}
+.mkrow{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:flex-end}
+.mkf{display:flex;flex-direction:column;gap:4px}
+.mkct{border-top:1px dashed var(--line);padding-top:8px}.mkct summary{cursor:pointer;min-height:var(--tap);display:flex;align-items:center}
+.mkroll,.mkbuy{min-height:var(--tap)}
+.mksum{display:flex;justify-content:space-between;gap:8px}.mksum b{font-family:var(--f-mono)}
+.mktot{padding-top:8px;border-top:1px solid var(--line)}.mktot b{font-size:var(--t-lg)}
+.mkess{padding:8px 12px;border-radius:var(--radius);background:var(--panel-2)}
+.mkpay{border:2px solid var(--brand)}
+.mkfree{border-top:1px dashed var(--line);padding-top:8px}.mkfree summary{cursor:pointer;min-height:var(--tap);display:flex;align-items:center}.mkfree[open]{display:flex;flex-direction:column;gap:8px}.mkfree input{width:100%;min-height:var(--tap)}
+.mkpicks{display:flex;flex-direction:column;gap:4px;max-height:20rem;overflow:auto;padding:4px;border:1px solid var(--line);border-radius:var(--radius)}
+.mkpick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-height:var(--tap)}.mkpick span{flex:1 1 10rem}.mkpick small{color:var(--muted);font-family:var(--f-mono)}.mkpick input[type=number]{width:4.5rem;min-height:var(--tap)}
+.mkul{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px}
+.mkhist details summary{cursor:pointer;min-height:var(--tap);display:flex;align-items:center}
+@media (max-width:62em){.mkline{grid-template-columns:minmax(0,1fr) auto}.mkctl,.mknums,.mkstat{grid-column:1 / -1}.mkx{grid-row:1;grid-column:2}}
+@media (max-width:62em){.mkgrid{display:flex;flex-direction:column}.mkmain{display:contents}.mkcart{order:1}.mkside{order:2}.mkfence{order:3}.mkhist{order:4}}
+.mkbar{display:none}
+@media (max-width:40em){.mkbar{display:flex;flex-direction:column;gap:8px;position:sticky;bottom:0;z-index:12;margin:16px -16px 0;padding:12px 16px;background:var(--panel);border-top:1px solid var(--line)}.mkbar>div{display:flex;justify-content:space-between;font-size:var(--t-xs);color:var(--muted)}.mkbar b{font-family:var(--f-mono);font-size:var(--t-sm);color:var(--ink)}.mkbar button{min-height:48px}}
+#b2market label.mkpick{flex-direction:row;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:var(--t-sm);font-weight:400;color:var(--ink);min-height:var(--tap)}
+#b2market .mkpick input[type=checkbox]{width:24px;height:24px;margin:0;flex:0 0 auto}
+#b2market a{color:var(--brand);font-weight:600}

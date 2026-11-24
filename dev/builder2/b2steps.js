@@ -27,7 +27,7 @@ const $$=(s,r)=>[...(r||document).querySelectorAll(s)];
 const H=s=>esc(String(s));
 const mqWide=window.matchMedia('(min-width:56.3125em)');
 const wide=()=>mqWide.matches;
-const onBuild=()=>{const c=document.body.classList; return !c.contains('b2gn')&&!c.contains('b2af');};
+const onBuild=()=>{const c=document.body.classList; return !c.contains('b2gn')&&!c.contains('b2af')&&!c.contains('b2mk');};
 const reduced=()=>window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 const cssPx=n=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue(n))||0;
 const runner=()=>!!S.established;

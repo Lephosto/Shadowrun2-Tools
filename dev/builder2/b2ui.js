@@ -230,7 +230,7 @@ function attacks(){
     S.powers.forEach((p,i)=>{const sp=spellFind(p.name); if(!sp||sp.cat!=='Combat') return;
       out.push({id:'sp'+i,grp:'spell',kind:'spell',sname:p.name,n:p.name+' (Force '+(+p.cost||1)+')',maxF:+p.cost||1,sp,dice:null,skill:mp,pool:mp,note:(sp.pg||'')+' · '+(sp.ty==='M'?'mana: target resists with Willpower':'physical: target resists with Body')});});
     S.powers.forEach((p,i)=>{const sp=spellFind(p.name); if(!sp||sp.cat==='Combat') return; const du=spellDur(p.name);
-      out.push({id:'sc'+i,grp:'cast',kind:'cast',n:p.name+' (Force '+(+p.cost||1)+')',maxF:+p.cost||1,sp,dur:du,dice:null,skill:mp,pool:mp,note:(sp.pg||'')+' · '+sp.cat+' · '+(DURN[du]||'')});});}
+      out.push({id:'sc'+i,grp:'cast',kind:'cast',sname:p.name,n:p.name+' (Force '+(+p.cost||1)+')',maxF:+p.cost||1,sp,dur:du,dice:null,skill:mp,pool:mp,note:(sp.pg||'')+' · '+sp.cat+' · '+(DURN[du]||'')});});}
   // spirits the magician has called (kept on the sheet; spirit table core p. 144)
   (S.spirits||[]).forEach((x,i)=>{const F=+x.f||1, ST=SPIRITS[x.t]; if(!ST) return;
     out.push({id:'s'+i,grp:'spirit',kind:'spirit',n:ST.n+', Force '+F+((+x.sv||0)?' · '+x.sv+' service'+(x.sv>1?'s':''):''),dice:ST.dice?ST.dice(F):null,diceSrc:ST.dice?ST.dsrc(F):'powers: the GM sets the dice',dmg:ST.dmg?ST.dmg(F):'by power',ranged:!!ST.ranged,reach:ST.reach||0,f:F,note:ST.note(F)});});
@@ -245,9 +245,10 @@ function attacks(){
   // Matrix: Attack programs on the deck (core p. 175, 179)
   {const mx=typeof matrixInfo==='function'?matrixInfo():null; if(mx&&(mx.hasDeck||mx.vr2)) S.gear.forEach((g,i)=>{if(!GEARDB[g.key]) return; const r=+g.r||1;
     if(/^prog:/.test(g.key)&&!/^prog:(Attack|Persona)/.test(g.key)) return out.push({id:'u'+i,grp:'matrix',kind:'util',n:GEARDB[g.key].n+' '+r+(g.loaded?'':' (not loaded)'),rating:r,gi:i,loaded:!!g.loaded,hp:chipNoPool(/^computer/i)?0:(mx.pool||0),skill:r,dmg:'—',note:'Utility test: rating + Hacking Pool (up to the rating) against the node\u2019s System Rating; the node rolls its System Rating against your Evasion; you need more successes than the node plus its Security Code (core p. 174).'});
-    if(!/^prog2?:Attack/.test(g.key||'')) return; const v2=/^prog2:/.test(g.key);
-    out.push({id:'m'+i,grp:'matrix',kind:'matrix',n:GEARDB[g.key].n+' '+r+(g.loaded||v2?'':' (not loaded)'),rating:r,v2,gi:i,loaded:!!g.loaded||v2,hp:chipNoPool(/^computer/i)?0:(mx.pool||0),skill:r,dmg:v2?'VR2: '+((/-([LMSD])$/.exec(GEARDB[g.key].n)||[])[1]||'?')+' damage, VR2 rules':'1 box per extra success',
-      note:v2?'Virtual Realities 2.0 has its own Matrix combat rules (VR2 p. 98 on): the GM sets dice and target number here.':'Only while jacked in. A target resists; extra successes over theirs (and the node’s Security Code) are boxes; 10 crash it (core p. 179).'});});}
+    if(!/^prog2?:Attack/.test(g.key||'')) return; const v2=/^prog2:/.test(g.key), lv=v2?((/-([LMSD])$/.exec(GEARDB[g.key].n)||[])[1]||'M'):null;
+    out.push({id:'m'+i,grp:'matrix',kind:'matrix',n:GEARDB[g.key].n+' '+r+(g.loaded?'':' (not loaded)'),rating:r,v2,lv,gi:i,loaded:!!g.loaded,hp:chipNoPool(/^computer/i)?0:(mx.pool||0),skill:r,dmg:v2?r+lv:'1 box per extra success',
+      note:v2?'Matrix 2.0 cybercombat: the utility’s rating plus Hacking Pool, against a target number set by the host’s Security Code and whether the target is Legitimate or Intruding (VR2 p. 123–124).':'Only while jacked in. A target resists; extra successes over theirs (and the node’s Security Code) are boxes; 10 crash it (core p. 179).'});});
+   const dk2=typeof deckInfo==='function'?deckInfo():null; if(mx&&dk2&&dk2.vr2) out.push({id:'vsys',grp:'matrix',kind:'vsys',n:'System Test (VR2): Computer, helped by a utility',hp:chipNoPool(/^computer/i)?0:(mx.pool||0),skill:0,dmg:'—',loaded:true,note:'Matrix 2.0 System Test: your Computer skill against the subsystem’s rating, less the utility you run; the host rolls its Security Value against your Detection Factor (VR2 p. 18–19).'});}
   return out;
 }
 // spirit table, core p. 144 (F = Force); hermetics call elementals, shamans call nature spirits (core p. 140-144)
@@ -257,6 +258,12 @@ const SPIRITS={
  water:{n:'Water elemental',dice:F=>F,dsrc:F=>'its Force ('+F+') as the skill',dmg:F=>F+'S Stun',note:F=>'Attacks as Unarmed Combat for Stun. Engulf, Manifestation, Movement (core p. 144).'},
  air:{n:'Air elemental',note:F=>'Attacks through its powers: Engulf, Noxious Breath, Psychokinesis (core p. 144). The GM sets the dice.'},
  nature:{n:'Nature spirit',note:F=>'Works through its powers (Accident, Concealment, Confusion, Fear, Guard and so on by kind, core p. 144). The GM sets the dice.'}};
+const V2TN={1:[6,3],2:[5,4],3:[4,5],4:[3,6]}; // VR2 p. 123: host Security Code → target number against an Intruding / a Legitimate icon
+const V2BOX={L:1,M:2,S:3,D:6}; // VR2 p. 124: boxes an icon fills for each damage level
+const V2SUB=['Access','Control','Index','Files','Slave']; // VR2 p. 19: the subsystems a System Test is made against
+function v2Utils(){return S.gear.map((g,i)=>[g,i]).filter(([g])=>/^prog2:/.test(g.key||'')&&!/^prog2:Attack/.test(g.key)&&GEARDB[g.key]).map(([g,i])=>({i,n:GEARDB[g.key].n,r:+g.r||1,deg:+g.deg||0,loaded:!!g.loaded}));}
+function v2Armor(){return v2Utils().filter(u=>u.n==='Armor'&&u.loaded).reduce((m,u)=>Math.max(m,Math.max(0,u.r-u.deg)),0);} // an Armor utility loses a point each time damage gets through (VR2 p. 99); g.deg counts them
+const HSPT={L:5,M:10,S:15,D:20}; // Heal and Treat: turns to hold the spell (core p. 155)
 const GRP={on:'Carried',off:'Not on you: stashed or in a vehicle',base:'Basic attacks',spell:'Combat spells',cast:'Other spells (cast them here)',spirit:'Spirits',drone:'Drones and vehicles',matrix:'Matrix (while jacked in)'};
 // ---------- Game night ----------
 function nightHTML(){
@@ -331,10 +338,26 @@ function nightHTML(){
     if(B.mode==='b1'||B.mode==='b2'){dmg=bump(pow(W.dmg,3),1); dmgNote='burst: +3 Power, +1 level (core p. 92)';}
     if(B.mode[0]==='f'){dmg=bump(pow(W.dmg,rounds),Math.floor(rounds/3)); dmgNote=`full auto: +${rounds} Power, +${Math.floor(rounds/3)} level (core p. 92–93)`;}
     dmgNote=(dmgNote?dmgNote+' · ':'')+'lock on first with a Sensor Test (R2 p. 28, 58); track belts by hand'+(W.hasR2?'':' · Sensor isn’t listed for this vehicle, so it counts as 0');
+  } else if(W.kind==='matrix'&&W.v2){
+    const sc=Math.max(1,Math.min(4,+B.v2sc||1)), st=B.v2st==='i'?'i':'l';
+    top+=pills('v2sc','Host’s Security Code (GM)',[[1,'Blue'],[2,'Green'],[3,'Orange'],[4,'Red']],sc);
+    top+=pills('v2st','The target is',[['l','Legitimate (IC, or on a passcode)'],['i','Intruding']],st);
+    tn=V2TN[sc][st==='i'?0:1]; rows.push([SECN[sc]+' host, '+(st==='i'?'Intruding':'Legitimate')+' target','VR2 p. 123',String(tn)]);
+    top+=step('mxm','Maneuvers, damage, options (GM)',SIGN(B.mxm||0)); if(B.mxm){rows.push(['Maneuvers, damage, options','VR2 p. 122–123',SIGN(B.mxm)]); tn+=B.mxm;}
+    dmg=W.dmg; dmgNote='Power is the rating; every 2 successes raise the level a step. The target resists with Bod (IC: the host’s Security Value) against the Power less its Armor utility, and every 2 of its successes lower the level a step. Icon boxes: Light 1, Moderate 2, Serious 3, Deadly 6; 10 crash it (VR2 p. 123–124).';
+  } else if(W.kind==='vsys'){
+    const dk=typeof deckInfo==='function'?deckInfo():null, P=(dk&&dk.persona)||{}, ut=v2Utils(), cur=ut.find(u=>String(u.i)===String(B.vut))||null, sub=V2SUB.includes(B.vsub)?B.vsub:'Access';
+    top+=sel('vsub','Subsystem',V2SUB.map(x=>[x,x]),sub);
+    top+=step('tnb',sub+' Rating (GM): the target number',B.tnBase); tn=B.tnBase; rows.push([sub+' Rating','VR2 p. 19',String(tn)]);
+    top+=sel('vut','Utility you run',[['','None']].concat(ut.map(u=>[String(u.i),u.n+' '+u.r+(u.loaded?'':' (not loaded)')])),cur?String(cur.i):'');
+    if(cur&&cur.loaded){rows.push([cur.n+' '+cur.r,'VR2 p. 19','−'+cur.r]); tn-=cur.r;}
+    const sl=ut.filter(u=>u.n==='Sleaze'&&u.loaded).reduce((m,u)=>Math.max(m,u.r),0), mask=+P.Masking||0, df=Math.max(1,Math.ceil((mask+sl)/2)); B._df=df;
+    top+=step('vsv','Host’s Security Value (GM): its dice',B.vsv||4);
+    dmg='—'; dmgNote=(cur&&!cur.loaded?'That utility isn’t in active memory, so it doesn’t help yet. ':'')+`The host rolls its Security Value (${B.vsv||4} dice) against your Detection Factor ${df} (Masking ${mask}${sl?' + Sleaze '+sl:''}, halved, rounded up; VR2 p. 18). You need more successes than the host, and every host success goes on your security tally either way (VR2 p. 19). Run the utility the operation calls for (VR2 p. 111, 161).`;
   } else if(W.kind==='matrix'){
     top+=step('tnb','Target number: the node’s System Rating (IC) or the decker’s Bod (GM)',B.tnBase); tn=B.tnBase; rows.push(['System Rating or Bod','core p. 179',String(tn)]);
-    if(!W.v2){top+=sel('sec','Node’s Security Code (GM): successes to beat',[[0,'None (GM says no code)'],[1,'Blue: 1 success'],[2,'Green: 2 successes'],[3,'Orange: 3 successes'],[4,'Red: 4 successes']],Math.min(4,B.sec||0));} else top+=step('dfd','Dice (GM, VR2 rules)',B.dfd||4);
-    dmgNote=W.v2?W.note:'successes beyond the target’s'+(B.sec?' and the '+SECN[Math.min(4,B.sec)]+' Security Code ('+Math.min(4,B.sec)+')':'')+' are boxes on its monitor (core p. 179)';
+    top+=sel('sec','Node’s Security Code (GM): successes to beat',[[0,'None (GM says no code)'],[1,'Blue: 1 success'],[2,'Green: 2 successes'],[3,'Orange: 3 successes'],[4,'Red: 4 successes']],Math.min(4,B.sec||0));
+    dmgNote='successes beyond the target’s'+(B.sec?' and the '+SECN[Math.min(4,B.sec)]+' Security Code ('+Math.min(4,B.sec)+')':'')+' are boxes on its monitor (core p. 179)';
   } else if(W.kind==='util'){
     top+=step('tnb','Node’s System Rating (GM): the target number',B.tnBase); tn=B.tnBase; rows.push(['Node’s System Rating','core p. 174',String(tn)]);
     top+=sel('sec','Node’s Security Code (GM): successes to beat',[[0,'None (GM says no code)'],[1,'Blue: 1 success'],[2,'Green: 2 successes'],[3,'Orange: 3 successes'],[4,'Red: 4 successes']],Math.min(4,B.sec||0));
@@ -342,8 +365,16 @@ function nightHTML(){
     dmgNote=`The System Rating is the target number; the Security Code color is how many extra successes you need (core p. 165). The node rolls ${tn} dice against your Evasion ${ev}; the utility runs if you get more successes than it does${B.sec?`, with at least ${Math.min(4,B.sec)} past its total for the ${SECN[Math.min(4,B.sec)]} code`:''} (core p. 165, 174).`;
   } else if(W.kind==='cast'){
     spellF=Math.max(1,Math.min(B.force||W.maxF,W.maxF)); B.force=spellF; top+=step('force','Force (up to '+W.maxF+')',spellF);
+    const hk=/^(heal|treat)$/i.test(String(W.sname||'').trim())?(/^treat/i.test(W.sname)?'Treat':'Heal'):null; B._heal=null;
+    if(hk){const base=hk==='Treat'?8:10, es=B.hEss==null?6:B.hEss, wl=B.hWl||'M', raw=+(base-es).toFixed(2);
+      top+=`<label class="b2f"><span class="b2k">Target’s Essence</span><input type="number" inputmode="decimal" min="0" max="6" step="0.1" data-b2in="hess" value="${es}"></label>`;
+      top+=sel('hwl','Target’s wound level (sets the Drain and the time)',[['L','Light'],['M','Moderate'],['S','Serious'],['D','Deadly']],wl);
+      tn=Math.max(2,Math.ceil(raw)); B._heal={hk,base,es,wl,tn};
+      rows.push([hk+': '+base+' − Essence '+es,'core p. 155',String(tn)]);
+      dmg='Permanent'; dmgNote=(hk==='Treat'?'Treat works only within an hour of the injury; Heal works any time. ':'Heal works any time (Treat only within an hour of the injury). ')+`Each success heals one box, or goes into the time: hold the spell for ${HSPT[wl]} turns ÷ the successes put there. A set of injuries can be healed by magic only once (core p. 155).`+(raw%1&&raw>2?` Dice show whole numbers, so ${raw} needs a ${tn} or better.`:'');
+    } else {
     top+=step('tnb','Target number (GM): the spell’s “Target” line',B.tnBase); tn=B.tnBase; rows.push(['Spell’s target number',W.sp.pg||'core p. 150–158',String(tn)]);
-    dmg=DURN[W.dur]||'—'; dmgNote=(W.dur==='S'?'Sustained: add it under Sustaining when it works. ':'')+(W.sp.cat==='Health'?'Health spells: successes count against the spell’s target; a magician’s own tests get no Magic Pool help from others. ':'')+'Effects follow the spell’s description in the book.';
+    dmg=DURN[W.dur]||'—'; dmgNote=(W.dur==='S'?'Sustained: add it under Sustaining when it works. ':'')+(W.sp.cat==='Health'?'Health spells: successes count against the spell’s target; a magician’s own tests get no Magic Pool help from others. ':'')+'Effects follow the spell’s description in the book.';}
   } else if(W.kind==='spirit'){
     if(W.ranged){top+=step('tnb','Base target number (GM)',B.tnBase); tn=B.tnBase; rows.push(['Base target number','Ranged Combat, range '+(W.f*2)+' m · core p. 144',String(tn)]);}
     else {tn=4; rows.push(['Melee','opposed: the defender rolls too · core p. 100','4']);}
@@ -368,7 +399,9 @@ function nightHTML(){
   // dice
   const aimLock=W.kind==='gun'&&(B.aim||0)>=2;
   if(W.kind==='spell'){maxSp=B.mpool; const sp=Math.min(B.spend,maxSp); dice=spellF+sp; dSrc='Force '+spellF+(sp?' + '+sp+' Magic Pool':'');}
-  else if(W.kind==='matrix'||W.kind==='util'){if(B.hpool==null||B.hpMax!==W.hp){B.hpMax=W.hp;B.hpool=W.hp;} maxSp=W.v2?0:Math.min(B.hpool,W.rating); const sp=Math.min(B.spend,maxSp); dice=(W.v2?(B.dfd||4):W.rating)+sp; dSrc=(W.v2?'GM-set (VR2 rules)':(W.kind==='util'?'program rating ':'Attack rating ')+W.rating)+(sp?' + '+sp+' Hacking Pool':'');}
+  else if(W.kind==='matrix'||W.kind==='util'||W.kind==='vsys'){if(B.hpool==null||B.hpMax!==W.hp){B.hpMax=W.hp;B.hpool=W.hp;} maxSp=W.v2||W.kind==='vsys'?B.hpool:Math.min(B.hpool,W.rating); const sp=Math.min(B.spend,maxSp);
+    if(W.kind==='vsys'){const sd=skillDiceNow('Computer','',''); dice=(sd.dice||0)+sp; dSrc=(sd.dice==null?'no Computer skill (GM call)':sd.how+' '+sd.dice)+(sp?' + '+sp+' Hacking Pool':'');}
+    else {dice=W.rating+sp; dSrc=(W.kind==='util'?'program rating ':'Attack rating ')+W.rating+(sp?' + '+sp+' Hacking Pool':'');}}
   else if(W.kind==='cast'){maxSp=B.mpool; const sp=Math.min(B.spend,maxSp); dice=spellF+sp; dSrc='Force '+spellF+(sp?' + '+sp+' Magic Pool':'');}
   else if(W.kind==='spirit'){maxSp=0; dice=W.dice==null?(B.dfd||4):W.dice; dSrc=W.diceSrc;}
   else if(W.kind==='drone'){const auto=B.dmode==='auto', h=B.dtgt==='p'?0:Math.floor(W.sen/2); maxSp=auto||W.gunChip?0:Math.min(B.pool,W.gun||0); const sp=Math.min(B.spend,maxSp); dice=(auto?W.pil:W.gun)+h+sp; dSrc=(auto?'Pilot '+W.pil:'Gunnery '+(W.gunChip?'chip ':'')+W.gun+(W.gunChip?' (ActiveSoft: no Combat Pool, core p. 248)':''))+(B.dtgt==='p'?'':' + half Sensor ('+h+')')+(sp?' + '+sp+' Combat Pool':'');}
@@ -377,15 +410,19 @@ function nightHTML(){
   const kOK=!(W.kind==='spirit'||(W.kind==='drone'&&B.dmode==='auto')), kdBase=kOK?Math.max(0,dice-spend):0; B._kdMax=Object.assign(B._kdMax||{},{atk:kdBase});
   const kdA=Math.min((B.kdSrc||[]).length,kdBase); if(kdA){dice+=kdA; dSrc+=' + '+kdA+' Karma';}
   if((W.kind==='matrix'||W.kind==='util')&&!W.v2) poolCtl+=step('spend','Hacking Pool ('+B.hpool+' left, up to the rating '+W.rating+')',spend);
-  else if(W.kind!=='spirit'&&W.kind!=='matrix'&&W.kind!=='util'&&!(W.kind==='drone'&&B.dmode==='auto')) poolCtl+=step('spend',(W.kind==='cast'?'Magic Pool':poolName)+' ('+(W.kind==='spell'||W.kind==='cast'?B.mpool:B.pool)+' left'+(W.kind!=='spell'&&W.kind!=='cast'?', max '+maxSp+' on this attack':'')+')',spend);
+  else if(W.v2||W.kind==='vsys') poolCtl+=step('spend','Hacking Pool ('+B.hpool+' left; VR2 p. 18)',spend);
+  else if(W.kind!=='spirit'&&W.kind!=='matrix'&&W.kind!=='util'&&W.kind!=='vsys'&&!(W.kind==='drone'&&B.dmode==='auto')) poolCtl+=step('spend',(W.kind==='cast'?'Magic Pool':poolName)+' ('+(W.kind==='spell'||W.kind==='cast'?B.mpool:B.pool)+' left'+(W.kind!=='spell'&&W.kind!=='cast'?', max '+maxSp+' on this attack':'')+')',spend);
   const notLoaded=(W.kind==='matrix'||W.kind==='util')&&!W.loaded;
   if(aimLock) rows.push(['No Combat Pool dice','aiming over more than one Combat Phase · core p. 82','—']);
   const rowsHTML=rows.map(([k,s,v],j)=>`<div class="b2r${j%2?' alt':''}"><span>${E(k)} <small>${E(s)}</small></span><b class="${/^\+[1-9]/.test(v)?'b2warn':/^−/.test(v)?'b2ok':''}">${E(v)}</b></div>`).join('')+`<div class="b2r tot"><span>Target number</span><b>${tn}</b></div>`;
   let drain='';
-  if(W.kind==='spell'||W.kind==='cast'){const sp=W.sp, dt=Math.max(2,Math.floor(spellF/2)+(sp.m||0))+susPen(), dl=sp.lv, phys=spellF>magicNow(); drain=`<div class="b2drain"><b>Drain</b> ${E(drainText(sp,spellF))}${susPen()?' (target number '+dt+' with sustaining)':''}${phys?' Physical (Force over Magic)':' Stun'} · resist with Willpower ${attrNow('wil')} plus Magic Pool held back; every 2 successes drop it a level (core p. 129). <button class="primary" data-b2a="drain">Roll Drain</button> ${resHTML(B.drainRes)}${B.drainHit?`<button class="primary" data-b2a="drmark">Mark the ${E(B.drainHit.what)}: ${B.drainHit.n} ${B.drainHit.phys?'Physical':'Stun'}</button>`:''}</div>`;}
+  if(W.kind==='spell'||W.kind==='cast'){const sp=W.sp, dt=Math.max(2,Math.floor(spellF/2)+(sp.m||0))+susPen(), dl=sp.lv, phys=spellF>magicNow(); drain=`<div class="b2drain"><b>Drain</b> ${E(drainText(sp,spellF))}${sp.lv==='W'&&B._heal?': '+({L:'Light',M:'Moderate',S:'Serious',D:'Deadly'})[B._heal.wl]:''}${susPen()?' (target number '+dt+' with sustaining)':''}${phys?' Physical (Force over Magic)':' Stun'} · resist with Willpower ${attrNow('wil')} plus Magic Pool held back; every 2 successes drop it a level (core p. 129). <button class="primary" data-b2a="drain">Roll Drain</button> ${resHTML(B.drainRes)}${B.drainHit?`<button class="primary" data-b2a="drmark">Mark the ${E(B.drainHit.what)}: ${B.drainHit.n} ${B.drainHit.phys?'Physical':'Stun'}</button>`:''}</div>`;}
   const rolled=B.roll?dieTiles(B.roll):'';
   const succ=B.roll?B.roll.r.filter(v=>v>=B.roll.tn).length+(B.roll.ks||0):0;
   let res=B.warn?B.warn:B.spNote&&B.roll&&W.kind==='spirit'?(B.roll.r.filter(v=>v>=B.roll.tn).length+' successes vs TN '+B.roll.tn+' · '+B.spNote):!B.roll?'Sixes roll again and add (Rule of Six, core p. 32).':B.roll.r.every(v=>v===1)&&!B.roll.ks?(B.roll.oops?'All ones, but Karma made it a plain failure (core p. 191).':'All ones: Rule of One (core p. 32).'):`${succ} success${succ===1?'':'es'}${kNote(B.roll)?' (Karma: '+kNote(B.roll)+')':''}`;
+  if(B.roll&&W.kind==='cast'&&B._heal&&succ>0&&!B.warn){const T=HSPT[B._heal.wl], o=[]; for(let t=0;t<=Math.min(succ,4);t++){if(t===1) continue; const bx=succ-t; o.push(`${bx} box${bx===1?'':'es'} healed, held ${t?Math.round(T/t*10)/10:T} turns`);} res+=' · each one heals a box or goes into the time (one alone changes nothing): '+o.join('; ')+(succ>4?'; …':'')+' (boxes only up to the damage marked).';}
+  if(B.roll&&W.kind==='matrix'&&W.v2&&succ>0&&!B.warn){const i=Math.min(3,L4.indexOf(W.lv)+Math.floor(succ/2)); res+=` · it hits for ${W.rating}${L4[i]} before the target resists (VR2 p. 124).`;}
+  if(B.roll&&B.roll.host){const H=B.roll.host; res+=` · the host rolled ${H.r.join(' ')} → ${H.k} vs your Detection Factor ${H.df}: `+(succ>H.k?'you win the test.':'the host wins; the operation fails.')+` Add ${H.k} to your security tally (VR2 p. 19).`;}
   let nodeFail=false; if(B.roll&&B.roll.node){const N=B.roll.node, sc=N.sec||0, runs=succ>N.k&&succ-N.k>=sc; nodeFail=!runs; res+=` · the node rolled ${N.r.join(' ')} → ${N.k} vs your Evasion ${N.ev}. You need more than ${N.k}${sc?`, with at least ${sc} past it for the ${SECN[sc]} code (${N.k+Math.max(sc,1)} in all)`:''}: `+(runs?'the utility runs.':'it doesn’t run.');}
   B._cur={W,tn,dice,dSrc,dmg,rounds,spend,rows,spellF,kd:kdA}; // used by the buttons
   const amods=`TN ${tn}: `+(rows.filter(([k,x,v])=>v&&!/^(\+?0|—|−0)$/.test(String(v))).map(([k,x,v])=>k+' '+v).join(', ')||'no modifiers')+` · ${dice} dice`;
@@ -394,13 +431,14 @@ function nightHTML(){
   const armV=G.kind==='ball'?ar.b:G.kind==='imp'||G.kind==='gel'||G.kind==='blast'?ar.i:G.kind==='flech'?Math.max(2*ar.i,ar.b):G.kind==='apds'?Math.floor(ar.b/2):0;
   const armWhy=G.kind==='ball'?'Ballistic '+ar.b:G.kind==='imp'||G.kind==='blast'?'Impact '+ar.i:G.kind==='gel'?'Impact '+ar.i+' (gel)':G.kind==='flech'?`higher of double Impact (${2*ar.i}) or Ballistic (${ar.b})`:G.kind==='apds'?`Ballistic ${ar.b} halved, rounded down (GM call)`:'armor doesn’t help against spells';
   const hard=dkI?(+dkI.h||0):0;
-  const gPow=G.kind==='gel'?G.pow-2:G.pow, gTn=mxHit?G.pow:blackHit?Math.max(2,G.pow-hard):(spellHit?G.pow:Math.max(2,gPow-armV))+susPen();
+  const v2d=!!(dkI&&dkI.vr2), v2a=v2d?v2Armor():0; const gPow=G.kind==='gel'?G.pow-2:G.pow, gTn=mxHit?(v2d?Math.max(2,G.pow-v2a):G.pow):blackHit?Math.max(2,G.pow-hard):(spellHit?G.pow:Math.max(2,gPow-armV))+susPen();
   let gLv=G.lvl; if(G.kind==='flech'&&G.fl&&derm) gLv=L4[Math.max(0,L4.indexOf(G.lvl)-1)];
   const mpcp=dkI?(+dkI.mpcp||0):0; if(mxHit&&(B.hpool==null)){const mx=typeof matrixInfo==='function'?matrixInfo():null; B.hpMax=mx&&!chipNoPool(/^computer/i)?mx.pool:0; B.hpool=B.hpMax;}
-  const gBase=mxHit?mpcp:(G.kind==='mana'||(blackHit&&G.stun))?attrNow('wil'):blackHit?natBody():bodyR, gSp=mxHit?Math.min(G.spend,B.hpool||0):spellHit?(isMag?Math.min(G.spend,B.mpool):0):blackHit?0:Math.min(G.spend,B.pool);
+  const gBase=mxHit?(v2d?(+((dkI.persona||{}).Bod)||0):mpcp):(G.kind==='mana'||(blackHit&&G.stun))?attrNow('wil'):blackHit?natBody():bodyR, gSp=mxHit?Math.min(G.spend,B.hpool||0):spellHit?(isMag?Math.min(G.spend,B.mpool):0):blackHit?0:Math.min(G.spend,B.pool);
   const gPoolName=mxHit?'Hacking Pool':spellHit?'Magic Pool (spell defense)':'Combat Pool';
   let gRes=''; if(G.roll){const R=G.roll,k=R.r.filter(x=>x>=R.tn).length+(R.ks||0),pk=R.r.slice(R.r.length-R.pool).filter(x=>x>=R.tn).length; R.boxes=null; R.final=null;
     if(G.att===0){gRes=R.kind==='mana'||R.kind==='phys'?'The caster had no successes: the spell has no effect (core p. 131).':'The attacker had no successes: it misses, no damage (core p. 90–91).';}
+    else if(R.kind==='icp'&&R.v2){const i=L4.indexOf(R.lvl)+Math.floor(G.att/2)-Math.floor(k/2); R.mx=true; if(i<0){R.boxes=0; gRes=`${k} success${k===1?'':'es'}: you stage it away, no damage.`;} else {const lv=L4[Math.min(3,i)]; R.boxes=V2BOX[lv]; gRes=`${k} success${k===1?'':'es'}: your icon takes ${lv} (${V2BOX[lv]} box${V2BOX[lv]>1?'es':''}; VR2 p. 124)`+(lv==='D'?'. VR2 p. 124 also says Deadly crashes the icon outright: GM call.':'.')+(v2a?' Marking it also takes a point off your Armor utility (VR2 p. 99).':'');}}
     else if(R.kind==='icp'){const n=Math.max(0,G.att-k); R.boxes=n; R.mx=true; gRes=`${k} success${k===1?'':'es'} vs ${G.att}: `+(n?`${n} box${n>1?'es':''} on your persona (10 crash the deck and dump you, core p. 179).`:'your persona shrugs it off.');}
     else if(R.kind==='black'){const n=Math.floor(Math.max(0,G.att-k)/2); R.boxes=n; gRes=`${k} success${k===1?'':'es'} vs the IC’s ${G.att}: `+(n?`${n} Light wound${n>1?'s':''} (${n} box${n>1?'es':''} ${R.stun?'Stun':'Physical'}; core p. 171).`:'no damage.');}
     else if((R.kind==='mana'||R.kind==='phys')&&k>G.att) gRes=`${k} successes vs the caster’s ${G.att}: you win, the spell doesn’t affect you (core p. 131).`;
@@ -408,7 +446,7 @@ function nightHTML(){
     else {const d=k-G.att, idx=L4.indexOf(R.lvl)+(d<0?Math.floor(-d/2):-Math.floor(d/2)); R.final=idx<0?null:L4[Math.min(3,idx)]; gRes=`${k} success${k===1?'':'es'} vs the attacker’s ${G.att}: `+(R.final?`takes ${R.final} ${R.stun?'Stun':'Physical'} (${BOXES[R.final]} box${BOXES[R.final]>1?'es':''}).`:'no damage.');}}
   if(G.roll&&kNote(G.roll)) gRes+=' Karma: '+kNote(G.roll)+'.';
   B._kdMax=Object.assign(B._kdMax||{},{gh:gBase}); const kdG=Math.min((G.kdSrc||[]).length,gBase);
-  B._gh={gTn,gBase,gSp,gLv,armV,gPow,spellHit,kd:kdG};
+  B._gh={gTn,gBase,gSp,gLv,armV,gPow,spellHit,kd:kdG}; B._ghv2=mxHit&&v2d;
   const ghRolled=G.roll?dieTiles(G.roll):'';
   // skills
   const skl=[]; S.skills.filter(x=>x.name).forEach(x=>skillPartsNow(x).forEach(p=>{if(p.r) skl.push([p.label,p.r,p.chip]);}));
@@ -460,10 +498,10 @@ function nightHTML(){
       <div class="b2aside"><button class="ghost" data-b2a="copy" ${W.grp==='off'?'disabled':''}>Copy for Roll20</button><button class="ghost" data-b2a="newact">New action: refresh pools</button><button class="ghost" data-b2a="newturn">New Combat Turn</button><button class="ghost" data-b2a="newscene">New scene</button>
        <p class="note">Pools refresh at the start of each of your actions (core p. 78, 84). A new Combat Turn also clears Initiative. A new scene refills Karma Pool and Team Karma (core p. 191).</p></div></div>${copyBox}</section>
    <section class="b2pan"><div class="b2h"><h3>Got hit</h3><span class="note">armor follows what you wear</span></div>
-     <div class="b2ctl">${sel('gh:kind','What hit you',Object.entries(HITS),G.kind)}${step('gh:pow',spellHit?'Spell Force':mxHit?'Node’s System Rating':blackHit?'IC Rating':'Incoming Power',G.pow)}${mxHit||blackHit?'':sel('gh:lvl','Damage level',[['L','Light'],['M','Moderate'],['S','Serious'],['D','Deadly']],G.lvl)}${step('gh:att',spellHit?'Caster’s successes':mxHit||blackHit?'IC’s successes':'Attacker’s successes',G.att)}${G.kind==='gel'||mxHit?'':sel('gh:dt','Damage',[['p','Physical'],['s','Stun (Stun spells, stun weapons, pulled blows)']],G.stun?'s':'p')}${(spellHit&&!isMag)||blackHit?'':step('gh:spend',gPoolName+' ('+(mxHit?(B.hpool||0):spellHit?B.mpool:B.pool)+' left)',gSp)}
+     <div class="b2ctl">${sel('gh:kind','What hit you',Object.entries(HITS),G.kind)}${step('gh:pow',spellHit?'Spell Force':mxHit?(v2d?'Attack’s Power (its rating)':'Node’s System Rating'):blackHit?'IC Rating':'Incoming Power',G.pow)}${(mxHit&&!v2d)||blackHit?'':sel('gh:lvl','Damage level',[['L','Light'],['M','Moderate'],['S','Serious'],['D','Deadly']],G.lvl)}${step('gh:att',spellHit?'Caster’s successes':mxHit||blackHit?'IC’s successes':'Attacker’s successes',G.att)}${G.kind==='gel'||mxHit?'':sel('gh:dt','Damage',[['p','Physical'],['s','Stun (Stun spells, stun weapons, pulled blows)']],G.stun?'s':'p')}${(spellHit&&!isMag)||blackHit?'':step('gh:spend',gPoolName+' ('+(mxHit?(B.hpool||0):spellHit?B.mpool:B.pool)+' left)',gSp)}
      ${G.kind==='flech'&&derm?`<label class="b2f b2wide b2chk"><input type="checkbox" data-b2c="gh:fl" ${G.fl?'checked':''}> The code already has flechette’s extra level (an “(f)” code)</label>`:''}</div>
-     ${mxHit?'<p class="note">Resist with your MPCP plus Hacking Pool (core p. 179). Damage goes on the persona monitor below.</p>':blackHit?'<p class="note">Hanging tough: Body (Willpower for Stun) against the IC Rating; hardening counts as armor; every 2 extra IC successes is a Light wound (core p. 171). Jacking out is a Willpower test against the IC Rating.</p>':''}
-     <div class="b2nums"><div><span class="b2k">Dice</span><b>${gBase+gSp+kdG}</b><small>${mxHit?'MPCP '+gBase:G.kind==='mana'||(blackHit&&G.stun)?'Willpower '+gBase:blackHit?'natural Body '+gBase:'Body '+bodyR+(hasDerm()?' with dermal armor':'')}${kdG?' + '+kdG+' Karma':''}${gSp?' + '+gSp+' '+gPoolName:''}</small></div><div><span class="b2k">If successes tie</span><b>${gLv}${G.kind==='gel'?' Stun':''}</b><small>${G.kind==='flech'&&G.fl&&derm?'dermal armor cancels flechette’s extra level (core p. 93)':G.kind==='gel'?'gel: Power −2, Stun (core p. 95)':G.kind==='apds'?'core p. 277':'core p. 91'}</small></div></div>
+     ${mxHit&&v2d?`<p class="note">Resist with your persona’s Bod plus Hacking Pool against the Power${v2a?' less your Armor utility ('+v2a+')':''}.${v2Utils().some(u=>u.n==='Armor'&&u.deg)?' Your Armor utility has lost '+v2Utils().filter(u=>u.n==='Armor').reduce((m,u)=>Math.max(m,u.deg),0)+' point(s); a fresh copy (Swap Memory) restores it. <button class="ghost" data-b2a="armfresh">Fresh copy loaded</button>':''} Every 2 attacker successes raise the level a step and every 2 of yours lower it; IC hits Moderate on Blue and Green hosts, Serious on Orange and Red (VR2 p. 123–124).${dkI.vr2&&dkI.vr2.d&&dkI.vr2.d.asist==='hot'?' On a hot deck, damage from white or gray IC also calls for a Willpower test against 2, 3 or 5 for Light, Moderate or Serious (+2 DNI only, −2 with an ICCM); failing it is 1 Stun box (VR2 p. 124).':''}</p>`:mxHit?'<p class="note">Resist with your MPCP plus Hacking Pool (core p. 179). Damage goes on the persona monitor below.</p>':blackHit?'<p class="note">Hanging tough: Body (Willpower for Stun) against the IC Rating; hardening counts as armor; every 2 extra IC successes is a Light wound (core p. 171). Jacking out is a Willpower test against the IC Rating.</p>':''}
+     <div class="b2nums"><div><span class="b2k">Dice</span><b>${gBase+gSp+kdG}</b><small>${mxHit?(v2d?'persona Bod ':'MPCP ')+gBase:G.kind==='mana'||(blackHit&&G.stun)?'Willpower '+gBase:blackHit?'natural Body '+gBase:'Body '+bodyR+(hasDerm()?' with dermal armor':'')}${kdG?' + '+kdG+' Karma':''}${gSp?' + '+gSp+' '+gPoolName:''}</small></div><div><span class="b2k">If successes tie</span><b>${gLv}${G.kind==='gel'?' Stun':''}</b><small>${G.kind==='flech'&&G.fl&&derm?'dermal armor cancels flechette’s extra level (core p. 93)':G.kind==='gel'?'gel: Power −2, Stun (core p. 95)':G.kind==='apds'?'core p. 277':'core p. 91'}</small></div></div>
      <div class="b2row"><button class="primary" data-b2a="ghroll">Roll ${gBase+gSp+kdG} dice</button><button class="ghost" data-b2a="ghcopy">Copy for Roll20</button><button class="ghost" data-b2a="ghmark" ${G.roll&&(G.roll.final||G.roll.boxes)?'':'disabled'}>Mark it on the monitor</button></div>
      <div class="b2rc" aria-live="polite">${G.roll?`<b class="b2rc-big">${E(gRes)}</b><div class="b2dice">${ghRolled}</div>`:`<p class="note">Pool dice have an outline: if they alone beat the attacker, it’s a complete miss.</p>`}<div class="b2rc-mods">${E(`TN ${gTn}: `+(spellHit?`Force ${G.pow}`:`Power ${gPow}, armor −${armV}`)+(susPen()?`, sustaining +${susPen()}`:'')+` · ${gBase+gSp+kdG} dice`)}</div></div><details class="b2math"><summary>Show the math</summary><div class="b2rows"><div class="b2r"><span>${spellHit?'Spell Force':'Power'+(G.kind==='gel'?' ('+G.pow+' − 2 for gel)':'')}</span><b>${spellHit?G.pow:gPow}</b></div><div class="b2r alt"><span>Armor: ${E(armWhy)}</span><b>${spellHit?'—':'−'+armV}</b></div>${susPen()?`<div class="b2r"><span>Sustaining ${susN()} spell${susN()>1?'s':''} <small>core p. 128</small></span><b class="b2warn">+${susPen()}</b></div>`:''}<div class="b2r tot"><span>Target number${mxHit?' (the node’s System Rating)':blackHit?' (IC Rating'+(hard?' − Hardening '+hard:'')+')':spellHit?'':' (never below 2 before sustaining)'}</span><b>${gTn}</b></div></div></details>${karmaTuck(G.att?G.roll:null,'gh',gBase)}</section>
    ${chipsHTML()}
@@ -539,12 +577,14 @@ function act(a){const C=B._cur, W=C&&C.W; B.warn='';
   else if(a==='roll'||a==='copy'){
     if(W.kind==='gun'&&W.gid){const at=(S.ammoT||{})[W.gid]; if(at){if(at.in.n<C.rounds){B.warn='Not enough rounds loaded: load or change the clip first.'; return redraw();} ammoAct(W.gid,'fire',C.rounds);}}
     if(W.kind==='gun'||W.kind==='drone') B.fired+=C.rounds;
-    if(W.kind==='spell') B.mpool-=C.spend; else if(W.kind==='matrix') B.hpool-=C.spend; else B.pool-=C.spend; B.spend=0;
+    if(W.kind==='spell'||W.kind==='cast') B.mpool-=C.spend; else if(W.kind==='matrix'||W.kind==='util'||W.kind==='vsys') B.hpool-=C.spend; else B.pool-=C.spend; B.spend=0;
     const kd=kdTake(B,C.kd||0); if(a==='roll'){B.roll={r:rollN(C.dice,C.tn),tn:C.tn,pool:C.spend,kc:0,ks:0,kd}; B.copy=null;
+      if(W.kind==='vsys'){const df=Math.max(2,B._df||2), hr=rollN(B.vsv||4,df); B.roll.host={r:hr,k:hr.filter(x=>x>=df).length,df:B._df||2};}
       if(W.kind==='util'){const ev=B._ev||0, nr=rollN(B.tnBase,Math.max(2,ev)); B.roll.node={r:nr,k:nr.filter(x=>x>=Math.max(2,ev)).length,ev,sec:Math.min(4,B.sec||0)};}
       if(W.kind==='spirit'){const x=(S.spirits||[])[+W.id.slice(1)]; if(x){x.sv=Math.max(0,(+x.sv||0)-1); if(!x.sv) B.warn=null; B.spNote=x.sv?`${x.sv} service${x.sv>1?'s':''} left.`:'That was its last service: it leaves (core p. 140).'; if(!x.sv) S.spirits.splice(+W.id.slice(1),1); render(); return;}}}
     else {const why=C.rows.map(r=>r[0].toLowerCase()+' '+r[2]).join(', '); let t=`&{template:default} {{name=${who()}: ${W.n}}} {{Dice=${C.dice} (${C.dSrc})}} {{Target number=${C.tn} (${why})}} {{Successes=${r20(C.dice,C.tn)}}} {{Damage=${C.dmg}}}`;
       if((W.kind==='util'||(W.kind==='matrix'&&!W.v2))&&B.sec){const sc=Math.min(4,B.sec); t+=` {{Security Code=${SECN[sc]}: needs ${sc} more success${sc>1?'es':''} than ${W.kind==='util'?'the node rolls':'the target rolls'} (core p. ${W.kind==='util'?174:179})}}`;} else if(W.kind==='util') t+=` {{Needs=more successes than the node rolls (core p. 174)}}`;
+      if(W.kind==='vsys') t+=` {{Host=${r20(B.vsv||4,Math.max(2,B._df||2))} vs Detection Factor ${B._df||2}: more successes than the host wins; host successes go on the security tally (VR2 p. 19)}}`;
       if(W.kind==='gun'&&W.gid){const at=S.ammoT[W.gid]; t+=` {{Rounds=${C.rounds} fired, ${at.in.n} left}}`;}
       if(W.kind==='spell'){const dt=Math.max(2,Math.floor(C.spellF/2)+(W.sp.m||0))+susPen(); t+=` {{Drain=${r20(attrNow('wil')+B.mpool,dt)} vs ${drainText(W.sp,C.spellF)}${C.spellF>magicNow()?' Physical':' Stun'}}}`;}
       copyOut(t,'Attack'); B.roll=null;}
@@ -585,21 +625,22 @@ function act(a){const C=B._cur, W=C&&C.W; B.warn='';
   else if(a==='vit'){B.vitOpen=!B.vitOpen;}
   else if(a==='jumpcond'){B.vitOpen=false; redraw(); const c=$('b2cond'); if(c) c.scrollIntoView({behavior:'smooth',block:'start'}); return;}
   else if(a==='load'||a==='swap'){if(W.gid){if(a==='load'&&B.amSel) S.ammoT[W.gid].sel=B.amSel; ammoAct(W.gid,a); render(); return;}}
-  else if(a==='drain'){const sp=W.sp, F=C.spellF, dt=Math.max(2,Math.floor(F/2)+(sp.m||0))+susPen(), n=attrNow('wil')+B.mpool, r=rollN(n,dt), k=r.filter(x=>x>=dt).length; const lv0=sp.lv==='W'||sp.lv==='X'?null:sp.lv;
+  else if(a==='drain'){const sp=W.sp, F=C.spellF, dt=Math.max(2,Math.floor(F/2)+(sp.m||0))+susPen(), n=attrNow('wil')+B.mpool, r=rollN(n,dt), k=r.filter(x=>x>=dt).length; const lv0=sp.lv==='W'?(W.kind==='cast'&&B._heal?B._heal.wl:null):sp.lv==='X'?null:sp.lv;
     const dm=`TN ${dt}: half the Force (${F})${sp.m?(sp.m>0?' +':' −')+Math.abs(sp.m):''}${susPen()?', sustaining +'+susPen():''} · Willpower ${attrNow('wil')} + Magic Pool ${B.mpool}`;
     B.drainHit=null; if(!lv0) B.drainRes=RR(r,dt,{head:'Drain',mods:dm,tail:'The Drain level depends on the target (core p. 129).'}); else {const idx=L4.indexOf(lv0)-Math.floor(k/2); if(idx>=0) B.drainHit={n:BOXES[L4[idx]],phys:F>magicNow(),what:'Drain'}; B.drainRes=RR(r,dt,{head:'Drain',mods:dm,tail:idx<0?'No Drain.':`${L4[idx]} ${F>magicNow()?'Physical':'Stun'} Drain. Mark it below.`});}}
   else if(a==='drmark'){const h=B.drainHit; if(h){if(h.phys) S.phys=Math.min(10+natBody()+1,S.phys+h.n); else {const tot=S.stun+h.n; S.stun=Math.min(10,tot); if(tot>10) S.phys=Math.min(10+natBody()+1,S.phys+(tot-10));} B.drainHit=null; render(); return;}}
-  else if(a==='ghroll'){const g=B._gh, k=B.gh.kind; const kd=kdTake(B.gh,g.kd||0); B.gh.roll={r:rollN(g.gBase+kd+g.gSp,g.gTn),pool:g.gSp,tn:g.gTn,lvl:g.gLv,stun:k==='gel'||(!!B.gh.stun&&k!=='icp'),kind:k,kc:0,ks:0,kd}; if(k==='icp') B.hpool=Math.max(0,(B.hpool||0)-g.gSp); else if(k==='mana'||k==='phys') B.mpool=Math.max(0,B.mpool-g.gSp); else B.pool-=g.gSp; B.gh.spend=0;}
+  else if(a==='ghroll'){const g=B._gh, k=B.gh.kind; const kd=kdTake(B.gh,g.kd||0); B.gh.roll={r:rollN(g.gBase+kd+g.gSp,g.gTn),pool:g.gSp,tn:g.gTn,lvl:g.gLv,v2:k==='icp'&&!!B._ghv2,stun:k==='gel'||(!!B.gh.stun&&k!=='icp'),kind:k,kc:0,ks:0,kd}; if(k==='icp') B.hpool=Math.max(0,(B.hpool||0)-g.gSp); else if(k==='mana'||k==='phys') B.mpool=Math.max(0,B.mpool-g.gSp); else B.pool-=g.gSp; B.gh.spend=0;}
   else if(a==='ghcopy'){const g=B._gh; B.pool-=g.gSp; copyOut(`&{template:default} {{name=${who()} resists ${B.gh.pow}${B.gh.lvl}, ${HITS[B.gh.kind].toLowerCase()}}} {{Target number=${g.gTn}${g.spellHit?' (the Force)':' (Power '+g.gPow+' − armor '+g.armV+')'}}} {{Resist dice=${r20(g.gBase,g.gTn)}}}`+(g.gSp?` {{Combat Pool=${r20(g.gSp,g.gTn)}}}`:'')+` {{If successes tie=${g.gLv}${B.gh.kind==='gel'?' Stun':''}; every 2 more than the attacker drops a level}}`,'Damage resistance'); B.gh.spend=0;}
+  else if(a==='armfresh'){S.gear.forEach(g=>{if(g.key==='prog2:Armor') delete g.deg;}); render(); return;}
   else if(a==='ghmark'){const R=B.gh.roll; const n=R?(R.boxes!=null&&R.boxes!==undefined&&(R.mx||R.kind==='black')?R.boxes:R.final?BOXES[R.final]:0):0;
-    if(R&&n){if(R.mx) S.mxDmg=Math.min(10,(S.mxDmg||0)+n); else if(R.stun){const tot=S.stun+n; S.stun=Math.min(10,tot); if(tot>10) S.phys=Math.min(10+natBody()+1,S.phys+(tot-10)); /* Stun past 10 carries into Physical, core p. 111 */} else S.phys=Math.min(10+natBody()+1,S.phys+n); B.gh.roll=null; render(); return;}}
+    if(R&&n){if(R.mx){S.mxDmg=Math.min(10,(S.mxDmg||0)+n); if(R.v2){const a=v2Utils().filter(u=>u.n==='Armor'&&u.loaded&&u.r-u.deg>0).sort((x,y)=>(y.r-y.deg)-(x.r-x.deg))[0]; if(a){const g=S.gear[a.i]; g.deg=(+g.deg||0)+1;}}} else if(R.stun){const tot=S.stun+n; S.stun=Math.min(10,tot); if(tot>10) S.phys=Math.min(10+natBody()+1,S.phys+(tot-10)); /* Stun past 10 carries into Physical, core p. 111 */} else S.phys=Math.min(10+natBody()+1,S.phys+n); B.gh.roll=null; render(); return;}}
   redraw();}
 function stepper(id,d){
   if(id==='aim'){const W=B._cur.W; B.aim=Math.max(0,Math.min(Math.floor((W.skill||0)/2),(B.aim||0)+d));}
   else if(id==='sec'){B.sec=Math.max(0,Math.min(4,(B.sec||0)+d));}
   else if(id==='spf'){B.spf=Math.max(1,(B.spf||3)+d);} else if(id==='spsv'){B.spsv=Math.max(0,(B.spsv==null?1:B.spsv)+d);}
   else if(id==='gm') B.gm+=d; else if(id==='spend') B.spend=Math.max(0,B.spend+d); else if(id==='force') B.force=Math.max(1,(B.force||1)+d);
-  else if(id==='tnb') B.tnBase=Math.max(2,B.tnBase+d); else if(id==='dfd') B.dfd=Math.max(1,(B.dfd||4)+d);
+  else if(id==='tnb') B.tnBase=Math.max(2,B.tnBase+d); else if(id==='mxm') B.mxm=(B.mxm||0)+d; else if(id==='vsv') B.vsv=Math.max(1,(B.vsv||4)+d); else if(id==='dfd') B.dfd=Math.max(1,(B.dfd||4)+d);
   else if(id==='gh:pow'){B.gh.pow=Math.max(1,B.gh.pow+d);B.gh.roll=null;} else if(id==='gh:att') B.gh.att=Math.max(0,B.gh.att+d); else if(id==='gh:spend') B.gh.spend=Math.max(0,B.gh.spend+d);
   else if(id==='sk:tn') B.sk.tn=Math.max(2,B.sk.tn+d);
   else if(id==='vsp'){B.vsp=Math.max(0,Math.min(B.cpool||0,(B.vsp||0)+d));}
@@ -696,14 +737,14 @@ const s=$('b2strip'); if(s) s.innerHTML=stripHTML(); {const j=document.querySele
 // Game night has two views (Phase 2, 2026-11-22): Play (the table panels) and Gear and ammo (ammo tracker, nuyen log, Stash, Deck, Rigging, Skillsofts)
 function gvSync(){document.body.classList.toggle('b2gear',B.tab==='night'&&B.gv==='gear'); const g=$('b2gv'); if(g) g.querySelectorAll('[data-gv]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.gv===B.gv)));}
 function setGv(v){B.gv=v; keep(); gvSync(); if(v==='play') redraw(); window.scrollTo(0,0);}
-function setTab(t){B.tab=t; keep(); document.body.classList.toggle('b2gn',t==='night'); document.body.classList.toggle('b2af',t==='after'); gvSync();
+function setTab(t){if(t==='market'&&!S.established) t='build'; B.tab=t; keep(); document.body.classList.toggle('b2gn',t==='night'); document.body.classList.toggle('b2af',t==='after'); document.body.classList.toggle('b2mk',t==='market'); gvSync();
   if(typeof sessionSet==='function') sessionSet(t==='night',true);
   document.querySelectorAll('#b2tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
-  if(t==='night') redraw(); if(t==='after') redrawAfter(); redrawStrip(); window.scrollTo(0,0);}
+  if(t==='night') redraw(); if(t==='after') redrawAfter(); if(t==='market'&&window.SR2MK) SR2MK.draw(); redrawStrip(); window.scrollTo(0,0);}
 function mount(){
   const nav=$('jump'); if(!nav||$('b2tabs')) return;
   const tabs=document.createElement('div'); tabs.id='b2tabs'; tabs.setAttribute('role','tablist'); tabs.setAttribute('aria-label','Mode');
-  tabs.innerHTML=[['build','Build'],['night','Game night'],['after','After the session']].map(([k,l])=>`<button role="tab" data-tab="${k}" aria-selected="${B.tab===k}">${l}</button>`).join('');
+  tabs.innerHTML=[['build','Build'],['market','Marketplace'],['night','Game night'],['after','After the session']].map(([k,l])=>`<button role="tab" data-tab="${k}" aria-selected="${B.tab===k}"${k==='market'&&!S.established?' hidden':''}>${l}</button>`).join('');
   nav.insertBefore(tabs,nav.firstChild);
   {const pb=document.createElement('button'); pb.id='b2pracBtn'; pb.type='button'; pb.className='ghost b2pracb'; pb.dataset.b2a='prac'; pb.textContent='Practice session'; tabs.after(pb);
    const bar=document.createElement('div'); bar.id='b2prac'; bar.className='b2pracbar'; bar.hidden=true; bar.setAttribute('role','status'); nav.after(bar);}
@@ -714,7 +755,8 @@ function mount(){
   const drawer=document.createElement('div'); drawer.id='b2drawer'; drawer.hidden=true; strip.after(drawer);
   const lay=document.querySelector('.layout'); const night=document.createElement('section'); night.id='b2night'; night.className='b2wrap'; night.setAttribute('aria-label','Game night');
   const after=document.createElement('section'); after.id='b2after'; after.className='b2wrap'; after.setAttribute('aria-label','After the session'); const gv=document.createElement('div'); gv.id='b2gv'; gv.setAttribute('role','tablist'); gv.setAttribute('aria-label','Game night view'); gv.innerHTML='<button role="tab" type="button" data-gv="play">Play</button><button role="tab" type="button" data-gv="gear">Gear and ammo</button>'; gv.addEventListener('click',e=>{const b=e.target.closest('[data-gv]'); if(b) setGv(b.dataset.gv);});
-  lay.before(gv); lay.before(night); lay.before(after);
+  const market=document.createElement('section'); market.id='b2market'; market.className='b2wrap'; market.setAttribute('aria-label','Marketplace');
+  lay.before(gv); lay.before(night); lay.before(after); lay.before(market);
   document.addEventListener('click',e=>{const t=e.target.closest('[data-tab],[data-b2p],[data-b2a],[data-b2s],[data-b2trk],[data-b2k],[data-b2snap],[data-b2sv],[data-b2sprm],[data-b2sus]'); if(!t||!t.closest('#b2tabs,#b2night,#b2after,#b2strip,#b2drawer,#b2pracBtn,#b2prac')) return;
     if(t.dataset.tab) return setTab(t.dataset.tab);
     if(t.dataset.b2a==='drawer'){B.drawer=!B.drawer; return redrawStrip();}
@@ -756,20 +798,21 @@ function mount(){
     redraw();});
 function setB2(k,v){const t={value:v};
     if(k==='wid'){B.wid=t.value; B.widBy=B.widBy||{}; B.widBy[S.id]=t.value;B.mode='s1';B.rng=0;B.roll=null;B.spend=0;B.aim=0;B.force=0;B.mount=null;}
-    else if(k==='mode') B.mode=t.value==='fa'?'f'+(B.faN||3):t.value; else if(k==='dmode'){B.dmode=t.value; B.spend=0;} else if(k==='mount') B.mount=t.value; else if(k==='urb') B.urb=t.value; else if(k==='los') B.los=t.value; else if(k==='spt') B.spt=t.value; else if(k==='susp') B.susp=t.value; else if(k==='rng') B.rng=+t.value; else if(k==='dmglv') B.dmgLv=t.value; else if(k==='amsel') B.amSel=t.value;
+    else if(k==='mode') B.mode=t.value==='fa'?'f'+(B.faN||3):t.value; else if(k==='dmode'){B.dmode=t.value; B.spend=0;} else if(k==='mount') B.mount=t.value; else if(k==='urb') B.urb=t.value; else if(k==='los') B.los=t.value; else if(k==='spt') B.spt=t.value; else if(k==='susp') B.susp=t.value; else if(k==='hwl'){B.hWl=t.value; B.drainHit=null; B.drainRes=null;} else if(k==='v2sc'){B.v2sc=+t.value; B.roll=null;} else if(k==='v2st'){B.v2st=t.value; B.roll=null;} else if(k==='vsub'){B.vsub=t.value; B.roll=null;} else if(k==='vut'){B.vut=t.value; B.roll=null;} else if(k==='rng') B.rng=+t.value; else if(k==='dmglv') B.dmgLv=t.value; else if(k==='amsel') B.amSel=t.value;
     else if(k&&k.startsWith('sit:')) B.sit[k.slice(4)]=t.value; else if(k&&k.startsWith('msit:')) B.msit[k.slice(5)]=t.value;
     else if(k==='gh:kind'){B.gh.kind=t.value;B.gh.roll=null;} else if(k==='gh:lvl'){B.gh.lvl=t.value;B.gh.roll=null;} else if(k==='gh:dt'){B.gh.stun=t.value==='s';B.gh.roll=null;} else if(k==='dtgt'){B.dtgt=t.value;B.rng=0;} else if(k==='dft'){B.dft=t.value;} else if(k==='sec'){B.sec=Math.max(0,Math.min(4,+t.value||0)); B.roll=null;} else if(k==='ctc'){B.ctc=+t.value;} else if(k==='inim'){B.inim=t.value; B.ini=null;} else if(k==='ctb'||k==='cte'){const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)]; if(C){if(k==='ctb') {C.cb=t.value; delete C.cei;} else C.cei=+t.value; if(typeof save==='function') save();}} else if(k==='vveh'){B.vveh=+t.value;B.vRes='';} else if(k==='vsk'){B.vsk=+t.value;} else if(k==='vtest'){B.vtest=t.value;B.vRes='';} else if(k==='vter'){B.vter=t.value;}
     else return false;
     return true;}
   document.addEventListener('input',e=>{const t=e.target; if(t&&t.dataset&&t.dataset.b2in==='suson') B.suson=t.value;});
+  document.addEventListener('change',e=>{const t=e.target; if(t&&t.dataset&&t.dataset.b2in==='hess'){const v=parseFloat(t.value); B.hEss=isNaN(v)?6:Math.max(0,Math.min(6,Math.round(v*10)/10)); B.roll=null; redraw();}});
   document.addEventListener('change',e=>{const t=e.target; if(!t||!t.dataset) return; const d=t.dataset;
     if(d.b2chip!=null){const g=S.gear[+d.b2chip]; if(!g) return; if(t.checked){const why=chipBlock(g,chipsOn()); if(why){t.checked=false; return;} g.slot=true;} else delete g.slot; B.hpool=null; B.hpMax=null; render(); return;}
     if(d.b2chipm!=null){const g=S.gear[+d.b2chipm]; if(!g) return; if(t.value) g.mem=true; else delete g.mem; render(); return;}});
   document.addEventListener('change',e=>{const t=e.target; if(!t||!t.dataset||!t.dataset.b2ct) return; const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)]; if(!C) return; C[t.dataset.b2ct]=Math.max(0,Math.min(12,Math.floor(+t.value||0))); if(typeof save==='function') save(); redraw();});
-  const _render=render; render=function(){_render.apply(this,arguments); try{shareGM();}catch(e){} try{if(typeof xferCheck==='function') xferCheck();}catch(e){} try{redraw(); redrawAfter(); redrawStrip();}catch(e){console.error(e);}};
+  const _render=render; render=function(){_render.apply(this,arguments); try{shareGM();}catch(e){} try{if(typeof xferCheck==='function') xferCheck();}catch(e){} try{redraw(); redrawAfter(); redrawStrip(); if(window.SR2MK){if(B.tab==='market'&&!S.established) setTab('build'); SR2MK.draw();}}catch(e){console.error(e);}};
   try{ if(localStorage.getItem('sr2-builder-session')==='1'&&!ST.tab) B.tab='night'; }catch(e){}
   setTab(B.tab);
 }
-window.SR2B2={B,attacks,nightHTML,afterHTML,setTab}; window.chipHaveMap=chipHaveMap; // the Skill Web (swHave) counts slotted chips
+window.SR2B2={B,attacks,nightHTML,afterHTML,setTab}; window.SR2CT={CTBOOK,ctStats,ctGuess,skillDiceNow}; window.chipHaveMap=chipHaveMap; // the Skill Web (swHave) counts slotted chips
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mount); else mount();
 })();
