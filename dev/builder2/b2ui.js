@@ -293,7 +293,7 @@ function nightHTML(){
   if(B.poolMax!==T.cpool){B.poolMax=T.cpool; B.pool=T.cpool;} if(B.karma==null) B.karma=T.kpool;
   const mpMax=isMag?bestRating(/^sorcery/i)+powerFoci():0; if(B.mpool==null||B.mpMax!==mpMax){B.mpMax=mpMax;B.mpool=mpMax;}
   // fix8 (2026-11-23): the big stat tiles moved into the vitals line; Condition, Wearing and Initiative open from it as drop-downs
-  if(!['cond','wear','ini'].includes(B.drop)) B.drop=null;
+  if(!['cond'].concat(SHEETD).includes(B.drop)) B.drop=null;
   // condition monitor
   const dkI=typeof deckInfo==='function'?deckInfo():null; const B10=natBody(); const boxes=(k,n,ov)=>Array.from({length:n},(_,j)=>{const v=ov?11+j:j+1, on=v<=S[k]; const lv={1:'L',3:'M',6:'S',10:'D'}[v]||'';
     return `<button class="b2box${on?' on':''}${ov?' ov':''}${lv?' mk':''}" data-b2trk="${k}" data-v="${v}" aria-pressed="${on}" aria-label="${k==='phys'?'Physical':'Stun'} box ${v}${ov?' (overflow)':''}">${ov?'':lv}</button>`;}).join('');
@@ -502,27 +502,29 @@ function nightHTML(){
     const wornN=ar.bodyG?wearName(ar.bodyG):'', ess=(6-essenceUsed()).toFixed(2).replace(/\.?0+$/,'');
     const items=`<button type="button" class="b2vbox" ${dd('cond')} aria-label="${condTxt}. Open the condition monitor">${boxes2}</button>
       <span class="b2vi${w?' b2warn':''}"><span class="b2k">Wounds</span><b>${w?`+${w} TN, −${w} Init`:'unhurt'}</b></span>
-      <span class="b2vg"><span class="b2vi"><span class="b2k">Initiative ${I.r}${w?' − '+w:''} + ${I.d}D6</span><b>${ini}</b>${passes?`<small>${passes}</small>`:''}</span><button type="button" class="primary b2vb" data-b2a="ini">Roll</button><button type="button" class="ghost b2vb b2vdd" ${dd('ini')} aria-label="Initiative details: where you are and Copy for Roll20"><span aria-hidden="true">▾</span></button></span>
-      <span class="b2vi"><span class="b2k">Combat Pool</span><span class="b2vs"><button class="ghost" data-b2s="vpool" data-d="-1" aria-label="Combat Pool down one">−</button><b>${B.pool}/${T.cpool}</b><button class="ghost" data-b2s="vpool" data-d="1" aria-label="Combat Pool up one">+</button></span></span>
-      ${isMag?`<span class="b2vi"><span class="b2k">Magic Pool</span><b>${B.mpool}/${mpMax}</b></span>`:''}
-      <span class="b2vi"><span class="b2k">Karma</span><b>${B.karma}/${T.kpool}</b>${tk.tot?`<small>team ${tk.left}/${tk.tot}</small>`:''}</span>${rd}
-      <span class="b2vi"><span class="b2k">Body</span><b>${augAttr('body')}</b>${hasDerm()?`<small>+1 dermal: ${bodyR} to resist</small>`:''}</span>
+      <span class="b2vg"><button type="button" class="b2vi b2whyt" ${dd('ini')} aria-label="Initiative ${I.r}${w?' minus '+w:''} plus ${I.d}D6: how it adds up, where you are and Copy for Roll20"><span class="b2k">Initiative ${I.r}${w?' − '+w:''} + ${I.d}D6</span><b>${ini}</b>${passes?`<small>${passes}</small>`:''}</button><button type="button" class="primary b2vb" data-b2a="ini">Roll</button></span>
+      <span class="b2vi"><button type="button" class="b2k b2whyt b2whyk" ${dd('cp')} aria-label="Combat Pool ${B.pool} of ${T.cpool}: how it adds up">Combat Pool</button><span class="b2vs"><button class="ghost" data-b2s="vpool" data-d="-1" aria-label="Combat Pool down one">−</button><b>${B.pool}/${T.cpool}</b><button class="ghost" data-b2s="vpool" data-d="1" aria-label="Combat Pool up one">+</button></span></span>
+      ${isMag?`<button type="button" class="b2vi b2whyt" ${dd('mp')} aria-label="Magic Pool ${B.mpool} of ${mpMax}: how it adds up"><span class="b2k">Magic Pool</span><b>${B.mpool}/${mpMax}</b></button>`:''}
+      <button type="button" class="b2vi b2whyt" ${dd('karma')} aria-label="Karma Pool ${B.karma} of ${T.kpool}: how it adds up"><span class="b2k">Karma</span><b>${B.karma}/${T.kpool}</b>${tk.tot?`<small>team ${tk.left}/${tk.tot}</small>`:''}</button>${rd}
+      <button type="button" class="b2vi b2whyt" ${dd('body')} aria-label="Body ${augAttr('body')}: how it adds up"><span class="b2k">Body</span><b>${augAttr('body')}</b>${hasDerm()?`<small>+1 dermal: ${bodyR} to resist</small>`:''}</button>
       <button type="button" class="b2vchip" ${dd('wear')} aria-label="Armor ${ar.b} Ballistic, ${ar.i} Impact${wornN?', '+E(wornN):''}. Open Wearing"><span class="b2k">Armor <span aria-hidden="true">▾</span></span><b>${ar.b} / ${ar.i}</b>${wornN?`<small>${E(wornN)}</small>`:''}</button>
-      <span class="b2vi"><span class="b2k">Reaction</span><b>${T.reaction}</b></span>
-      ${S.magic!=='none'?`<span class="b2vi"><span class="b2k">Magic</span><b>${magicNow()}</b><small>Essence ${ess}</small></span>`:''}
-      ${isMag&&susN()?`<span class="b2vi b2warn"><span class="b2k">Sustaining</span><b>${susN()}</b><small>+${susPen()} to every TN</small></span>`:''}`;
-    const vp=(d,h)=>`<div class="b2vp" id="b2vp-${d}" data-p="${d}"${B.drop===d?'':' hidden'}><button type="button" class="ghost b2vx" data-b2a="drop" data-d="${d}">Close</button>${h}</div>`;
+      <button type="button" class="b2vi b2whyt" ${dd('react')} aria-label="Reaction ${T.reaction}: how it adds up"><span class="b2k">Reaction</span><b>${T.reaction}</b></button>
+      ${S.magic!=='none'?`<button type="button" class="b2vi b2whyt" ${dd('magic')} aria-label="Magic ${magicNow()}, Essence ${ess}: how it adds up"><span class="b2k">Magic</span><b>${magicNow()}</b><small>Essence ${ess}</small></button>`:''}
+      ${isMag&&susN()?`<button type="button" class="b2vi b2whyt b2warn" ${dd('sus')} aria-label="Sustaining ${susN()} spells, plus ${susPen()} to every target number: which ones"><span class="b2k">Sustaining</span><b>${susN()}</b><small>+${susPen()} to every TN</small></button>`:''}`;
+    const vp=(d,h,c)=>`<div class="b2vp${c?' '+c:''}" id="b2vp-${d}" data-p="${d}"${B.drop===d?'':' hidden'}><button type="button" class="ghost b2vx" data-b2a="drop" data-d="${d}">Close</button>${h}</div>`;
+    const whyP=B.drop==='cp'?vp('cp',whyCp(T),'b2whysh'):B.drop==='mp'&&isMag?vp('mp',whyMp(mpMax),'b2whysh'):B.drop==='karma'?vp('karma',whyKarma(T),'b2whysh'):B.drop==='body'?vp('body',whyBody(),'b2whysh'):B.drop==='react'?vp('react',whyReact(T),'b2whysh'):B.drop==='magic'&&S.magic!=='none'?vp('magic',whyMagic(),'b2whysh'):B.drop==='sus'&&isMag?vp('sus',whySus(),'b2whysh'):'';
     return `<div class="b2vit${B.vitOpen?' open':''}" role="region" aria-label="Vitals"><div class="b2vrow" id="b2vrow">${items}</div>
      <button type="button" class="b2vtuck" data-b2a="vit" aria-expanded="${!!B.vitOpen}" aria-controls="b2vrow" aria-label="Vitals: ${condTxt}${w?', wounds +'+w:''}. Show more">${boxes2}${w?`<b class="b2warn">+${w}</b>`:''}<span class="b2vmore">${B.ini==null?'':'Init '+ini+' · '}Pool ${B.pool} · Karma ${B.karma}</span><span aria-hidden="true">${B.vitOpen?'▴':'▾'}</span></button>
      ${ntabs}
-     ${B.drop==='wear'?'<button type="button" class="b2vscrim" data-b2a="drop" data-d="wear" tabindex="-1" aria-label="Close Wearing"></button>':''}<div class="b2vpan b2vpan-${B.drop||'none'}">${vp('cond',`<section class="b2pan" id="b2cond"><div class="b2h"><h3>Condition</h3><span class="${w||S.phys>10?'b2warn':'b2ok'}">${E(cond)}</span></div>
+     ${SHEETD.includes(B.drop)?`<button type="button" class="b2vscrim" data-b2a="drop" data-d="${B.drop}" tabindex="-1" aria-label="${B.drop==='wear'?'Close Wearing':'Close'}"></button>`:''}<div class="b2vpan b2vpan-${B.drop||'none'}">${vp('cond',`<section class="b2pan" id="b2cond"><div class="b2h"><h3>Condition</h3><span class="${w||S.phys>10?'b2warn':'b2ok'}">${E(cond)}</span></div>
      <span class="b2k">Physical</span><div class="b2boxes">${boxes('phys',10)}<span class="b2ovl">overflow</span>${boxes('phys',B10,true)}</div>
      <span class="b2k">Stun</span><div class="b2boxes">${boxes('stun',10)}</div>
      ${S.phys>10&&S.phys<=10+B10?`<div class="b2dying"><b>Bleeding out.</b> One more box every 10 minutes until someone stabilizes you; past ${10+B10} boxes you’re dead (core p. 111). To stabilize (core p. 115): First Aid, a Biotech test at the Deadly target number (10, “special”) within the first hour, then your own natural Body test against 10 if it fails; a trauma patch gives another natural Body test against 4 + dermal armor. A Heal or Treat spell or a DocWagon crew also works. Karma Pool can reroll your own Body tests.</div>`:''}
-     ${dkI&&!dkI.vr2?`<span class="b2k">Persona (Matrix)</span><div class="b2boxes">${Array.from({length:10},(_,j)=>{const v=j+1,on=v<=(S.mxDmg||0); return `<button class="b2box${on?' on':''}" data-b2trk="mxDmg" data-v="${v}" aria-pressed="${on}" aria-label="Persona box ${v}"></button>`;}).join('')}</div>${(S.mxDmg||0)>=10?'<p class="note b2warn">Crashed: the deck dumps you (dump shock, core p. 165, 179). It’s back to full when restarted.</p>':''}`:''}${T.wmod.pain?`<p class="note">Pain Resistance ${T.wmod.pain} is already taken off the wound modifier.</p>`:''}</section>`)}${vp('wear',wearPanelHTML())}${vp('ini',`<section class="b2pan b2vini" aria-label="Initiative details"><div class="b2h"><h3>Initiative</h3><span class="mono">${iniNow(T).r} + ${iniNow(T).d}D6${w?' − '+w:''}</span></div>
+     ${dkI&&!dkI.vr2?`<span class="b2k">Persona (Matrix)</span><div class="b2boxes">${Array.from({length:10},(_,j)=>{const v=j+1,on=v<=(S.mxDmg||0); return `<button class="b2box${on?' on':''}" data-b2trk="mxDmg" data-v="${v}" aria-pressed="${on}" aria-label="Persona box ${v}"></button>`;}).join('')}</div>${(S.mxDmg||0)>=10?'<p class="note b2warn">Crashed: the deck dumps you (dump shock, core p. 165, 179). It’s back to full when restarted.</p>':''}`:''}${T.wmod.pain?`<p class="note">Pain Resistance ${T.wmod.pain} is already taken off the wound modifier.</p>`:''}</section>`)}${vp('wear',wearPanelHTML())}${whyP}${vp('ini',`<section class="b2pan b2vini b2why" aria-label="Initiative: how it adds up"><div class="b2h"><h3>Initiative</h3><b class="b2whyb">${iniNow(T).r}${w?' − '+w:''} + ${iniNow(T).d}D6</b></div>
+     <div class="b2rows">${whyRows(whyIniRows(T,w))}</div>
      ${iniModes(T).length?`<label class="b2f b2inim"><span class="b2k">Where</span><select data-b2="inim"><option value="" ${!B.inim?'selected':''}>Physical world: ${T.reaction} + ${T.dice}D6</option>${iniModes(T).map(m=>`<option value="${m.id}" ${B.inim===m.id?'selected':''}>Matrix, ${E(m.l.charAt(0).toLowerCase()+m.l.slice(1))}: ${m.r} + ${m.d}D6</option>`).join('')}</select></label>`:''}
      <div class="b2ini"><b>${B.ini==null?'—':Math.max(0,B.ini-w)}</b><span>${B.ini==null?'Roll to see your passes':'Acts on '+(()=>{const o=[];for(let x=Math.max(0,B.ini-w);x>0;x-=10)o.push(x);return o.join(', ')||'—';})()}</span></div>
-     <div class="b2row"><button class="ghost" data-b2a="cini">Copy for Roll20</button></div>${cbox('ini')}<p class="note">Each pass is 10 lower; wounds come off the total (core p. 78).${iniNow(T).m?` In the Matrix, wired reflexes, magic and a VCR add nothing (core p. 178)${iniNow(T).m.id==='kb'?'; keyboard only halves Reaction, rounded down here, and keeps the response-increase dice':''}. Talking with the physical world by voice or screen costs 1D6 of Matrix Initiative under VR2 (p. 120).`:''}</p></section>`)}</div></div>`;})();
+     <div class="b2row"><button class="ghost" data-b2a="cini">Copy for Roll20</button></div>${cbox('ini')}<p class="note">Each pass is 10 lower; wounds come off the total (core p. 78).${iniNow(T).m?` In the Matrix, wired reflexes, magic and a VCR add nothing (core p. 178)${iniNow(T).m.id==='kb'?'; keyboard only halves Reaction, rounded down here, and keeps the response-increase dice':''}. Talking with the physical world by voice or screen costs 1D6 of Matrix Initiative under VR2 (p. 120).`:''}</p></section>`,'b2whysh')}</div></div>`;})();
   return `${vit}${gmHitsHTML()}<div class="b2top2">
    <section class="b2pan b2atk${ntc('atk')}" id="b2nt-atk" data-nt="atk" aria-label="Attack"><div class="b2h"><h3>Attack</h3><span class="note">pick and roll; what rarely changes between shots sits under Situation</span></div>
      <div class="b2atop"><div class="b2aw"><label class="b2f b2wide"><span class="b2k">Attack with</span><select data-b2="wid" class="b2wsel">${groups}</select></label>${ammoLine}</div><div class="b2amid">${top}</div><div class="b2apool">${poolCtl}</div></div>
@@ -534,7 +536,7 @@ function nightHTML(){
        ${downNow?`<p class="b2warn" role="status">${S.phys>=10?"Physical track full: the runner is down and can’t act (core p. 112).":"Stun track full: the runner is unconscious (core p. 112)."} Heal or wake them first.${anyBtn}</p>`:""}${crashedNow?`<p class="b2warn" role="status">The deck has crashed: restart it before running programs (core p. 179).${downNow?"":anyBtn}</p>`:""}
        <div class="b2row"><button class="primary b2roll" data-b2a="roll" ${W.grp==='off'||notLoaded||stopRoll?'disabled':''}>Roll ${dice} dice${rounds?' · '+rounds+' round'+(rounds>1?'s':''):''}</button></div>
        ${notLoaded?(tooBig?`<p class="note b2warn">${E(GEARDB[nlG.key].n)} ${+nlG.r||1} is ${nlSz} Mp, more than the deck’s ${nlDk.am} Mp of active memory in all, so it can never be loaded (${nlDk.vr2?'VR2 p. 85':'core p. 172'}). Lower its rating or add active memory.</p>`:`<p class="note b2warn">This program isn’t in active memory. Load it first (a Simple Action to start; big programs take longer, core p. 173–174). <button class="ghost" data-b2a="mload">Load it</button></p>`):''}
-       <div class="b2rc" aria-live="polite">${B.roll?`<b class="b2rc-big${nodeFail?' b2warn':''}">${E(res)}</b><div class="b2dice">${rolled}</div>`:`<p class="note">${E(res)}</p>`}<div class="b2rc-mods">${E(amods)}</div></div>${hitRow}<details class="b2math"><summary>Show the math</summary><div class="b2rows">${rowsHTML}</div></details>${kOK?karmaTuck(B.roll,'atk',kdBase):`<p class="note">Karma Pool is for your own tests; this is the ${W.kind==='spirit'?'spirit’s':'drone’s'} roll.</p>`}${drain}</div>
+       <div class="b2rc" aria-live="polite">${B.roll?`<b class="b2rc-big${nodeFail?' b2warn':''}">${E(res)}</b><div class="b2dice">${rolled}</div>`:`<p class="note">${E(res)}</p>`}</div>${whyCard('atk',amods,whyBox('Attack · '+W.n,`TN ${tn} · ${dice} dice`,[['Target number','','','h'],...rows.map(([k,s,v])=>{const m=String(s).match(/^(target is|target cover|you are|you’re in melee with|second firearm|other targets this phase) · (.*)$/); return m?[m[1].charAt(0).toUpperCase()+m[1].slice(1)+': '+k.charAt(0).toLowerCase()+k.slice(1),m[2],v,'tn']:[k,s,v,'tn'];}),['Target number','',String(tn),'t'],...whyDiceRows(dSrc,dice,['gun','melee'].includes(W.kind)&&!aimLock?['Combat Pool',maxSp]:null)]))}${hitRow}${kOK?karmaTuck(B.roll,'atk',kdBase):`<p class="note">Karma Pool is for your own tests; this is the ${W.kind==='spirit'?'spirit’s':'drone’s'} roll.</p>`}${drain}</div>
       <div class="b2aside"><button class="ghost" data-b2a="copy" ${W.grp==='off'?'disabled':''}>Copy for Roll20</button><button class="ghost" data-b2a="newact">New action: refresh pools</button><button class="ghost" data-b2a="newturn">New Combat Turn</button><button class="ghost" data-b2a="newscene">New scene</button>
        <p class="note">Pools refresh at the start of each of your actions (core p. 78, 84). A new Combat Turn also clears Initiative. A new scene refills Karma Pool and Team Karma (core p. 191).</p></div></div>${cbox('atk')}</section>
    <section class="b2pan b2gh${ntc('hit')}" id="b2nt-hit" data-nt="hit" aria-label="Got hit"><div class="b2h"><h3>Got hit</h3><span class="note">armor follows what you wear</span></div>
@@ -544,7 +546,7 @@ function nightHTML(){
      ${mxHit&&v2d?`<p class="note">Resist with your persona’s Bod plus Hacking Pool against the Power${v2a?' less your Armor utility ('+v2a+')':''}.${v2Utils().some(u=>u.n==='Armor'&&u.deg)?' Your Armor utility has lost '+v2Utils().filter(u=>u.n==='Armor').reduce((m,u)=>Math.max(m,u.deg),0)+' point(s); a fresh copy (Swap Memory) restores it. <button class="ghost" data-b2a="armfresh">Fresh copy loaded</button>':''} Every 2 attacker successes raise the level a step and every 2 of yours lower it; IC hits Moderate on Blue and Green hosts, Serious on Orange and Red (VR2 p. 123–124).${dkI.vr2&&dkI.vr2.d&&dkI.vr2.d.asist==='hot'?' On a hot deck, damage from white or gray IC also calls for a Willpower test against 2, 3 or 5 for Light, Moderate or Serious (+2 DNI only, −2 with an ICCM); failing it is 1 Stun box (VR2 p. 124).':''}</p>`:mxHit?'<p class="note">Resist with your MPCP plus Hacking Pool (core p. 179). Damage goes on the persona monitor below.</p>':blackHit?'<p class="note">Hanging tough: Body (Willpower for Stun) against the IC Rating; hardening counts as armor; every 2 extra IC successes is a Light wound (core p. 171). Jacking out is a Willpower test against the IC Rating.</p>':''}
      <div class="b2nums"><div><span class="b2k">Dice</span><b>${gBase+gSp+kdG}</b><small>${mxHit?(v2d?'persona Bod ':'MPCP ')+gBase:G.kind==='mana'||(blackHit&&G.stun)?'Willpower '+gBase:blackHit?'natural Body '+gBase:'Body '+bodyR+(hasDerm()?' with dermal armor':'')}${kdG?' + '+kdG+' Karma':''}${gSp?' + '+gSp+' '+gPoolName:''}</small></div><div><span class="b2k">If successes tie</span><b>${gLv}${G.kind==='gel'?' Stun':''}</b><small>${G.kind==='flech'&&G.fl&&derm?'dermal armor cancels flechette’s extra level (core p. 93)':G.kind==='gel'?'gel: Power −2, Stun (core p. 95)':G.kind==='apds'?'core p. 277':'core p. 91'}</small></div></div>
      <div class="b2row"><button class="primary" data-b2a="ghroll">Roll ${gBase+gSp+kdG} dice</button><button class="ghost" data-b2a="ghcopy">Copy for Roll20</button><button class="ghost" data-b2a="ghmark" ${G.roll&&(G.roll.final||G.roll.boxes)?'':'disabled'}>Mark it on the monitor</button></div>
-     <div class="b2rc" aria-live="polite">${G.roll?`<b class="b2rc-big">${E(gRes)}</b><div class="b2dice">${ghRolled}</div>`:`<p class="note">Pool dice have an outline: if they alone beat the attacker, it’s a complete miss.</p>`}<div class="b2rc-mods">${E(`TN ${gTn}: `+(spellHit?`Force ${G.pow}`:`Power ${gPow}, armor −${armV}`)+(susPen()?`, sustaining +${susPen()}`:'')+` · ${gBase+gSp+kdG} dice`)}</div></div><details class="b2math"><summary>Show the math</summary><div class="b2rows"><div class="b2r"><span>${spellHit?'Spell Force':'Power'+(G.kind==='gel'?' ('+G.pow+' − 2 for gel)':'')}</span><b>${spellHit?G.pow:gPow}</b></div><div class="b2r alt"><span>Armor: ${E(armWhy)}</span><b>${spellHit?'—':'−'+armV}</b></div>${susPen()?`<div class="b2r"><span>Sustaining ${susN()} spell${susN()>1?'s':''} <small>core p. 128</small></span><b class="b2warn">+${susPen()}</b></div>`:''}<div class="b2r tot"><span>Target number${mxHit?' (the node’s System Rating)':blackHit?' (IC Rating'+(hard?' − Hardening '+hard:'')+')':spellHit?'':' (never below 2 before sustaining)'}</span><b>${gTn}</b></div></div></details>${karmaTuck(G.att?G.roll:null,'gh',gBase)}${cbox('gh')}</section>
+     <div class="b2rc" aria-live="polite">${G.roll?`<b class="b2rc-big">${E(gRes)}</b><div class="b2dice">${ghRolled}</div>`:`<p class="note">Pool dice have an outline: if they alone beat the attacker, it’s a complete miss.</p>`}</div>${whyCard('gh',`TN ${gTn}: `+(spellHit?`Force ${G.pow}`:`Power ${gPow}, armor −${armV}`)+(susPen()?`, sustaining +${susPen()}`:'')+` · ${gBase+gSp+kdG} dice`,whyBox('Got hit · '+(HITS[G.kind]||'hit')+' '+G.pow+G.lvl,`TN ${gTn} · ${gBase+gSp+kdG} dice`,[['Target number','','','h'],[spellHit?'Spell Force':'Power'+(G.kind==='gel'?' ('+G.pow+' − 2 for gel)':''),'',String(spellHit?G.pow:gPow)],['Armor: '+armWhy,'',spellHit?'—':'−'+armV,'tn'],...(susPen()?[['Sustaining '+susN()+' spell'+(susN()>1?'s':''),'core p. 128','+'+susPen(),'tn']]:[]),['Target number',mxHit?'the node’s System Rating':blackHit?'IC Rating'+(hard?' − Hardening '+hard:''):spellHit?'':'never below 2 before sustaining',String(gTn),'t'],['Dice','','','h'],...(G.kind!=='mana'&&!mxHit&&!blackHit&&hasDerm()?[['Body','',String(augAttr('body'))],['Troll dermal armor','core p. 45','+1']]:[[mxHit?(v2d?'Persona Bod':'MPCP'):G.kind==='mana'||(blackHit&&G.stun)?'Willpower':blackHit?'Natural Body':'Body','',String(gBase)]]),...(kdG?[['Karma','','+'+kdG]]:[]),...(gSp?[[gPoolName,'','+'+gSp]]:!blackHit&&!(spellHit&&!isMag)?[[gPoolName,'','+0']]:[]),['Dice','',String(gBase+gSp+kdG),'t']]))}${karmaTuck(G.att?G.roll:null,'gh',gBase)}${cbox('gh')}</section>
   </div>
   <div class="b2mtw">${MT.length>1?`<div class="b2mtabs" role="tablist" aria-label="More tests">${MT.map(([k,l])=>`<button type="button" role="tab" id="b2mtt-${k}" data-b2a="mt" data-d="${k}" aria-selected="${k===mt}" aria-controls="b2mt-${k}">${E(l)}</button>`).join('')}</div>`:''}
    ${mtp('skills',`
@@ -639,6 +641,89 @@ function chaseHTML(o,sel,step,num){const C=B.chase||(B.chase={turn:1,log:[]}), L
 // sustaining spells: +2 to every target number of the magician's own tests, per spell; at most Sorcery spells at once (core p. 128, 129)
 const susN=()=>isMagician()?(S.sus||[]).length:0;
 const susPen=()=>2*susN();
+// "Why this number" (fix9): read-only breakdowns that open from a dotted number on the vitals line or a roll card's summary
+// line, under the popover rules in the tools handbook. A row is [label, source and page, value, tone]: tone 'tn' colours +N
+// amber and −N green (target numbers), 'bad' amber, 'h' a heading, 't' a total. Every total is the Builder's own number;
+// an 'Other' row shows any gap, so a breakdown can never disagree with the line.
+const WHYD=['ini','cp','mp','karma','body','react','magic','sus','atk','gh'];
+const SHEETD=['wear'].concat(WHYD);
+function gpg(k){const p=(GEARDB[k]||{}).pg||''; return /^p\./.test(p)?'core '+p:p;}
+function powPg(t){const p=((typeof POWERS!=='undefined'&&POWERS[t])||(typeof XPOWERS!=='undefined'&&XPOWERS[t])||{}).pg||''; return /^p\./.test(p)?'core '+p:p;}
+function whyRows(L){return L.map(([k,s,v,t])=>t==='h'?`<div class="b2r b2rh"><span>${E(k)}</span></div>`:`<div class="b2r${t==='t'?' tot':''}"><span>${E(k)}${s?` <small>${E(s)}</small>`:''}</span><b class="${t==='tn'?(/^\+[1-9]/.test(v)?'b2warn':/^−[1-9]/.test(v)?'b2ok':''):t==='bad'?'b2warn':''}">${E(String(v))}</b></div>`).join('');}
+function whyBox(title,big,L,o){o=o||{}; return `<section class="b2pan b2why" aria-label="${E(title)}: how it adds up"><div class="b2h"><h3>${E(title)}</h3><b class="b2whyb">${E(big)}</b></div>${o.sub?`<p class="note b2whys">${E(o.sub)}</p>`:''}<div class="b2rows">${whyRows(L)}</div>${o.extra||''}${o.note?`<p class="note">${E(o.note)}</p>`:''}</section>`;}
+function whyWired(){return S.gear.filter(g=>g.key==='body:Wired Reflexes').reduce((m,g)=>Math.max(m,+g.r||0),0);}
+function whyReactRows(T){const qb=bioAug('quick'), q=attrEff('quick')+qb, ib=bioAug('int'), i=attrNow('int')+ib, base=Math.floor((q+i)/2), L=[];
+  const qx=[boost('quick')?'improved +'+boost('quick'):'',qb?'bioware +'+qb:''].filter(Boolean).join(', ');
+  L.push([`Quickness ${q}${qx?' ('+qx+')':''} + Intelligence ${i}${ib?' (cerebral booster +'+ib+')':''}`,'halved, rounded down · core p. 45',String(base)]);
+  let sum=base; const add=(k,s,n)=>{if(n){L.push([k,s,SIGN(n)]); sum+=n;}};
+  add('Lasting injury','core p. 113–114',-Math.max(0,Math.floor(+((S.inj||{}).rea)||0)));
+  add('Asceticism ordeal','initiation',-ascLoss('rea'));
+  add('Suprathyroid Gland',gpg('bio:Suprathyroid Gland'),has('bio:Suprathyroid Gland')?1:0);
+  if(adeptOn()) add('Increased Reaction','adept power · '+powPg('incReaction'),S.powers.filter(p=>p.type==='incReaction').reduce((a,p)=>a+(+p.n||0),0));
+  const wr=whyWired(), bo=gearLevel('body:Boosted Reflexes'), re=gearLevel('body:Reaction Enhancer');
+  add('Wired Reflexes '+wr,gpg('body:Wired Reflexes'),2*wr); add('Boosted Reflexes '+bo,gpg('body:Boosted Reflexes'),[0,0,1,2][bo]||0); add('Reaction Enhancer '+re,gpg('body:Reaction Enhancer'),re);
+  add('Enhanced Articulation',gpg('bio:Enhanced Articulation'),S.gear.some(g=>g.key==='bio:Enhanced Articulation')?1:0);
+  if(sum!==T.reaction) L.push(['Other','',SIGN(T.reaction-sum)]);
+  return L;}
+function whyIniRows(T,w){const I=iniNow(T), L=[];
+  if(I.m) L.push(['Matrix · core p. 178','','','h'],[I.m.l,'',`${I.m.r} + ${I.m.d}D6`]);
+  else {L.push(['Reaction · core p. 45','','','h'],...whyReactRows(T),['Reaction','',String(T.reaction),'t'],['Dice · core p. 78','','','h'],['Base die','','1D6']);
+    let d=1; const add=(k,s,n)=>{if(n){L.push([k,s,'+'+n+'D6']); d+=n;}};
+    const wr=whyWired(), bo=gearLevel('body:Boosted Reflexes'), sa=gearLevel('bio:Synaptic Accelerator');
+    add('Synaptic Accelerator '+sa,gpg('bio:Synaptic Accelerator'),sa); add('Boosted Reflexes '+bo,gpg('body:Boosted Reflexes'),[0,1,1,2][bo]||0); add('Wired Reflexes '+wr,gpg('body:Wired Reflexes'),wr);
+    if(adeptOn()){const ir=S.powers.filter(p=>p.type==='incReflexes').reduce((a,p)=>a+(+p.level||1),0); add('Increased Reflexes '+ir,'adept power · '+powPg('incReflexes'),ir);}
+    if(d!==T.dice) L.push(['Other','','+'+(T.dice-d)+'D6']);}
+  if(w) L.push(['Wounds','come off the total · core p. 78, 112','−'+w,'bad']);
+  L.push(['Initiative','',`${I.r}${w?' − '+w:''} + ${I.d}D6`,'t']); return L;}
+function whyCp(T){const qA=augAttr('quick'), i=attrNow('int')+bioAug('int'), wl=attrNow('wil'), base=Math.floor((qA+i+wl)/2);
+  const L=[['How it adds up · core p. 84','','','h'],[`Quickness ${qA} + Intelligence ${i} + Willpower ${wl}`,'halved, rounded down',String(base)]]; let sum=base;
+  const cs=adeptOn()?S.powers.filter(p=>p.type==='combatSense').reduce((a,p)=>a+(+p.level||1),0):0; if(cs){L.push(['Combat Sense '+cs,'adept power · '+powPg('combatSense'),'+'+cs]); sum+=cs;}
+  const pen=T.ar.poolPenalty; if(pen){L.push(['Armor too heavy for your Quickness','core p. 84'+(booksOn().fof?'; FoF p. 54':''),'−'+pen,'bad']); sum-=pen;}
+  if(Math.max(0,sum)!==T.cpool) L.push(['Other','',SIGN(T.cpool-Math.max(0,sum))]);
+  L.push(['Combat Pool','',String(T.cpool),'t']);
+  return whyBox('Combat Pool',B.pool+'/'+T.cpool,L,{sub:'Refills at the start of each of your actions (core p. 78, 84).',note:'The − and + on the line spend and give back dice; nothing in here changes the pool.'});}
+function whyKarma(T){const human=baseRace()==='Human', st=human||S.mode!=='standard'?1:2, add=+S.kPoolBonus||0, tk=tkGet();
+  const why=human?'human · core p. 47':S.mode==='standard'?'metahuman · core p. 47':S.mode==='more'?'More Metahumans rule · core p. 47':'house rule: metahumans start at 1 · core p. 47';
+  const L=[['How it adds up','','','h'],['Starting pool',why,String(st)]]; if(add) L.push(['Added in play','the number on the Runner tab · core p. 191','+'+add]);
+  if(st+add!==T.kpool) L.push(['Other','',SIGN(T.kpool-st-add)]);
+  L.push(['Karma Pool','',String(T.kpool),'t']); if(tk.tot) L.push(['Team Karma','shared with the team · core p. 191',tk.left+'/'+tk.tot]);
+  return whyBox('Karma Pool',B.karma+'/'+T.kpool,L,{sub:'Refills at each new scene (core p. 191).',note:'Spend it in Spend Karma under Attack and Got hit; nothing in here spends it.'});}
+function whyBody(){const n=attrNow('body'), rm=(R().mod||{}).body||0, inj=Math.max(0,Math.floor(+((S.inj||{}).body)||0))+ascLoss('body'), L=[['How it adds up','','','h']];
+  L.push(['Natural Body',[rm?`${baseRace().toLowerCase()} ${SIGN(rm)} included · core p. 45`:'',inj?`lasting loss −${inj} included`:''].filter(Boolean).join('; '),String(n)]);
+  let sum=n; const add=(k,s,v)=>{if(v){L.push([k,s,SIGN(v)]); sum+=v;}};
+  add('Improved Physical Attribute (Body)','adept power · '+powPg('improvedAttr'),boost('body'));
+  const ti=has('body:Bone Lacing, Titanium'), al=has('body:Bone Lacing, Aluminum'), pl=has('body:Bone Lacing, Plastic');
+  if(ti||al||pl) add('Bone Lacing, '+(ti?'Titanium':al?'Aluminum':'Plastic'),gpg('body:Bone Lacing, Titanium'),ti?2:1);
+  const ds=gearLevel('body:Dermal Sheath'); add('Dermal Sheath '+ds,gpg('body:Dermal Sheath'),ds?ds+1:0);
+  add('Suprathyroid Gland',gpg('bio:Suprathyroid Gland'),has('bio:Suprathyroid Gland')?1:0);
+  const dp=gearLevel('body:Dermal Plating'); add('Dermal Plating '+dp,gpg('body:Dermal Plating'),dp);
+  const ab=augAttr('body'); if(sum!==ab) L.push([typeof cbOn==='function'&&cbOn()?'Cyberlimbs':'Other','',SIGN(ab-sum)]);
+  L.push(['Body','',String(ab),'t']);
+  if(hasDerm()) L.push(['When you resist damage','','','h'],['Troll dermal armor','core p. 45','+1'],['Body to resist','',String(ab+1),'t']);
+  return whyBox('Body',String(ab),L,{sub:'What you roll to resist damage, before Combat Pool.'});}
+function whyReact(T){return whyBox('Reaction',String(T.reaction),[['How it adds up · core p. 45','','','h'],...whyReactRows(T),['Reaction','',String(T.reaction),'t']],{sub:'Also the base of your Initiative.'});}
+function whyMagic(){const ess=6-essenceUsed(), f=x=>String(+x.toFixed(2)), L=[['Essence','','','h'],['Starting Essence','','6']];
+  const im=S.gear.filter(g=>(+g.ess||0)>0&&GEARDB[g.key]).map(g=>[GEARDB[g.key].n+(g.r?' '+g.r:''),gpg(g.key),(+g.ess||0)*(+g.qty||1)]);
+  im.slice(0,8).forEach(x=>L.push([x[0],x[1],'−'+f(x[2])])); if(im.length>8) L.push([`${im.length-8} more`,'','−'+f(im.slice(8).reduce((a,x)=>a+x[2],0))]);
+  const sum=6-im.reduce((a,x)=>a+x[2],0); if(Math.abs(sum-ess)>0.001) L.push(['Other','returned Essence or bioware Body Index',(ess>sum?'+':'−')+f(Math.abs(ess-sum))]);
+  L.push(['Essence','',f(ess),'t'],['Magic · core p. 45','','','h'],['Essence, rounded down','',String(Math.max(0,Math.floor(ess)))]);
+  let m=Math.max(0,Math.floor(ess)); const g=Math.max(0,initGrade()); if(g){L.push(['Initiate grade '+g,'','+'+g]); m+=g;}
+  const lo=injLoss('magic'); if(lo){L.push(['Magic lost','core p. 115','−'+lo,'bad']); m-=lo;}
+  if(Math.max(0,m)!==magicNow()) L.push(['Other','',SIGN(magicNow()-Math.max(0,m))]);
+  L.push(['Magic','',String(magicNow()),'t']); return whyBox('Magic',String(magicNow()),L,{sub:'Essence '+f(ess)});}
+function whyMp(mpMax){const so=bestRating(/^sorcery/i), L=[['How it adds up · core p. 85','','','h'],['Sorcery','',String(so)]]; let sum=so;
+  S.gear.filter(g=>g.key==='magic:Power Focus'&&focusBonded(g)).forEach(g=>{const r=+g.r||0; if(r){L.push(['Power focus, Force '+r,'bonded · '+gpg('magic:Power Focus'),'+'+r]); sum+=r;}});
+  if(sum!==mpMax) L.push(['Other','',SIGN(mpMax-sum)]); L.push(['Magic Pool','',String(mpMax),'t']);
+  return whyBox('Magic Pool',B.mpool+'/'+mpMax,L,{sub:'For spellcasting and spell defense.'});}
+function whySus(){const L=[['Spells held · core p. 128','','','h']].concat((S.sus||[]).map(x=>[x.n,'Force '+x.f+(x.on?' · on '+x.on:''),'+2','bad'])); L.push(['To every target number','',SIGN(susPen()),'t']);
+  return whyBox('Sustaining',SIGN(susPen()),L,{note:'Drop a spell with Drop it in the Sustaining panel under Magic; nothing in here changes what you hold.'});}
+// dice rows from a roll's source line ("Firearms 4 + 2 Combat Pool + 1 Karma"); pool = [name, max] adds a +0 row when none is spent
+function whyDiceRows(src,dice,pool){const P=String(src||'').split(' + '), L=[['Dice','','','h']];
+  P.forEach((p,j)=>{let m; if(j>0&&(m=p.match(/^(\d+) (.+)$/))) L.push([m[2],'','+'+m[1]]); else if((m=p.match(/^(.*\S) (\d+)$/))) L.push([m[1],'',j?'+'+m[2]:m[2]]); else if((m=p.match(/^(.*)\((\d+)\)$/))) L.push([m[1].trim(),'','+'+m[2]]); else L.push([p,'','']);});
+  if(pool&&pool[1]>0&&!P.some(p=>p.indexOf(pool[0])>=0)) L.push([pool[0],'up to '+pool[1]+' on this roll · core p. 84','+0']);
+  L.push(['Dice','',String(dice),'t']); return L;}
+// a roll card's summary line, as the dotted trigger, with its breakdown beside it
+function whyCard(d,line,box){return `<div class="b2whyw"><button type="button" class="b2rc-mods b2whyt b2whym" data-b2a="drop" data-d="${d}" aria-expanded="${B.drop===d}" aria-controls="b2vp-${d}">${E(line)}</button><div class="b2vp b2whyc b2whysh" id="b2vp-${d}" data-p="${d}"${B.drop===d?'':' hidden'}><button type="button" class="ghost b2vx" data-b2a="drop" data-d="${d}">Close</button>${box}</div></div>`;}
 function susHTML(){const L=S.sus||[], max=bestRating(/^sorcery/i), names=S.powers.filter(p=>p&&p.name&&spellDur(p.name)==='S').map(p=>[p.name,+p.cost||1]);
   return `<section class="b2pan"><div class="b2h"><h3>Sustaining</h3><span class="${L.length?'b2warn':'note'}">${L.length?'+'+2*L.length+' to every target number':'nothing sustained'}</span></div>
    <p class="note">Each spell you keep going adds +2 to all your other tests, Drain and damage resistance included, until you drop it (a Free Action, core p. 81, 128). You can hold up to your Sorcery skill (${max}) at once.</p>
@@ -838,10 +923,19 @@ function stripHTML(){const c=S._calc||{}; const iss=[...document.querySelectorAl
 function shareGM(){const T=sheetStats(); const g={r:T.reaction,d:T.dice,cp:T.cpool,b:augAttr('body')+hasDerm(),a:[T.ar.b,T.ar.i]}; const o=S._gm||{};
   if(o.r!==g.r||o.d!==g.d||o.cp!==g.cp||o.b!==g.b||String(o.a)!==String(g.a)){S._gm=g; save();}}
 // ---------- mount ----------
-function dropPlace(n){const v=n&&n.querySelector('.b2vit'), pan=v&&v.querySelector('.b2vpan'); if(!pan) return; pan.style.left=''; if(!B.drop||!window.matchMedia('(min-width:40.0625em)').matches) return;
+function dropPlace(n){const v=n&&n.querySelector('.b2vit'), pan=v&&v.querySelector('.b2vpan'), lap=window.matchMedia('(min-width:40.0625em)').matches; if(pan) pan.style.left='';
+  if(n&&lap&&(B.drop==='atk'||B.drop==='gh')){ // fix9: a roll card's breakdown opens under its line, or above it when there's more room there (popover rule 2)
+    const p=n.querySelector('#b2vp-'+B.drop), t=p&&p.parentElement.querySelector('.b2whym'); if(!p||!t) return; p.classList.remove('up'); p.style.maxHeight='none'; p.style.top='';
+    const h=p.offsetHeight, lim=()=>Math.max(0,v?v.getBoundingClientRect().bottom:0); let r=t.getBoundingClientRect(), below=innerHeight-r.bottom-8, above=r.top-lim()-8;
+    if(h>below&&h>above){window.scrollBy(0,r.top-lim()-8); r=t.getBoundingClientRect(); below=innerHeight-r.bottom-8; above=r.top-lim()-8;} // no room either side: bring the line up under the vitals line first
+    if(h>below&&h>above){const room=innerHeight-lim()-12; p.style.top=(lim()+4-p.parentElement.getBoundingClientRect().top)+'px'; p.style.maxHeight=Math.max(160,room)+'px'; return;} // still too tall: cover its own line, which it repeats
+    const up=h>below&&above>below; p.classList.toggle('up',up); p.style.maxHeight=Math.max(160,up?above:below)+'px'; return;}
+  if(!pan||!B.drop||!lap) return;
   const o=v.querySelector(`.b2vrow [data-b2a="drop"][data-d="${B.drop}"]`); if(!o||o.offsetParent===null) return; const a=o.closest('.b2vg')||o, x=a.getBoundingClientRect().left-v.getBoundingClientRect().left;
-  pan.style.left=Math.max(0,Math.min(x,v.clientWidth-pan.offsetWidth))+'px';} // fix8: the drop-down opens under the thing that was clicked
-function dropClose(){if(!B.drop&&!B.vitOpen) return false; B.drop=null; B.vitOpen=false; const v=document.querySelector('#b2night .b2vit'); if(v){v.classList.remove('open'); v.querySelectorAll('.b2vp').forEach(p=>p.hidden=true); v.querySelectorAll('.b2vscrim').forEach(x=>x.remove()); v.querySelectorAll('[data-b2a="drop"],[data-b2a="vit"]').forEach(b=>b.setAttribute('aria-expanded','false'));} return true;}
+  pan.style.left=Math.max(0,Math.min(x,v.clientWidth-pan.offsetWidth))+'px'; // fix8: the drop-down opens under the thing that was clicked
+  const p=pan.querySelector('#b2vp-'+B.drop); if(p&&!p.hidden){p.style.maxHeight='none'; const over=p.getBoundingClientRect().bottom-innerHeight+8; if(over>0) window.scrollBy(0,over); // fix9: runs past the window? let the vitals line stick at the top first (popover rule 2)
+    p.style.maxHeight=Math.max(160,innerHeight-p.getBoundingClientRect().top-8)+'px';}}
+function dropClose(){if(!B.drop&&!B.vitOpen) return false; B.drop=null; B.vitOpen=false; const n=document.getElementById('b2night'); if(n){const v=n.querySelector('.b2vit'); if(v) v.classList.remove('open'); n.querySelectorAll('.b2vp').forEach(p=>p.hidden=true); n.querySelectorAll('.b2vscrim').forEach(x=>x.remove()); n.querySelectorAll('[data-b2a="drop"],[data-b2a="vit"]').forEach(b=>b.setAttribute('aria-expanded','false'));} return true;}
 function redraw(){const n=$('b2night'); if(n&&B.tab==='night'){const f=document.activeElement, d=f&&n.contains(f)&&f.dataset?f.dataset:null;
   const q=d?(d.b2?`[data-b2="${d.b2}"]`:d.b2p?`[data-b2p="${d.b2p}"][data-v="${d.v}"]`:d.b2s?`[data-b2s="${d.b2s}"][data-d="${d.d}"]`:d.b2a?`[data-b2a="${d.b2a}"]${d.d?`[data-d="${d.d}"]`:''}`:d.b2c?`[data-b2c="${d.b2c}"]`:null):null;
   n.innerHTML=nightHTML(); dropPlace(n); if(q){let e=null; try{e=n.querySelector(q);}catch(x){} if(e&&!e.disabled&&e.offsetParent!==null) e.focus({preventScroll:true});}}}
@@ -931,9 +1025,9 @@ function setB2(k,v){const t={value:v};
     return true;}
   document.addEventListener('input',e=>{const t=e.target; if(t&&t.dataset&&t.dataset.b2in==='suson') B.suson=t.value; if(t&&t.dataset&&t.dataset.b2in==='hitpaste'){B.hitTxt=t.value; if(e.inputType==='insertFromPaste'&&hitParse(t.value)) hitApply();}});
   // drop-downs from the vitals line close on a click elsewhere or Escape; the tab rows move with the arrow keys
-  document.addEventListener('click',e=>{if(!(B.drop||B.vitOpen)||B.tab!=='night') return; const t=e.target; if(t&&t.closest&&t.closest('.b2vit')) return; dropClose();},true);
+  document.addEventListener('click',e=>{if(!(B.drop||B.vitOpen)||B.tab!=='night') return; const t=e.target; if(t&&t.closest&&t.closest('.b2vit, .b2whyc, .b2whym')) return; dropClose();},true);
   document.addEventListener('keydown',e=>{const t=e.target;
-    if(e.key==='Escape'&&B.tab==='night'&&(B.drop||B.vitOpen)){const d=B.drop; dropClose(); const o=document.querySelector(d?`#b2night .b2vit [data-b2a="drop"][data-d="${d}"]`:'#b2night [data-b2a="vit"]'); if(o&&o.offsetParent!==null) o.focus(); return;}
+    if(e.key==='Escape'&&B.tab==='night'&&(B.drop||B.vitOpen)){const d=B.drop; dropClose(); const o=document.querySelector(d?`#b2night [data-b2a="drop"][data-d="${d}"]`:'#b2night [data-b2a="vit"]'); if(o&&o.offsetParent!==null) o.focus(); return;}
     if(t&&t.dataset&&t.dataset.b2in==='hitpaste'&&e.key==='Enter'){e.preventDefault(); return act('hitpaste');}
     if(t&&t.getAttribute&&t.getAttribute('role')==='tab'&&t.closest&&t.closest('.b2mtabs,.b2ntabs')&&/^(ArrowLeft|ArrowRight|Home|End)$/.test(e.key)){const L=[...t.parentElement.querySelectorAll('[role=tab]')], i=L.indexOf(t), n=e.key==='Home'?0:e.key==='End'?L.length-1:(i+(e.key==='ArrowRight'?1:-1)+L.length)%L.length; e.preventDefault(); L[n].click(); const f=document.querySelector(`#b2night [data-b2a="${t.dataset.b2a}"][data-d="${L[n].dataset.d}"]`); if(f) f.focus();}});
   document.addEventListener('change',e=>{const t=e.target; if(t&&t.dataset&&t.dataset.b2in==='hess'){const v=parseFloat(t.value); B.hEss=isNaN(v)?6:Math.max(0,Math.min(6,Math.round(v*10)/10)); B.roll=null; redraw();}});
