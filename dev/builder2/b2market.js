@@ -95,13 +95,16 @@ function lockerLink(){const a=[...document.querySelectorAll('.srh a[href]')].fin
 function nameList(){const seen=new Set(); return Object.keys(GEARDB).filter(k=>{const it=GEARDB[k]; if(!it||it.legacy||!itemVisible(it)||seen.has(it.n)) return false; seen.add(it.n); return true;}).map(k=>`<option value="${esc(GEARDB[k].n)}"></option>`).join('');}
 let NAMES=null, NAMES_FOR='';
 function html(){const M=mk(), s=curSrc(), L=sources(), P=priceAll(M.cart); const rows=M.cart.map(c=>lineInfo(c,P,s));
-  const ready=rows.filter(o=>o.ready), cost=ready.reduce((a,o)=>a+o.street,0), essUse=ready.reduce((a,o)=>a+o.ess,0), have=S.nuyenNow===''||S.nuyenNow==null?null:+S.nuyenNow;
+  const readyAll=rows.filter(o=>o.ready), ready=readyAll.filter(o=>!o.L.skip), cost=ready.reduce((a,o)=>a+o.street,0), essUse=ready.reduce((a,o)=>a+o.ess,0), have=S.nuyenNow===''||S.nuyenNow==null?null:+S.nuyenNow;
+  const view=['buy','sell','hist'].includes(M.view)?M.view:'buy';
   const ess0=S._calc&&S._calc.ess!=null?S._calc.ess:null; const sk=srcSkill(s); const need=rows.filter(o=>o.kind==='ok'&&!o.roll&&o.rec&&o.rec.tn!=null).length;
   const booksKey=JSON.stringify(S.books||{}); if(NAMES==null||NAMES_FOR!==booksKey){NAMES=nameList(); NAMES_FOR=booksKey;}
   const line=o=>{const c=o.L; const r=o.it&&o.it.r&&!o.p.up?`<label class="mkq"><span class="b2k">${esc(o.it.r[2])}</span><input type="number" min="${o.it.r[0]}" max="${o.it.r[1]}" value="${esc(c.it.r!=null?c.it.r:o.it.r[0])}" data-mkr="${c.id}" ${o.roll?'disabled':''}></label>`:'';
     const q=o.it&&!o.p.up?`<label class="mkq"><span class="b2k">Qty</span><input type="number" min="1" max="9999" value="${esc(c.it.qty||1)}" data-mkn="${c.id}" ${o.roll?'disabled':''}></label>`:'';
     const act=o.roll&&!o.ready?`<button type="button" class="ghost" data-mka="retry" data-id="${c.id}">The GM allows a new try</button>`:o.gmonly&&!o.roll?`<button type="button" class="ghost" data-mka="gmok" data-id="${c.id}">The GM says it’s available</button>`:'';
-    return `<div class="mkline${o.ready?' ok':o.roll?' no':''}" data-mkline="${c.id}"><div class="mkname"><b>${esc(o.name)}</b><small>${esc([o.it?o.it.pg||'':'',c.from||''].filter(Boolean).join(' · '))}</small></div>
+    const own=o.x.key?S.gear.filter(g=>g.key===o.x.key).reduce((a,g)=>a+(+g.qty||1),0):0, addon=o.x.key&&typeof GB!=='undefined'&&GB.ACC&&GB.ACC[o.x.key];
+    const tick=o.ready?`<label class="mksel"><input type="checkbox" data-mksel="${c.id}" ${c.skip?'':'checked'} aria-label="Buy ${esc(o.name)}"></label>`:'<span class="mksel"></span>';
+    return `<div class="mkline${o.ready?' ok':o.roll?' no':''}${c.skip?' off':''}" data-mkline="${c.id}">${tick}<div class="mkname"><b>${esc(o.name)}</b><small>${esc([o.it?o.it.pg||'':'',c.from||''].filter(Boolean).join(' · '))}</small>${own?`<small class="mkown">Already on the sheet: ${own}</small>`:''}${addon?'<small class="mkown">Gun add-on: it arrives loose; fit it with Fit to on its Gear row (no extra cost).</small>':''}</div>
       <div class="mkctl">${r}${q}</div>
       <div class="mknums"><span><small>List</small><b>${fmt(o.list)}¥</b></span><span><small>Street ×</small><b>${o.p.up||!o.it?'—':String(o.si).replace(/^0\./,'.')}</b></span><span><small>Price</small><b class="mkprice">${fmt(o.street)}¥</b></span>${o.tn!=null&&!o.roll?`<span><small>TN · odds</small><b>${o.tn} · ${pct(o.odds)}</b></span>`:''}</div>
       <div class="mkstat"><span>${esc(o.status)}</span>${o.roll&&o.roll.neg?`<small>Haggled: ${o.roll.neg.net>0?'you won by '+o.roll.neg.net+', −'+5*o.roll.neg.net+'%':o.roll.neg.net<0?'they won by '+(-o.roll.neg.net)+', +'+(-5*o.roll.neg.net)+'%':'even, no change'}</small>`:''}${act}</div>
@@ -113,12 +116,12 @@ function html(){const M=mk(), s=curSrc(), L=sources(), P=priceAll(M.cart); const
   const chips=s?`<div class="mkchips">${sk?`<span>${esc(sk.l)} <b>${sk.r}</b>${sk.tn?' (+'+sk.tn+' TN)':''}</span>`:'<span>No dice to roll</span>'}${s.wil!=null?`<span>Willpower <b>${s.wil}</b></span>`:''}${s.neg!=null?`<span>Negotiation <b>${s.neg||'—'}</b></span>`:''}</div>${s.how?`<small class="note">${esc(s.how)}</small>`:''}`:'';
   const pay=`<section class="b2pan mkpay" aria-label="Paying"><span class="b2k">Paying</span>
       <div class="mksum"><span>Nuyen on hand</span><b>${have==null?'not set':fmt(have)+'¥'}</b></div>
-      <div class="mksum"><span>Ready to buy (${ready.length} of ${rows.length})</span><b class="mkprice">−${fmt(cost)}¥</b></div>
+      <div class="mksum"><span>Ticked to buy (${ready.length} of ${readyAll.length} ready)</span><b class="mkprice${have!=null&&cost>have?' mkover':''}">−${fmt(cost)}¥</b></div>
       <div class="mksum mktot"><span>Left after</span><b>${have==null?'—':fmt(have-cost)+'¥'}</b></div>
       ${essUse>0&&ess0!=null?`<div class="mksum mkess"><span>Essence</span><b>${+ess0.toFixed(2)} → ${+(ess0-essUse).toFixed(2)}</b></div>`:''}
-      ${have!=null&&cost>have?`<p class="bad-text">${esc(S.handle||S.name||'The runner')} is ${fmt(cost-have)}¥ short.</p>`:''}
+      ${have!=null&&cost>have?`<p class="bad-text">${esc(S.handle||S.name||'The runner')} is ${fmt(cost-have)}¥ short: untick lines to buy the rest.</p>`:''}
       <button type="button" class="primary mkbuy" data-mka="buy" ${!ready.length||have==null||cost>have?'disabled':''}>Buy ${ready.length} line${ready.length===1?'':'s'} · ${fmt(cost)}¥</button>
-      <small class="note">Buy each line once it turns up. Logged in the nuyen log; Undo is under History.</small>
+      <small class="note">Buy each line once it turns up; untick a line to leave it for later. Logged in the nuyen log; Undo is under History.</small>
       <details class="mkfree"><summary>Add without paying (loot, a gift)</summary><label class="b2f"><span class="b2k">Where it came from</span><input data-mkt="freeNote" value="${esc(M.freeNote||'')}" placeholder="Off the guards on last night’s run"></label>
         <button type="button" class="ghost" data-mka="free" ${rows.length?'':'disabled'}>Add all ${rows.length} line${rows.length===1?'':'s'} free</button><small class="note">No rolls and no money; the History shows where it came from.</small></details></section>`;
   const main=`<section class="b2pan mkcart" aria-labelledby="mkT"><div class="b2h"><h3 id="mkT">Shopping list</h3><span class="note">${rows.length} line${rows.length===1?'':'s'}</span>${lockerLink()}</div>
@@ -135,7 +138,9 @@ function html(){const M=mk(), s=curSrc(), L=sources(), P=priceAll(M.cart); const
       <button type="button" class="ghost mkroll" data-mka="roll" ${need&&sk&&sk.r>0?'':'disabled'}>Roll for availability${need?' ('+need+')':''}</button>
       ${s&&s.self?'<small class="note">The book has a source (usually a fixer) make this roll, with their skill or Etiquette +2. Rolling it yourself is the GM’s call.</small>':''}</section>${pay}</aside>`;
   const bar=`<div class="mkbar" aria-label="Paying"><div><span>${have==null?'Nuyen on hand not set':fmt(have)+'¥ on hand'}</span><span>left after <b>${have==null?'—':fmt(have-cost)+'¥'}</b></span></div><button type="button" class="primary" data-mka="buy" ${!ready.length||have==null||cost>have?'disabled':''}>Buy ${ready.length} line${ready.length===1?'':'s'} · ${fmt(cost)}¥</button></div>`;
-  return `<div class="mkgrid"><div class="mkmain">${main}${fenceHTML()}${histHTML()}</div>${side}</div>${rows.length?bar:''}`;}
+  const tabs=`<div class="mktabs" role="tablist" aria-label="Marketplace">${[['buy','Buy'+(rows.length?' ('+rows.length+')':'')],['sell','Sell to a fence'],['hist','History'+(M.hist.length?' ('+M.hist.length+')':'')]].map(([k,l])=>`<button type="button" role="tab" data-mkv="${k}" aria-selected="${view===k}">${esc(l)}</button>`).join('')}</div>`;
+  if(view==='sell') return tabs+fenceHTML(); if(view==='hist') return tabs+histHTML();
+  return `${tabs}<div class="mkgrid"><div class="mkmain">${main}</div>${side}</div>${rows.length?bar:''}`;}
 function ctEditHTML(s){const c=s.c, C=CT(), cur=c.cb==null?'':c.cb; const own=c.cb==='own';
   const num=(k,lab)=>`<label class="mkq"><span class="b2k">${esc(lab)}</span><input type="number" min="0" max="12" value="${esc(c[k]||0)}" data-mkct="${k}"></label>`;
   return `<details class="mkct" ${s.T?'':'open'}><summary>${s.T?'Their numbers: '+esc(s.how):'Set their numbers'}</summary>
@@ -146,8 +151,8 @@ function ctEditHTML(s){const c=s.c, C=CT(), cur=c.cb==null?'':c.cb; const own=c.
 // ---------- selling to a fence (core p. 188) ----------
 function fenceItems(){return S.gear.map((g,i)=>({g,i,it:g.key?GEARDB[g.key]:null})).filter(o=>o.g&&(o.g.key?o.it:o.g.name)&&!(+o.g.ess>0)&&!(+o.g.bi>0)&&!(o.it&&/^(head|body)$/.test(String(o.g.key).split(':')[0]))&&!(typeof CBKEY!=='undefined'&&o.g.key===CBKEY));}
 function fenceHTML(){const M=mk(), F=M.f, I=fenceItems(); const picked=I.filter(o=>F.pick[o.i]); const val=picked.reduce((a,o)=>a+Math.round((+o.g.cost||0)*Math.min(+o.g.qty||1,Math.max(1,+F.pick[o.i]||1))),0);
-  const km=FENCE_MODS.find(x=>x[0]===F.kind)||FENCE_MODS[0], hm=HEAT.find(x=>x[0]===F.heat)||HEAT[0]; const tn=Math.max(2,4+km[2]+hm[2]+(F.reg?-1:0));
-  const et=etqStreet(), others=Math.max(0,+F.others||0), avg=others?Math.floor((et+(+F.oth||0))/(others+1)):et, dice=others?avg+others+1:et;
+  const EI=etqInfo(); const km=FENCE_MODS.find(x=>x[0]===F.kind)||FENCE_MODS[0], hm=HEAT.find(x=>x[0]===F.heat)||HEAT[0]; const tn=Math.max(2,4+km[2]+hm[2]+(F.reg?-1:0)+EI.tn);
+  const et=EI.dice, others=Math.max(0,+F.others||0), avg=others?Math.floor((et+(+F.oth||0))/(others+1)):et, dice=others?avg+others+1:et;
   const find=F.find, meet=F.meet;
   const pickRows=I.length?I.map(o=>`<label class="mkpick"><input type="checkbox" data-mkfp="${o.i}" ${F.pick[o.i]?'checked':''} ${find?'disabled':''}> <span>${esc(o.g.name||o.it.n)}${(+o.g.qty||1)>1?' ×'+o.g.qty:''}</span><small>${fmt(Math.round(+o.g.cost||0))}¥${(+o.g.qty||1)>1?' each':''}</small>${F.pick[o.i]&&(+o.g.qty||1)>1?`<input type="number" min="1" max="${o.g.qty}" value="${Math.min(+o.g.qty,Math.max(1,+F.pick[o.i]||1))}" data-mkfq="${o.i}" aria-label="How many" ${find?'disabled':''}>`:''}</label>`).join(''):'<p class="note">Nothing to sell: implants can’t go to a fence while they’re in you.</p>';
   let res='';
@@ -162,14 +167,18 @@ function fenceHTML(){const M=mk(), F=M.f, I=fenceItems(); const picked=I.filter(
       <label class="b2f"><span class="b2k">Heat</span><select data-mkfs="heat">${HEAT.map(([k,l,m])=>`<option value="${k}" ${F.heat===k?'selected':''}>${esc(l)}${m?' (+'+m+')':''}</option>`).join('')}</select></label></div>
       <label class="b2chk"><input type="checkbox" data-mkfc="reg" ${F.reg?'checked':''}> Through a regular contact (−1)</label>
       <div class="mkrow">${step('f.others','Other runners searching',others)}${others?step('f.oth','Their Etiquette (Street), added up',+F.oth||0):''}</div>
-      <p class="note">Etiquette (Street) ${et}${others?`; the group’s average ${avg} (rounded down) + 1 die each = ${dice} dice. Everyone who helps must come to the meet`:''}. Target number ${tn}.</p>
+      <p class="note">${esc(EI.how)}${others?`; the group’s average ${avg} (rounded down) + 1 die each = ${dice} dice. Everyone who helps must come to the meet`:''}. Target number ${tn}.</p>
       <button type="button" class="primary" data-mka="find" ${picked.length&&dice>0?'':'disabled'}>Look for a fence: roll ${dice} dice</button>`}
     ${res}</section>`;}
-function etqStreet(){const sd=skillDiceFor('Etiquette','Street',''); return sd&&sd.dice!=null?sd.dice:0;}
+// Etiquette (Street) for a fence search (core p. 188); with no Etiquette, the Skill Web's best default, else Charisma at +4 (core p. 66-68)
+function etqInfo(){const sd=skillDiceFor('Etiquette','Street',''); if(sd&&sd.dice!=null) return {dice:sd.dice,tn:0,how:'Etiquette'+(sd.how==='Street'?' (Street)':'')+' '+sd.dice};
+  if(typeof swOptions==='function'){try{const o=swOptions('Etiquette',4)[0]; if(o&&o.dice) return {dice:o.dice,tn:o.tn||0,how:`no Etiquette: defaulting to ${o.from} ${o.dice} at +${o.tn||0}`};}catch(e){}}
+  return {dice:attrNow('cha'),tn:4,how:`no Etiquette: Charisma ${attrNow('cha')} at +4`};}
+function etqStreet(){return etqInfo().dice;}
 
 // ---------- history ----------
 function histHTML(){const M=mk(); const last=M.hist[M.hist.length-1]; const canUndo=last&&!last.undone&&JSON.stringify(S.gear)===last.after;
-  const H=M.hist.slice(-8).reverse().map(h=>`<li><b>${esc(h.d)}</b> ${esc(h.note)}${h.undone?' <i>(undone)</i>':''}</li>`).join('');
+  const H=M.hist.slice(-8).reverse().map(h=>`<li><b>${esc(h.d)}</b> ${esc(h.head||h.note)}${h.undone?' <i>(undone)</i>':''}${h.items&&h.items.length?`<ul class="mkitems">${h.items.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}</li>`).join('');
   const Lg=M.log.slice(-12).reverse().map(e=>`<li><b>${esc(e.d)}</b> ${esc(logText(e))}</li>`).join('');
   return `<section class="b2pan mkhist" aria-labelledby="mkH"><div class="b2h"><h3 id="mkH">History</h3>${last&&!last.undone?`<button type="button" class="ghost" data-mka="undo" ${canUndo?'':'disabled'}>Undo: ${esc(last.note.slice(0,60))}</button>`:''}</div>
     ${last&&!last.undone&&!canUndo?'<p class="note">The gear has changed since, so Undo would undo more than this; change it back by hand.</p>':''}
@@ -200,24 +209,25 @@ function act(a,id){const M=mk(); M.msg=''; const s=curSrc();
       logAdd(e); c.src=sKey; n++;});
     M.msg=n?`Rolled ${n} line${n>1?'s':''}.`:reused?'Those lines already have a roll from this source.':'Nothing to roll.';}
   else if(a==='gmok'||a==='retry'){const c=M.cart.find(x=>x.id===id); if(!c||!c.it.key) return; const sKey=c.src||srcKey(s); logAdd({kind:a==='gmok'?'gmok':'gmretry',key:c.it.key,n:(GEARDB[c.it.key]||{}).n,src:sKey,who:s?s.label:'the source'}); if(a==='retry') delete c.src;}
-  else if(a==='buy'||a==='free'){const P=priceAll(M.cart); const rows=M.cart.map(c=>lineInfo(c,P,s)); const take=a==='free'?rows:rows.filter(o=>o.ready); if(!take.length) return;
+  else if(a==='buy'||a==='free'){const P=priceAll(M.cart); const rows=M.cart.map(c=>lineInfo(c,P,s)); const take=a==='free'?rows:rows.filter(o=>o.ready&&!o.L.skip); if(!take.length) return;
     const cost=a==='free'?0:take.reduce((x,o)=>x+o.street,0); if(a==='buy'&&(S.nuyenNow===''||S.nuyenNow==null||cost>+S.nuyenNow)) return;
     const before=snapshot(); const r=gearImport({items:take.map(o=>o.x)}); syncGear();
     take.forEach(o=>{if(o.roll) o.roll.used=true;}); M.cart=M.cart.filter(c=>!take.some(o=>o.L===c));
     const note=a==='free'?`Added free: ${take.map(o=>o.name).join(', ')}${M.freeNote?' (from '+M.freeNote+')':''}`:`Bought ${take.map(o=>o.name).join(', ')}${s?' through '+s.label:''}`;
-    const h=histPush(note,-cost,before); h.lines=take.map(o=>clone(o.L)); h.rolls=take.filter(o=>o.roll).map(o=>o.roll.id); if(cost){S.nuyenNow=(+S.nuyenNow||0)-cost; nyPush(-cost,'Marketplace: '+note.replace(/^Bought /,''),h.id);} if(a==='free') M.freeNote='';
-    M.msg=`${a==='free'?'Added':'Bought'} ${r.added.length} item${r.added.length===1?'':'s'}${cost?' for '+fmt(cost)+'¥':''}${r.skipped.length?'; skipped '+r.skipped.join(', '):''}.`;}
+    const h=histPush(note,-cost,before); h.head=a==='free'?`Added free${M.freeNote?' (from '+M.freeNote+')':''}`:`Bought${s?' through '+s.label:''} for ${fmt(cost)}¥`; h.items=take.map(o=>o.name+(o.x.qty>1?' ×'+o.x.qty:'')+(a==='free'?'':' · '+fmt(o.street)+'¥')); h.lines=take.map(o=>clone(o.L)); h.rolls=take.filter(o=>o.roll).map(o=>o.roll.id); if(cost){S.nuyenNow=(+S.nuyenNow||0)-cost; nyPush(-cost,'Marketplace: '+note.replace(/^Bought /,''),h.id);} if(a==='free') M.freeNote='';
+    const nAdd=take.filter(o=>o.x.key&&typeof GB!=='undefined'&&GB.ACC&&GB.ACC[o.x.key]).length;
+    M.msg=`${a==='free'?'Added':'Bought'} ${r.added.length} item${r.added.length===1?'':'s'}${cost?' for '+fmt(cost)+'¥':''}${r.skipped.length?'; skipped '+r.skipped.join(', '):''}.${nAdd?` ${nAdd} gun add-on${nAdd>1?'s':''} arrived as loose parts: use Fit to on ${nAdd>1?'their':'its'} Gear row.`:''}`;}
   else if(a==='undo'){const h=M.hist[M.hist.length-1]; if(!h||h.undone||JSON.stringify(S.gear)!==h.after) return; S.gear=JSON.parse(h.before); if(h.books) S.books=JSON.parse(h.books);
     if(h.amt){S.nuyenNow=(+S.nuyenNow||0)-h.amt; const j=(S.nyLog||[]).findIndex(x=>x.mk===h.id); if(j>=0) S.nyLog.splice(j,1);} h.undone=true;
-    if(h.lines){M.cart=h.lines.concat(M.cart); (h.rolls||[]).forEach(id=>{const e=M.log.find(x=>x.id===id); if(e) delete e.used;});} // the lines go back on the list with their rolls, so an undo can't buy a fresh roll
+    if(h.lines){M.cart=h.lines.map(c=>{delete c.skip; return c;}).concat(M.cart); (h.rolls||[]).forEach(id=>{const e=M.log.find(x=>x.id===id); if(e) delete e.used;});} // the lines go back on the list with their rolls, so an undo can't buy a fresh roll
     M.msg='Undone: '+h.note+'.'; if(typeof fillGearCats==='function') fillGearCats();}
-  else if(a==='find'){const F=M.f, I=fenceItems().filter(o=>F.pick[o.i]); if(!I.length) return; const km=FENCE_MODS.find(x=>x[0]===F.kind)||FENCE_MODS[0], hm=HEAT.find(x=>x[0]===F.heat)||HEAT[0]; const tn=Math.max(2,4+km[2]+hm[2]+(F.reg?-1:0));
-    const et=etqStreet(), others=Math.max(0,+F.others||0), dice=others?Math.floor((et+(+F.oth||0))/(others+1))+others+1:et; const r=rollD(dice,tn); F.find=logAdd({kind:'find',dice,tn,r,k:succ(r,tn)});}
+  else if(a==='find'){const F=M.f, I=fenceItems().filter(o=>F.pick[o.i]); if(!I.length) return; const EI=etqInfo(); const km=FENCE_MODS.find(x=>x[0]===F.kind)||FENCE_MODS[0], hm=HEAT.find(x=>x[0]===F.heat)||HEAT[0]; const tn=Math.max(2,4+km[2]+hm[2]+(F.reg?-1:0)+EI.tn);
+    const et=EI.dice, others=Math.max(0,+F.others||0), dice=others?Math.floor((et+(+F.oth||0))/(others+1))+others+1:et; const r=rollD(dice,tn); F.find=logAdd({kind:'find',dice,tn,r,k:succ(r,tn)});}
   else if(a==='meet'){const F=M.f; if(!F.find||!F.find.k||F.meet) return; const b=buyerNeg(), fw=Math.max(1,+F.fwil||4), fn=Math.max(0,+F.fneg||4); const btn=fw+2+b.tn, ftn=attrNow('wil')+2; const br=rollD(b.dice,btn), fr=rollD(fn,ftn); const bk=succ(br,btn), fk=succ(fr,ftn), net=bk-fk;
     const p=Math.max(10,Math.min(50,30+5*net)); F.meet=logAdd({kind:'meet',br,fr,bk,fk,btn,ftn,net,pct:p});}
   else if(a==='sell'){const F=M.f; if(!F.meet) return; const I=fenceItems().filter(o=>F.pick[o.i]); if(!I.length) return; const before=snapshot(); let val=0; const names=[];
     I.sort((x,y)=>y.i-x.i).forEach(o=>{const q=+o.g.qty||1, n=Math.min(q,Math.max(1,+F.pick[o.i]||1)); val+=Math.round((+o.g.cost||0)*n); names.push((o.g.name||o.it.n)+(n>1?' ×'+n:'')); if(n>=q) gearRemoveAt(o.i); else o.g.qty=q-n;});
-    const got=Math.round(val*F.meet.pct/100); const note=`Sold to a fence: ${names.reverse().join(', ')} at ${F.meet.pct}% of list`; const h=histPush(note,got,before); h.sold=true; S.nuyenNow=(+S.nuyenNow||0)+got; nyPush(got,'Marketplace: '+note,h.id);
+    const got=Math.round(val*F.meet.pct/100); const note=`Sold to a fence: ${names.reverse().join(', ')} at ${F.meet.pct}% of list`; const h=histPush(note,got,before); h.sold=true; h.head=`Sold to a fence at ${F.meet.pct}% of list for ${fmt(got)}¥`; h.items=names.slice(); S.nuyenNow=(+S.nuyenNow||0)+got; nyPush(got,'Marketplace: '+note,h.id);
     M.f={pick:{},kind:F.kind,heat:F.heat,reg:F.reg,others:F.others,oth:F.oth,fneg:F.fneg,fwil:F.fwil}; M.msg=`Sold for ${fmt(got)}¥.`;}
   else if(a==='nodeal'||a==='fclear'){const F=M.f; logAdd({kind:'fclear'}); M.f={pick:a==='nodeal'?F.pick:{},kind:F.kind,heat:F.heat,reg:F.reg,others:F.others,oth:F.oth,fneg:F.fneg,fwil:F.fwil};}
   render();}
@@ -227,11 +237,12 @@ function stepK(k,d){const M=mk(); if(k==='mark') M.mark=Math.max(-50,Math.min(20
 // ---------- the tab ----------
 let BOUND=false;
 function bind(){if(BOUND) return; BOUND=true; const root=()=>document.getElementById('b2market');
-  document.addEventListener('click',e=>{const R=root(); if(!R||!R.contains(e.target)) return; const b=e.target.closest('[data-mka],[data-mks]'); if(!b) return; if(b.dataset.mka) act(b.dataset.mka,b.dataset.id); else stepK(b.dataset.mks,+b.dataset.d);});
+  document.addEventListener('click',e=>{const R=root(); if(!R||!R.contains(e.target)) return; const v=e.target.closest('[data-mkv]'); if(v){mk().view=v.dataset.mkv; render(); return;} const b=e.target.closest('[data-mka],[data-mks]'); if(!b) return; if(b.dataset.mka) act(b.dataset.mka,b.dataset.id); else stepK(b.dataset.mks,+b.dataset.d);});
   document.addEventListener('input',e=>{const R=root(); if(!R||!R.contains(e.target)) return; const t=e.target, M=mk(); if(t.dataset.mkt==='addName') M.addName=t.value; else if(t.dataset.mkt==='freeNote') M.freeNote=t.value;});
   document.addEventListener('keydown',e=>{if(e.key!=='Enter') return; const t=e.target; if(t&&t.dataset&&t.dataset.mkt==='addName'){e.preventDefault(); mk().addName=t.value; act('addname');} else if(t&&t.dataset&&t.dataset.mkt==='code'){e.preventDefault(); act('code');}});
   document.addEventListener('change',e=>{const R=root(); if(!R||!R.contains(e.target)) return; const t=e.target, M=mk(), d=t.dataset;
-    if(d.mkw==='who'){M.who=t.value; M.wsk=null;} else if(d.mkw==='wsk') M.wsk=+t.value;
+    if(d.mksel){const c=M.cart.find(x=>x.id===d.mksel); if(c){if(t.checked) delete c.skip; else c.skip=true;}}
+    else if(d.mkw==='who'){M.who=t.value; M.wsk=null;} else if(d.mkw==='wsk') M.wsk=+t.value;
     else if(d.mkc) M[d.mkc]=t.checked;
     else if(d.mkr||d.mkn){const c=M.cart.find(x=>x.id===(d.mkr||d.mkn)); if(c){const it=GEARDB[c.it.key]; if(d.mkr&&it&&it.r) c.it.r=Math.max(it.r[0],Math.min(it.r[1],Math.round(+t.value||it.r[0]))); if(d.mkn) c.it.qty=Math.max(1,Math.min(9999,Math.round(+t.value||1)));}}
     else if(d.mkct){const s=curSrc(); if(s&&s.c){const c=s.c; if(d.mkct==='cb'){if(t.value) c.cb=t.value; else delete c.cb; delete c.cei;} else c[d.mkct]=Math.max(0,Math.min(12,Math.round(+t.value||0)));}}

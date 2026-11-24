@@ -512,6 +512,12 @@ a.glink{display:inline-flex;align-items:center;min-height:24px}
 /* spacing sweep (2026-11-23): Builder paragraphs whose browser margin (1em of 14px) fell off the steps */
 :where(#modeNote,#raceTraits,#woundNote){margin-block:12px}
 
+/* vehicle tests: chase tally (core p. 106-107) */
+#b2after .b2dead{padding:12px;border:1px solid var(--bad);border-radius:var(--radius);background:var(--bad-soft);color:var(--ink);margin-bottom:12px}#b2after .b2dead p{margin:0 0 8px}
+#b2night .b2sub{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}#b2night .b2sub h4{margin:0 0 8px;font-size:var(--t-sm)}
+#b2night details.b2sub summary{cursor:pointer;min-height:var(--tap);display:flex;align-items:center}
+#b2night .b2tally{margin:8px 0;padding-left:16px;display:flex;flex-direction:column;gap:4px;font-size:var(--t-sm)}
+
 /* Runner Builder, redesign Phase 4: the Build tab in steps (b2steps.js). Tokens and the Builder's own skin names only. */
 .b2vh{position:absolute;width:1px;height:1px;margin:0;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 #b2steps,#b2stepbar,#b2stepnav,#b2forstep{display:none}
@@ -612,7 +618,7 @@ body.b2mk .layout,body.b2mk .sesnote,body.b2mk .mbar,body.b2mk #b2strip,body.b2m
 .mkadd{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;padding:12px;background:var(--panel-2);border-radius:var(--radius)}
 .mkgrow{flex:1 1 14rem}.mkadd input{width:100%;min-height:var(--tap)}.mkadd button{min-height:var(--tap)}
 .mklist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
-.mkline{display:grid;grid-template-columns:minmax(10rem,1.4fr) auto minmax(14rem,1.6fr) minmax(10rem,1.4fr) auto;gap:8px 12px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line)}
+.mkline{display:grid;grid-template-columns:auto minmax(10rem,1.4fr) auto minmax(14rem,1.6fr) minmax(10rem,1.4fr) auto;gap:8px 12px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line)}
 .mkline:last-child{border-bottom:0}
 .mkline.ok{background:var(--ok-soft)}.mkline.no{background:var(--bad-soft)}
 .mkname{display:flex;flex-direction:column;min-width:0}.mkname b{font-weight:600}.mkname small,.mkstat small{color:var(--muted);font-size:var(--t-xs)}
@@ -636,13 +642,17 @@ body.b2mk .layout,body.b2mk .sesnote,body.b2mk .mbar,body.b2mk #b2strip,body.b2m
 .mkpick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-height:var(--tap)}.mkpick span{flex:1 1 10rem}.mkpick small{color:var(--muted);font-family:var(--f-mono)}.mkpick input[type=number]{width:4.5rem;min-height:var(--tap)}
 .mkul{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px}
 .mkhist details summary{cursor:pointer;min-height:var(--tap);display:flex;align-items:center}
-@media (max-width:62em){.mkline{grid-template-columns:minmax(0,1fr) auto}.mkctl,.mknums,.mkstat{grid-column:1 / -1}.mkx{grid-row:1;grid-column:2}}
+@media (max-width:62em){.mkline{grid-template-columns:auto minmax(0,1fr) auto}.mkctl,.mknums,.mkstat{grid-column:2 / -1}.mksel{grid-row:1;grid-column:1}.mkx{grid-row:1;grid-column:3}}
 @media (max-width:62em){.mkgrid{display:flex;flex-direction:column}.mkmain{display:contents}.mkcart{order:1}.mkside{order:2}.mkfence{order:3}.mkhist{order:4}}
 .mkbar{display:none}
 @media (max-width:40em){.mkbar{display:flex;flex-direction:column;gap:8px;position:sticky;bottom:0;z-index:12;margin:16px -16px 0;padding:12px 16px;background:var(--panel);border-top:1px solid var(--line)}.mkbar>div{display:flex;justify-content:space-between;font-size:var(--t-xs);color:var(--muted)}.mkbar b{font-family:var(--f-mono);font-size:var(--t-sm);color:var(--ink)}.mkbar button{min-height:48px}}
 #b2market label.mkpick{flex-direction:row;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:var(--t-sm);font-weight:400;color:var(--ink);min-height:var(--tap)}
 #b2market .mkpick input[type=checkbox]{width:24px;height:24px;margin:0;flex:0 0 auto}
 #b2market a{color:var(--brand);font-weight:600}
+#b2market .mksel{display:flex;align-items:center;min-width:24px;margin:0}#b2market .mksel input{width:24px;height:24px;margin:0}
+.mkline.off{opacity:.65}.mkown{color:var(--muted);font-size:var(--t-xs)}.mkover{color:var(--bad)}
+.mktabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}.mktabs button{min-height:var(--tap);padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;cursor:pointer}.mktabs button[aria-selected="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.mkitems{margin:4px 0 0;padding-left:16px;font-size:var(--t-sm);color:var(--muted)}
 
 /*@end:b2css*/
 </style></head><body>
@@ -907,7 +917,7 @@ body.b2mk .layout,body.b2mk .sesnote,body.b2mk .mbar,body.b2mk #b2strip,body.b2m
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1795443985194","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwtczpc4","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795443985169}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1795492890698","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwu63x2u","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795492890689}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--panel',panel2:'--panel-2',ink:'--ink',muted:'--muted',line:'--line',accent:'--brand',accentInk:'--brand-ink',accentSoft:'--brand-soft',price:'--action',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skillweb*/
@@ -1039,7 +1049,7 @@ return {P,LIST,get,now,apply,init,restorePrev};
 // tools on the site carry ?v=CODE so browsers fetch a fresh copy, and on the site the page checks version.txt and offers
 // a refresh when a newer build is out. Saved characters live in browser storage for the whole site, so a refresh keeps them.
 const SRHEAD=(()=>{
-const BUILD='0b9f379'; const built=/^[0-9a-f]{7}$/.test(BUILD);
+const BUILD='384db58'; const built=/^[0-9a-f]{7}$/.test(BUILD);
 const SITE={builder:'builder.html',locker:'gear-locker.html',gm:'gm-screen.html'};
 const FILE={builder:'SR2_Runner_Builder.html',locker:'SR2_Gear_Locker.html',gm:'SR2_GM_Screen.html'};
 function hrefs(){const f=(location.pathname.split('/').pop()||'').toLowerCase();
@@ -1689,9 +1699,14 @@ function ammoTrackHTML(){const fg=feedGuns().filter(x=>carried(x.g)); if(!fg.len
 function fitSlots(key){const A=typeof GB!=='undefined'&&GB.ACC&&GB.ACC[key]; if(!A) return null; const out=[];
   S.gear.forEach((w,j)=>{const o=WSTAT[w.key]&&gunObj(w); if(!o||!GB.canBuild(o)) return; if(A.ok&&A.ok(o)) return; const ints=GB.integral(o).map(x=>x.slot);
     const sl=GB.gunSlots(o).find(x=>A.slot.includes(x)&&!ints.includes(x)&&!(w.build&&w.build[x])); if(sl) out.push({j,slot:sl,label:GEARDB[w.key].n+' · '+sl});}); return out;}
+// weapon mounts on a vehicle: each fixed mount, pintle, ring or missile mount holds one weapon; a turret holds weapons up to its
+// Weapon Value (R2 p. 131-135), so a vehicle with a turret isn't counted. n is null when the vehicle has no Rigger 2 build data.
+function vehMounts(name){const g=S.gear.find(x=>isVehG(x)&&!x.at&&vehName(x)===name); if(!g) return null; const used=S.gear.filter(w=>w.at===name&&(WSTAT[w.key]&&WSTAT[w.key][0]!=='grenade'||(w.key||'').startsWith('vweap:'))).length;
+  if(!(typeof R2OBJ!=='undefined'&&R2OBJ[g.key])||typeof VB==='undefined') return {n:null,used,tur:false};
+  try{const v=vbFixG(g); if(!v) return {n:null,used,tur:false}; const c=VB.ctxOf(v,g.vb); let n=0, tur=false; ['mis_ext','mis_int','fx_eh','fx_ef','fx_ih','fx_if','pintle','ring','tur_mini','tur_small','tur_med','rt_micro','rt_mini','rt_small','rt_med'].forEach(k=>{const l=+c.lv(k)||0; if(/^(tur_|rt_)/.test(k)){if(l) tur=true;} else n+=l;}); return {n,used,tur};}catch(e){return {n:null,used,tur:false};}}
 // a gun or vehicle weapon can sit on a drone or vehicle: Game night then fires it with Gunnery through the rig (R2 p. 58). Same as Stash › To the vehicle.
 function mountHTML(g,i){if(!(WSTAT[g.key]&&WSTAT[g.key][0]!=='grenade'||(g.key||'').startsWith('vweap:'))) return ''; const V=S.gear.filter(isVehG).map(vehName).filter(Boolean); if(!V.length) return '';
-  return `<div class="gstat forgun"><label for="g_mnt_${i}">Mounted on</label> <select id="g_mnt_${i}" data-mnt="${i}"><option value="">Not mounted (carried)</option>${[...new Set(V)].map(v=>`<option value="${esc(v)}" ${g.at===v?'selected':''}>${esc(v)}</option>`).join('')}</select>${g.at&&V.includes(g.at)?' Game night fires it from the '+esc(g.at)+' with Gunnery.':''}</div>`;}
+  return `<div class="gstat forgun"><label for="g_mnt_${i}">Mounted on</label> <select id="g_mnt_${i}" data-mnt="${i}"><option value="">Not mounted (carried)</option>${[...new Set(V)].map(v=>{const m=vehMounts(v); const t=m&&m.n!=null?` (${m.n} mount${m.n===1?'':'s'}${m.tur?' + turret':''}, ${m.used} used)`:''; return `<option value="${esc(v)}" ${g.at===v?'selected':''}>${esc(v+t)}</option>`;}).join('')}</select>${g.at&&V.includes(g.at)?' Game night fires it from the '+esc(g.at)+' with Gunnery.':''}</div>`;}
 function fitToHTML(g,i){const f=fitSlots(g.key); if(!f) return ''; if(!f.length) return `<div class="gstat">Loose part: no gun you own has a free slot for it. Only add-ons fitted to a gun count in Game night.</div>`;
   return `<div class="gstat forgun"><label for="g_fit_${i}">Fit to</label> <select id="g_fit_${i}" data-fit="${i}"><option value="">Choose a gun…</option>${f.map(x=>`<option value="${x.j}|${esc(x.slot)}">${esc(x.label)}</option>`).join('')}</select> Loose until fitted; fitted add-ons show in Weapons and armor and count in Game night.</div>`;}
 function forGunHTML(g,i){const fg=feedGuns(); if(!fg.length) return `<div class="gstat">Add a gun to choose which one this is for.</div>`;
@@ -4101,8 +4116,10 @@ function summary(magicRating,rSpent,rBudget){
   // factory weapon mounts on drones and vehicles come empty: "weapon not included" (R2 p. 156, 165)
   iss.st='gear'; {const mt=S.gear.filter(g=>g.key&&/^r2veh:/.test(g.key)&&!g.at).filter(g=>!S.gear.some(w=>w.at===vehName(g)&&(WSTAT[w.key]||(w.key||'').startsWith('vweap:')))).filter(g=>{const F=typeof VB!=='undefined'&&VB.FACT&&VB.FACT[GEARDB[g.key].n]; return (F&&/(^|,)(fx_|rt_|tur_)/.test(F[1]||''))||(g.vb&&(g.vb.mods||[]).some(m=>/^(fx_|rt_|tur_|ring|pintle|mis_)/.test(m.id)));});
    if(mt.length) iss.push(['warn',`${[...new Set(mt.map(g=>vehName(g)))].join(', ')}: the weapon mounts are empty. Factory mounts come “weapon not included” (R2), and a mount added in a build-out holds no gun either. Buy a weapon that fits (Weapon Values Table, R2 p. 135), then set Mounted on in its gear row (or move it onto the vehicle in Stash). Game night then fires it with Gunnery (R2 p. 58).`]);}
+  iss.st='gear'; [...new Set(S.gear.filter(g=>isVehG(g)&&!g.at).map(vehName).filter(Boolean))].forEach(nm=>{const m=vehMounts(nm); if(m&&m.n!=null&&!m.tur&&m.used>m.n) iss.push(['warn',`${nm}: ${m.used} weapons are mounted but it has ${m.n} weapon mount${m.n===1?'':'s'}. Each fixed mount, pintle, ring or missile mount holds one weapon (R2 p. 131–134). Add mounts in its build-out, or carry the rest.`]);});
   iss.st='gear'; if(!S.cashRoll&&(S.prio.res||S.established)) iss.push(['warn',`Starting cash isn’t rolled yet: every runner also gets 3D6 × 1,000¥ (core p. 47). Press Roll next to Resources in Gear${S.established?'; it goes into nuyen on hand':''}.`]);
   S.gear.filter(g=>g.lowered&&isUtil(g)&&+g.lowered>+g.r).forEach(g=>iss.push(['warn',`${GEARDB[g.key].n} is rating ${g.r}: rating ${g.lowered} doesn’t fit the deck’s storage any more (core p. 172). Buy Extra Storage Memory, then set the rating again.`]));
+  {const dk=typeof deckInfo==='function'?deckInfo():null; const big=dk?dk.utils.filter(u=>u.size>dk.am):[]; if(big.length) iss.push(['warn',`${big.map(u=>GEARDB[u.g.key].n+' '+(+u.g.r||1)+' ('+u.size+' Mp)').join(', ')}: bigger than the deck’s ${dk.am} Mp of active memory in all, so ${big.length>1?'they':'it'} can never be loaded (${dk.vr2?'VR2 p. 85':'core p. 172'}). Lower the rating or add active memory.`]);}
   {const dk=typeof deckInfo==='function'?deckInfo():null; if(dk&&!dk.vr2&&dk.persona&&!Object.values(dk.persona).some(v=>+v>0)) iss.push(['warn',`${dk.name}: no persona programs. Bod, Evasion, Masking and Sensors are all 0, so the deck can’t resist or hide from anything. Add them in the deck’s program list; their ratings can total up to 3 × MPCP (${3*(dk.mpcp||0)}) (core p. 174).`]);}
   iss.st='between'; if(S.phys>10+natBody()) iss.unshift(['bad','This runner is dead: Physical damage went more than Body boxes past the track (p. 111). Keep the sheet for the record; a new runner starts fresh.']);
   // cyberware and bioware are installed once; a quantity above 1 multiplies the Essence
@@ -4905,7 +4922,7 @@ const GRP={on:'Carried',off:'Not on you: stashed or in a vehicle',base:'Basic at
 function nightHTML(){
   const T=sheetStats(), ar=T.ar, w=T.wmod.m, A=attacks(); if(!A.find(a=>a.id===B.wid)){const by=(B.widBy||{})[S.id]; B.wid=(by&&A.find(a=>a.id===by)?by:(A.find(a=>a.grp==='on'&&a.id!=='unarmed')||A.find(a=>a.id!=='unarmed')||A[0]).id);} const W=A.find(a=>a.id===B.wid);
   const bodyR=augAttr('body')+hasDerm(), isMag=isMagician(), poolName=W.kind==='spell'?'Magic Pool':'Combat Pool';
-  if(B._for!==S.id){B._for=S.id; B.inim=''; B.pool=T.cpool; B.poolMax=T.cpool; B.karma=T.kpool; B.mpool=null; B.hpool=null; B.hpMax=null; B.roll=null; B.gh.roll=null; B.ini=null; B.conjRes=''; B.spNote=''; B.drainHit=null;} // each runner has their own pools
+  if(B._for!==S.id){B._for=S.id; B.inim=''; B.pool=T.cpool; B.poolMax=T.cpool; B.karma=T.kpool; B.mpool=null; B.hpool=null; B.hpMax=null; B.roll=null; B.gh.roll=null; B.ini=null; B.conjRes=''; B.spNote=''; B.drainHit=null; B.warn=''; B.anyway=false; B.vRes=''; B.vhRes=null; B.vLast=null; B.vEsc=null;} // each runner has their own pools
   if(B.poolMax!==T.cpool){B.poolMax=T.cpool; B.pool=T.cpool;} if(B.karma==null) B.karma=T.kpool;
   const mpMax=isMag?bestRating(/^sorcery/i)+powerFoci():0; if(B.mpool==null||B.mpMax!==mpMax){B.mpMax=mpMax;B.mpool=mpMax;}
   const big=[['Body',String(augAttr('body')),hasDerm()?'+1 dermal: '+bodyR+' to resist':bodyR+' dice to resist'],['Armor',ar.b+' / '+ar.i,'Ballistic / Impact worn'],['Reaction',String(T.reaction),''],['Initiative',`${T.reaction-w} + ${T.dice}D6`,w?'wounds −'+w:''],
@@ -5049,6 +5066,9 @@ function nightHTML(){
   else if(W.v2||W.kind==='vsys') poolCtl+=step('spend','Hacking Pool ('+B.hpool+' left; VR2 p. 18)',spend);
   else if(W.kind!=='spirit'&&W.kind!=='matrix'&&W.kind!=='util'&&W.kind!=='vsys'&&!(W.kind==='drone'&&B.dmode==='auto')) poolCtl+=step('spend',(W.kind==='cast'?'Magic Pool':poolName)+' ('+(W.kind==='spell'||W.kind==='cast'?B.mpool:B.pool)+' left'+(W.kind!=='spell'&&W.kind!=='cast'?', max '+maxSp+' on this attack':'')+')',spend);
   const notLoaded=(W.kind==='matrix'||W.kind==='util')&&!W.loaded;
+  const nlG=notLoaded&&W.gi!=null?S.gear[W.gi]:null, nlDk=nlG&&typeof deckInfo==='function'?deckInfo():null, nlSz=nlG&&GEARDB[nlG.key]&&GEARDB[nlG.key].sz?GEARDB[nlG.key].sz(+nlG.r||1):0, tooBig=!!(nlDk&&nlSz>nlDk.am);
+  const downNow=(S.phys>=10||S.stun>=10)&&!(W.kind==='drone'&&B.dmode==='auto'), crashedNow=['util','matrix','vsys'].includes(W.kind)&&(S.mxDmg||0)>=10; if(!downNow&&!crashedNow) B.anyway=false; const stopRoll=(downNow||crashedNow)&&!B.anyway;
+  const anyBtn=B.anyway?' The GM let them act anyway.':' <button class="ghost" data-b2a="anyway">Act anyway (GM’s call)</button>';
   if(aimLock) rows.push(['No Combat Pool dice','aiming over more than one Combat Phase · core p. 82','—']);
   const rowsHTML=rows.map(([k,s,v],j)=>`<div class="b2r${j%2?' alt':''}"><span>${E(k)} <small>${E(s)}</small></span><b class="${/^\+[1-9]/.test(v)?'b2warn':/^−/.test(v)?'b2ok':''}">${E(v)}</b></div>`).join('')+`<div class="b2r tot"><span>Target number</span><b>${tn}</b></div>`;
   let drain='';
@@ -5057,6 +5077,7 @@ function nightHTML(){
   const succ=B.roll?B.roll.r.filter(v=>v>=B.roll.tn).length+(B.roll.ks||0):0;
   let res=B.warn?B.warn:B.spNote&&B.roll&&W.kind==='spirit'?(B.roll.r.filter(v=>v>=B.roll.tn).length+' successes vs TN '+B.roll.tn+' · '+B.spNote):!B.roll?'Sixes roll again and add (Rule of Six, core p. 32).':B.roll.r.every(v=>v===1)&&!B.roll.ks?(B.roll.oops?'All ones, but Karma made it a plain failure (core p. 191).':'All ones: Rule of One (core p. 32).'):`${succ} success${succ===1?'':'es'}${kNote(B.roll)?' (Karma: '+kNote(B.roll)+')':''}`;
   if(B.roll&&W.kind==='cast'&&B._heal&&succ>0&&!B.warn){const T=HSPT[B._heal.wl], o=[]; for(let t=0;t<=Math.min(succ,4);t++){if(t===1) continue; const bx=succ-t; o.push(`${bx} box${bx===1?'':'es'} healed, held ${t?Math.round(T/t*10)/10:T} turns`);} res+=' · each one heals a box or goes into the time (one alone changes nothing): '+o.join('; ')+(succ>4?'; …':'')+' (boxes only up to the damage marked).';}
+  if(B.roll&&W.grenade&&!B.warn) res+=succ?` · each success takes 2 m off the scatter (4 m for aerodynamic grenades and launchers); the GM rolls the scatter and places the blast (core p. 97). Thrown grenades come off in After the session, under Used up.`:' · no successes: it scatters the full distance the GM rolls, in a direction the GM rolls, and the GM places the blast (core p. 97). Thrown grenades come off in After the session, under Used up.';
   if(B.roll&&W.kind==='matrix'&&W.v2&&succ>0&&!B.warn){const i=Math.min(3,L4.indexOf(W.lv)+Math.floor(succ/2)); res+=` · it hits for ${W.rating}${L4[i]} before the target resists (VR2 p. 124).`;}
   if(B.roll&&B.roll.host){const H=B.roll.host; res+=` · the host rolled ${H.r.join(' ')} → ${H.k} vs your Detection Factor ${H.df}: `+(succ>H.k?'you win the test.':'the host wins; the operation fails.')+` Add ${H.k} to your security tally (VR2 p. 19).`;}
   let nodeFail=false; if(B.roll&&B.roll.node){const N=B.roll.node, sc=N.sec||0, runs=succ>N.k&&succ-N.k>=sc; nodeFail=!runs; res+=` · the node rolled ${N.r.join(' ')} → ${N.k} vs your Evasion ${N.ev}. You need more than ${N.k}${sc?`, with at least ${sc} past it for the ${SECN[sc]} code (${N.k+Math.max(sc,1)} in all)`:''}: `+(runs?'the utility runs.':'it doesn’t run.');}
@@ -5127,9 +5148,9 @@ function nightHTML(){
      ${B.sitOpen?`<div class="b2sitbg" data-b2a="sitdone"></div><div class="b2sit" id="b2sit" role="dialog" aria-label="Situation"><div class="b2sith"><b>Situation</b><span class="note">${E(sitLab.replace(/^Situation: /,''))}</span></div><div class="b2sitg">${situ}</div><div class="b2sitf"><button class="ghost" data-b2a="clear">Clear</button><button class="primary" data-b2a="sitdone">Done</button></div></div>`:''}
      <div class="b2one">
       <div class="b2res"><div class="b2nums"><div><span class="b2k">Dice</span><b>${dice}</b><small>${E(dSrc)}</small></div><div><span class="b2k">Target number</span><b class="b2warn">${tn}</b></div><div><span class="b2k">Damage</span><b>${E(dmg)}</b><small>${E(dmgNote||W.note||'')}</small></div></div>
-       ${S.phys>=10||S.stun>=10?`<p class="b2warn" role="status">${S.phys>=10?"Physical track full: the runner is down and can’t act (core p. 112).":"Stun track full: the runner is unconscious (core p. 112)."} Heal or wake them first.</p>`:""}${(W.kind==="util"||W.kind==="matrix")&&(S.mxDmg||0)>=10?`<p class="b2warn" role="status">The deck has crashed: restart it before running programs (core p. 179).</p>`:""}
-       <div class="b2row"><button class="primary b2roll" data-b2a="roll" ${W.grp==='off'||notLoaded?'disabled':''}>Roll ${dice} dice${rounds?' · '+rounds+' round'+(rounds>1?'s':''):''}</button></div>
-       ${notLoaded?`<p class="note b2warn">This program isn’t in active memory. Load it first (a Simple Action to start; big programs take longer, core p. 173–174). <button class="ghost" data-b2a="mload">Load it</button></p>`:''}
+       ${downNow?`<p class="b2warn" role="status">${S.phys>=10?"Physical track full: the runner is down and can’t act (core p. 112).":"Stun track full: the runner is unconscious (core p. 112)."} Heal or wake them first.${anyBtn}</p>`:""}${crashedNow?`<p class="b2warn" role="status">The deck has crashed: restart it before running programs (core p. 179).${downNow?"":anyBtn}</p>`:""}
+       <div class="b2row"><button class="primary b2roll" data-b2a="roll" ${W.grp==='off'||notLoaded||stopRoll?'disabled':''}>Roll ${dice} dice${rounds?' · '+rounds+' round'+(rounds>1?'s':''):''}</button></div>
+       ${notLoaded?(tooBig?`<p class="note b2warn">${E(GEARDB[nlG.key].n)} ${+nlG.r||1} is ${nlSz} Mp, more than the deck’s ${nlDk.am} Mp of active memory in all, so it can never be loaded (${nlDk.vr2?'VR2 p. 85':'core p. 172'}). Lower its rating or add active memory.</p>`:`<p class="note b2warn">This program isn’t in active memory. Load it first (a Simple Action to start; big programs take longer, core p. 173–174). <button class="ghost" data-b2a="mload">Load it</button></p>`):''}
        <div class="b2rc" aria-live="polite">${B.roll?`<b class="b2rc-big${nodeFail?' b2warn':''}">${E(res)}</b><div class="b2dice">${rolled}</div>`:`<p class="note">${E(res)}</p>`}<div class="b2rc-mods">${E(amods)}</div></div><details class="b2math"><summary>Show the math</summary><div class="b2rows">${rowsHTML}</div></details>${kOK?karmaTuck(B.roll,'atk',kdBase):`<p class="note">Karma Pool is for your own tests; this is the ${W.kind==='spirit'?'spirit’s':'drone’s'} roll.</p>`}${drain}</div>
       <div class="b2aside"><button class="ghost" data-b2a="copy" ${W.grp==='off'?'disabled':''}>Copy for Roll20</button><button class="ghost" data-b2a="newact">New action: refresh pools</button><button class="ghost" data-b2a="newturn">New Combat Turn</button><button class="ghost" data-b2a="newscene">New scene</button>
        <p class="note">Pools refresh at the start of each of your actions (core p. 78, 84). A new Combat Turn also clears Initiative. A new scene refills Karma Pool and Team Karma (core p. 191).</p></div></div>${copyBox}</section>
@@ -5168,21 +5189,68 @@ function spiritsHTML(){const L=S.spirits||[], herm=S.magic==='hermetic'; let t=B
    <details class="b2more"><summary>Rolled it at the table instead</summary><div class="b2ctl">${step('spsv','Services owed',B.spsv==null?1:B.spsv)}<div class="b2f"><span class="b2k">&nbsp;</span><button class="primary" data-b2a="spadd">Add spirit</button></div></div></details></section>`;}
 // vehicle tests (core p. 106-107): Position Test and Crash Test, with Control Pool for riggers
 const VSKILLS=/^(Car|Bike|Hovercraft|Motorboat|Rotor Craft|Sailboat|Vectored Thrust|Winged Plane|Ship|Walker|LTA|Submarine)/i;
-function vehHTML(){const V=S.gear.filter(g=>isVehG(g)&&GEARDB[g.key]); if(!V.length) return '';
+// Vehicle tests: Position, Crash and Escape (core p. 106-107) and the vehicle's own Damage Resistance Test (R2 p. 53, or core
+// p. 108 with Rigger 2 off). One place works out the numbers so the panel and the roll agree.
+const VDM=n=>n>=10?'Destroyed':n>=6?'Serious':n>=3?'Moderate':n>=1?'Light':'';
+const VDMT=n=>n>=6?3:n>=3?2:n>=1?1:0; // vehicle damage modifier to tests that involve the vehicle (core p. 109)
+const ESCM={o:-4,n:-2,r:0,t:2};          // Escape Test modifiers (core p. 107)
+function vehCalc(){const V=S.gear.filter(g=>isVehG(g)&&GEARDB[g.key]); if(!V.length) return null;
   const vi=Math.min(B.vveh||0,V.length-1), v=V[vi], R=typeof R2OBJ!=='undefined'?R2OBJ[v.key]:null, rr=R?R.r:{}; const hand=parseInt(String(rr.H||'').split('/')[0],10)||4, cruise=parseInt(String(rr.Sp||'').split('/')[0],10)||0;
-  const sk=[]; S.skills.filter(x=>x.name&&VSKILLS.test(x.name)).forEach(x=>skillPartsNow(x).forEach(p=>{if(p.r) sk.push([p.label,p.r,p.chip]);})); chipsOn().forEach(([g])=>{const n=chipSkill(g), v=chipInfo(g); if(n&&(VSKILLS.test(v.sk)||VSKILLS.test(n))&&!sk.some(x=>chipEq(x[0],n))) sk.push([n,+g.r||0,true]);}); const ski=Math.min(B.vsk||0,Math.max(0,sk.length-1)); const skill=sk[ski]||['no vehicle skill: defaulting (GM)',0];
+  const VS=typeof VSTAT!=='undefined'?VSTAT[v.key]:null; let body=VS?+VS[2]||0:null, armor=VS?+VS[3]||0:null;
+  if(R&&v.vb&&v.vb.mods&&v.vb.mods.length&&typeof vbFixG==='function'){try{const vv=vbFixG(v), rc=VB.calc(vv,v.vb); if(vv&&vv.B!=null) body=+vv.B||0; if(rc&&rc.s&&rc.s.A!=null) armor=+rc.s.A||0;}catch(e){}}
+  const sk=[]; S.skills.filter(x=>x.name&&VSKILLS.test(x.name)).forEach(x=>skillPartsNow(x).forEach(p=>{if(p.r) sk.push([p.label,p.r,p.chip]);})); chipsOn().forEach(([g])=>{const n=chipSkill(g), c=chipInfo(g); if(n&&(VSKILLS.test(c.sk)||VSKILLS.test(n))&&!sk.some(x=>chipEq(x[0],n))) sk.push([n,+g.r||0,true]);}); const ski=Math.min(B.vsk||0,Math.max(0,sk.length-1)); const skill=sk[ski]||['no vehicle skill: defaulting (GM)',0];
   const vcr=gearLevel('body:Vehicle Control Rig'), cp=vcr?Math.floor((attrNow('quick')+attrNow('int'))/2)+2*vcr:0; if(B.cpool==null||B.cpMax!==cp){B.cpMax=cp;B.cpool=cp;}
-  const kind=B.vtest||'pos', ter=B.vter||'n'; const POS={o:0,n:1,r:2,t:4}, CR={o:-1,n:0,t:2,r:4}; const tm=(kind==='pos'?POS:CR)[ter];
-  const tn=Math.max(2,hand+tm+woundMods().m+susPen()); const vChip=!!skill[2]&&chipNoPool(VSKILLS), sp=vChip?0:Math.min(B.vsp||0,B.cpool), dice=skill[1]+sp;
+  const kind=['pos','crash','hit'].includes(B.vtest)?B.vtest:'pos', ter=B.vter||'n', vChip=!!skill[2]&&chipNoPool(VSKILLS), dmg=Math.max(0,Math.min(10,+v.vdmg||0)), vdm=VDMT(dmg), r2=!!booksOn().r2;
+  const o={V,vi,v,hand,cruise,body,armor,sk,ski,skill,cp,kind,ter,vChip,dmg,vdm,r2};
+  if(kind!=='hit'){const tm=(kind==='pos'?{o:0,n:1,r:2,t:4}:{o:-1,n:0,t:2,r:4})[ter]; o.tm=tm; o.tn=Math.max(2,hand+tm+vdm+woundMods().m+susPen()); o.sp=vChip?0:Math.min(B.vsp||0,B.cpool); o.dice=skill[1]+o.sp; return o;}
+  const H=B.vh||(B.vh={pow:6,lvl:'M',att:1,av:false}); const bd=body!=null?body:Math.max(0,B.vhB||0), ar=armor!=null?armor:Math.max(0,B.vhA||0), L=L4.indexOf(H.lvl);
+  o.H=H; o.bd=bd; o.ar=ar; o.lvl=H.av?H.lvl:(L>0?L4[L-1]:null); o.noPen=!H.av&&ar>0&&H.pow<=ar;
+  // Rigger 2: armor takes its rating off the Power (half against AV); Body + Control Pool (no more than the driving skill) against that Power
+  // core: armor works as a barrier, Power minus Body + armor (Body alone if unarmored), Body + half armor in dice; AV loses armor only
+  const tnP=r2?H.pow-(H.av?Math.floor(ar/2):ar):(H.av?H.pow-ar:ar>0?H.pow-(bd+ar):H.pow-bd); o.tn=Math.max(2,tnP);
+  o.cap=r2?skill[1]:Infinity; o.sp=vChip?0:Math.min(B.vsp||0,B.cpool,o.cap); o.dice=(r2||!ar?bd:bd+Math.floor(ar/2))+o.sp; o.pg=r2?'R2 p. 53':'core p. 108'; return o;}
+function vehHTML(){const o=vehCalc(); if(!o) return ''; const {V,vi,v,hand,cruise,sk,ski,skill,cp,kind,ter,vChip,dmg,vdm,r2}=o;
   const sel=(id,lab,opts,val)=>`<label class="b2f"><span class="b2k">${E(lab)}</span><select data-b2="${id}">${opts.map(([o,t])=>`<option value="${E(o)}" ${String(o)===String(val)?'selected':''}>${E(t)}</option>`).join('')}</select></label>`;
   const step=(id,lab,val)=>`<div class="b2f"><span class="b2k">${E(lab)}</span><div class="b2step"><button class="ghost" data-b2s="${id}" data-d="-1" aria-label="Lower ${E(lab)}">−</button><b>${E(val)}</b><button class="ghost" data-b2s="${id}" data-d="1" aria-label="Raise ${E(lab)}">+</button></div></div>`;
-  return `<section class="b2pan"><div class="b2h"><h3>Vehicle tests</h3><span class="note">chases and crashes, core p. 106–107</span></div>
+  const num=(id,lab,val)=>`<label class="b2f"><span class="b2k">${E(lab)}</span><input type="number" min="0" inputmode="numeric" data-b2="${id}" value="${val==null||val===''?'':E(val)}" style="width:6rem"></label>`;
+  const pool=cp&&!vChip?step('vsp','Control Pool ('+B.cpool+' left'+(kind==='hit'&&r2?', up to '+o.cap:'')+')',o.sp):cp?'<span class="note">Vehicle ActiveSoft: no Control Pool (core p. 248)</span>':'';
+  const track=`<div class="b2r${dmg?' b2warn':''}"><span>Vehicle damage <small>${dmg?`${VDM(dmg)}: ${dmg} of 10 boxes${dmg<10?`, +${vdm} to its tests, driver’s Reaction −${vdm} for Initiative`:''} (core p. 109)`:'none marked'}</small></span><b>${dmg}/10</b></div>`;
+  let ctl='', rows='', btn='', tail='', extra='';
+  if(kind!=='hit'){
+    ctl=sel('vter','Terrain',[['o','Open'],['n','Normal'],['r','Restricted'],['t','Tight']],ter)+pool;
+    rows=`<div class="b2r"><span>Handling</span><b>${hand}</b></div><div class="b2r alt"><span>Terrain</span><b>${SIGN(o.tm)}</b></div>${vdm?`<div class="b2r"><span>Vehicle damage</span><b class="b2warn">+${vdm}</b></div>`:''}${woundMods().m?`<div class="b2r"><span>Wounds</span><b class="b2warn">+${woundMods().m}</b></div>`:''}<div class="b2r tot"><span>Target number</span><b>${o.tn}</b></div>`;
+    btn=`<button class="primary" data-b2a="vroll">Roll ${o.dice} dice</button><button class="ghost" data-b2a="vref">New turn${kind==='pos'?': log it and refresh Control Pool':': refresh Control Pool'}</button>`;
+    tail=kind==='pos'?`Each success moves you ${cruise||'cruising speed'} m; keep the count for the Escape Test (core p. 106–107).`:`Fail and you crash: Power ${Math.floor(cruise/10)} (cruising speed ÷ 10), damage by speed (core p. 107).`;
+    if(kind==='pos') extra=chaseHTML(o,sel,step,num);}
+  else {const H=o.H, known=o.body!=null;
+    ctl=sel('vhk','Weapon',[['w','Ordinary weapon'],['av','Anti-vehicle (AV) munition']],H.av?'av':'w')+step('vhp','Incoming Power',H.pow)+sel('vhl','Damage level',[['L','Light'],['M','Moderate'],['S','Serious'],['D','Deadly']],H.lvl)+step('vha','Attacker’s successes',H.att)+(known?'':step('vhB','Vehicle Body',o.bd)+step('vhA','Vehicle armor',o.ar))+pool;
+    rows=`<div class="b2r"><span>Body <small>${known?'from the vehicle':'typed in'}</small></span><b>${o.bd}</b></div><div class="b2r alt"><span>Armor</span><b>${o.ar}</b></div><div class="b2r"><span>Damage level <small>${H.av?'AV: not reduced':'one level lower against a vehicle'}</small></span><b>${o.lvl||'none'}</b></div><div class="b2r tot"><span>Target number <small>${r2?`Power ${H.pow} − ${H.av?'half armor '+Math.floor(o.ar/2):'armor '+o.ar}`:H.av?`Power ${H.pow} − armor ${o.ar}`:o.ar?`Power ${H.pow} − (Body + armor) ${o.bd+o.ar}`:`Power ${H.pow} − Body ${o.bd}`}</small></span><b>${o.tn}</b></div>`;
+    const why=o.noPen?`Power ${H.pow} doesn’t beat armor ${o.ar}: no damage gets through (${o.pg}). Use the weapon’s base Power, before burst or full-auto.`:!o.lvl?`A Light weapon can’t hurt a vehicle unless it uses special ammunition (${o.pg}).`:!H.att?'The attacker had no successes: a miss.':(r2&&o.bd===0)?`Body 0: any success by the attacker destroys it (R2 p. 53).`:'';
+    btn=why?`<p class="note b2warn">${E(why)}</p>`:`<button class="primary" data-b2a="vhit">Roll ${o.dice} dice</button>`;
+    btn+=`<button class="ghost" data-b2a="vhmark" ${B.vhRes&&B.vhRes.boxes&&B.vhRes.vk===v.key+'|'+vi?'':'disabled'}>Mark it on the vehicle</button>${dmg?'<button class="ghost" data-b2a="vhfix">Repaired: clear the track</button>':''}`;
+    tail=`${r2?`Body${o.cap?' + Control Pool (up to the skill, '+o.cap+')':''}`:`Body${o.ar?' + half armor':''}${cp?' + Control Pool':''}`} against the Power left after armor; standard staging. Serious damage from one attack means a Crash Test (${r2?'R2 p. 51':'core p. 107'}).`;}
+  return `<section class="b2pan"><div class="b2h"><h3>Vehicle tests</h3><span class="note">chases, crashes and damage, core p. 106–109${r2?', R2 p. 53':''}</span></div>
    <div class="b2ctl">${sel('vveh','Vehicle',V.map((g,j)=>[j,vehName(g)]),vi)}${sel('vsk','Skill',sk.length?sk.map((x,j)=>[j,x[0]+' '+x[1]]):[[0,'none']],ski)}
-   ${sel('vtest','Test',[['pos','Position Test (each turn of a chase)'],['crash','Crash Test (Serious damage, no driver action, a ram)']],kind)}
-   ${sel('vter','Terrain',[['o','Open'],['n','Normal'],['r','Restricted'],['t','Tight']],ter)}${cp&&!vChip?step('vsp','Control Pool ('+B.cpool+' left)',sp):cp?'<span class="note">Vehicle ActiveSoft: no Control Pool (core p. 248)</span>':''}</div>
-   <div class="b2rows"><div class="b2r"><span>Handling</span><b>${hand}</b></div><div class="b2r alt"><span>Terrain</span><b>${SIGN(tm)}</b></div>${woundMods().m?`<div class="b2r"><span>Wounds</span><b class="b2warn">+${woundMods().m}</b></div>`:''}<div class="b2r tot"><span>Target number</span><b>${tn}</b></div></div>
-   <div class="b2row"><button class="primary" data-b2a="vroll">Roll ${dice} dice</button><button class="ghost" data-b2a="vref">New turn: refresh Control Pool</button></div>
-   ${resHTML(B.vRes,(kind==='pos'?`Each success moves you ${cruise||'cruising speed'} m and every 2 give each passenger an attack; keep the count for the Escape Test (core p. 106–107).`:`Fail and you crash: Power ${Math.floor(cruise/10)} (cruising speed ÷ 10), damage by speed (core p. 107).`))}</section>`;}
+   ${sel('vtest','Test',[['pos','Position Test (each turn of a chase)'],['crash','Crash Test (Serious damage, no driver action, a ram)'],['hit','Got hit: vehicle damage']],kind)}${ctl}</div>
+   <div class="b2rows">${track}${rows}</div>
+   <div class="b2row">${btn}</div>
+   ${kind==='hit'?resHTML(B.vhRes,tail):resHTML(B.vRes,tail)}${extra}</section>`;}
+// a running tally for a chase: the other side's successes, the gap and who escapes (core p. 106-107)
+function chaseHTML(o,sel,step,num){const C=B.chase||(B.chase={turn:1,log:[]}), L=B.vLast&&B.vLast.vk===o.v.key+'|'+o.vi?B.vLast:null, it=B.vint||'f', J=Math.max(0,B.vopp||0), jIn=B.vopp!=null;
+  let say=[]; if(L){const k=L.k, mine=it==='x'?Math.floor(k/2)*L.cruise:k*L.cruise, oc=+B.vocs||0, theirs=oc?J*oc:null;
+    say.push(it==='x'?`${k} attack${k===1?'':'s'} on them; you may open or close the gap by ${mine} m (core p. 106).`:`You move ${mine} m; each passenger gets ${Math.floor(k/2)} attack${Math.floor(k/2)===1?'':'s'}.`);
+    if(jIn&&B.vdist!=null&&B.vdist!==''&&theirs!=null&&it!=='x'){const d=+B.vdist, nd=it==='f'?d+mine-theirs:d-mine+theirs;
+      say.push(nd<=d&&it==='p'?`You close to ${Math.max(0,nd)} m; you may pick any distance from ${Math.max(0,nd)} to ${d} m (core p. 106).`:nd<d&&it==='f'?`They gain on you: ${Math.max(0,nd)} m apart (they pick between that and ${d} m).`:`The gap is ${Math.max(0,nd)} m.`); if(nd<1) say.push('Under 1 m: either driver can ram (core p. 107).');}
+    const em=ESCM[o.ter];
+    if(!jIn) say.push('Put in their successes to see the gap and who escapes.');
+    else if(it==='f') say.push(k>J?`You beat their ${J}: they make an Escape Test against target number ${Math.max(2,k-J+em)} (net ${k-J}, terrain ${SIGN(em)}) with the best Intelligence among those who can see you. No successes and you’re away (core p. 107).`:`They matched or beat your ${k}: no escape this turn.`);
+    else if(it==='p') say.push(J>k?`They beat your ${k}: you make an Escape Test against target number ${Math.max(2,J-k+em)} (net ${J-k}, terrain ${SIGN(em)}) or they get away.`:`You matched or beat their ${J}: they can’t get away this turn.`);}
+  const esc=L&&jIn&&it==='p'&&J>L.k;
+  return `<div class="b2sub"><h4>Chase tally <span class="note">turn ${C.turn}</span></h4>
+   <div class="b2ctl">${sel('vint','You are',[['f','Fleeing'],['p','Pursuing'],['x','Fighting']],it)}${step('vopp','Their successes',jIn?J:'—')}${num('vocs','Their cruising speed (m)',B.vocs)}${num('vdist','Distance now (m)',B.vdist)}</div>
+   ${L?`<ul class="b2tally">${say.map(x=>`<li>${E(x)}</li>`).join('')}</ul>`:'<p class="note">Roll the Position Test, then put in the other side’s successes.</p>'}
+   ${esc?`<div class="b2row"><button class="ghost" data-b2a="vesc">Roll the Escape Test (Intelligence ${attrNow('int')})</button></div>`:''}${resHTML(B.vEsc)}
+   ${C.log.length?`<details class="b2sub"><summary>Earlier turns (${C.log.length})</summary><ul class="b2tally">${C.log.map(x=>`<li>${E(x)}</li>`).join('')}</ul></details><div class="b2row"><button class="ghost" data-b2a="vchase">New chase: clear the tally</button></div>`:''}</div>`;}
 // sustaining spells: +2 to every target number of the magician's own tests, per spell; at most Sorcery spells at once (core p. 128, 129)
 const susN=()=>isMagician()?(S.sus||[]).length:0;
 const susPen=()=>2*susN();
@@ -5208,6 +5276,7 @@ function copyOut(text,msg){let ok=false; try{if(navigator.clipboard){navigator.c
   B.copy={text,msg:ok?msg+': copied. Paste it into the Roll20 chat.':msg+': select this and copy it.'};}
 function who(){return S.handle||S.name||'Runner';}
 function act(a){const C=B._cur, W=C&&C.W; B.warn='';
+  if(a==='anyway'){B.anyway=true; return redraw();}
   if(a==='ini'){const T=sheetStats(), I=iniNow(T); B.ini=I.r+Array.from({length:I.d},d6p).reduce((x,y)=>x+y,0);}
   else if(a==='cini'){const T=sheetStats(), I=iniNow(T); copyOut(`&{template:default} {{name=${who()}: ${I.m?'Matrix ':''}Initiative}} {{Initiative=[[${I.r-T.wmod.m}+${I.d}d6]]}}`,'Initiative');}
   else if(a==='roll'||a==='copy'){
@@ -5232,19 +5301,33 @@ function act(a){const C=B._cur, W=C&&C.W; B.warn='';
     if(op==='re'){const n=(R.kc||0)+1, P=R.parts||R.r.parts; if(R.r.some(x=>x<R.tn)&&kPay(n)){R.kc=n; R.r.forEach((v,j)=>{if(v<R.tn){const t=[]; R.r[j]=d6x(R.tn,t); if(P) P[j]=t[0];}});}}
     else if(op==='buy'){if(R.r.some(x=>x>=R.tn)&&kPay(1)){R.ks=(R.ks||0)+1; if(B.kfrom==='team'){const tk=tkGet(); tk.tot=Math.max(0,tk.tot-1); sv();} else B.af.kbuy=(B.af.kbuy||0)+1;}}
     else if(op==='oops'){if(R.r.length&&R.r.every(x=>x===1)&&kPay(1)) R.oops=true;}}}
-  else if(a==='vroll'||a==='vref'){if(a==='vref'){B.cpool=B.cpMax; B.vRes=''; return redraw();} const V=S.gear.filter(g=>isVehG(g)&&GEARDB[g.key]); const v=V[Math.min(B.vveh||0,V.length-1)]; if(!v) return; const R=typeof R2OBJ!=='undefined'?R2OBJ[v.key]:null, rr=R?R.r:{}; const hand=parseInt(String(rr.H||'').split('/')[0],10)||4, cruise=parseInt(String(rr.Sp||'').split('/')[0],10)||0;
-    const sk=[]; S.skills.filter(x=>x.name&&VSKILLS.test(x.name)).forEach(x=>skillPartsNow(x).forEach(p=>{if(p.r) sk.push([p.label,p.r,p.chip]);})); chipsOn().forEach(([g])=>{const n=chipSkill(g), v=chipInfo(g); if(n&&(VSKILLS.test(v.sk)||VSKILLS.test(n))&&!sk.some(x=>chipEq(x[0],n))) sk.push([n,+g.r||0,true]);}); const skill=sk[Math.min(B.vsk||0,Math.max(0,sk.length-1))]||['',0];
-    const kind=B.vtest||'pos', ter=B.vter||'n', tm=(kind==='pos'?{o:0,n:1,r:2,t:4}:{o:-1,n:0,t:2,r:4})[ter], tn=Math.max(2,hand+tm+woundMods().m+susPen()); const sp=skill[2]&&chipNoPool(VSKILLS)?0:Math.min(B.vsp||0,B.cpool||0); B.cpool=(B.cpool||0)-sp; B.vsp=0;
-    const r=rollN(skill[1]+sp,tn), k=r.filter(x=>x>=tn).length; const imp=cruise>200?'D':cruise>60?'S':cruise>20?'M':'L';
-    const vm=`TN ${tn}: Handling ${hand}, terrain ${tm>=0?'+'+tm:'−'+(-tm)}${wsMods(woundMods().m,susPen())} · ${skill[0]||'defaulting (GM)'} ${skill[1]}${sp?' + Control Pool '+sp:''}`;
-    B.vRes=RR(r,tn,{head:kind==='pos'?'Position Test':'Crash Test',mods:vm,pool:sp,tail:kind==='pos'?`${k*cruise} m, ${Math.floor(k/2)} attack${Math.floor(k/2)===1?'':'s'} per passenger. Note ${k} for the Escape Test.`:(k?'No crash.':`Crash: ${Math.floor(cruise/10)}${imp} to the vehicle (Body + half armor resists; passengers take what gets through, Impact armor only, core p. 107).`)});}
+  else if(a==='vref'){const o=vehCalc(); const L=B.vLast; if(o&&o.kind==='pos'&&L){const C=B.chase||(B.chase={turn:1,log:[]}); const it=B.vint||'f', J=Math.max(0,B.vopp||0), mine=it==='x'?Math.floor(L.k/2)*L.cruise:L.k*L.cruise, oc=+B.vocs||0;
+      if(B.vopp!=null&&B.vdist!=null&&B.vdist!==''&&oc&&it!=='x'){const d=+B.vdist; B.vdist=Math.max(0,it==='f'?d+mine-J*oc:d-mine+J*oc);}
+      C.log.push(`Turn ${C.turn}: ${({f:'fleeing',p:'pursuing',x:'fighting'})[it]}, you ${L.k} vs them ${B.vopp==null?'?':J}${B.vdist!=null&&B.vdist!==''?`, ${B.vdist} m apart`:''}${B.vEsc?' · Escape Test '+B.vEsc.k+' successes':''}`); C.turn++;}
+    B.cpool=B.cpMax; B.vRes=''; B.vLast=null; B.vEsc=null; B.vopp=null; return redraw();}
+  else if(a==='vchase'){B.chase={turn:1,log:[]}; B.vLast=null; B.vEsc=null; B.vopp=null; B.vdist=''; return redraw();}
+  else if(a==='vesc'){const o=vehCalc(), L=B.vLast; if(!o||!L) return; const J=Math.max(0,B.vopp||0), em=ESCM[o.ter], tn=Math.max(2,J-L.k+em), r=rollN(attrNow('int'),tn), k=r.filter(x=>x>=tn).length;
+    B.vEsc=RR(r,tn,{head:'Escape Test',mods:`TN ${tn}: net ${J-L.k}, terrain ${SIGN(em)} · Intelligence ${attrNow('int')}`,tail:k?'You keep them in sight.':'No successes: they got away (core p. 107).'});}
+  else if(a==='vroll'){const o=vehCalc(); if(!o||o.kind==='hit') return; B.cpool=(B.cpool||0)-o.sp; B.vsp=0;
+    const r=rollN(o.dice,o.tn), k=r.filter(x=>x>=o.tn).length; const imp=o.cruise>200?'D':o.cruise>60?'S':o.cruise>20?'M':'L';
+    const vm=`TN ${o.tn}: Handling ${o.hand}, terrain ${o.tm>=0?'+'+o.tm:'−'+(-o.tm)}${o.vdm?', vehicle damage +'+o.vdm:''}${wsMods(woundMods().m,susPen())} · ${o.skill[0]||'defaulting (GM)'} ${o.skill[1]}${o.sp?' + Control Pool '+o.sp:''}`;
+    if(o.kind==='pos'){B.vLast={k,cruise:o.cruise,vk:o.v.key+'|'+o.vi}; B.vEsc=null;}
+    B.vRes=RR(r,o.tn,{head:o.kind==='pos'?'Position Test':'Crash Test',mods:vm,pool:o.sp,tail:o.kind==='pos'?`${k*o.cruise} m, ${Math.floor(k/2)} attack${Math.floor(k/2)===1?'':'s'} per passenger. Put their successes in the chase tally below.`:(k?'No crash.':`Crash: ${Math.floor(o.cruise/10)}${imp} to the vehicle (Body + half armor resists, no Control Pool; passengers take what gets through, Impact armor only, core p. 107).`)});}
+  else if(a==='vhit'){const o=vehCalc(); if(!o||o.kind!=='hit'||o.noPen||!o.lvl||!o.H.att) return; B.cpool=(B.cpool||0)-o.sp; B.vsp=0; const H=o.H;
+    const r=rollN(o.dice,o.tn), k=r.filter(x=>x>=o.tn).length; let fin=null, txt;
+    if(o.r2&&o.bd===0){fin='D'; txt='Body 0: destroyed (R2 p. 53).';}
+    else {const d=k-H.att, idx=L4.indexOf(o.lvl)+(d<0?Math.floor(-d/2):-Math.floor(d/2)); fin=idx<0?null:L4[Math.min(3,idx)];
+      txt=fin?`${k} success${k===1?'':'es'} vs the attacker’s ${H.att}: the vehicle takes ${fin==='D'?'Deadly (destroyed)':fin} (${BOXES[fin]} box${BOXES[fin]>1?'es':''}).${fin==='S'||fin==='D'?` Serious or worse from one attack: make a Crash Test (${o.r2?'R2 p. 51':'core p. 107'}).`:''}`:(o.r2&&o.sp>H.att?`No damage, and the ${o.sp} Control Pool dice used are more than the attacker’s ${H.att} successes: a complete miss (R2 p. 53).`:`${k} success${k===1?'':'es'} vs the attacker’s ${H.att}: no damage.`);}
+    B.vhRes=Object.assign(RR(r,o.tn,{head:'Vehicle Damage Resistance Test',mods:`TN ${o.tn} · ${o.dice-o.sp} dice${o.sp?' + Control Pool '+o.sp:''} (${o.pg})`,pool:o.sp,tail:txt}),{boxes:fin?BOXES[fin]:0,fin,vk:o.v.key+'|'+o.vi});}
+  else if(a==='vhmark'){const o=vehCalc(), R=B.vhRes; if(!o||!R||!R.boxes||R.vk!==o.v.key+'|'+o.vi) return; o.v.vdmg=Math.min(10,(+o.v.vdmg||0)+R.boxes); B.vhRes=null; if(o.v.vdmg>=10) B.vRes='The vehicle is destroyed: an automatic crash (core p. 107).'; render(); return;}
+  else if(a==='vhfix'){const o=vehCalc(); if(o){delete o.v.vdmg; B.vhRes=null; render(); return;}}
   else if(a==='dfroll'){const have=swHave(); const L=SKILLWEB.SKILLS.filter(n=>!have[n]); const tgt=L.includes(B.dft)?B.dft:L[0]; const o=tgt?swOptions(tgt,B.sk.tn)[0]:null; if(o){const tn=B.sk.tn+o.tn+woundMods().m+susPen(), r=rollN(o.dice,tn), k=r.filter(x=>x>=tn).length; B.sk.res=RR(r,tn,{head:`${swLabel(tgt)} by defaulting to ${o.from}`,mods:`TN ${tn}: base ${B.sk.tn}, route +${o.tn}${wsMods(woundMods().m,susPen())} · ${o.dice} dice`});}}
   else if(a==='ctroll'){const C=(S.contacts||[]).filter(c=>c&&c.name)[+B.ctc||0]; const parts=partsNamed('Etiquette'); const best=parts.reduce((m,p)=>p.r>m.r?p:m,{r:0,label:'Etiquette'}); let dice=best.r, how=best.label+(best.chip?' chip':'')+' '+best.r; if(!dice){const o=typeof swOptions==='function'?swOptions('Etiquette',B.sk.tn)[0]:null; if(o){dice=o.dice; how='defaulting to '+o.from;} else {dice=attrNow('cha'); how='Charisma';}}
     const tn=B.sk.tn+woundMods().m+susPen(), r=rollN(dice,tn), k=r.filter(x=>x>=tn).length; const st=ctStats(C), et=ctEtq(st,C||{}); B.sk.res=RR(r,tn,{head:`Asking ${C?C.name:'a contact'} (${how})`,mods:`TN ${tn}: base ${B.sk.tn}${wsMods(woundMods().m,susPen())} · ${dice} dice`,tail:`${k&&st&&et&&et.r?`Baseline fee: ${et.r} × ${k} × (${st.cha} + ${st.int}) × 10 = ${(et.r*k*(st.cha+st.int)*10).toLocaleString()}¥, before Negotiation (core p. 202). `:''}The GM decides what they know and what it costs.`});}
   else if(a==='ctchk'){const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)], st=ctStats(C), et=ctEtq(st,C||{}); if(!st) return; const tn=B.sk.tn+2+(et.def?4:0), r=rollN(et.r,tn), k=r.filter(x=>x>=tn).length, h=d6p()+d6p();
     B.sk.res=`${C.name} checks around (${et.l} ${et.r}): ${r.join(' ')||'no dice'} → ${k} success${k===1?'':'es'} vs TN ${tn} (your TN ${B.sk.tn} + 2${et.def?' + 4 for defaulting':''}). ${k?`They get word back in ${h} hours (2D6), or when the GM says.`:'Nothing turns up this time.'} The cost is worked out as if they’d known it already (core p. 202).`;}
   else if(a==='kref'){B.karma=sheetStats().kpool;}
-  else if(a==='mload'){const g=S.gear[W.gi]; if(g){const was=S.gear.map(x=>!!x.loaded); g.loaded=true; render(); const bumped=S.gear.some((x,j)=>x!==g&&was[j]&&!x.loaded);
+  else if(a==='mload'){const g=S.gear[W.gi]; const dk=g&&typeof deckInfo==='function'?deckInfo():null, sz=g&&GEARDB[g.key]&&GEARDB[g.key].sz?GEARDB[g.key].sz(+g.r||1):0; if(dk&&sz>dk.am){B.warn=`${GEARDB[g.key].n} ${+g.r||1} is ${sz} Mp and the deck has ${dk.am} Mp of active memory in all: it can never be loaded (${dk.vr2?'VR2 p. 85':'core p. 172'}).`; return redraw();} if(g){const was=S.gear.map(x=>!!x.loaded); g.loaded=true; render(); const bumped=S.gear.some((x,j)=>x!==g&&was[j]&&!x.loaded);
     if(!g.loaded||bumped){S.gear.forEach((x,j)=>{x.loaded=was[j]||undefined;}); g.loaded=false; render(); B.warn='Not enough free active memory to load it: unload another program in the deck’s program list first (core p. 173).'; redraw();} return;}}
   else if(a==='conjure'){const F=B.spf||3, sk=bestRating(/^conjuring/i), w=woundMods().m, tn=F+w+susPen(), r=rollN(sk,tn), k=r.filter(x=>x>=tn).length, cha=attrNow('cha');
     const lv0=F>2*cha?'D':F>cha?'S':F*2<cha?'L':'M', phys=F>cha, dr=rollN(cha,F), dk=dr.filter(x=>x>=F).length, di=L4.indexOf(lv0)-Math.floor(dk/2), dl=di<0?null:L4[di];
@@ -5280,6 +5363,9 @@ function stepper(id,d){
   else if(id==='gh:pow'){B.gh.pow=Math.max(1,B.gh.pow+d);B.gh.roll=null;} else if(id==='gh:att') B.gh.att=Math.max(0,B.gh.att+d); else if(id==='gh:spend') B.gh.spend=Math.max(0,B.gh.spend+d);
   else if(id==='sk:tn') B.sk.tn=Math.max(2,B.sk.tn+d);
   else if(id==='vsp'){B.vsp=Math.max(0,Math.min(B.cpool||0,(B.vsp||0)+d));}
+  else if(id==='vopp') B.vopp=Math.max(0,(B.vopp||0)+d);
+  else if(id==='vhp'||id==='vha'){const H=B.vh||(B.vh={pow:6,lvl:'M',att:1,av:false}); if(id==='vhp') H.pow=Math.max(1,H.pow+d); else H.att=Math.max(0,H.att+d); B.vhRes=null;}
+  else if(id==='vhB'||id==='vhA'){B[id]=Math.max(0,(B[id]||0)+d); B.vhRes=null;}
   else if(id==='atk:kd'||id==='gh:kd'){const c=id.slice(0,-3), st=c==='gh'?B.gh:B, mx=(B._kdMax||{})[c]||0; st.kdSrc=st.kdSrc||[];
     if(d>0){if(st.kdSrc.length<mx&&kPay(1)) st.kdSrc.push(B.kfrom==='team'?'team':'own');} else if(st.kdSrc.length){const x=st.kdSrc.pop(); if(x==='team'){tkGet().left++; sv();} else B.karma++;}}
   else if(id==='tkleft'||id==='tktot'){const tk=tkGet(); if(id==='tktot'){tk.tot=Math.max(0,tk.tot+d); tk.left=Math.min(tk.left,tk.tot); if(d>0&&tk.left===tk.tot-1) tk.left=tk.tot;} else tk.left=Math.max(0,Math.min(tk.tot,tk.left+d)); sv();}
@@ -5291,7 +5377,7 @@ function stepper(id,d){
 function snaps(){try{return JSON.parse(localStorage.getItem('sr2-b2-snaps-'+(S.id||'x'))||'[]');}catch(e){return [];}}
 function consumables(){return S.gear.map((g,i)=>[g,i]).filter(([g])=>GEARDB[g.key]&&(g.cat==='med'||g.cat==='boom'||(/^ammo:.*(Ammo|Rounds)/.test(g.key))));}
 function afterHTML(){const a=B.af, ny=S.nuyenNow===''||S.nuyenNow==null?0:+S.nuyenNow, ka=karmaAvail(), T=sheetStats();
-  const ph=a.phys==null?S.phys:a.phys, st=a.stun==null?S.stun:a.stun;
+  const dead=S.phys>10+natBody(), held=dead&&!a.lives; const ph=held||a.phys==null?S.phys:a.phys, st=a.stun==null?S.stun:a.stun;
   const field=(k,lab,help,v,unit)=>`<div class="b2af"><div><b>${E(lab)}</b><small>${E(help)}</small></div><div class="b2step"><button class="ghost" data-b2s="af:${k}" data-d="-1" aria-label="Less ${E(lab)}">−</button><input type="number" inputmode="numeric" data-b2n="af:${k}" value="${v}" aria-label="${E(lab)}"><button class="ghost" data-b2s="af:${k}" data-d="1" aria-label="More ${E(lab)}">+</button><span class="mono">${E(unit)}</span></div></div>`;
   const cons=consumables(); const left=([g])=>/^ammo:/.test(g.key)?(+g.qty||1)*10-(+g.used||0):(+g.qty||1);
   const diff=[['Good Karma available',ka,ka+a.gk],['Karma Pool',T.kpool,T.kpool+a.kp-(a.kbuy||0)],['Nuyen on hand',fmt(ny)+'¥',fmt(ny+a.nin-a.nout)+'¥'],['Physical / Stun',S.phys+' / '+S.stun,ph+' / '+st],...((S.mxDmg||0)>0?[['Persona (Matrix)',String(S.mxDmg),'0 (the deck restarts)']]:[]),
@@ -5303,11 +5389,12 @@ function afterHTML(){const a=B.af, ny=S.nuyenNow===''||S.nuyenNow==null?0:+S.nuy
   notes.push(['',practicing()?'Practice session: this is undone when you end practice.':'This updates the real sheet. For a practice run, start a practice session at the top first.']);
   const sn=snaps();
   return `<div class="b2grid b2afgrid"><section class="b2pan b2afmain"><div class="b2h"><h3>What happened at the table</h3></div>
+   ${dead?`<div class="b2warn b2dead" role="status"><p>This runner is dead: Physical damage ran more than their Body (${natBody()}) past the track (core p. 111). Healing doesn’t apply, and the boxes stay as they are, unless the GM rules otherwise.</p><label class="b2f b2chk"><input type="checkbox" data-b2c="af:lives" ${a.lives?'checked':''}> The GM says they live</label></div>`:''}
    ${field('gk','Good Karma earned','what the GM awarded (core p. 190–191)',a.gk,'K')}${field('kp','Added to the Karma Pool','if the GM gave a Karma Pool point',a.kp,'K')}${field('kbuy','Karma Pool burned','points spent buying successes (core p. 191); the Attack panel counts them for you',a.kbuy||0,'K')}
    ${field('nin','Nuyen in','pay, loot sold',a.nin,'¥')}${field('nout','Nuyen out','bribes, bills, gifts',a.nout,'¥')}
    <label class="b2f b2wide"><span class="b2k">Note for the nuyen log</span><input type="text" data-b2t="af:note" value="${E(a.note)}" placeholder="the run, who paid, what the GM ruled"></label>
-   ${field('phys','Physical boxes still marked','carried to next session',ph,'box')}${field('stun','Stun boxes still marked','usually rested off',st,'box')}
-   <div id="b2heal">${healHTML(S.phys,S.stun)}</div>
+   ${held?`<p class="note">Physical boxes stay at ${S.phys} unless the GM says they live.</p>`:field('phys','Physical boxes still marked','carried to next session',ph,'box')}${field('stun','Stun boxes still marked','usually rested off',st,'box')}
+   <div id="b2heal">${healHTML(held?0:S.phys,S.stun)}</div>
    ${cons.length?`<h4>Used up</h4>`+cons.map(([g,i])=>field('u:c'+i,(g.name||GEARDB[g.key].n),(/^ammo:/.test(g.key)?'rounds':'items')+' left: '+left([g,i]),a.use['c'+i]||0,/^ammo:/.test(g.key)?'rd':'ea')).join(''):''}
    <p class="note">Ammo in guns and clips is counted in the ammo tracker; here count rounds that came out of the boxes.</p></section>
   <section class="b2pan"><div class="b2h"><h3>What changes on the sheet</h3></div><div id="b2afd"><div class="b2rows">${diff.map(([k,x,y],j)=>`<div class="b2r${j%2?' alt':''}"><span>${E(k)}</span><span class="mono">${E(x)} → <b>${E(y)}</b></span></div>`).join('')}</div>
@@ -5320,7 +5407,7 @@ function afSave(){const a=B.af; const sn=snaps(); const d=new Date(), ds=d.getFu
   S.kEarned=(+S.kEarned||0)+a.gk; S.kPoolBonus=(+S.kPoolBonus||0)+a.kp-(a.kbuy||0);
   const ny=S.nuyenNow===''||S.nuyenNow==null?0:+S.nuyenNow; S.nyLog=S.nyLog||[];
   if(a.nin){S.nyLog.push({d:ds,amt:a.nin,note:a.note||'After the session'});} if(a.nout){S.nyLog.push({d:ds,amt:-a.nout,note:a.note||'After the session'});} if(a.nin||a.nout) S.nuyenNow=ny+a.nin-a.nout;
-  if(a.phys!=null) S.phys=a.phys; if(a.stun!=null) S.stun=a.stun; S.mxDmg=0; // persona damage ends with the run: a crashed deck is back to full once restarted (core p. 179)
+  if(a.phys!=null&&!(S.phys>10+natBody()&&!a.lives)) S.phys=a.phys; if(a.stun!=null) S.stun=a.stun; S.mxDmg=0; // persona damage ends with the run: a crashed deck is back to full once restarted (core p. 179)
   consumables().forEach(([g,i])=>{const u=a.use['c'+i]||0; if(!u) return; if(/^ammo:/.test(g.key)) g.used=Math.min((+g.qty||1)*10,(+g.used||0)+u); else {g.qty=Math.max(0,(+g.qty||1)-u);}});
   if(!a.keepSus&&isMagician()) S.sus=[];
   S.gear=S.gear.filter(g=>!(GEARDB[g.key]&&(g.cat==='med'||g.cat==='boom')&&(+g.qty)<=0));
@@ -5420,6 +5507,7 @@ function mount(){
   document.addEventListener('change',e=>{const t=e.target; if(!t||!t.closest||!t.closest('#b2after')) return; const n=t.dataset.b2n, c=t.dataset.b2c, tx=t.dataset.b2t; if(!n&&!c&&!tx) return; e.stopPropagation();
     if(n){const f=n.slice(3), v=Math.max(0,Math.round(+t.value||0)); if(f.startsWith('u:')) B.af.use[f.slice(2)]=v; else B.af[f]=v; B.af.saved=''; keep(); return afTotals();}
     if(c==='af:keepSus'){B.af.keepSus=t.checked; return afTotals();}
+    if(c==='af:lives'){B.af.lives=t.checked; if(!t.checked) B.af.phys=null; return redrawAfter();}
     if(tx){B.af.note=t.value; return;}},true);
   document.addEventListener('change',e=>{const t=e.target; if(!t.closest||!t.closest('#b2night,#b2after')) return;
     const k=t.dataset.b2, c=t.dataset.b2c, n=t.dataset.b2n, tx=t.dataset.b2t;
@@ -5436,7 +5524,7 @@ function setB2(k,v){const t={value:v};
     if(k==='wid'){B.wid=t.value; B.widBy=B.widBy||{}; B.widBy[S.id]=t.value;B.mode='s1';B.rng=0;B.roll=null;B.spend=0;B.aim=0;B.force=0;B.mount=null;}
     else if(k==='mode') B.mode=t.value==='fa'?'f'+(B.faN||3):t.value; else if(k==='dmode'){B.dmode=t.value; B.spend=0;} else if(k==='mount') B.mount=t.value; else if(k==='urb') B.urb=t.value; else if(k==='los') B.los=t.value; else if(k==='spt') B.spt=t.value; else if(k==='susp') B.susp=t.value; else if(k==='hwl'){B.hWl=t.value; B.drainHit=null; B.drainRes=null;} else if(k==='v2sc'){B.v2sc=+t.value; B.roll=null;} else if(k==='v2st'){B.v2st=t.value; B.roll=null;} else if(k==='vsub'){B.vsub=t.value; B.roll=null;} else if(k==='vut'){B.vut=t.value; B.roll=null;} else if(k==='rng') B.rng=+t.value; else if(k==='dmglv') B.dmgLv=t.value; else if(k==='amsel') B.amSel=t.value;
     else if(k&&k.startsWith('sit:')) B.sit[k.slice(4)]=t.value; else if(k&&k.startsWith('msit:')) B.msit[k.slice(5)]=t.value;
-    else if(k==='gh:kind'){B.gh.kind=t.value;B.gh.roll=null;} else if(k==='gh:lvl'){B.gh.lvl=t.value;B.gh.roll=null;} else if(k==='gh:dt'){B.gh.stun=t.value==='s';B.gh.roll=null;} else if(k==='dtgt'){B.dtgt=t.value;B.rng=0;} else if(k==='dft'){B.dft=t.value;} else if(k==='sec'){B.sec=Math.max(0,Math.min(4,+t.value||0)); B.roll=null;} else if(k==='ctc'){B.ctc=+t.value;} else if(k==='inim'){B.inim=t.value; B.ini=null;} else if(k==='ctb'||k==='cte'){const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)]; if(C){if(k==='ctb') {C.cb=t.value; delete C.cei;} else C.cei=+t.value; if(typeof save==='function') save();}} else if(k==='vveh'){B.vveh=+t.value;B.vRes='';} else if(k==='vsk'){B.vsk=+t.value;} else if(k==='vtest'){B.vtest=t.value;B.vRes='';} else if(k==='vter'){B.vter=t.value;}
+    else if(k==='gh:kind'){B.gh.kind=t.value;B.gh.roll=null;} else if(k==='gh:lvl'){B.gh.lvl=t.value;B.gh.roll=null;} else if(k==='gh:dt'){B.gh.stun=t.value==='s';B.gh.roll=null;} else if(k==='dtgt'){B.dtgt=t.value;B.rng=0;} else if(k==='dft'){B.dft=t.value;} else if(k==='sec'){B.sec=Math.max(0,Math.min(4,+t.value||0)); B.roll=null;} else if(k==='ctc'){B.ctc=+t.value;} else if(k==='inim'){B.inim=t.value; B.ini=null;} else if(k==='ctb'||k==='cte'){const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)]; if(C){if(k==='ctb') {C.cb=t.value; delete C.cei;} else C.cei=+t.value; if(typeof save==='function') save();}} else if(k==='vveh'){B.vveh=+t.value;B.vRes='';B.vhRes=null;B.vLast=null;} else if(k==='vint'){B.vint=t.value;} else if(k==='vocs'){B.vocs=t.value===''?'':Math.max(0,Math.round(+t.value||0));} else if(k==='vdist'){B.vdist=t.value===''?'':Math.max(0,Math.round(+t.value||0));} else if(k==='vhl'||k==='vhk'){const H=B.vh||(B.vh={pow:6,lvl:'M',att:1,av:false}); if(k==='vhl') H.lvl=t.value; else H.av=t.value==='av'; B.vhRes=null;} else if(k==='vsk'){B.vsk=+t.value;} else if(k==='vtest'){B.vtest=t.value;B.vRes='';} else if(k==='vter'){B.vter=t.value;}
     else return false;
     return true;}
   document.addEventListener('input',e=>{const t=e.target; if(t&&t.dataset&&t.dataset.b2in==='suson') B.suson=t.value;});
@@ -5791,13 +5879,16 @@ function lockerLink(){const a=[...document.querySelectorAll('.srh a[href]')].fin
 function nameList(){const seen=new Set(); return Object.keys(GEARDB).filter(k=>{const it=GEARDB[k]; if(!it||it.legacy||!itemVisible(it)||seen.has(it.n)) return false; seen.add(it.n); return true;}).map(k=>`<option value="${esc(GEARDB[k].n)}"></option>`).join('');}
 let NAMES=null, NAMES_FOR='';
 function html(){const M=mk(), s=curSrc(), L=sources(), P=priceAll(M.cart); const rows=M.cart.map(c=>lineInfo(c,P,s));
-  const ready=rows.filter(o=>o.ready), cost=ready.reduce((a,o)=>a+o.street,0), essUse=ready.reduce((a,o)=>a+o.ess,0), have=S.nuyenNow===''||S.nuyenNow==null?null:+S.nuyenNow;
+  const readyAll=rows.filter(o=>o.ready), ready=readyAll.filter(o=>!o.L.skip), cost=ready.reduce((a,o)=>a+o.street,0), essUse=ready.reduce((a,o)=>a+o.ess,0), have=S.nuyenNow===''||S.nuyenNow==null?null:+S.nuyenNow;
+  const view=['buy','sell','hist'].includes(M.view)?M.view:'buy';
   const ess0=S._calc&&S._calc.ess!=null?S._calc.ess:null; const sk=srcSkill(s); const need=rows.filter(o=>o.kind==='ok'&&!o.roll&&o.rec&&o.rec.tn!=null).length;
   const booksKey=JSON.stringify(S.books||{}); if(NAMES==null||NAMES_FOR!==booksKey){NAMES=nameList(); NAMES_FOR=booksKey;}
   const line=o=>{const c=o.L; const r=o.it&&o.it.r&&!o.p.up?`<label class="mkq"><span class="b2k">${esc(o.it.r[2])}</span><input type="number" min="${o.it.r[0]}" max="${o.it.r[1]}" value="${esc(c.it.r!=null?c.it.r:o.it.r[0])}" data-mkr="${c.id}" ${o.roll?'disabled':''}></label>`:'';
     const q=o.it&&!o.p.up?`<label class="mkq"><span class="b2k">Qty</span><input type="number" min="1" max="9999" value="${esc(c.it.qty||1)}" data-mkn="${c.id}" ${o.roll?'disabled':''}></label>`:'';
     const act=o.roll&&!o.ready?`<button type="button" class="ghost" data-mka="retry" data-id="${c.id}">The GM allows a new try</button>`:o.gmonly&&!o.roll?`<button type="button" class="ghost" data-mka="gmok" data-id="${c.id}">The GM says it’s available</button>`:'';
-    return `<div class="mkline${o.ready?' ok':o.roll?' no':''}" data-mkline="${c.id}"><div class="mkname"><b>${esc(o.name)}</b><small>${esc([o.it?o.it.pg||'':'',c.from||''].filter(Boolean).join(' · '))}</small></div>
+    const own=o.x.key?S.gear.filter(g=>g.key===o.x.key).reduce((a,g)=>a+(+g.qty||1),0):0, addon=o.x.key&&typeof GB!=='undefined'&&GB.ACC&&GB.ACC[o.x.key];
+    const tick=o.ready?`<label class="mksel"><input type="checkbox" data-mksel="${c.id}" ${c.skip?'':'checked'} aria-label="Buy ${esc(o.name)}"></label>`:'<span class="mksel"></span>';
+    return `<div class="mkline${o.ready?' ok':o.roll?' no':''}${c.skip?' off':''}" data-mkline="${c.id}">${tick}<div class="mkname"><b>${esc(o.name)}</b><small>${esc([o.it?o.it.pg||'':'',c.from||''].filter(Boolean).join(' · '))}</small>${own?`<small class="mkown">Already on the sheet: ${own}</small>`:''}${addon?'<small class="mkown">Gun add-on: it arrives loose; fit it with Fit to on its Gear row (no extra cost).</small>':''}</div>
       <div class="mkctl">${r}${q}</div>
       <div class="mknums"><span><small>List</small><b>${fmt(o.list)}¥</b></span><span><small>Street ×</small><b>${o.p.up||!o.it?'—':String(o.si).replace(/^0\./,'.')}</b></span><span><small>Price</small><b class="mkprice">${fmt(o.street)}¥</b></span>${o.tn!=null&&!o.roll?`<span><small>TN · odds</small><b>${o.tn} · ${pct(o.odds)}</b></span>`:''}</div>
       <div class="mkstat"><span>${esc(o.status)}</span>${o.roll&&o.roll.neg?`<small>Haggled: ${o.roll.neg.net>0?'you won by '+o.roll.neg.net+', −'+5*o.roll.neg.net+'%':o.roll.neg.net<0?'they won by '+(-o.roll.neg.net)+', +'+(-5*o.roll.neg.net)+'%':'even, no change'}</small>`:''}${act}</div>
@@ -5809,12 +5900,12 @@ function html(){const M=mk(), s=curSrc(), L=sources(), P=priceAll(M.cart); const
   const chips=s?`<div class="mkchips">${sk?`<span>${esc(sk.l)} <b>${sk.r}</b>${sk.tn?' (+'+sk.tn+' TN)':''}</span>`:'<span>No dice to roll</span>'}${s.wil!=null?`<span>Willpower <b>${s.wil}</b></span>`:''}${s.neg!=null?`<span>Negotiation <b>${s.neg||'—'}</b></span>`:''}</div>${s.how?`<small class="note">${esc(s.how)}</small>`:''}`:'';
   const pay=`<section class="b2pan mkpay" aria-label="Paying"><span class="b2k">Paying</span>
       <div class="mksum"><span>Nuyen on hand</span><b>${have==null?'not set':fmt(have)+'¥'}</b></div>
-      <div class="mksum"><span>Ready to buy (${ready.length} of ${rows.length})</span><b class="mkprice">−${fmt(cost)}¥</b></div>
+      <div class="mksum"><span>Ticked to buy (${ready.length} of ${readyAll.length} ready)</span><b class="mkprice${have!=null&&cost>have?' mkover':''}">−${fmt(cost)}¥</b></div>
       <div class="mksum mktot"><span>Left after</span><b>${have==null?'—':fmt(have-cost)+'¥'}</b></div>
       ${essUse>0&&ess0!=null?`<div class="mksum mkess"><span>Essence</span><b>${+ess0.toFixed(2)} → ${+(ess0-essUse).toFixed(2)}</b></div>`:''}
-      ${have!=null&&cost>have?`<p class="bad-text">${esc(S.handle||S.name||'The runner')} is ${fmt(cost-have)}¥ short.</p>`:''}
+      ${have!=null&&cost>have?`<p class="bad-text">${esc(S.handle||S.name||'The runner')} is ${fmt(cost-have)}¥ short: untick lines to buy the rest.</p>`:''}
       <button type="button" class="primary mkbuy" data-mka="buy" ${!ready.length||have==null||cost>have?'disabled':''}>Buy ${ready.length} line${ready.length===1?'':'s'} · ${fmt(cost)}¥</button>
-      <small class="note">Buy each line once it turns up. Logged in the nuyen log; Undo is under History.</small>
+      <small class="note">Buy each line once it turns up; untick a line to leave it for later. Logged in the nuyen log; Undo is under History.</small>
       <details class="mkfree"><summary>Add without paying (loot, a gift)</summary><label class="b2f"><span class="b2k">Where it came from</span><input data-mkt="freeNote" value="${esc(M.freeNote||'')}" placeholder="Off the guards on last night’s run"></label>
         <button type="button" class="ghost" data-mka="free" ${rows.length?'':'disabled'}>Add all ${rows.length} line${rows.length===1?'':'s'} free</button><small class="note">No rolls and no money; the History shows where it came from.</small></details></section>`;
   const main=`<section class="b2pan mkcart" aria-labelledby="mkT"><div class="b2h"><h3 id="mkT">Shopping list</h3><span class="note">${rows.length} line${rows.length===1?'':'s'}</span>${lockerLink()}</div>
@@ -5831,7 +5922,9 @@ function html(){const M=mk(), s=curSrc(), L=sources(), P=priceAll(M.cart); const
       <button type="button" class="ghost mkroll" data-mka="roll" ${need&&sk&&sk.r>0?'':'disabled'}>Roll for availability${need?' ('+need+')':''}</button>
       ${s&&s.self?'<small class="note">The book has a source (usually a fixer) make this roll, with their skill or Etiquette +2. Rolling it yourself is the GM’s call.</small>':''}</section>${pay}</aside>`;
   const bar=`<div class="mkbar" aria-label="Paying"><div><span>${have==null?'Nuyen on hand not set':fmt(have)+'¥ on hand'}</span><span>left after <b>${have==null?'—':fmt(have-cost)+'¥'}</b></span></div><button type="button" class="primary" data-mka="buy" ${!ready.length||have==null||cost>have?'disabled':''}>Buy ${ready.length} line${ready.length===1?'':'s'} · ${fmt(cost)}¥</button></div>`;
-  return `<div class="mkgrid"><div class="mkmain">${main}${fenceHTML()}${histHTML()}</div>${side}</div>${rows.length?bar:''}`;}
+  const tabs=`<div class="mktabs" role="tablist" aria-label="Marketplace">${[['buy','Buy'+(rows.length?' ('+rows.length+')':'')],['sell','Sell to a fence'],['hist','History'+(M.hist.length?' ('+M.hist.length+')':'')]].map(([k,l])=>`<button type="button" role="tab" data-mkv="${k}" aria-selected="${view===k}">${esc(l)}</button>`).join('')}</div>`;
+  if(view==='sell') return tabs+fenceHTML(); if(view==='hist') return tabs+histHTML();
+  return `${tabs}<div class="mkgrid"><div class="mkmain">${main}</div>${side}</div>${rows.length?bar:''}`;}
 function ctEditHTML(s){const c=s.c, C=CT(), cur=c.cb==null?'':c.cb; const own=c.cb==='own';
   const num=(k,lab)=>`<label class="mkq"><span class="b2k">${esc(lab)}</span><input type="number" min="0" max="12" value="${esc(c[k]||0)}" data-mkct="${k}"></label>`;
   return `<details class="mkct" ${s.T?'':'open'}><summary>${s.T?'Their numbers: '+esc(s.how):'Set their numbers'}</summary>
@@ -5842,8 +5935,8 @@ function ctEditHTML(s){const c=s.c, C=CT(), cur=c.cb==null?'':c.cb; const own=c.
 // ---------- selling to a fence (core p. 188) ----------
 function fenceItems(){return S.gear.map((g,i)=>({g,i,it:g.key?GEARDB[g.key]:null})).filter(o=>o.g&&(o.g.key?o.it:o.g.name)&&!(+o.g.ess>0)&&!(+o.g.bi>0)&&!(o.it&&/^(head|body)$/.test(String(o.g.key).split(':')[0]))&&!(typeof CBKEY!=='undefined'&&o.g.key===CBKEY));}
 function fenceHTML(){const M=mk(), F=M.f, I=fenceItems(); const picked=I.filter(o=>F.pick[o.i]); const val=picked.reduce((a,o)=>a+Math.round((+o.g.cost||0)*Math.min(+o.g.qty||1,Math.max(1,+F.pick[o.i]||1))),0);
-  const km=FENCE_MODS.find(x=>x[0]===F.kind)||FENCE_MODS[0], hm=HEAT.find(x=>x[0]===F.heat)||HEAT[0]; const tn=Math.max(2,4+km[2]+hm[2]+(F.reg?-1:0));
-  const et=etqStreet(), others=Math.max(0,+F.others||0), avg=others?Math.floor((et+(+F.oth||0))/(others+1)):et, dice=others?avg+others+1:et;
+  const EI=etqInfo(); const km=FENCE_MODS.find(x=>x[0]===F.kind)||FENCE_MODS[0], hm=HEAT.find(x=>x[0]===F.heat)||HEAT[0]; const tn=Math.max(2,4+km[2]+hm[2]+(F.reg?-1:0)+EI.tn);
+  const et=EI.dice, others=Math.max(0,+F.others||0), avg=others?Math.floor((et+(+F.oth||0))/(others+1)):et, dice=others?avg+others+1:et;
   const find=F.find, meet=F.meet;
   const pickRows=I.length?I.map(o=>`<label class="mkpick"><input type="checkbox" data-mkfp="${o.i}" ${F.pick[o.i]?'checked':''} ${find?'disabled':''}> <span>${esc(o.g.name||o.it.n)}${(+o.g.qty||1)>1?' ×'+o.g.qty:''}</span><small>${fmt(Math.round(+o.g.cost||0))}¥${(+o.g.qty||1)>1?' each':''}</small>${F.pick[o.i]&&(+o.g.qty||1)>1?`<input type="number" min="1" max="${o.g.qty}" value="${Math.min(+o.g.qty,Math.max(1,+F.pick[o.i]||1))}" data-mkfq="${o.i}" aria-label="How many" ${find?'disabled':''}>`:''}</label>`).join(''):'<p class="note">Nothing to sell: implants can’t go to a fence while they’re in you.</p>';
   let res='';
@@ -5858,14 +5951,18 @@ function fenceHTML(){const M=mk(), F=M.f, I=fenceItems(); const picked=I.filter(
       <label class="b2f"><span class="b2k">Heat</span><select data-mkfs="heat">${HEAT.map(([k,l,m])=>`<option value="${k}" ${F.heat===k?'selected':''}>${esc(l)}${m?' (+'+m+')':''}</option>`).join('')}</select></label></div>
       <label class="b2chk"><input type="checkbox" data-mkfc="reg" ${F.reg?'checked':''}> Through a regular contact (−1)</label>
       <div class="mkrow">${step('f.others','Other runners searching',others)}${others?step('f.oth','Their Etiquette (Street), added up',+F.oth||0):''}</div>
-      <p class="note">Etiquette (Street) ${et}${others?`; the group’s average ${avg} (rounded down) + 1 die each = ${dice} dice. Everyone who helps must come to the meet`:''}. Target number ${tn}.</p>
+      <p class="note">${esc(EI.how)}${others?`; the group’s average ${avg} (rounded down) + 1 die each = ${dice} dice. Everyone who helps must come to the meet`:''}. Target number ${tn}.</p>
       <button type="button" class="primary" data-mka="find" ${picked.length&&dice>0?'':'disabled'}>Look for a fence: roll ${dice} dice</button>`}
     ${res}</section>`;}
-function etqStreet(){const sd=skillDiceFor('Etiquette','Street',''); return sd&&sd.dice!=null?sd.dice:0;}
+// Etiquette (Street) for a fence search (core p. 188); with no Etiquette, the Skill Web's best default, else Charisma at +4 (core p. 66-68)
+function etqInfo(){const sd=skillDiceFor('Etiquette','Street',''); if(sd&&sd.dice!=null) return {dice:sd.dice,tn:0,how:'Etiquette'+(sd.how==='Street'?' (Street)':'')+' '+sd.dice};
+  if(typeof swOptions==='function'){try{const o=swOptions('Etiquette',4)[0]; if(o&&o.dice) return {dice:o.dice,tn:o.tn||0,how:`no Etiquette: defaulting to ${o.from} ${o.dice} at +${o.tn||0}`};}catch(e){}}
+  return {dice:attrNow('cha'),tn:4,how:`no Etiquette: Charisma ${attrNow('cha')} at +4`};}
+function etqStreet(){return etqInfo().dice;}
 
 // ---------- history ----------
 function histHTML(){const M=mk(); const last=M.hist[M.hist.length-1]; const canUndo=last&&!last.undone&&JSON.stringify(S.gear)===last.after;
-  const H=M.hist.slice(-8).reverse().map(h=>`<li><b>${esc(h.d)}</b> ${esc(h.note)}${h.undone?' <i>(undone)</i>':''}</li>`).join('');
+  const H=M.hist.slice(-8).reverse().map(h=>`<li><b>${esc(h.d)}</b> ${esc(h.head||h.note)}${h.undone?' <i>(undone)</i>':''}${h.items&&h.items.length?`<ul class="mkitems">${h.items.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}</li>`).join('');
   const Lg=M.log.slice(-12).reverse().map(e=>`<li><b>${esc(e.d)}</b> ${esc(logText(e))}</li>`).join('');
   return `<section class="b2pan mkhist" aria-labelledby="mkH"><div class="b2h"><h3 id="mkH">History</h3>${last&&!last.undone?`<button type="button" class="ghost" data-mka="undo" ${canUndo?'':'disabled'}>Undo: ${esc(last.note.slice(0,60))}</button>`:''}</div>
     ${last&&!last.undone&&!canUndo?'<p class="note">The gear has changed since, so Undo would undo more than this; change it back by hand.</p>':''}
@@ -5896,24 +5993,25 @@ function act(a,id){const M=mk(); M.msg=''; const s=curSrc();
       logAdd(e); c.src=sKey; n++;});
     M.msg=n?`Rolled ${n} line${n>1?'s':''}.`:reused?'Those lines already have a roll from this source.':'Nothing to roll.';}
   else if(a==='gmok'||a==='retry'){const c=M.cart.find(x=>x.id===id); if(!c||!c.it.key) return; const sKey=c.src||srcKey(s); logAdd({kind:a==='gmok'?'gmok':'gmretry',key:c.it.key,n:(GEARDB[c.it.key]||{}).n,src:sKey,who:s?s.label:'the source'}); if(a==='retry') delete c.src;}
-  else if(a==='buy'||a==='free'){const P=priceAll(M.cart); const rows=M.cart.map(c=>lineInfo(c,P,s)); const take=a==='free'?rows:rows.filter(o=>o.ready); if(!take.length) return;
+  else if(a==='buy'||a==='free'){const P=priceAll(M.cart); const rows=M.cart.map(c=>lineInfo(c,P,s)); const take=a==='free'?rows:rows.filter(o=>o.ready&&!o.L.skip); if(!take.length) return;
     const cost=a==='free'?0:take.reduce((x,o)=>x+o.street,0); if(a==='buy'&&(S.nuyenNow===''||S.nuyenNow==null||cost>+S.nuyenNow)) return;
     const before=snapshot(); const r=gearImport({items:take.map(o=>o.x)}); syncGear();
     take.forEach(o=>{if(o.roll) o.roll.used=true;}); M.cart=M.cart.filter(c=>!take.some(o=>o.L===c));
     const note=a==='free'?`Added free: ${take.map(o=>o.name).join(', ')}${M.freeNote?' (from '+M.freeNote+')':''}`:`Bought ${take.map(o=>o.name).join(', ')}${s?' through '+s.label:''}`;
-    const h=histPush(note,-cost,before); h.lines=take.map(o=>clone(o.L)); h.rolls=take.filter(o=>o.roll).map(o=>o.roll.id); if(cost){S.nuyenNow=(+S.nuyenNow||0)-cost; nyPush(-cost,'Marketplace: '+note.replace(/^Bought /,''),h.id);} if(a==='free') M.freeNote='';
-    M.msg=`${a==='free'?'Added':'Bought'} ${r.added.length} item${r.added.length===1?'':'s'}${cost?' for '+fmt(cost)+'¥':''}${r.skipped.length?'; skipped '+r.skipped.join(', '):''}.`;}
+    const h=histPush(note,-cost,before); h.head=a==='free'?`Added free${M.freeNote?' (from '+M.freeNote+')':''}`:`Bought${s?' through '+s.label:''} for ${fmt(cost)}¥`; h.items=take.map(o=>o.name+(o.x.qty>1?' ×'+o.x.qty:'')+(a==='free'?'':' · '+fmt(o.street)+'¥')); h.lines=take.map(o=>clone(o.L)); h.rolls=take.filter(o=>o.roll).map(o=>o.roll.id); if(cost){S.nuyenNow=(+S.nuyenNow||0)-cost; nyPush(-cost,'Marketplace: '+note.replace(/^Bought /,''),h.id);} if(a==='free') M.freeNote='';
+    const nAdd=take.filter(o=>o.x.key&&typeof GB!=='undefined'&&GB.ACC&&GB.ACC[o.x.key]).length;
+    M.msg=`${a==='free'?'Added':'Bought'} ${r.added.length} item${r.added.length===1?'':'s'}${cost?' for '+fmt(cost)+'¥':''}${r.skipped.length?'; skipped '+r.skipped.join(', '):''}.${nAdd?` ${nAdd} gun add-on${nAdd>1?'s':''} arrived as loose parts: use Fit to on ${nAdd>1?'their':'its'} Gear row.`:''}`;}
   else if(a==='undo'){const h=M.hist[M.hist.length-1]; if(!h||h.undone||JSON.stringify(S.gear)!==h.after) return; S.gear=JSON.parse(h.before); if(h.books) S.books=JSON.parse(h.books);
     if(h.amt){S.nuyenNow=(+S.nuyenNow||0)-h.amt; const j=(S.nyLog||[]).findIndex(x=>x.mk===h.id); if(j>=0) S.nyLog.splice(j,1);} h.undone=true;
-    if(h.lines){M.cart=h.lines.concat(M.cart); (h.rolls||[]).forEach(id=>{const e=M.log.find(x=>x.id===id); if(e) delete e.used;});} // the lines go back on the list with their rolls, so an undo can't buy a fresh roll
+    if(h.lines){M.cart=h.lines.map(c=>{delete c.skip; return c;}).concat(M.cart); (h.rolls||[]).forEach(id=>{const e=M.log.find(x=>x.id===id); if(e) delete e.used;});} // the lines go back on the list with their rolls, so an undo can't buy a fresh roll
     M.msg='Undone: '+h.note+'.'; if(typeof fillGearCats==='function') fillGearCats();}
-  else if(a==='find'){const F=M.f, I=fenceItems().filter(o=>F.pick[o.i]); if(!I.length) return; const km=FENCE_MODS.find(x=>x[0]===F.kind)||FENCE_MODS[0], hm=HEAT.find(x=>x[0]===F.heat)||HEAT[0]; const tn=Math.max(2,4+km[2]+hm[2]+(F.reg?-1:0));
-    const et=etqStreet(), others=Math.max(0,+F.others||0), dice=others?Math.floor((et+(+F.oth||0))/(others+1))+others+1:et; const r=rollD(dice,tn); F.find=logAdd({kind:'find',dice,tn,r,k:succ(r,tn)});}
+  else if(a==='find'){const F=M.f, I=fenceItems().filter(o=>F.pick[o.i]); if(!I.length) return; const EI=etqInfo(); const km=FENCE_MODS.find(x=>x[0]===F.kind)||FENCE_MODS[0], hm=HEAT.find(x=>x[0]===F.heat)||HEAT[0]; const tn=Math.max(2,4+km[2]+hm[2]+(F.reg?-1:0)+EI.tn);
+    const et=EI.dice, others=Math.max(0,+F.others||0), dice=others?Math.floor((et+(+F.oth||0))/(others+1))+others+1:et; const r=rollD(dice,tn); F.find=logAdd({kind:'find',dice,tn,r,k:succ(r,tn)});}
   else if(a==='meet'){const F=M.f; if(!F.find||!F.find.k||F.meet) return; const b=buyerNeg(), fw=Math.max(1,+F.fwil||4), fn=Math.max(0,+F.fneg||4); const btn=fw+2+b.tn, ftn=attrNow('wil')+2; const br=rollD(b.dice,btn), fr=rollD(fn,ftn); const bk=succ(br,btn), fk=succ(fr,ftn), net=bk-fk;
     const p=Math.max(10,Math.min(50,30+5*net)); F.meet=logAdd({kind:'meet',br,fr,bk,fk,btn,ftn,net,pct:p});}
   else if(a==='sell'){const F=M.f; if(!F.meet) return; const I=fenceItems().filter(o=>F.pick[o.i]); if(!I.length) return; const before=snapshot(); let val=0; const names=[];
     I.sort((x,y)=>y.i-x.i).forEach(o=>{const q=+o.g.qty||1, n=Math.min(q,Math.max(1,+F.pick[o.i]||1)); val+=Math.round((+o.g.cost||0)*n); names.push((o.g.name||o.it.n)+(n>1?' ×'+n:'')); if(n>=q) gearRemoveAt(o.i); else o.g.qty=q-n;});
-    const got=Math.round(val*F.meet.pct/100); const note=`Sold to a fence: ${names.reverse().join(', ')} at ${F.meet.pct}% of list`; const h=histPush(note,got,before); h.sold=true; S.nuyenNow=(+S.nuyenNow||0)+got; nyPush(got,'Marketplace: '+note,h.id);
+    const got=Math.round(val*F.meet.pct/100); const note=`Sold to a fence: ${names.reverse().join(', ')} at ${F.meet.pct}% of list`; const h=histPush(note,got,before); h.sold=true; h.head=`Sold to a fence at ${F.meet.pct}% of list for ${fmt(got)}¥`; h.items=names.slice(); S.nuyenNow=(+S.nuyenNow||0)+got; nyPush(got,'Marketplace: '+note,h.id);
     M.f={pick:{},kind:F.kind,heat:F.heat,reg:F.reg,others:F.others,oth:F.oth,fneg:F.fneg,fwil:F.fwil}; M.msg=`Sold for ${fmt(got)}¥.`;}
   else if(a==='nodeal'||a==='fclear'){const F=M.f; logAdd({kind:'fclear'}); M.f={pick:a==='nodeal'?F.pick:{},kind:F.kind,heat:F.heat,reg:F.reg,others:F.others,oth:F.oth,fneg:F.fneg,fwil:F.fwil};}
   render();}
@@ -5923,11 +6021,12 @@ function stepK(k,d){const M=mk(); if(k==='mark') M.mark=Math.max(-50,Math.min(20
 // ---------- the tab ----------
 let BOUND=false;
 function bind(){if(BOUND) return; BOUND=true; const root=()=>document.getElementById('b2market');
-  document.addEventListener('click',e=>{const R=root(); if(!R||!R.contains(e.target)) return; const b=e.target.closest('[data-mka],[data-mks]'); if(!b) return; if(b.dataset.mka) act(b.dataset.mka,b.dataset.id); else stepK(b.dataset.mks,+b.dataset.d);});
+  document.addEventListener('click',e=>{const R=root(); if(!R||!R.contains(e.target)) return; const v=e.target.closest('[data-mkv]'); if(v){mk().view=v.dataset.mkv; render(); return;} const b=e.target.closest('[data-mka],[data-mks]'); if(!b) return; if(b.dataset.mka) act(b.dataset.mka,b.dataset.id); else stepK(b.dataset.mks,+b.dataset.d);});
   document.addEventListener('input',e=>{const R=root(); if(!R||!R.contains(e.target)) return; const t=e.target, M=mk(); if(t.dataset.mkt==='addName') M.addName=t.value; else if(t.dataset.mkt==='freeNote') M.freeNote=t.value;});
   document.addEventListener('keydown',e=>{if(e.key!=='Enter') return; const t=e.target; if(t&&t.dataset&&t.dataset.mkt==='addName'){e.preventDefault(); mk().addName=t.value; act('addname');} else if(t&&t.dataset&&t.dataset.mkt==='code'){e.preventDefault(); act('code');}});
   document.addEventListener('change',e=>{const R=root(); if(!R||!R.contains(e.target)) return; const t=e.target, M=mk(), d=t.dataset;
-    if(d.mkw==='who'){M.who=t.value; M.wsk=null;} else if(d.mkw==='wsk') M.wsk=+t.value;
+    if(d.mksel){const c=M.cart.find(x=>x.id===d.mksel); if(c){if(t.checked) delete c.skip; else c.skip=true;}}
+    else if(d.mkw==='who'){M.who=t.value; M.wsk=null;} else if(d.mkw==='wsk') M.wsk=+t.value;
     else if(d.mkc) M[d.mkc]=t.checked;
     else if(d.mkr||d.mkn){const c=M.cart.find(x=>x.id===(d.mkr||d.mkn)); if(c){const it=GEARDB[c.it.key]; if(d.mkr&&it&&it.r) c.it.r=Math.max(it.r[0],Math.min(it.r[1],Math.round(+t.value||it.r[0]))); if(d.mkn) c.it.qty=Math.max(1,Math.min(9999,Math.round(+t.value||1)));}}
     else if(d.mkct){const s=curSrc(); if(s&&s.c){const c=s.c; if(d.mkct==='cb'){if(t.value) c.cb=t.value; else delete c.cb; delete c.cei;} else c[d.mkct]=Math.max(0,Math.min(12,Math.round(+t.value||0)));}}

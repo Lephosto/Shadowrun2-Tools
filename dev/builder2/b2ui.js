@@ -269,7 +269,7 @@ const GRP={on:'Carried',off:'Not on you: stashed or in a vehicle',base:'Basic at
 function nightHTML(){
   const T=sheetStats(), ar=T.ar, w=T.wmod.m, A=attacks(); if(!A.find(a=>a.id===B.wid)){const by=(B.widBy||{})[S.id]; B.wid=(by&&A.find(a=>a.id===by)?by:(A.find(a=>a.grp==='on'&&a.id!=='unarmed')||A.find(a=>a.id!=='unarmed')||A[0]).id);} const W=A.find(a=>a.id===B.wid);
   const bodyR=augAttr('body')+hasDerm(), isMag=isMagician(), poolName=W.kind==='spell'?'Magic Pool':'Combat Pool';
-  if(B._for!==S.id){B._for=S.id; B.inim=''; B.pool=T.cpool; B.poolMax=T.cpool; B.karma=T.kpool; B.mpool=null; B.hpool=null; B.hpMax=null; B.roll=null; B.gh.roll=null; B.ini=null; B.conjRes=''; B.spNote=''; B.drainHit=null;} // each runner has their own pools
+  if(B._for!==S.id){B._for=S.id; B.inim=''; B.pool=T.cpool; B.poolMax=T.cpool; B.karma=T.kpool; B.mpool=null; B.hpool=null; B.hpMax=null; B.roll=null; B.gh.roll=null; B.ini=null; B.conjRes=''; B.spNote=''; B.drainHit=null; B.warn=''; B.anyway=false; B.vRes=''; B.vhRes=null; B.vLast=null; B.vEsc=null;} // each runner has their own pools
   if(B.poolMax!==T.cpool){B.poolMax=T.cpool; B.pool=T.cpool;} if(B.karma==null) B.karma=T.kpool;
   const mpMax=isMag?bestRating(/^sorcery/i)+powerFoci():0; if(B.mpool==null||B.mpMax!==mpMax){B.mpMax=mpMax;B.mpool=mpMax;}
   const big=[['Body',String(augAttr('body')),hasDerm()?'+1 dermal: '+bodyR+' to resist':bodyR+' dice to resist'],['Armor',ar.b+' / '+ar.i,'Ballistic / Impact worn'],['Reaction',String(T.reaction),''],['Initiative',`${T.reaction-w} + ${T.dice}D6`,w?'wounds −'+w:''],
@@ -413,6 +413,9 @@ function nightHTML(){
   else if(W.v2||W.kind==='vsys') poolCtl+=step('spend','Hacking Pool ('+B.hpool+' left; VR2 p. 18)',spend);
   else if(W.kind!=='spirit'&&W.kind!=='matrix'&&W.kind!=='util'&&W.kind!=='vsys'&&!(W.kind==='drone'&&B.dmode==='auto')) poolCtl+=step('spend',(W.kind==='cast'?'Magic Pool':poolName)+' ('+(W.kind==='spell'||W.kind==='cast'?B.mpool:B.pool)+' left'+(W.kind!=='spell'&&W.kind!=='cast'?', max '+maxSp+' on this attack':'')+')',spend);
   const notLoaded=(W.kind==='matrix'||W.kind==='util')&&!W.loaded;
+  const nlG=notLoaded&&W.gi!=null?S.gear[W.gi]:null, nlDk=nlG&&typeof deckInfo==='function'?deckInfo():null, nlSz=nlG&&GEARDB[nlG.key]&&GEARDB[nlG.key].sz?GEARDB[nlG.key].sz(+nlG.r||1):0, tooBig=!!(nlDk&&nlSz>nlDk.am);
+  const downNow=(S.phys>=10||S.stun>=10)&&!(W.kind==='drone'&&B.dmode==='auto'), crashedNow=['util','matrix','vsys'].includes(W.kind)&&(S.mxDmg||0)>=10; if(!downNow&&!crashedNow) B.anyway=false; const stopRoll=(downNow||crashedNow)&&!B.anyway;
+  const anyBtn=B.anyway?' The GM let them act anyway.':' <button class="ghost" data-b2a="anyway">Act anyway (GM’s call)</button>';
   if(aimLock) rows.push(['No Combat Pool dice','aiming over more than one Combat Phase · core p. 82','—']);
   const rowsHTML=rows.map(([k,s,v],j)=>`<div class="b2r${j%2?' alt':''}"><span>${E(k)} <small>${E(s)}</small></span><b class="${/^\+[1-9]/.test(v)?'b2warn':/^−/.test(v)?'b2ok':''}">${E(v)}</b></div>`).join('')+`<div class="b2r tot"><span>Target number</span><b>${tn}</b></div>`;
   let drain='';
@@ -421,6 +424,7 @@ function nightHTML(){
   const succ=B.roll?B.roll.r.filter(v=>v>=B.roll.tn).length+(B.roll.ks||0):0;
   let res=B.warn?B.warn:B.spNote&&B.roll&&W.kind==='spirit'?(B.roll.r.filter(v=>v>=B.roll.tn).length+' successes vs TN '+B.roll.tn+' · '+B.spNote):!B.roll?'Sixes roll again and add (Rule of Six, core p. 32).':B.roll.r.every(v=>v===1)&&!B.roll.ks?(B.roll.oops?'All ones, but Karma made it a plain failure (core p. 191).':'All ones: Rule of One (core p. 32).'):`${succ} success${succ===1?'':'es'}${kNote(B.roll)?' (Karma: '+kNote(B.roll)+')':''}`;
   if(B.roll&&W.kind==='cast'&&B._heal&&succ>0&&!B.warn){const T=HSPT[B._heal.wl], o=[]; for(let t=0;t<=Math.min(succ,4);t++){if(t===1) continue; const bx=succ-t; o.push(`${bx} box${bx===1?'':'es'} healed, held ${t?Math.round(T/t*10)/10:T} turns`);} res+=' · each one heals a box or goes into the time (one alone changes nothing): '+o.join('; ')+(succ>4?'; …':'')+' (boxes only up to the damage marked).';}
+  if(B.roll&&W.grenade&&!B.warn) res+=succ?` · each success takes 2 m off the scatter (4 m for aerodynamic grenades and launchers); the GM rolls the scatter and places the blast (core p. 97). Thrown grenades come off in After the session, under Used up.`:' · no successes: it scatters the full distance the GM rolls, in a direction the GM rolls, and the GM places the blast (core p. 97). Thrown grenades come off in After the session, under Used up.';
   if(B.roll&&W.kind==='matrix'&&W.v2&&succ>0&&!B.warn){const i=Math.min(3,L4.indexOf(W.lv)+Math.floor(succ/2)); res+=` · it hits for ${W.rating}${L4[i]} before the target resists (VR2 p. 124).`;}
   if(B.roll&&B.roll.host){const H=B.roll.host; res+=` · the host rolled ${H.r.join(' ')} → ${H.k} vs your Detection Factor ${H.df}: `+(succ>H.k?'you win the test.':'the host wins; the operation fails.')+` Add ${H.k} to your security tally (VR2 p. 19).`;}
   let nodeFail=false; if(B.roll&&B.roll.node){const N=B.roll.node, sc=N.sec||0, runs=succ>N.k&&succ-N.k>=sc; nodeFail=!runs; res+=` · the node rolled ${N.r.join(' ')} → ${N.k} vs your Evasion ${N.ev}. You need more than ${N.k}${sc?`, with at least ${sc} past it for the ${SECN[sc]} code (${N.k+Math.max(sc,1)} in all)`:''}: `+(runs?'the utility runs.':'it doesn’t run.');}
@@ -491,9 +495,9 @@ function nightHTML(){
      ${B.sitOpen?`<div class="b2sitbg" data-b2a="sitdone"></div><div class="b2sit" id="b2sit" role="dialog" aria-label="Situation"><div class="b2sith"><b>Situation</b><span class="note">${E(sitLab.replace(/^Situation: /,''))}</span></div><div class="b2sitg">${situ}</div><div class="b2sitf"><button class="ghost" data-b2a="clear">Clear</button><button class="primary" data-b2a="sitdone">Done</button></div></div>`:''}
      <div class="b2one">
       <div class="b2res"><div class="b2nums"><div><span class="b2k">Dice</span><b>${dice}</b><small>${E(dSrc)}</small></div><div><span class="b2k">Target number</span><b class="b2warn">${tn}</b></div><div><span class="b2k">Damage</span><b>${E(dmg)}</b><small>${E(dmgNote||W.note||'')}</small></div></div>
-       ${S.phys>=10||S.stun>=10?`<p class="b2warn" role="status">${S.phys>=10?"Physical track full: the runner is down and can’t act (core p. 112).":"Stun track full: the runner is unconscious (core p. 112)."} Heal or wake them first.</p>`:""}${(W.kind==="util"||W.kind==="matrix")&&(S.mxDmg||0)>=10?`<p class="b2warn" role="status">The deck has crashed: restart it before running programs (core p. 179).</p>`:""}
-       <div class="b2row"><button class="primary b2roll" data-b2a="roll" ${W.grp==='off'||notLoaded?'disabled':''}>Roll ${dice} dice${rounds?' · '+rounds+' round'+(rounds>1?'s':''):''}</button></div>
-       ${notLoaded?`<p class="note b2warn">This program isn’t in active memory. Load it first (a Simple Action to start; big programs take longer, core p. 173–174). <button class="ghost" data-b2a="mload">Load it</button></p>`:''}
+       ${downNow?`<p class="b2warn" role="status">${S.phys>=10?"Physical track full: the runner is down and can’t act (core p. 112).":"Stun track full: the runner is unconscious (core p. 112)."} Heal or wake them first.${anyBtn}</p>`:""}${crashedNow?`<p class="b2warn" role="status">The deck has crashed: restart it before running programs (core p. 179).${downNow?"":anyBtn}</p>`:""}
+       <div class="b2row"><button class="primary b2roll" data-b2a="roll" ${W.grp==='off'||notLoaded||stopRoll?'disabled':''}>Roll ${dice} dice${rounds?' · '+rounds+' round'+(rounds>1?'s':''):''}</button></div>
+       ${notLoaded?(tooBig?`<p class="note b2warn">${E(GEARDB[nlG.key].n)} ${+nlG.r||1} is ${nlSz} Mp, more than the deck’s ${nlDk.am} Mp of active memory in all, so it can never be loaded (${nlDk.vr2?'VR2 p. 85':'core p. 172'}). Lower its rating or add active memory.</p>`:`<p class="note b2warn">This program isn’t in active memory. Load it first (a Simple Action to start; big programs take longer, core p. 173–174). <button class="ghost" data-b2a="mload">Load it</button></p>`):''}
        <div class="b2rc" aria-live="polite">${B.roll?`<b class="b2rc-big${nodeFail?' b2warn':''}">${E(res)}</b><div class="b2dice">${rolled}</div>`:`<p class="note">${E(res)}</p>`}<div class="b2rc-mods">${E(amods)}</div></div><details class="b2math"><summary>Show the math</summary><div class="b2rows">${rowsHTML}</div></details>${kOK?karmaTuck(B.roll,'atk',kdBase):`<p class="note">Karma Pool is for your own tests; this is the ${W.kind==='spirit'?'spirit’s':'drone’s'} roll.</p>`}${drain}</div>
       <div class="b2aside"><button class="ghost" data-b2a="copy" ${W.grp==='off'?'disabled':''}>Copy for Roll20</button><button class="ghost" data-b2a="newact">New action: refresh pools</button><button class="ghost" data-b2a="newturn">New Combat Turn</button><button class="ghost" data-b2a="newscene">New scene</button>
        <p class="note">Pools refresh at the start of each of your actions (core p. 78, 84). A new Combat Turn also clears Initiative. A new scene refills Karma Pool and Team Karma (core p. 191).</p></div></div>${copyBox}</section>
@@ -532,21 +536,68 @@ function spiritsHTML(){const L=S.spirits||[], herm=S.magic==='hermetic'; let t=B
    <details class="b2more"><summary>Rolled it at the table instead</summary><div class="b2ctl">${step('spsv','Services owed',B.spsv==null?1:B.spsv)}<div class="b2f"><span class="b2k">&nbsp;</span><button class="primary" data-b2a="spadd">Add spirit</button></div></div></details></section>`;}
 // vehicle tests (core p. 106-107): Position Test and Crash Test, with Control Pool for riggers
 const VSKILLS=/^(Car|Bike|Hovercraft|Motorboat|Rotor Craft|Sailboat|Vectored Thrust|Winged Plane|Ship|Walker|LTA|Submarine)/i;
-function vehHTML(){const V=S.gear.filter(g=>isVehG(g)&&GEARDB[g.key]); if(!V.length) return '';
+// Vehicle tests: Position, Crash and Escape (core p. 106-107) and the vehicle's own Damage Resistance Test (R2 p. 53, or core
+// p. 108 with Rigger 2 off). One place works out the numbers so the panel and the roll agree.
+const VDM=n=>n>=10?'Destroyed':n>=6?'Serious':n>=3?'Moderate':n>=1?'Light':'';
+const VDMT=n=>n>=6?3:n>=3?2:n>=1?1:0; // vehicle damage modifier to tests that involve the vehicle (core p. 109)
+const ESCM={o:-4,n:-2,r:0,t:2};          // Escape Test modifiers (core p. 107)
+function vehCalc(){const V=S.gear.filter(g=>isVehG(g)&&GEARDB[g.key]); if(!V.length) return null;
   const vi=Math.min(B.vveh||0,V.length-1), v=V[vi], R=typeof R2OBJ!=='undefined'?R2OBJ[v.key]:null, rr=R?R.r:{}; const hand=parseInt(String(rr.H||'').split('/')[0],10)||4, cruise=parseInt(String(rr.Sp||'').split('/')[0],10)||0;
-  const sk=[]; S.skills.filter(x=>x.name&&VSKILLS.test(x.name)).forEach(x=>skillPartsNow(x).forEach(p=>{if(p.r) sk.push([p.label,p.r,p.chip]);})); chipsOn().forEach(([g])=>{const n=chipSkill(g), v=chipInfo(g); if(n&&(VSKILLS.test(v.sk)||VSKILLS.test(n))&&!sk.some(x=>chipEq(x[0],n))) sk.push([n,+g.r||0,true]);}); const ski=Math.min(B.vsk||0,Math.max(0,sk.length-1)); const skill=sk[ski]||['no vehicle skill: defaulting (GM)',0];
+  const VS=typeof VSTAT!=='undefined'?VSTAT[v.key]:null; let body=VS?+VS[2]||0:null, armor=VS?+VS[3]||0:null;
+  if(R&&v.vb&&v.vb.mods&&v.vb.mods.length&&typeof vbFixG==='function'){try{const vv=vbFixG(v), rc=VB.calc(vv,v.vb); if(vv&&vv.B!=null) body=+vv.B||0; if(rc&&rc.s&&rc.s.A!=null) armor=+rc.s.A||0;}catch(e){}}
+  const sk=[]; S.skills.filter(x=>x.name&&VSKILLS.test(x.name)).forEach(x=>skillPartsNow(x).forEach(p=>{if(p.r) sk.push([p.label,p.r,p.chip]);})); chipsOn().forEach(([g])=>{const n=chipSkill(g), c=chipInfo(g); if(n&&(VSKILLS.test(c.sk)||VSKILLS.test(n))&&!sk.some(x=>chipEq(x[0],n))) sk.push([n,+g.r||0,true]);}); const ski=Math.min(B.vsk||0,Math.max(0,sk.length-1)); const skill=sk[ski]||['no vehicle skill: defaulting (GM)',0];
   const vcr=gearLevel('body:Vehicle Control Rig'), cp=vcr?Math.floor((attrNow('quick')+attrNow('int'))/2)+2*vcr:0; if(B.cpool==null||B.cpMax!==cp){B.cpMax=cp;B.cpool=cp;}
-  const kind=B.vtest||'pos', ter=B.vter||'n'; const POS={o:0,n:1,r:2,t:4}, CR={o:-1,n:0,t:2,r:4}; const tm=(kind==='pos'?POS:CR)[ter];
-  const tn=Math.max(2,hand+tm+woundMods().m+susPen()); const vChip=!!skill[2]&&chipNoPool(VSKILLS), sp=vChip?0:Math.min(B.vsp||0,B.cpool), dice=skill[1]+sp;
+  const kind=['pos','crash','hit'].includes(B.vtest)?B.vtest:'pos', ter=B.vter||'n', vChip=!!skill[2]&&chipNoPool(VSKILLS), dmg=Math.max(0,Math.min(10,+v.vdmg||0)), vdm=VDMT(dmg), r2=!!booksOn().r2;
+  const o={V,vi,v,hand,cruise,body,armor,sk,ski,skill,cp,kind,ter,vChip,dmg,vdm,r2};
+  if(kind!=='hit'){const tm=(kind==='pos'?{o:0,n:1,r:2,t:4}:{o:-1,n:0,t:2,r:4})[ter]; o.tm=tm; o.tn=Math.max(2,hand+tm+vdm+woundMods().m+susPen()); o.sp=vChip?0:Math.min(B.vsp||0,B.cpool); o.dice=skill[1]+o.sp; return o;}
+  const H=B.vh||(B.vh={pow:6,lvl:'M',att:1,av:false}); const bd=body!=null?body:Math.max(0,B.vhB||0), ar=armor!=null?armor:Math.max(0,B.vhA||0), L=L4.indexOf(H.lvl);
+  o.H=H; o.bd=bd; o.ar=ar; o.lvl=H.av?H.lvl:(L>0?L4[L-1]:null); o.noPen=!H.av&&ar>0&&H.pow<=ar;
+  // Rigger 2: armor takes its rating off the Power (half against AV); Body + Control Pool (no more than the driving skill) against that Power
+  // core: armor works as a barrier, Power minus Body + armor (Body alone if unarmored), Body + half armor in dice; AV loses armor only
+  const tnP=r2?H.pow-(H.av?Math.floor(ar/2):ar):(H.av?H.pow-ar:ar>0?H.pow-(bd+ar):H.pow-bd); o.tn=Math.max(2,tnP);
+  o.cap=r2?skill[1]:Infinity; o.sp=vChip?0:Math.min(B.vsp||0,B.cpool,o.cap); o.dice=(r2||!ar?bd:bd+Math.floor(ar/2))+o.sp; o.pg=r2?'R2 p. 53':'core p. 108'; return o;}
+function vehHTML(){const o=vehCalc(); if(!o) return ''; const {V,vi,v,hand,cruise,sk,ski,skill,cp,kind,ter,vChip,dmg,vdm,r2}=o;
   const sel=(id,lab,opts,val)=>`<label class="b2f"><span class="b2k">${E(lab)}</span><select data-b2="${id}">${opts.map(([o,t])=>`<option value="${E(o)}" ${String(o)===String(val)?'selected':''}>${E(t)}</option>`).join('')}</select></label>`;
   const step=(id,lab,val)=>`<div class="b2f"><span class="b2k">${E(lab)}</span><div class="b2step"><button class="ghost" data-b2s="${id}" data-d="-1" aria-label="Lower ${E(lab)}">−</button><b>${E(val)}</b><button class="ghost" data-b2s="${id}" data-d="1" aria-label="Raise ${E(lab)}">+</button></div></div>`;
-  return `<section class="b2pan"><div class="b2h"><h3>Vehicle tests</h3><span class="note">chases and crashes, core p. 106–107</span></div>
+  const num=(id,lab,val)=>`<label class="b2f"><span class="b2k">${E(lab)}</span><input type="number" min="0" inputmode="numeric" data-b2="${id}" value="${val==null||val===''?'':E(val)}" style="width:6rem"></label>`;
+  const pool=cp&&!vChip?step('vsp','Control Pool ('+B.cpool+' left'+(kind==='hit'&&r2?', up to '+o.cap:'')+')',o.sp):cp?'<span class="note">Vehicle ActiveSoft: no Control Pool (core p. 248)</span>':'';
+  const track=`<div class="b2r${dmg?' b2warn':''}"><span>Vehicle damage <small>${dmg?`${VDM(dmg)}: ${dmg} of 10 boxes${dmg<10?`, +${vdm} to its tests, driver’s Reaction −${vdm} for Initiative`:''} (core p. 109)`:'none marked'}</small></span><b>${dmg}/10</b></div>`;
+  let ctl='', rows='', btn='', tail='', extra='';
+  if(kind!=='hit'){
+    ctl=sel('vter','Terrain',[['o','Open'],['n','Normal'],['r','Restricted'],['t','Tight']],ter)+pool;
+    rows=`<div class="b2r"><span>Handling</span><b>${hand}</b></div><div class="b2r alt"><span>Terrain</span><b>${SIGN(o.tm)}</b></div>${vdm?`<div class="b2r"><span>Vehicle damage</span><b class="b2warn">+${vdm}</b></div>`:''}${woundMods().m?`<div class="b2r"><span>Wounds</span><b class="b2warn">+${woundMods().m}</b></div>`:''}<div class="b2r tot"><span>Target number</span><b>${o.tn}</b></div>`;
+    btn=`<button class="primary" data-b2a="vroll">Roll ${o.dice} dice</button><button class="ghost" data-b2a="vref">New turn${kind==='pos'?': log it and refresh Control Pool':': refresh Control Pool'}</button>`;
+    tail=kind==='pos'?`Each success moves you ${cruise||'cruising speed'} m; keep the count for the Escape Test (core p. 106–107).`:`Fail and you crash: Power ${Math.floor(cruise/10)} (cruising speed ÷ 10), damage by speed (core p. 107).`;
+    if(kind==='pos') extra=chaseHTML(o,sel,step,num);}
+  else {const H=o.H, known=o.body!=null;
+    ctl=sel('vhk','Weapon',[['w','Ordinary weapon'],['av','Anti-vehicle (AV) munition']],H.av?'av':'w')+step('vhp','Incoming Power',H.pow)+sel('vhl','Damage level',[['L','Light'],['M','Moderate'],['S','Serious'],['D','Deadly']],H.lvl)+step('vha','Attacker’s successes',H.att)+(known?'':step('vhB','Vehicle Body',o.bd)+step('vhA','Vehicle armor',o.ar))+pool;
+    rows=`<div class="b2r"><span>Body <small>${known?'from the vehicle':'typed in'}</small></span><b>${o.bd}</b></div><div class="b2r alt"><span>Armor</span><b>${o.ar}</b></div><div class="b2r"><span>Damage level <small>${H.av?'AV: not reduced':'one level lower against a vehicle'}</small></span><b>${o.lvl||'none'}</b></div><div class="b2r tot"><span>Target number <small>${r2?`Power ${H.pow} − ${H.av?'half armor '+Math.floor(o.ar/2):'armor '+o.ar}`:H.av?`Power ${H.pow} − armor ${o.ar}`:o.ar?`Power ${H.pow} − (Body + armor) ${o.bd+o.ar}`:`Power ${H.pow} − Body ${o.bd}`}</small></span><b>${o.tn}</b></div>`;
+    const why=o.noPen?`Power ${H.pow} doesn’t beat armor ${o.ar}: no damage gets through (${o.pg}). Use the weapon’s base Power, before burst or full-auto.`:!o.lvl?`A Light weapon can’t hurt a vehicle unless it uses special ammunition (${o.pg}).`:!H.att?'The attacker had no successes: a miss.':(r2&&o.bd===0)?`Body 0: any success by the attacker destroys it (R2 p. 53).`:'';
+    btn=why?`<p class="note b2warn">${E(why)}</p>`:`<button class="primary" data-b2a="vhit">Roll ${o.dice} dice</button>`;
+    btn+=`<button class="ghost" data-b2a="vhmark" ${B.vhRes&&B.vhRes.boxes&&B.vhRes.vk===v.key+'|'+vi?'':'disabled'}>Mark it on the vehicle</button>${dmg?'<button class="ghost" data-b2a="vhfix">Repaired: clear the track</button>':''}`;
+    tail=`${r2?`Body${o.cap?' + Control Pool (up to the skill, '+o.cap+')':''}`:`Body${o.ar?' + half armor':''}${cp?' + Control Pool':''}`} against the Power left after armor; standard staging. Serious damage from one attack means a Crash Test (${r2?'R2 p. 51':'core p. 107'}).`;}
+  return `<section class="b2pan"><div class="b2h"><h3>Vehicle tests</h3><span class="note">chases, crashes and damage, core p. 106–109${r2?', R2 p. 53':''}</span></div>
    <div class="b2ctl">${sel('vveh','Vehicle',V.map((g,j)=>[j,vehName(g)]),vi)}${sel('vsk','Skill',sk.length?sk.map((x,j)=>[j,x[0]+' '+x[1]]):[[0,'none']],ski)}
-   ${sel('vtest','Test',[['pos','Position Test (each turn of a chase)'],['crash','Crash Test (Serious damage, no driver action, a ram)']],kind)}
-   ${sel('vter','Terrain',[['o','Open'],['n','Normal'],['r','Restricted'],['t','Tight']],ter)}${cp&&!vChip?step('vsp','Control Pool ('+B.cpool+' left)',sp):cp?'<span class="note">Vehicle ActiveSoft: no Control Pool (core p. 248)</span>':''}</div>
-   <div class="b2rows"><div class="b2r"><span>Handling</span><b>${hand}</b></div><div class="b2r alt"><span>Terrain</span><b>${SIGN(tm)}</b></div>${woundMods().m?`<div class="b2r"><span>Wounds</span><b class="b2warn">+${woundMods().m}</b></div>`:''}<div class="b2r tot"><span>Target number</span><b>${tn}</b></div></div>
-   <div class="b2row"><button class="primary" data-b2a="vroll">Roll ${dice} dice</button><button class="ghost" data-b2a="vref">New turn: refresh Control Pool</button></div>
-   ${resHTML(B.vRes,(kind==='pos'?`Each success moves you ${cruise||'cruising speed'} m and every 2 give each passenger an attack; keep the count for the Escape Test (core p. 106–107).`:`Fail and you crash: Power ${Math.floor(cruise/10)} (cruising speed ÷ 10), damage by speed (core p. 107).`))}</section>`;}
+   ${sel('vtest','Test',[['pos','Position Test (each turn of a chase)'],['crash','Crash Test (Serious damage, no driver action, a ram)'],['hit','Got hit: vehicle damage']],kind)}${ctl}</div>
+   <div class="b2rows">${track}${rows}</div>
+   <div class="b2row">${btn}</div>
+   ${kind==='hit'?resHTML(B.vhRes,tail):resHTML(B.vRes,tail)}${extra}</section>`;}
+// a running tally for a chase: the other side's successes, the gap and who escapes (core p. 106-107)
+function chaseHTML(o,sel,step,num){const C=B.chase||(B.chase={turn:1,log:[]}), L=B.vLast&&B.vLast.vk===o.v.key+'|'+o.vi?B.vLast:null, it=B.vint||'f', J=Math.max(0,B.vopp||0), jIn=B.vopp!=null;
+  let say=[]; if(L){const k=L.k, mine=it==='x'?Math.floor(k/2)*L.cruise:k*L.cruise, oc=+B.vocs||0, theirs=oc?J*oc:null;
+    say.push(it==='x'?`${k} attack${k===1?'':'s'} on them; you may open or close the gap by ${mine} m (core p. 106).`:`You move ${mine} m; each passenger gets ${Math.floor(k/2)} attack${Math.floor(k/2)===1?'':'s'}.`);
+    if(jIn&&B.vdist!=null&&B.vdist!==''&&theirs!=null&&it!=='x'){const d=+B.vdist, nd=it==='f'?d+mine-theirs:d-mine+theirs;
+      say.push(nd<=d&&it==='p'?`You close to ${Math.max(0,nd)} m; you may pick any distance from ${Math.max(0,nd)} to ${d} m (core p. 106).`:nd<d&&it==='f'?`They gain on you: ${Math.max(0,nd)} m apart (they pick between that and ${d} m).`:`The gap is ${Math.max(0,nd)} m.`); if(nd<1) say.push('Under 1 m: either driver can ram (core p. 107).');}
+    const em=ESCM[o.ter];
+    if(!jIn) say.push('Put in their successes to see the gap and who escapes.');
+    else if(it==='f') say.push(k>J?`You beat their ${J}: they make an Escape Test against target number ${Math.max(2,k-J+em)} (net ${k-J}, terrain ${SIGN(em)}) with the best Intelligence among those who can see you. No successes and you’re away (core p. 107).`:`They matched or beat your ${k}: no escape this turn.`);
+    else if(it==='p') say.push(J>k?`They beat your ${k}: you make an Escape Test against target number ${Math.max(2,J-k+em)} (net ${J-k}, terrain ${SIGN(em)}) or they get away.`:`You matched or beat their ${J}: they can’t get away this turn.`);}
+  const esc=L&&jIn&&it==='p'&&J>L.k;
+  return `<div class="b2sub"><h4>Chase tally <span class="note">turn ${C.turn}</span></h4>
+   <div class="b2ctl">${sel('vint','You are',[['f','Fleeing'],['p','Pursuing'],['x','Fighting']],it)}${step('vopp','Their successes',jIn?J:'—')}${num('vocs','Their cruising speed (m)',B.vocs)}${num('vdist','Distance now (m)',B.vdist)}</div>
+   ${L?`<ul class="b2tally">${say.map(x=>`<li>${E(x)}</li>`).join('')}</ul>`:'<p class="note">Roll the Position Test, then put in the other side’s successes.</p>'}
+   ${esc?`<div class="b2row"><button class="ghost" data-b2a="vesc">Roll the Escape Test (Intelligence ${attrNow('int')})</button></div>`:''}${resHTML(B.vEsc)}
+   ${C.log.length?`<details class="b2sub"><summary>Earlier turns (${C.log.length})</summary><ul class="b2tally">${C.log.map(x=>`<li>${E(x)}</li>`).join('')}</ul></details><div class="b2row"><button class="ghost" data-b2a="vchase">New chase: clear the tally</button></div>`:''}</div>`;}
 // sustaining spells: +2 to every target number of the magician's own tests, per spell; at most Sorcery spells at once (core p. 128, 129)
 const susN=()=>isMagician()?(S.sus||[]).length:0;
 const susPen=()=>2*susN();
@@ -572,6 +623,7 @@ function copyOut(text,msg){let ok=false; try{if(navigator.clipboard){navigator.c
   B.copy={text,msg:ok?msg+': copied. Paste it into the Roll20 chat.':msg+': select this and copy it.'};}
 function who(){return S.handle||S.name||'Runner';}
 function act(a){const C=B._cur, W=C&&C.W; B.warn='';
+  if(a==='anyway'){B.anyway=true; return redraw();}
   if(a==='ini'){const T=sheetStats(), I=iniNow(T); B.ini=I.r+Array.from({length:I.d},d6p).reduce((x,y)=>x+y,0);}
   else if(a==='cini'){const T=sheetStats(), I=iniNow(T); copyOut(`&{template:default} {{name=${who()}: ${I.m?'Matrix ':''}Initiative}} {{Initiative=[[${I.r-T.wmod.m}+${I.d}d6]]}}`,'Initiative');}
   else if(a==='roll'||a==='copy'){
@@ -596,19 +648,33 @@ function act(a){const C=B._cur, W=C&&C.W; B.warn='';
     if(op==='re'){const n=(R.kc||0)+1, P=R.parts||R.r.parts; if(R.r.some(x=>x<R.tn)&&kPay(n)){R.kc=n; R.r.forEach((v,j)=>{if(v<R.tn){const t=[]; R.r[j]=d6x(R.tn,t); if(P) P[j]=t[0];}});}}
     else if(op==='buy'){if(R.r.some(x=>x>=R.tn)&&kPay(1)){R.ks=(R.ks||0)+1; if(B.kfrom==='team'){const tk=tkGet(); tk.tot=Math.max(0,tk.tot-1); sv();} else B.af.kbuy=(B.af.kbuy||0)+1;}}
     else if(op==='oops'){if(R.r.length&&R.r.every(x=>x===1)&&kPay(1)) R.oops=true;}}}
-  else if(a==='vroll'||a==='vref'){if(a==='vref'){B.cpool=B.cpMax; B.vRes=''; return redraw();} const V=S.gear.filter(g=>isVehG(g)&&GEARDB[g.key]); const v=V[Math.min(B.vveh||0,V.length-1)]; if(!v) return; const R=typeof R2OBJ!=='undefined'?R2OBJ[v.key]:null, rr=R?R.r:{}; const hand=parseInt(String(rr.H||'').split('/')[0],10)||4, cruise=parseInt(String(rr.Sp||'').split('/')[0],10)||0;
-    const sk=[]; S.skills.filter(x=>x.name&&VSKILLS.test(x.name)).forEach(x=>skillPartsNow(x).forEach(p=>{if(p.r) sk.push([p.label,p.r,p.chip]);})); chipsOn().forEach(([g])=>{const n=chipSkill(g), v=chipInfo(g); if(n&&(VSKILLS.test(v.sk)||VSKILLS.test(n))&&!sk.some(x=>chipEq(x[0],n))) sk.push([n,+g.r||0,true]);}); const skill=sk[Math.min(B.vsk||0,Math.max(0,sk.length-1))]||['',0];
-    const kind=B.vtest||'pos', ter=B.vter||'n', tm=(kind==='pos'?{o:0,n:1,r:2,t:4}:{o:-1,n:0,t:2,r:4})[ter], tn=Math.max(2,hand+tm+woundMods().m+susPen()); const sp=skill[2]&&chipNoPool(VSKILLS)?0:Math.min(B.vsp||0,B.cpool||0); B.cpool=(B.cpool||0)-sp; B.vsp=0;
-    const r=rollN(skill[1]+sp,tn), k=r.filter(x=>x>=tn).length; const imp=cruise>200?'D':cruise>60?'S':cruise>20?'M':'L';
-    const vm=`TN ${tn}: Handling ${hand}, terrain ${tm>=0?'+'+tm:'−'+(-tm)}${wsMods(woundMods().m,susPen())} · ${skill[0]||'defaulting (GM)'} ${skill[1]}${sp?' + Control Pool '+sp:''}`;
-    B.vRes=RR(r,tn,{head:kind==='pos'?'Position Test':'Crash Test',mods:vm,pool:sp,tail:kind==='pos'?`${k*cruise} m, ${Math.floor(k/2)} attack${Math.floor(k/2)===1?'':'s'} per passenger. Note ${k} for the Escape Test.`:(k?'No crash.':`Crash: ${Math.floor(cruise/10)}${imp} to the vehicle (Body + half armor resists; passengers take what gets through, Impact armor only, core p. 107).`)});}
+  else if(a==='vref'){const o=vehCalc(); const L=B.vLast; if(o&&o.kind==='pos'&&L){const C=B.chase||(B.chase={turn:1,log:[]}); const it=B.vint||'f', J=Math.max(0,B.vopp||0), mine=it==='x'?Math.floor(L.k/2)*L.cruise:L.k*L.cruise, oc=+B.vocs||0;
+      if(B.vopp!=null&&B.vdist!=null&&B.vdist!==''&&oc&&it!=='x'){const d=+B.vdist; B.vdist=Math.max(0,it==='f'?d+mine-J*oc:d-mine+J*oc);}
+      C.log.push(`Turn ${C.turn}: ${({f:'fleeing',p:'pursuing',x:'fighting'})[it]}, you ${L.k} vs them ${B.vopp==null?'?':J}${B.vdist!=null&&B.vdist!==''?`, ${B.vdist} m apart`:''}${B.vEsc?' · Escape Test '+B.vEsc.k+' successes':''}`); C.turn++;}
+    B.cpool=B.cpMax; B.vRes=''; B.vLast=null; B.vEsc=null; B.vopp=null; return redraw();}
+  else if(a==='vchase'){B.chase={turn:1,log:[]}; B.vLast=null; B.vEsc=null; B.vopp=null; B.vdist=''; return redraw();}
+  else if(a==='vesc'){const o=vehCalc(), L=B.vLast; if(!o||!L) return; const J=Math.max(0,B.vopp||0), em=ESCM[o.ter], tn=Math.max(2,J-L.k+em), r=rollN(attrNow('int'),tn), k=r.filter(x=>x>=tn).length;
+    B.vEsc=RR(r,tn,{head:'Escape Test',mods:`TN ${tn}: net ${J-L.k}, terrain ${SIGN(em)} · Intelligence ${attrNow('int')}`,tail:k?'You keep them in sight.':'No successes: they got away (core p. 107).'});}
+  else if(a==='vroll'){const o=vehCalc(); if(!o||o.kind==='hit') return; B.cpool=(B.cpool||0)-o.sp; B.vsp=0;
+    const r=rollN(o.dice,o.tn), k=r.filter(x=>x>=o.tn).length; const imp=o.cruise>200?'D':o.cruise>60?'S':o.cruise>20?'M':'L';
+    const vm=`TN ${o.tn}: Handling ${o.hand}, terrain ${o.tm>=0?'+'+o.tm:'−'+(-o.tm)}${o.vdm?', vehicle damage +'+o.vdm:''}${wsMods(woundMods().m,susPen())} · ${o.skill[0]||'defaulting (GM)'} ${o.skill[1]}${o.sp?' + Control Pool '+o.sp:''}`;
+    if(o.kind==='pos'){B.vLast={k,cruise:o.cruise,vk:o.v.key+'|'+o.vi}; B.vEsc=null;}
+    B.vRes=RR(r,o.tn,{head:o.kind==='pos'?'Position Test':'Crash Test',mods:vm,pool:o.sp,tail:o.kind==='pos'?`${k*o.cruise} m, ${Math.floor(k/2)} attack${Math.floor(k/2)===1?'':'s'} per passenger. Put their successes in the chase tally below.`:(k?'No crash.':`Crash: ${Math.floor(o.cruise/10)}${imp} to the vehicle (Body + half armor resists, no Control Pool; passengers take what gets through, Impact armor only, core p. 107).`)});}
+  else if(a==='vhit'){const o=vehCalc(); if(!o||o.kind!=='hit'||o.noPen||!o.lvl||!o.H.att) return; B.cpool=(B.cpool||0)-o.sp; B.vsp=0; const H=o.H;
+    const r=rollN(o.dice,o.tn), k=r.filter(x=>x>=o.tn).length; let fin=null, txt;
+    if(o.r2&&o.bd===0){fin='D'; txt='Body 0: destroyed (R2 p. 53).';}
+    else {const d=k-H.att, idx=L4.indexOf(o.lvl)+(d<0?Math.floor(-d/2):-Math.floor(d/2)); fin=idx<0?null:L4[Math.min(3,idx)];
+      txt=fin?`${k} success${k===1?'':'es'} vs the attacker’s ${H.att}: the vehicle takes ${fin==='D'?'Deadly (destroyed)':fin} (${BOXES[fin]} box${BOXES[fin]>1?'es':''}).${fin==='S'||fin==='D'?` Serious or worse from one attack: make a Crash Test (${o.r2?'R2 p. 51':'core p. 107'}).`:''}`:(o.r2&&o.sp>H.att?`No damage, and the ${o.sp} Control Pool dice used are more than the attacker’s ${H.att} successes: a complete miss (R2 p. 53).`:`${k} success${k===1?'':'es'} vs the attacker’s ${H.att}: no damage.`);}
+    B.vhRes=Object.assign(RR(r,o.tn,{head:'Vehicle Damage Resistance Test',mods:`TN ${o.tn} · ${o.dice-o.sp} dice${o.sp?' + Control Pool '+o.sp:''} (${o.pg})`,pool:o.sp,tail:txt}),{boxes:fin?BOXES[fin]:0,fin,vk:o.v.key+'|'+o.vi});}
+  else if(a==='vhmark'){const o=vehCalc(), R=B.vhRes; if(!o||!R||!R.boxes||R.vk!==o.v.key+'|'+o.vi) return; o.v.vdmg=Math.min(10,(+o.v.vdmg||0)+R.boxes); B.vhRes=null; if(o.v.vdmg>=10) B.vRes='The vehicle is destroyed: an automatic crash (core p. 107).'; render(); return;}
+  else if(a==='vhfix'){const o=vehCalc(); if(o){delete o.v.vdmg; B.vhRes=null; render(); return;}}
   else if(a==='dfroll'){const have=swHave(); const L=SKILLWEB.SKILLS.filter(n=>!have[n]); const tgt=L.includes(B.dft)?B.dft:L[0]; const o=tgt?swOptions(tgt,B.sk.tn)[0]:null; if(o){const tn=B.sk.tn+o.tn+woundMods().m+susPen(), r=rollN(o.dice,tn), k=r.filter(x=>x>=tn).length; B.sk.res=RR(r,tn,{head:`${swLabel(tgt)} by defaulting to ${o.from}`,mods:`TN ${tn}: base ${B.sk.tn}, route +${o.tn}${wsMods(woundMods().m,susPen())} · ${o.dice} dice`});}}
   else if(a==='ctroll'){const C=(S.contacts||[]).filter(c=>c&&c.name)[+B.ctc||0]; const parts=partsNamed('Etiquette'); const best=parts.reduce((m,p)=>p.r>m.r?p:m,{r:0,label:'Etiquette'}); let dice=best.r, how=best.label+(best.chip?' chip':'')+' '+best.r; if(!dice){const o=typeof swOptions==='function'?swOptions('Etiquette',B.sk.tn)[0]:null; if(o){dice=o.dice; how='defaulting to '+o.from;} else {dice=attrNow('cha'); how='Charisma';}}
     const tn=B.sk.tn+woundMods().m+susPen(), r=rollN(dice,tn), k=r.filter(x=>x>=tn).length; const st=ctStats(C), et=ctEtq(st,C||{}); B.sk.res=RR(r,tn,{head:`Asking ${C?C.name:'a contact'} (${how})`,mods:`TN ${tn}: base ${B.sk.tn}${wsMods(woundMods().m,susPen())} · ${dice} dice`,tail:`${k&&st&&et&&et.r?`Baseline fee: ${et.r} × ${k} × (${st.cha} + ${st.int}) × 10 = ${(et.r*k*(st.cha+st.int)*10).toLocaleString()}¥, before Negotiation (core p. 202). `:''}The GM decides what they know and what it costs.`});}
   else if(a==='ctchk'){const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)], st=ctStats(C), et=ctEtq(st,C||{}); if(!st) return; const tn=B.sk.tn+2+(et.def?4:0), r=rollN(et.r,tn), k=r.filter(x=>x>=tn).length, h=d6p()+d6p();
     B.sk.res=`${C.name} checks around (${et.l} ${et.r}): ${r.join(' ')||'no dice'} → ${k} success${k===1?'':'es'} vs TN ${tn} (your TN ${B.sk.tn} + 2${et.def?' + 4 for defaulting':''}). ${k?`They get word back in ${h} hours (2D6), or when the GM says.`:'Nothing turns up this time.'} The cost is worked out as if they’d known it already (core p. 202).`;}
   else if(a==='kref'){B.karma=sheetStats().kpool;}
-  else if(a==='mload'){const g=S.gear[W.gi]; if(g){const was=S.gear.map(x=>!!x.loaded); g.loaded=true; render(); const bumped=S.gear.some((x,j)=>x!==g&&was[j]&&!x.loaded);
+  else if(a==='mload'){const g=S.gear[W.gi]; const dk=g&&typeof deckInfo==='function'?deckInfo():null, sz=g&&GEARDB[g.key]&&GEARDB[g.key].sz?GEARDB[g.key].sz(+g.r||1):0; if(dk&&sz>dk.am){B.warn=`${GEARDB[g.key].n} ${+g.r||1} is ${sz} Mp and the deck has ${dk.am} Mp of active memory in all: it can never be loaded (${dk.vr2?'VR2 p. 85':'core p. 172'}).`; return redraw();} if(g){const was=S.gear.map(x=>!!x.loaded); g.loaded=true; render(); const bumped=S.gear.some((x,j)=>x!==g&&was[j]&&!x.loaded);
     if(!g.loaded||bumped){S.gear.forEach((x,j)=>{x.loaded=was[j]||undefined;}); g.loaded=false; render(); B.warn='Not enough free active memory to load it: unload another program in the deck’s program list first (core p. 173).'; redraw();} return;}}
   else if(a==='conjure'){const F=B.spf||3, sk=bestRating(/^conjuring/i), w=woundMods().m, tn=F+w+susPen(), r=rollN(sk,tn), k=r.filter(x=>x>=tn).length, cha=attrNow('cha');
     const lv0=F>2*cha?'D':F>cha?'S':F*2<cha?'L':'M', phys=F>cha, dr=rollN(cha,F), dk=dr.filter(x=>x>=F).length, di=L4.indexOf(lv0)-Math.floor(dk/2), dl=di<0?null:L4[di];
@@ -644,6 +710,9 @@ function stepper(id,d){
   else if(id==='gh:pow'){B.gh.pow=Math.max(1,B.gh.pow+d);B.gh.roll=null;} else if(id==='gh:att') B.gh.att=Math.max(0,B.gh.att+d); else if(id==='gh:spend') B.gh.spend=Math.max(0,B.gh.spend+d);
   else if(id==='sk:tn') B.sk.tn=Math.max(2,B.sk.tn+d);
   else if(id==='vsp'){B.vsp=Math.max(0,Math.min(B.cpool||0,(B.vsp||0)+d));}
+  else if(id==='vopp') B.vopp=Math.max(0,(B.vopp||0)+d);
+  else if(id==='vhp'||id==='vha'){const H=B.vh||(B.vh={pow:6,lvl:'M',att:1,av:false}); if(id==='vhp') H.pow=Math.max(1,H.pow+d); else H.att=Math.max(0,H.att+d); B.vhRes=null;}
+  else if(id==='vhB'||id==='vhA'){B[id]=Math.max(0,(B[id]||0)+d); B.vhRes=null;}
   else if(id==='atk:kd'||id==='gh:kd'){const c=id.slice(0,-3), st=c==='gh'?B.gh:B, mx=(B._kdMax||{})[c]||0; st.kdSrc=st.kdSrc||[];
     if(d>0){if(st.kdSrc.length<mx&&kPay(1)) st.kdSrc.push(B.kfrom==='team'?'team':'own');} else if(st.kdSrc.length){const x=st.kdSrc.pop(); if(x==='team'){tkGet().left++; sv();} else B.karma++;}}
   else if(id==='tkleft'||id==='tktot'){const tk=tkGet(); if(id==='tktot'){tk.tot=Math.max(0,tk.tot+d); tk.left=Math.min(tk.left,tk.tot); if(d>0&&tk.left===tk.tot-1) tk.left=tk.tot;} else tk.left=Math.max(0,Math.min(tk.tot,tk.left+d)); sv();}
@@ -655,7 +724,7 @@ function stepper(id,d){
 function snaps(){try{return JSON.parse(localStorage.getItem('sr2-b2-snaps-'+(S.id||'x'))||'[]');}catch(e){return [];}}
 function consumables(){return S.gear.map((g,i)=>[g,i]).filter(([g])=>GEARDB[g.key]&&(g.cat==='med'||g.cat==='boom'||(/^ammo:.*(Ammo|Rounds)/.test(g.key))));}
 function afterHTML(){const a=B.af, ny=S.nuyenNow===''||S.nuyenNow==null?0:+S.nuyenNow, ka=karmaAvail(), T=sheetStats();
-  const ph=a.phys==null?S.phys:a.phys, st=a.stun==null?S.stun:a.stun;
+  const dead=S.phys>10+natBody(), held=dead&&!a.lives; const ph=held||a.phys==null?S.phys:a.phys, st=a.stun==null?S.stun:a.stun;
   const field=(k,lab,help,v,unit)=>`<div class="b2af"><div><b>${E(lab)}</b><small>${E(help)}</small></div><div class="b2step"><button class="ghost" data-b2s="af:${k}" data-d="-1" aria-label="Less ${E(lab)}">−</button><input type="number" inputmode="numeric" data-b2n="af:${k}" value="${v}" aria-label="${E(lab)}"><button class="ghost" data-b2s="af:${k}" data-d="1" aria-label="More ${E(lab)}">+</button><span class="mono">${E(unit)}</span></div></div>`;
   const cons=consumables(); const left=([g])=>/^ammo:/.test(g.key)?(+g.qty||1)*10-(+g.used||0):(+g.qty||1);
   const diff=[['Good Karma available',ka,ka+a.gk],['Karma Pool',T.kpool,T.kpool+a.kp-(a.kbuy||0)],['Nuyen on hand',fmt(ny)+'¥',fmt(ny+a.nin-a.nout)+'¥'],['Physical / Stun',S.phys+' / '+S.stun,ph+' / '+st],...((S.mxDmg||0)>0?[['Persona (Matrix)',String(S.mxDmg),'0 (the deck restarts)']]:[]),
@@ -667,11 +736,12 @@ function afterHTML(){const a=B.af, ny=S.nuyenNow===''||S.nuyenNow==null?0:+S.nuy
   notes.push(['',practicing()?'Practice session: this is undone when you end practice.':'This updates the real sheet. For a practice run, start a practice session at the top first.']);
   const sn=snaps();
   return `<div class="b2grid b2afgrid"><section class="b2pan b2afmain"><div class="b2h"><h3>What happened at the table</h3></div>
+   ${dead?`<div class="b2warn b2dead" role="status"><p>This runner is dead: Physical damage ran more than their Body (${natBody()}) past the track (core p. 111). Healing doesn’t apply, and the boxes stay as they are, unless the GM rules otherwise.</p><label class="b2f b2chk"><input type="checkbox" data-b2c="af:lives" ${a.lives?'checked':''}> The GM says they live</label></div>`:''}
    ${field('gk','Good Karma earned','what the GM awarded (core p. 190–191)',a.gk,'K')}${field('kp','Added to the Karma Pool','if the GM gave a Karma Pool point',a.kp,'K')}${field('kbuy','Karma Pool burned','points spent buying successes (core p. 191); the Attack panel counts them for you',a.kbuy||0,'K')}
    ${field('nin','Nuyen in','pay, loot sold',a.nin,'¥')}${field('nout','Nuyen out','bribes, bills, gifts',a.nout,'¥')}
    <label class="b2f b2wide"><span class="b2k">Note for the nuyen log</span><input type="text" data-b2t="af:note" value="${E(a.note)}" placeholder="the run, who paid, what the GM ruled"></label>
-   ${field('phys','Physical boxes still marked','carried to next session',ph,'box')}${field('stun','Stun boxes still marked','usually rested off',st,'box')}
-   <div id="b2heal">${healHTML(S.phys,S.stun)}</div>
+   ${held?`<p class="note">Physical boxes stay at ${S.phys} unless the GM says they live.</p>`:field('phys','Physical boxes still marked','carried to next session',ph,'box')}${field('stun','Stun boxes still marked','usually rested off',st,'box')}
+   <div id="b2heal">${healHTML(held?0:S.phys,S.stun)}</div>
    ${cons.length?`<h4>Used up</h4>`+cons.map(([g,i])=>field('u:c'+i,(g.name||GEARDB[g.key].n),(/^ammo:/.test(g.key)?'rounds':'items')+' left: '+left([g,i]),a.use['c'+i]||0,/^ammo:/.test(g.key)?'rd':'ea')).join(''):''}
    <p class="note">Ammo in guns and clips is counted in the ammo tracker; here count rounds that came out of the boxes.</p></section>
   <section class="b2pan"><div class="b2h"><h3>What changes on the sheet</h3></div><div id="b2afd"><div class="b2rows">${diff.map(([k,x,y],j)=>`<div class="b2r${j%2?' alt':''}"><span>${E(k)}</span><span class="mono">${E(x)} → <b>${E(y)}</b></span></div>`).join('')}</div>
@@ -684,7 +754,7 @@ function afSave(){const a=B.af; const sn=snaps(); const d=new Date(), ds=d.getFu
   S.kEarned=(+S.kEarned||0)+a.gk; S.kPoolBonus=(+S.kPoolBonus||0)+a.kp-(a.kbuy||0);
   const ny=S.nuyenNow===''||S.nuyenNow==null?0:+S.nuyenNow; S.nyLog=S.nyLog||[];
   if(a.nin){S.nyLog.push({d:ds,amt:a.nin,note:a.note||'After the session'});} if(a.nout){S.nyLog.push({d:ds,amt:-a.nout,note:a.note||'After the session'});} if(a.nin||a.nout) S.nuyenNow=ny+a.nin-a.nout;
-  if(a.phys!=null) S.phys=a.phys; if(a.stun!=null) S.stun=a.stun; S.mxDmg=0; // persona damage ends with the run: a crashed deck is back to full once restarted (core p. 179)
+  if(a.phys!=null&&!(S.phys>10+natBody()&&!a.lives)) S.phys=a.phys; if(a.stun!=null) S.stun=a.stun; S.mxDmg=0; // persona damage ends with the run: a crashed deck is back to full once restarted (core p. 179)
   consumables().forEach(([g,i])=>{const u=a.use['c'+i]||0; if(!u) return; if(/^ammo:/.test(g.key)) g.used=Math.min((+g.qty||1)*10,(+g.used||0)+u); else {g.qty=Math.max(0,(+g.qty||1)-u);}});
   if(!a.keepSus&&isMagician()) S.sus=[];
   S.gear=S.gear.filter(g=>!(GEARDB[g.key]&&(g.cat==='med'||g.cat==='boom')&&(+g.qty)<=0));
@@ -784,6 +854,7 @@ function mount(){
   document.addEventListener('change',e=>{const t=e.target; if(!t||!t.closest||!t.closest('#b2after')) return; const n=t.dataset.b2n, c=t.dataset.b2c, tx=t.dataset.b2t; if(!n&&!c&&!tx) return; e.stopPropagation();
     if(n){const f=n.slice(3), v=Math.max(0,Math.round(+t.value||0)); if(f.startsWith('u:')) B.af.use[f.slice(2)]=v; else B.af[f]=v; B.af.saved=''; keep(); return afTotals();}
     if(c==='af:keepSus'){B.af.keepSus=t.checked; return afTotals();}
+    if(c==='af:lives'){B.af.lives=t.checked; if(!t.checked) B.af.phys=null; return redrawAfter();}
     if(tx){B.af.note=t.value; return;}},true);
   document.addEventListener('change',e=>{const t=e.target; if(!t.closest||!t.closest('#b2night,#b2after')) return;
     const k=t.dataset.b2, c=t.dataset.b2c, n=t.dataset.b2n, tx=t.dataset.b2t;
@@ -800,7 +871,7 @@ function setB2(k,v){const t={value:v};
     if(k==='wid'){B.wid=t.value; B.widBy=B.widBy||{}; B.widBy[S.id]=t.value;B.mode='s1';B.rng=0;B.roll=null;B.spend=0;B.aim=0;B.force=0;B.mount=null;}
     else if(k==='mode') B.mode=t.value==='fa'?'f'+(B.faN||3):t.value; else if(k==='dmode'){B.dmode=t.value; B.spend=0;} else if(k==='mount') B.mount=t.value; else if(k==='urb') B.urb=t.value; else if(k==='los') B.los=t.value; else if(k==='spt') B.spt=t.value; else if(k==='susp') B.susp=t.value; else if(k==='hwl'){B.hWl=t.value; B.drainHit=null; B.drainRes=null;} else if(k==='v2sc'){B.v2sc=+t.value; B.roll=null;} else if(k==='v2st'){B.v2st=t.value; B.roll=null;} else if(k==='vsub'){B.vsub=t.value; B.roll=null;} else if(k==='vut'){B.vut=t.value; B.roll=null;} else if(k==='rng') B.rng=+t.value; else if(k==='dmglv') B.dmgLv=t.value; else if(k==='amsel') B.amSel=t.value;
     else if(k&&k.startsWith('sit:')) B.sit[k.slice(4)]=t.value; else if(k&&k.startsWith('msit:')) B.msit[k.slice(5)]=t.value;
-    else if(k==='gh:kind'){B.gh.kind=t.value;B.gh.roll=null;} else if(k==='gh:lvl'){B.gh.lvl=t.value;B.gh.roll=null;} else if(k==='gh:dt'){B.gh.stun=t.value==='s';B.gh.roll=null;} else if(k==='dtgt'){B.dtgt=t.value;B.rng=0;} else if(k==='dft'){B.dft=t.value;} else if(k==='sec'){B.sec=Math.max(0,Math.min(4,+t.value||0)); B.roll=null;} else if(k==='ctc'){B.ctc=+t.value;} else if(k==='inim'){B.inim=t.value; B.ini=null;} else if(k==='ctb'||k==='cte'){const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)]; if(C){if(k==='ctb') {C.cb=t.value; delete C.cei;} else C.cei=+t.value; if(typeof save==='function') save();}} else if(k==='vveh'){B.vveh=+t.value;B.vRes='';} else if(k==='vsk'){B.vsk=+t.value;} else if(k==='vtest'){B.vtest=t.value;B.vRes='';} else if(k==='vter'){B.vter=t.value;}
+    else if(k==='gh:kind'){B.gh.kind=t.value;B.gh.roll=null;} else if(k==='gh:lvl'){B.gh.lvl=t.value;B.gh.roll=null;} else if(k==='gh:dt'){B.gh.stun=t.value==='s';B.gh.roll=null;} else if(k==='dtgt'){B.dtgt=t.value;B.rng=0;} else if(k==='dft'){B.dft=t.value;} else if(k==='sec'){B.sec=Math.max(0,Math.min(4,+t.value||0)); B.roll=null;} else if(k==='ctc'){B.ctc=+t.value;} else if(k==='inim'){B.inim=t.value; B.ini=null;} else if(k==='ctb'||k==='cte'){const L=(S.contacts||[]).filter(c=>c&&c.name), C=L[Math.min(L.length-1,+B.ctc||0)]; if(C){if(k==='ctb') {C.cb=t.value; delete C.cei;} else C.cei=+t.value; if(typeof save==='function') save();}} else if(k==='vveh'){B.vveh=+t.value;B.vRes='';B.vhRes=null;B.vLast=null;} else if(k==='vint'){B.vint=t.value;} else if(k==='vocs'){B.vocs=t.value===''?'':Math.max(0,Math.round(+t.value||0));} else if(k==='vdist'){B.vdist=t.value===''?'':Math.max(0,Math.round(+t.value||0));} else if(k==='vhl'||k==='vhk'){const H=B.vh||(B.vh={pow:6,lvl:'M',att:1,av:false}); if(k==='vhl') H.lvl=t.value; else H.av=t.value==='av'; B.vhRes=null;} else if(k==='vsk'){B.vsk=+t.value;} else if(k==='vtest'){B.vtest=t.value;B.vRes='';} else if(k==='vter'){B.vter=t.value;}
     else return false;
     return true;}
   document.addEventListener('input',e=>{const t=e.target; if(t&&t.dataset&&t.dataset.b2in==='suson') B.suson=t.value;});

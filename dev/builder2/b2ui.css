@@ -204,3 +204,9 @@ a.glink{display:inline-flex;align-items:center;min-height:24px}
 @media (max-width:40em){#b2tabs button,#b2pracBtn{min-height:44px} tr.gcat button.gfold{min-height:44px}}
 /* spacing sweep (2026-11-23): Builder paragraphs whose browser margin (1em of 14px) fell off the steps */
 :where(#modeNote,#raceTraits,#woundNote){margin-block:12px}
+
+/* vehicle tests: chase tally (core p. 106-107) */
+#b2after .b2dead{padding:12px;border:1px solid var(--bad);border-radius:var(--radius);background:var(--bad-soft);color:var(--ink);margin-bottom:12px}#b2after .b2dead p{margin:0 0 8px}
+#b2night .b2sub{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}#b2night .b2sub h4{margin:0 0 8px;font-size:var(--t-sm)}
+#b2night details.b2sub summary{cursor:pointer;min-height:var(--tap);display:flex;align-items:center}
+#b2night .b2tally{margin:8px 0;padding-left:16px;display:flex;flex-direction:column;gap:4px;font-size:var(--t-sm)}

@@ -7,7 +7,7 @@ body.b2mk .layout,body.b2mk .sesnote,body.b2mk .mbar,body.b2mk #b2strip,body.b2m
 .mkadd{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;padding:12px;background:var(--panel-2);border-radius:var(--radius)}
 .mkgrow{flex:1 1 14rem}.mkadd input{width:100%;min-height:var(--tap)}.mkadd button{min-height:var(--tap)}
 .mklist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
-.mkline{display:grid;grid-template-columns:minmax(10rem,1.4fr) auto minmax(14rem,1.6fr) minmax(10rem,1.4fr) auto;gap:8px 12px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line)}
+.mkline{display:grid;grid-template-columns:auto minmax(10rem,1.4fr) auto minmax(14rem,1.6fr) minmax(10rem,1.4fr) auto;gap:8px 12px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line)}
 .mkline:last-child{border-bottom:0}
 .mkline.ok{background:var(--ok-soft)}.mkline.no{background:var(--bad-soft)}
 .mkname{display:flex;flex-direction:column;min-width:0}.mkname b{font-weight:600}.mkname small,.mkstat small{color:var(--muted);font-size:var(--t-xs)}
@@ -31,10 +31,14 @@ body.b2mk .layout,body.b2mk .sesnote,body.b2mk .mbar,body.b2mk #b2strip,body.b2m
 .mkpick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-height:var(--tap)}.mkpick span{flex:1 1 10rem}.mkpick small{color:var(--muted);font-family:var(--f-mono)}.mkpick input[type=number]{width:4.5rem;min-height:var(--tap)}
 .mkul{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px}
 .mkhist details summary{cursor:pointer;min-height:var(--tap);display:flex;align-items:center}
-@media (max-width:62em){.mkline{grid-template-columns:minmax(0,1fr) auto}.mkctl,.mknums,.mkstat{grid-column:1 / -1}.mkx{grid-row:1;grid-column:2}}
+@media (max-width:62em){.mkline{grid-template-columns:auto minmax(0,1fr) auto}.mkctl,.mknums,.mkstat{grid-column:2 / -1}.mksel{grid-row:1;grid-column:1}.mkx{grid-row:1;grid-column:3}}
 @media (max-width:62em){.mkgrid{display:flex;flex-direction:column}.mkmain{display:contents}.mkcart{order:1}.mkside{order:2}.mkfence{order:3}.mkhist{order:4}}
 .mkbar{display:none}
 @media (max-width:40em){.mkbar{display:flex;flex-direction:column;gap:8px;position:sticky;bottom:0;z-index:12;margin:16px -16px 0;padding:12px 16px;background:var(--panel);border-top:1px solid var(--line)}.mkbar>div{display:flex;justify-content:space-between;font-size:var(--t-xs);color:var(--muted)}.mkbar b{font-family:var(--f-mono);font-size:var(--t-sm);color:var(--ink)}.mkbar button{min-height:48px}}
 #b2market label.mkpick{flex-direction:row;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:var(--t-sm);font-weight:400;color:var(--ink);min-height:var(--tap)}
 #b2market .mkpick input[type=checkbox]{width:24px;height:24px;margin:0;flex:0 0 auto}
 #b2market a{color:var(--brand);font-weight:600}
+#b2market .mksel{display:flex;align-items:center;min-width:24px;margin:0}#b2market .mksel input{width:24px;height:24px;margin:0}
+.mkline.off{opacity:.65}.mkown{color:var(--muted);font-size:var(--t-xs)}.mkover{color:var(--bad)}
+.mktabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}.mktabs button{min-height:var(--tap);padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;cursor:pointer}.mktabs button[aria-selected="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.mkitems{margin:4px 0 0;padding-left:16px;font-size:var(--t-sm);color:var(--muted)}
