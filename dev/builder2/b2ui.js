@@ -1039,6 +1039,7 @@ function setB2(k,v){const t={value:v};
   try{ if(localStorage.getItem('sr2-builder-session')==='1'&&!ST.tab) B.tab='night'; }catch(e){}
   setTab(B.tab);
 }
-window.SR2B2={B,attacks,nightHTML,afterHTML,setTab,hitParse,hitCodeOf}; window.SR2CT={CTBOOK,ctStats,ctGuess,skillDiceNow}; window.chipHaveMap=chipHaveMap; // the Skill Web (swHave) counts slotted chips
+// VDM/VDMT go out for the item panel, which shows a vehicle's damage
+window.SR2B2={B,attacks,nightHTML,afterHTML,setTab,hitParse,hitCodeOf,VDM,VDMT}; window.SR2CT={CTBOOK,ctStats,ctGuess,skillDiceNow}; window.chipHaveMap=chipHaveMap; // the Skill Web (swHave) counts slotted chips
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mount); else mount();
 })();

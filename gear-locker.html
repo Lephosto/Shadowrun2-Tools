@@ -535,7 +535,7 @@ return {P,LIST,get,now,apply,init,restorePrev};
 // tools on the site carry ?v=CODE so browsers fetch a fresh copy, and on the site the page checks version.txt and offers
 // a refresh when a newer build is out. Saved characters live in browser storage for the whole site, so a refresh keeps them.
 const SRHEAD=(()=>{
-const BUILD='129c50f'; const built=/^[0-9a-f]{7}$/.test(BUILD);
+const BUILD='0c05fd8'; const built=/^[0-9a-f]{7}$/.test(BUILD);
 const SITE={builder:'builder.html',locker:'gear-locker.html',gm:'gm-screen.html'};
 const FILE={builder:'SR2_Runner_Builder.html',locker:'SR2_Gear_Locker.html',gm:'SR2_GM_Screen.html'};
 function hrefs(){const f=(location.pathname.split('/').pop()||'').toLowerCase();

@@ -42,3 +42,15 @@ body.b2gear .ipdeckhome:not([hidden]){display:block}
    rather than shrink under the 24px touch size (framework rule) */
 div:has(>.track){container-type:inline-size}
 @container (max-width:17.5rem){.track{grid-template-columns:repeat(5,minmax(0,1fr))}}
+/* Stage 2: vehicles and drones. A stat that a build-out changed is tinted, one the books don't list is flagged */
+.iptiles>div.chg b{color:var(--brand)}
+.iptiles>div.bad b{color:var(--bad,var(--warn))}
+.iprows>.b2k{margin-top:12px}.iprows>.b2k:first-child{margin-top:0}
+.iprow .iplink{font-weight:600}
+.ipvb{margin:0;padding:0;border:0;background:transparent}
+.ipvs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ipvs label,.ipkept,.ipnote{display:flex;flex-direction:column;gap:4px;font-size:var(--t-xs);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ipvs input,.ipkept select,.ipnote input{min-height:var(--tap,24px);font:inherit;font-size:var(--t-sm);font-weight:400;letter-spacing:normal;text-transform:none;color:var(--ink)}
+#ipFoot{padding-top:12px;border-top:1px solid var(--line)}
+.iplock{margin:0}
+@media (max-width:40em){.ipvs{grid-template-columns:repeat(2,minmax(0,1fr))}.ipvs input,.ipkept select,.ipnote input{min-height:44px}}

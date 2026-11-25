@@ -214,7 +214,7 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
 [hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 #vehBuild h3{margin:16px 0 4px}.vbuild{border:1px solid var(--line);border-radius:var(--radius);padding:8px 12px;margin:8px 0;background:var(--paper)}.vbuild>summary{font-size:var(--t-sm)}
-.vbar{margin:4px 0}.vb-l{display:flex;justify-content:space-between;font-size:var(--t-sm)}.vb-l b{font-family:var(--mono,monospace);font-weight:600}.vb-t{height:6px;border-radius:4px;background:var(--soft);overflow:hidden;margin-top:4px}.vb-t i{display:block;height:100%;background:var(--accent)}
+.vbar{margin:4px 0}.vb-l{display:flex;justify-content:space-between;font-size:var(--t-sm)}.vb-l b{font-family:var(--f-mono,var(--mono,monospace));font-weight:600}.vb-t{height:6px;border-radius:4px;background:var(--soft);overflow:hidden;margin-top:4px}.vb-t i{display:block;height:100%;background:var(--accent)}
 .vtiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:4px;margin:8px 0}.vt{border:1px solid var(--line);border-radius:var(--radius);padding:8px 8px}.vt span{display:block;font-size:var(--t-xs);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}.vt b{font-size:var(--t-md)}.vt em{display:block;font-style:normal;font-size:var(--t-xs);color:var(--muted)}.vt.chg{border-color:var(--accent)}.vt.chg b{color:var(--accent)}
 .ulist,.plist,.vno{list-style:none;margin:4px 0 8px;padding:0;display:grid;gap:8px}.ucard{border:1px solid var(--line);border-radius:var(--radius);padding:8px 12px}
 .uc-h{display:flex;align-items:baseline;gap:8px}.uc-h .pg{flex:1}.vbx{border:0;background:none;color:var(--muted);font-size:var(--t-md);cursor:pointer;padding:0 4px}
@@ -454,7 +454,7 @@ small{font-size:var(--t-xs)} /* the browser's own 'smaller' lands between the si
       <section class="card ses" id="rigCard" data-step="gear" data-jump="Rigging" hidden>
         <h2>Rigging <span class="pg" id="rigPg">p. 85, 104, 264</span></h2>
         <div id="rigStats"></div>
-        <p class="note">Vehicle stats from the book: core p. 264–265 (cruise/max speed), FoF p. 62–69, or the Rigger 2 list p. 148–166 (one Speed number; Pilot shows Autonav when a vehicle has no Pilot). A red box means that stat isn’t listed here; fill it in from the book.</p>
+        <p class="note">Vehicle stats from the book: core p. 264–265 (cruise/max speed), FoF p. 62–69, or the Rigger 2 list p. 148–166 (one Speed number; Pilot shows Autonav when a vehicle has no Pilot). A stat in red isn’t listed here; fill it in from the book.</p>
         <div class="tbl"><table><thead><tr><th>Vehicle</th><th>Hand.</th><th>Speed</th><th>Body</th><th>Armor</th><th>Sig.</th><th>Pilot</th></tr></thead><tbody id="vehBody"></tbody></table></div>
         <div id="vehBuild"></div>
       </section>
@@ -1345,7 +1345,8 @@ function fitSlots(key){const A=typeof GB!=='undefined'&&GB.ACC&&GB.ACC[key]; if(
     const sl=GB.gunSlots(o).find(x=>A.slot.includes(x)&&!ints.includes(x)&&!(w.build&&w.build[x])); if(sl) out.push({j,slot:sl,label:GEARDB[w.key].n+' · '+sl});}); return out;}
 // weapon mounts on a vehicle: each fixed mount, pintle, ring or missile mount holds one weapon; a turret holds weapons up to its
 // Weapon Value (R2 p. 131-135), so a vehicle with a turret isn't counted. n is null when the vehicle has no Rigger 2 build data.
-function vehMounts(name){const g=S.gear.find(x=>isVehG(x)&&!x.at&&vehName(x)===name); if(!g) return null; const used=S.gear.filter(w=>w.at===name&&(WSTAT[w.key]&&WSTAT[w.key][0]!=='grenade'||(w.key||'').startsWith('vweap:'))).length;
+// a vehicle's weapon mounts; a drone parked in the van (g.at set) still has its mounts
+function vehMounts(name){const g=S.gear.find(x=>isVehG(x)&&!x.at&&vehName(x)===name)||S.gear.find(x=>isVehG(x)&&vehName(x)===name); if(!g) return null; const used=S.gear.filter(w=>w.at===name&&(WSTAT[w.key]&&WSTAT[w.key][0]!=='grenade'||(w.key||'').startsWith('vweap:'))).length;
   if(!(typeof R2OBJ!=='undefined'&&R2OBJ[g.key])||typeof VB==='undefined') return {n:null,used,tur:false};
   try{const v=vbFixG(g); if(!v) return {n:null,used,tur:false}; const c=VB.ctxOf(v,g.vb); let n=0, tur=false; ['mis_ext','mis_int','fx_eh','fx_ef','fx_ih','fx_if','pintle','ring','tur_mini','tur_small','tur_med','rt_micro','rt_mini','rt_small','rt_med'].forEach(k=>{const l=+c.lv(k)||0; if(/^(tur_|rt_)/.test(k)){if(l) tur=true;} else n+=l;}); return {n,used,tur};}catch(e){return {n:null,used,tur:false};}}
 // a gun or vehicle weapon can sit on a drone or vehicle: Game night then fires it with Gunnery through the rig (R2 p. 58). Same as Stash › To the vehicle.
@@ -1927,13 +1928,15 @@ function renderExtras(){
     const baseR=Math.floor((attrNow('quick')+attrNow('int'))/2); const R2on=booksOn().r2; $('rigPg').textContent=R2on?'p. 85, 264 · R2 p. 16–18, 148':'p. 85, 104, 264'; const trig=gearLevel('body:VCR Reflex Trigger')||S.gear.some(g=>g.key==='body:VCR Reflex Trigger');
     $('rigStats').innerHTML=(vcr?[['Vehicle Control Rig',`Level ${vcr}${trig?' with reflex trigger':''}`],['Control Pool',`${baseR+2*vcr} <span class="pg">${R2on?'R2 p. 16':'p. 85'}</span>`],['Rigged Reaction / Initiative',`${baseR+2*vcr} + ${1+vcr}D6`]]:[['Control Pool','Needs a Vehicle Control Rig (p. 85)']]).concat(rcs.map(g=>[HB.kind(g.key)==='crd'?'Remote control deck (cranial)':'Remote control deck',esc(g.name||'')])).map(([k,v])=>`<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')
       +(R2on&&vehs.length?`<p class="note">Monthly overhead (R2 p. 18): 1% of each vehicle’s cost value, rounded up, plus 10¥ per Stress Point that month. ${vehs.map(([g])=>`${esc(GEARDB[g.key].n)}: ${fmt(Math.ceil((+g.cost||0)/100))}¥`).join(' · ')}.</p>`:'');
+    // with the item panel (Builder 2, window.SR2IP) each vehicle's name opens it, and its stat boxes and build-out live there
+    const IPON=!!window.SR2IP, vnm=(g,i)=>IPON?`<button type="button" class="iplink" data-ipopen="${i}">${esc(vehName(g))}</button>`:`<b>${esc(GEARDB[g.key].n)}</b>`;
     $('vehBody').innerHTML=vehs.map(([g,i])=>{const d=VSTAT[g.key],o=g.vs||{};
       // a Rigger 2 vehicle with a build-out shows the built stats (the build-out below sets them), with the book figure beside any that changed
       if(R2OBJ[g.key]&&g.vb&&g.vb.mods&&g.vb.mods.length){const v=vbFixG(g),r=VB.calc(v,g.vb),M={}; VB.statLine(v,r.s).forEach(([k,a,b])=>M[k]=[a,b]);
         const cell=(k,pre='')=>{const x=M[k]; if(!x) return '<td>—</td>'; const ch=String(x[0])!==String(x[1]); return `<td><b${ch?' class="chg"':''}>${pre}${esc(String(x[1]))}</b>${ch?`<div class="note">was ${esc(String(x[0]))}</div>`:''}</td>`;};
-        return `<tr><td><b>${esc(GEARDB[g.key].n)}</b>${(+g.qty||1)>1?` <span class="note">×${g.qty}</span>`:''}<div class="note">with ${r.rows.length} mod${r.rows.length>1?'s':''} (see its build-out)</div></td>${cell('Handling')}${cell('Speed')}<td><b>${v.B}</b></td>${cell('Armor')}${cell('Signature')}${M.Pilot&&M.Pilot[1]!=='—'?cell('Pilot'):cell('Autonav','Auto ')}</tr>`;}
-      return `<tr><td><b>${esc(GEARDB[g.key].n)}</b>${(+g.qty||1)>1?` <span class="note">×${g.qty}</span>`:''}</td>${['Handling','Speed','Body','Armor','Signature','Pilot'].map((l,j)=>{const v=o[j]!==undefined&&o[j]!==''?o[j]:(d[j]??'');return `<td><input data-vs="${i}" data-j="${j}" value="${esc(v)}" aria-label="${l}" placeholder="?" style="width:${j===1||j===5?76:44}px" class="${d[j]==null&&(o[j]===undefined||o[j]==='')?'bad-text':''}"></td>`;}).join('')}</tr>`;}).join('')||`<tr><td colspan="7" class="note">No vehicles yet.</td></tr>`;
-    {const L=vehs.filter(([g])=>R2OBJ[g.key]); $('vehBuild').innerHTML=L.length?`<h3>Build-outs <span class="pg">R2 p. 118–146</span></h3>`+L.map(([g,i])=>vbEditor(g,i)).join(''):(vehs.length?'<p class="note">Build-outs use the Rigger 2 list (it has cargo space and load). Add the Rigger 2 version of a vehicle from Gear to customize it.</p>':'');}
+        return `<tr><td>${vnm(g,i)}${(+g.qty||1)>1?` <span class="note">×${g.qty}</span>`:''}<div class="note">with ${r.rows.length} mod${r.rows.length>1?'s':''}${IPON?'':' (see its build-out)'}</div></td>${cell('Handling')}${cell('Speed')}<td><b>${v.B}</b></td>${cell('Armor')}${cell('Signature')}${M.Pilot&&M.Pilot[1]!=='—'?cell('Pilot'):cell('Autonav','Auto ')}</tr>`;}
+      return `<tr><td>${vnm(g,i)}${(+g.qty||1)>1?` <span class="note">×${g.qty}</span>`:''}</td>${['Handling','Speed','Body','Armor','Signature','Pilot'].map((l,j)=>{const v=o[j]!==undefined&&o[j]!==''?o[j]:(d[j]??'');if(IPON) return `<td>${v===''||v==null?'<span class="bad-text" title="Not listed: open the vehicle and fill it in under Build">?</span>':esc(String(v))}</td>`;return `<td><input data-vs="${i}" data-j="${j}" value="${esc(v)}" aria-label="${l}" placeholder="?" style="width:${j===1||j===5?76:44}px" class="${d[j]==null&&(o[j]===undefined||o[j]==='')?'bad-text':''}"></td>`;}).join('')}</tr>`;}).join('')||`<tr><td colspan="7" class="note">No vehicles yet.</td></tr>`;
+    {const L=vehs.filter(([g])=>R2OBJ[g.key]); $('vehBuild').innerHTML=IPON?(L.length?'<p class="note">Open a vehicle or drone by its name for its build-out (R2 p. 118–146), its stats and where it is kept.</p>':vehs.length?'<p class="note">Open a vehicle by its name to fill in its stats. Build-outs use the Rigger 2 list (it has cargo space and load): add the Rigger 2 version from Gear to customize it.</p>':''):L.length?`<h3>Build-outs <span class="pg">R2 p. 118–146</span></h3>`+L.map(([g,i])=>vbEditor(g,i)).join(''):(vehs.length?'<p class="note">Build-outs use the Rigger 2 list (it has cargo space and load). Add the Rigger 2 version of a vehicle from Gear to customize it.</p>':'');}
   }
   // skillsofts
   const softs=S.gear.map((g,i)=>[g,i]).filter(([g])=>g.key&&GEARDB[g.key]&&GEARDB[g.key].soft);
@@ -3912,7 +3915,7 @@ function payCheck(){
       S.nuyenNow=(+S.nuyenNow||0)-net; S.nyLog=S.nyLog||[]; S.nyLog.push({d:ds,amt:-net,note:(parts.length?'Bought '+parts.join(', '):'Gear changes')+' (list price)'});
       PAYMSG=`Paid ${fmt(net)}¥ from nuyen on hand: ${parts.join(', ')||'gear changes'}${(+S.nuyenNow)<0?'. That’s more than you had':''}.`;}}
   PAYARM=false; snap._S=S; PAYSNAP=snap;}
-['input','change','click'].forEach(ev=>document.addEventListener(ev,e=>{const t=e.target; if(!t||!t.closest) return; if(t.closest('#sec-gear,#deckCard,#rigCard,#softCard,#sec-weap')&&!(t.dataset&&(t.dataset.f==='note'||t.dataset.note!==undefined))&&!t.closest('[id^="xfer"]')) PAYARM=true;},true));
+['input','change','click'].forEach(ev=>document.addEventListener(ev,e=>{const t=e.target; if(!t||!t.closest) return; if(t.closest('#sec-gear,#deckCard,#rigCard,#softCard,#sec-weap,#b2item')&&!(t.dataset&&(t.dataset.f==='note'||t.dataset.note!==undefined))&&!t.closest('[id^="xfer"]')) PAYARM=true;},true));
 let GCATKEYS='';
 fillGearCats();
 $('gAdd').onclick=()=>{const k=$('gItem').value,it=GEARDB[k]; if(!it) return;

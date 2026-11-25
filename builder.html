@@ -211,7 +211,7 @@ body.session #sec-skills>*:not(h2):not(.quick),body.session #magicCard>*:not(h2)
 [hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 #vehBuild h3{margin:16px 0 4px}.vbuild{border:1px solid var(--line);border-radius:var(--radius);padding:8px 12px;margin:8px 0;background:var(--paper)}.vbuild>summary{font-size:var(--t-sm)}
-.vbar{margin:4px 0}.vb-l{display:flex;justify-content:space-between;font-size:var(--t-sm)}.vb-l b{font-family:var(--mono,monospace);font-weight:600}.vb-t{height:6px;border-radius:4px;background:var(--soft);overflow:hidden;margin-top:4px}.vb-t i{display:block;height:100%;background:var(--accent)}
+.vbar{margin:4px 0}.vb-l{display:flex;justify-content:space-between;font-size:var(--t-sm)}.vb-l b{font-family:var(--f-mono,var(--mono,monospace));font-weight:600}.vb-t{height:6px;border-radius:4px;background:var(--soft);overflow:hidden;margin-top:4px}.vb-t i{display:block;height:100%;background:var(--accent)}
 .vtiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:4px;margin:8px 0}.vt{border:1px solid var(--line);border-radius:var(--radius);padding:8px 8px}.vt span{display:block;font-size:var(--t-xs);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}.vt b{font-size:var(--t-md)}.vt em{display:block;font-style:normal;font-size:var(--t-xs);color:var(--muted)}.vt.chg{border-color:var(--accent)}.vt.chg b{color:var(--accent)}
 .ulist,.plist,.vno{list-style:none;margin:4px 0 8px;padding:0;display:grid;gap:8px}.ucard{border:1px solid var(--line);border-radius:var(--radius);padding:8px 12px}
 .uc-h{display:flex;align-items:baseline;gap:8px}.uc-h .pg{flex:1}.vbx{border:0;background:none;color:var(--muted);font-size:var(--t-md);cursor:pointer;padding:0 4px}
@@ -791,6 +791,18 @@ body.b2gear .ipdeckhome:not([hidden]){display:block}
    rather than shrink under the 24px touch size (framework rule) */
 div:has(>.track){container-type:inline-size}
 @container (max-width:17.5rem){.track{grid-template-columns:repeat(5,minmax(0,1fr))}}
+/* Stage 2: vehicles and drones. A stat that a build-out changed is tinted, one the books don't list is flagged */
+.iptiles>div.chg b{color:var(--brand)}
+.iptiles>div.bad b{color:var(--bad,var(--warn))}
+.iprows>.b2k{margin-top:12px}.iprows>.b2k:first-child{margin-top:0}
+.iprow .iplink{font-weight:600}
+.ipvb{margin:0;padding:0;border:0;background:transparent}
+.ipvs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ipvs label,.ipkept,.ipnote{display:flex;flex-direction:column;gap:4px;font-size:var(--t-xs);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ipvs input,.ipkept select,.ipnote input{min-height:var(--tap,24px);font:inherit;font-size:var(--t-sm);font-weight:400;letter-spacing:normal;text-transform:none;color:var(--ink)}
+#ipFoot{padding-top:12px;border-top:1px solid var(--line)}
+.iplock{margin:0}
+@media (max-width:40em){.ipvs{grid-template-columns:repeat(2,minmax(0,1fr))}.ipvs input,.ipkept select,.ipnote input{min-height:44px}}
 
 /*@end:b2css*/
 </style></head><body>
@@ -939,7 +951,7 @@ div:has(>.track){container-type:inline-size}
       <section class="card ses" id="rigCard" data-step="gear" data-jump="Rigging" hidden="">
         <h2>Rigging <span class="pg" id="rigPg">p. 85, 104, 264</span></h2>
         <div id="rigStats"></div>
-        <p class="note">Vehicle stats from the book: core p. 264–265 (cruise/max speed), FoF p. 62–69, or the Rigger 2 list p. 148–166 (one Speed number; Pilot shows Autonav when a vehicle has no Pilot). A red box means that stat isn’t listed here; fill it in from the book.</p>
+        <p class="note">Vehicle stats from the book: core p. 264–265 (cruise/max speed), FoF p. 62–69, or the Rigger 2 list p. 148–166 (one Speed number; Pilot shows Autonav when a vehicle has no Pilot). A stat in red isn’t listed here; fill it in from the book.</p>
         <div class="tbl"><table><thead><tr><th>Vehicle</th><th>Hand.</th><th>Speed</th><th>Body</th><th>Armor</th><th>Sig.</th><th>Pilot</th></tr></thead><tbody id="vehBody"></tbody></table></div>
         <div id="vehBuild"></div>
       </section>
@@ -1046,7 +1058,7 @@ div:has(>.track){container-type:inline-size}
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1795553673271","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwv6ap7d","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795553673255}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1795642790948","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwwncsug","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795642790934}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--panel',panel2:'--panel-2',ink:'--ink',muted:'--muted',line:'--line',accent:'--brand',accentInk:'--brand-ink',accentSoft:'--brand-soft',price:'--action',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skillweb*/
@@ -1178,7 +1190,7 @@ return {P,LIST,get,now,apply,init,restorePrev};
 // tools on the site carry ?v=CODE so browsers fetch a fresh copy, and on the site the page checks version.txt and offers
 // a refresh when a newer build is out. Saved characters live in browser storage for the whole site, so a refresh keeps them.
 const SRHEAD=(()=>{
-const BUILD='129c50f'; const built=/^[0-9a-f]{7}$/.test(BUILD);
+const BUILD='0c05fd8'; const built=/^[0-9a-f]{7}$/.test(BUILD);
 const SITE={builder:'builder.html',locker:'gear-locker.html',gm:'gm-screen.html'};
 const FILE={builder:'SR2_Runner_Builder.html',locker:'SR2_Gear_Locker.html',gm:'SR2_GM_Screen.html'};
 function hrefs(){const f=(location.pathname.split('/').pop()||'').toLowerCase();
@@ -1830,7 +1842,8 @@ function fitSlots(key){const A=typeof GB!=='undefined'&&GB.ACC&&GB.ACC[key]; if(
     const sl=GB.gunSlots(o).find(x=>A.slot.includes(x)&&!ints.includes(x)&&!(w.build&&w.build[x])); if(sl) out.push({j,slot:sl,label:GEARDB[w.key].n+' · '+sl});}); return out;}
 // weapon mounts on a vehicle: each fixed mount, pintle, ring or missile mount holds one weapon; a turret holds weapons up to its
 // Weapon Value (R2 p. 131-135), so a vehicle with a turret isn't counted. n is null when the vehicle has no Rigger 2 build data.
-function vehMounts(name){const g=S.gear.find(x=>isVehG(x)&&!x.at&&vehName(x)===name); if(!g) return null; const used=S.gear.filter(w=>w.at===name&&(WSTAT[w.key]&&WSTAT[w.key][0]!=='grenade'||(w.key||'').startsWith('vweap:'))).length;
+// a vehicle's weapon mounts; a drone parked in the van (g.at set) still has its mounts
+function vehMounts(name){const g=S.gear.find(x=>isVehG(x)&&!x.at&&vehName(x)===name)||S.gear.find(x=>isVehG(x)&&vehName(x)===name); if(!g) return null; const used=S.gear.filter(w=>w.at===name&&(WSTAT[w.key]&&WSTAT[w.key][0]!=='grenade'||(w.key||'').startsWith('vweap:'))).length;
   if(!(typeof R2OBJ!=='undefined'&&R2OBJ[g.key])||typeof VB==='undefined') return {n:null,used,tur:false};
   try{const v=vbFixG(g); if(!v) return {n:null,used,tur:false}; const c=VB.ctxOf(v,g.vb); let n=0, tur=false; ['mis_ext','mis_int','fx_eh','fx_ef','fx_ih','fx_if','pintle','ring','tur_mini','tur_small','tur_med','rt_micro','rt_mini','rt_small','rt_med'].forEach(k=>{const l=+c.lv(k)||0; if(/^(tur_|rt_)/.test(k)){if(l) tur=true;} else n+=l;}); return {n,used,tur};}catch(e){return {n:null,used,tur:false};}}
 // a gun or vehicle weapon can sit on a drone or vehicle: Game night then fires it with Gunnery through the rig (R2 p. 58). Same as Stash › To the vehicle.
@@ -2412,13 +2425,15 @@ function renderExtras(){
     const baseR=Math.floor((attrNow('quick')+attrNow('int'))/2); const R2on=booksOn().r2; $('rigPg').textContent=R2on?'p. 85, 264 · R2 p. 16–18, 148':'p. 85, 104, 264'; const trig=gearLevel('body:VCR Reflex Trigger')||S.gear.some(g=>g.key==='body:VCR Reflex Trigger');
     $('rigStats').innerHTML=(vcr?[['Vehicle Control Rig',`Level ${vcr}${trig?' with reflex trigger':''}`],['Control Pool',`${baseR+2*vcr} <span class="pg">${R2on?'R2 p. 16':'p. 85'}</span>`],['Rigged Reaction / Initiative',`${baseR+2*vcr} + ${1+vcr}D6`]]:[['Control Pool','Needs a Vehicle Control Rig (p. 85)']]).concat(rcs.map(g=>[HB.kind(g.key)==='crd'?'Remote control deck (cranial)':'Remote control deck',esc(g.name||'')])).map(([k,v])=>`<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')
       +(R2on&&vehs.length?`<p class="note">Monthly overhead (R2 p. 18): 1% of each vehicle’s cost value, rounded up, plus 10¥ per Stress Point that month. ${vehs.map(([g])=>`${esc(GEARDB[g.key].n)}: ${fmt(Math.ceil((+g.cost||0)/100))}¥`).join(' · ')}.</p>`:'');
+    // with the item panel (Builder 2, window.SR2IP) each vehicle's name opens it, and its stat boxes and build-out live there
+    const IPON=!!window.SR2IP, vnm=(g,i)=>IPON?`<button type="button" class="iplink" data-ipopen="${i}">${esc(vehName(g))}</button>`:`<b>${esc(GEARDB[g.key].n)}</b>`;
     $('vehBody').innerHTML=vehs.map(([g,i])=>{const d=VSTAT[g.key],o=g.vs||{};
       // a Rigger 2 vehicle with a build-out shows the built stats (the build-out below sets them), with the book figure beside any that changed
       if(R2OBJ[g.key]&&g.vb&&g.vb.mods&&g.vb.mods.length){const v=vbFixG(g),r=VB.calc(v,g.vb),M={}; VB.statLine(v,r.s).forEach(([k,a,b])=>M[k]=[a,b]);
         const cell=(k,pre='')=>{const x=M[k]; if(!x) return '<td>—</td>'; const ch=String(x[0])!==String(x[1]); return `<td><b${ch?' class="chg"':''}>${pre}${esc(String(x[1]))}</b>${ch?`<div class="note">was ${esc(String(x[0]))}</div>`:''}</td>`;};
-        return `<tr><td><b>${esc(GEARDB[g.key].n)}</b>${(+g.qty||1)>1?` <span class="note">×${g.qty}</span>`:''}<div class="note">with ${r.rows.length} mod${r.rows.length>1?'s':''} (see its build-out)</div></td>${cell('Handling')}${cell('Speed')}<td><b>${v.B}</b></td>${cell('Armor')}${cell('Signature')}${M.Pilot&&M.Pilot[1]!=='—'?cell('Pilot'):cell('Autonav','Auto ')}</tr>`;}
-      return `<tr><td><b>${esc(GEARDB[g.key].n)}</b>${(+g.qty||1)>1?` <span class="note">×${g.qty}</span>`:''}</td>${['Handling','Speed','Body','Armor','Signature','Pilot'].map((l,j)=>{const v=o[j]!==undefined&&o[j]!==''?o[j]:(d[j]??'');return `<td><input data-vs="${i}" data-j="${j}" value="${esc(v)}" aria-label="${l}" placeholder="?" style="width:${j===1||j===5?76:44}px" class="${d[j]==null&&(o[j]===undefined||o[j]==='')?'bad-text':''}"></td>`;}).join('')}</tr>`;}).join('')||`<tr><td colspan="7" class="note">No vehicles yet.</td></tr>`;
-    {const L=vehs.filter(([g])=>R2OBJ[g.key]); $('vehBuild').innerHTML=L.length?`<h3>Build-outs <span class="pg">R2 p. 118–146</span></h3>`+L.map(([g,i])=>vbEditor(g,i)).join(''):(vehs.length?'<p class="note">Build-outs use the Rigger 2 list (it has cargo space and load). Add the Rigger 2 version of a vehicle from Gear to customize it.</p>':'');}
+        return `<tr><td>${vnm(g,i)}${(+g.qty||1)>1?` <span class="note">×${g.qty}</span>`:''}<div class="note">with ${r.rows.length} mod${r.rows.length>1?'s':''}${IPON?'':' (see its build-out)'}</div></td>${cell('Handling')}${cell('Speed')}<td><b>${v.B}</b></td>${cell('Armor')}${cell('Signature')}${M.Pilot&&M.Pilot[1]!=='—'?cell('Pilot'):cell('Autonav','Auto ')}</tr>`;}
+      return `<tr><td>${vnm(g,i)}${(+g.qty||1)>1?` <span class="note">×${g.qty}</span>`:''}</td>${['Handling','Speed','Body','Armor','Signature','Pilot'].map((l,j)=>{const v=o[j]!==undefined&&o[j]!==''?o[j]:(d[j]??'');if(IPON) return `<td>${v===''||v==null?'<span class="bad-text" title="Not listed: open the vehicle and fill it in under Build">?</span>':esc(String(v))}</td>`;return `<td><input data-vs="${i}" data-j="${j}" value="${esc(v)}" aria-label="${l}" placeholder="?" style="width:${j===1||j===5?76:44}px" class="${d[j]==null&&(o[j]===undefined||o[j]==='')?'bad-text':''}"></td>`;}).join('')}</tr>`;}).join('')||`<tr><td colspan="7" class="note">No vehicles yet.</td></tr>`;
+    {const L=vehs.filter(([g])=>R2OBJ[g.key]); $('vehBuild').innerHTML=IPON?(L.length?'<p class="note">Open a vehicle or drone by its name for its build-out (R2 p. 118–146), its stats and where it is kept.</p>':vehs.length?'<p class="note">Open a vehicle by its name to fill in its stats. Build-outs use the Rigger 2 list (it has cargo space and load): add the Rigger 2 version from Gear to customize it.</p>':''):L.length?`<h3>Build-outs <span class="pg">R2 p. 118–146</span></h3>`+L.map(([g,i])=>vbEditor(g,i)).join(''):(vehs.length?'<p class="note">Build-outs use the Rigger 2 list (it has cargo space and load). Add the Rigger 2 version of a vehicle from Gear to customize it.</p>':'');}
   }
   // skillsofts
   const softs=S.gear.map((g,i)=>[g,i]).filter(([g])=>g.key&&GEARDB[g.key]&&GEARDB[g.key].soft);
@@ -4397,7 +4412,7 @@ function payCheck(){
       S.nuyenNow=(+S.nuyenNow||0)-net; S.nyLog=S.nyLog||[]; S.nyLog.push({d:ds,amt:-net,note:(parts.length?'Bought '+parts.join(', '):'Gear changes')+' (list price)'});
       PAYMSG=`Paid ${fmt(net)}¥ from nuyen on hand: ${parts.join(', ')||'gear changes'}${(+S.nuyenNow)<0?'. That’s more than you had':''}.`;}}
   PAYARM=false; snap._S=S; PAYSNAP=snap;}
-['input','change','click'].forEach(ev=>document.addEventListener(ev,e=>{const t=e.target; if(!t||!t.closest) return; if(t.closest('#sec-gear,#deckCard,#rigCard,#softCard,#sec-weap')&&!(t.dataset&&(t.dataset.f==='note'||t.dataset.note!==undefined))&&!t.closest('[id^="xfer"]')) PAYARM=true;},true));
+['input','change','click'].forEach(ev=>document.addEventListener(ev,e=>{const t=e.target; if(!t||!t.closest) return; if(t.closest('#sec-gear,#deckCard,#rigCard,#softCard,#sec-weap,#b2item')&&!(t.dataset&&(t.dataset.f==='note'||t.dataset.note!==undefined))&&!t.closest('[id^="xfer"]')) PAYARM=true;},true));
 let GCATKEYS='';
 fillGearCats();
 $('gAdd').onclick=()=>{const k=$('gItem').value,it=GEARDB[k]; if(!it) return;
@@ -5827,7 +5842,8 @@ function setB2(k,v){const t={value:v};
   try{ if(localStorage.getItem('sr2-builder-session')==='1'&&!ST.tab) B.tab='night'; }catch(e){}
   setTab(B.tab);
 }
-window.SR2B2={B,attacks,nightHTML,afterHTML,setTab,hitParse,hitCodeOf}; window.SR2CT={CTBOOK,ctStats,ctGuess,skillDiceNow}; window.chipHaveMap=chipHaveMap; // the Skill Web (swHave) counts slotted chips
+// VDM/VDMT go out for the item panel, which shows a vehicle's damage
+window.SR2B2={B,attacks,nightHTML,afterHTML,setTab,hitParse,hitCodeOf,VDM,VDMT}; window.SR2CT={CTBOOK,ctStats,ctGuess,skillDiceNow}; window.chipHaveMap=chipHaveMap; // the Skill Web (swHave) counts slotted chips
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mount); else mount();
 })();
 
@@ -6338,101 +6354,192 @@ function draw(){const R=document.getElementById('b2market'); const tb=document.q
 window.SR2MK={draw,fromSend,addItems,priceAll,avRec,CTTRADE,mk};
 })();
 
-// ---------- Item panel, stage 1: decks (one home for each item; player-approved 2026-11-24, design board row 11) ----------
+// ---------- Item panel (one home for each item; player-approved 2026-11-24, design board row 11) ----------
 // A gear item opens one panel: docked on the right on laptops, a tall sheet on phones. Three sections in a fixed order: As
-// built (read-only), In play (what changes during a run) and Build (what changes between runs). Stage 1 covers cyberdecks
-// and their programs. The deck's existing card moves into Build while it shows, so its rules code and controls (data-pgck,
+// built (read-only), In play (what changes during a run) and Build (what changes between runs). Things inside an item (a
+// deck's programs, a vehicle's mounted weapons) open in the same panel with a way back.
+// Stage 1: cyberdecks. The deck's existing card moves into Build while it shows, so its rules code and controls (data-pgck,
 // data-pgr, data-pgld, the VR2 deck build, the deck picker) are unchanged; In play's Loaded ticks use the same controls.
+// Stage 2: vehicles and drones. Build holds the Rigging build-out (vbEditor, drawn here instead of under Rigging), the stat
+// boxes for vehicles without Rigger 2 data, and where the vehicle is kept; the Rigging card keeps the rig's numbers and a
+// summary table whose names open the panel. All controls are the page's own (data-vbck/vblv/vbop/vbf, data-vs, data-mnt),
+// handled by its document-level listeners, so only one copy of each may exist: the page no longer draws the build-outs.
+// Both: the Gear row's note and Gear Locker link come along, since the item's name opens the panel instead of the row fold.
 // A click outside the panel, Escape or Close shuts it (popover rule 5 applies to panels too, by the player's call).
 (function(){
-const IP={open:false,gi:-1,sec:'built',child:null,from:null};
+const IP={open:false,g:null,gi:-1,sec:'built',child:null,cg:null,from:null};
 const SECN={built:'As built',play:'In play',build:'Build'};
 const $i=id=>document.getElementById(id);
-const lap=()=>window.matchMedia('(min-width:40.0625em)').matches;
 const isDeckLine=g=>!!(g&&g.key&&(/^deck:Custom cyberdeck/.test(g.key)||(GEARDB[g.key]&&GEARDB[g.key].mpcp)));
+const isVehLine=g=>!!(g&&g.key&&GEARDB[g.key]&&typeof VSTAT!=='undefined'&&VSTAT[g.key]&&isVehG(g));
+const isWeap=g=>!!(g&&g.key&&GEARDB[g.key]&&(WSTAT[g.key]&&WSTAT[g.key][0]!=='grenade'||g.key.startsWith('vweap:')));
+const kindOf=g=>isDeckLine(g)?'deck':isVehLine(g)?'veh':null;
 const pgc=p=>p?(/^p\./.test(p)?'core '+p:p):'';
+const cost=g=>(+g.cost||0)*(+g.qty||1);
+const tilesHTML=T=>`<div class="iptiles">${T.map(([k,v,s,cls])=>`<div${cls?` class="${cls}"`:''}><span class="b2k">${esc(k)}</span><b>${esc(String(v))}</b>${s?`<small>${esc(s)}</small>`:''}</div>`).join('')}</div>`;
 function deckGi(){const a=typeof activeDeck==='function'?activeDeck():null; const cu=S.gear.findIndex(g=>/^deck:Custom cyberdeck/.test(g.key||'')); if(cu>=0) return cu; return a?S.gear.indexOf(a):S.gear.findIndex(isDeckLine);}
 function memBar(used,of,lab){const pct=of&&isFinite(of)?Math.min(100,Math.round(used/of*100)):0;
   return `<div class="ipmem"><div class="ipmemh"><span>${esc(lab)}</span><b>${fmt(used)} of ${fmt(of)} Mp</b></div><div class="ipbar" role="img" aria-label="${esc(lab)}: ${fmt(used)} of ${fmt(of)} Mp"><i style="width:${pct}%"></i></div></div>`;}
 function row(k,s,v,cls){return `<div class="iprow${cls?' '+cls:''}"><span>${k}${s?` <small>${esc(s)}</small>`:''}</span><b>${v}</b></div>`;}
+const head2=t=>`<span class="b2k">${esc(t)}</span>`;
+// the Gear row's own extras: its Gear Locker link (As built) and its note (Build). The note box uses the row's data-gr, so it saves
+// the same g.note; its id differs from the row's (g_note_N) so the page keeps one element per id.
+function lockerHTML(g){const l=typeof lockerLink==='function'?lockerLink(g.key):''; return l?`<p class="note iplock">${l.trim()}</p>`:'';}
+function noteHTML(gi){const g=S.gear[gi]; return `<label class="ipnote">Note <input id="ip_note_${gi}" data-gr="${gi}" data-f="note" value="${esc(g.note||'')}" placeholder="Anything to remember about it" aria-label="Note for this item"></label>`;}
+
+// ---------- decks ----------
 function progName(g){const it=GEARDB[g.key]; return esc((it?it.n:g.n||'Program')+(g.r?' '+g.r:''));}
-function builtHTML(dk){const vr=!!dk.vr2, tiles=[['MPCP',dk.mpcp],['Hardening',dk.h],['Active memory',fmt(dk.am)+' Mp',fmt(dk.used)+' loaded'],['Storage',fmt(dk.sm)+' Mp',fmt(dk.stored)+' used'],['Load',dk.ls!=null?dk.ls+' Mp/turn':'—'],['I/O',dk.io+' Mp/turn']];
+function deckBuilt(dk,g){const vr=!!dk.vr2, tiles=[['MPCP',dk.mpcp],['Hardening',dk.h],['Active memory',fmt(dk.am)+' Mp',fmt(dk.used)+' loaded'],['Storage',fmt(dk.sm)+' Mp',fmt(dk.stored)+' used'],['Load',dk.ls!=null?dk.ls+' Mp/turn':'—'],['I/O',dk.io+' Mp/turn']];
   if(dk.ri) tiles.push(['Response Increase',dk.ri]);
   const mx=typeof matrixInfo==='function'?matrixInfo():null, modes=mx&&typeof mxIniModes==='function'?mxIniModes(mx):[], per=dk.persona||{}, pv=['Bod','Evasion','Masking','Sensors'].map(n=>n+' '+(+per[n]||0)).join(' · ');
-  return `<div class="iptiles">${tiles.map(([k,v,s])=>`<div><span class="b2k">${esc(k)}</span><b>${esc(String(v))}</b>${s?`<small>${esc(s)}</small>`:''}</div>`).join('')}</div>
+  return `${tilesHTML(tiles)}
    <div class="iprows">${mx?row('Hacking Pool',(mx.poolHow?mx.poolHow+' · ':'')+(vr?'VR2 p. 18':'core p. 85'),esc(String(mx.pool))):''}
    ${modes.filter(m=>m.id!=='tort').map(m=>row('Matrix Initiative',(m.sh||m.l)+' · core p. 178',esc(`${m.r} + ${m.d}D6`))).join('')}
-   ${row('Persona',vr?'VR2 p. 16–18':'persona chips · core p. 174',Object.values(per).some(v=>+v)?esc(pv):'<span class="b2warn">none yet</span>')}</div>`;}
-function playHTML(dk){const L=dk.utils.slice().sort((a,b)=>(GEARDB[a.g.key].n||'').localeCompare(GEARDB[b.g.key].n||''));
+   ${row('Persona',vr?'VR2 p. 16–18':'persona chips · core p. 174',Object.values(per).some(v=>+v)?esc(pv):'<span class="b2warn">none yet</span>')}</div>${lockerHTML(g)}`;}
+function deckPlay(dk){const L=dk.utils.slice().sort((a,b)=>(GEARDB[a.g.key].n||'').localeCompare(GEARDB[b.g.key].n||''));
   const list=L.map(u=>{const fits=u.g.loaded||dk.used+u.size<=dk.am, why=u.g.loaded?'loaded':fits?'on the deck':`needs ${fmt(dk.used+u.size-dk.am)} Mp more free`;
     return `<div class="ipprog"><input type="checkbox" data-pgld="D" data-pgid="${esc(u.g.key)}" aria-label="Load ${progName(u.g)}"${u.g.loaded?' checked':''}${fits?'':' disabled'}><button type="button" class="iplink" data-ipchild="${u.i}">${progName(u.g)}</button><small class="${fits?'':'b2warn'}">${esc(why)}</small><b>${fmt(u.size)} Mp</b></div>`;}).join('');
   return `${memBar(dk.used,dk.am,'Active memory')}
-   <div class="ipsec"><span class="b2k">Programs on the deck · tick what you load for the run</span>${list||'<p class="note">No programs on this deck yet. Add them under Build.</p>'}</div>
+   <div class="ipsec">${head2('Programs on the deck · tick what you load for the run')}${list||'<p class="note">No programs on this deck yet. Add them under Build.</p>'}</div>
    ${(dk.loose||[]).length?`<p class="note">Typed in by hand: ${dk.loose.map(g=>esc(g.n||'program')).join(', ')} (not counted in memory).</p>`:''}
    <p class="note">Ticks take effect at once, and the Attack menu flags a program that isn't loaded. Storage on the deck: ${fmt(dk.stored)} of ${fmt(dk.sm)} Mp.</p>`;}
-function childHTML(dk,i){const g=S.gear[i], it=g&&GEARDB[g.key]; if(!it) return '<p class="note">That program is no longer on the sheet.</p>';
+function deckChild(dk,i){const g=S.gear[i], it=g&&GEARDB[g.key]; if(!it) return '<p class="note">That program is no longer on the sheet.</p>';
   const u=dk.utils.find(x=>x.i===i), size=u?u.size:0, fits=g.loaded||dk.used+size<=dk.am, d=DESC[g.key]?DESC[g.key][0]:'';
-  return `${d?`<p>${esc(d)}</p>`:''}<div class="iptiles"><div><span class="b2k">Rating</span><b>${esc(String(g.r||1))}</b></div><div><span class="b2k">Size</span><b>${fmt(size)} Mp</b></div><div><span class="b2k">Price</span><b>${fmt((+g.cost||0)*(+g.qty||1))}¥</b></div></div>
+  return `${d?`<p>${esc(d)}</p>`:''}${tilesHTML([['Rating',g.r||1],['Size',fmt(size)+' Mp'],['Price',fmt(cost(g))+'¥']])}
    <label class="ipload"><input type="checkbox" data-pgld="D" data-pgid="${esc(g.key)}"${g.loaded?' checked':''}${fits?'':' disabled'}> Loaded for this run <small class="${fits?'':'b2warn'}">${esc(g.loaded?'in active memory':fits?fmt(dk.am-dk.used)+' Mp free':`needs ${fmt(dk.used+size-dk.am)} Mp more free`)}</small></label>
    <p class="note">Change its rating under Build. ${esc(pgc(it.pg))}</p>`;}
 // the deck card lives in the page (hidden) unless the panel's Build section shows it
 function cardHome(){const c=$i('deckCard'), h=$i('ipDeckHome'); if(c&&h&&c.parentElement!==h.parentElement){h.parentElement.insertBefore(c,h.nextSibling);}}
 function cardIn(){const c=$i('deckCard'), host=$i('ipHost'); if(c&&host&&c.parentElement!==host){host.appendChild(c); c.hidden=false;}}
-function draw(){const P=$i('b2item'), dk=typeof deckInfo==='function'?deckInfo():null, g=S.gear[IP.gi];
-  if(!IP.open||!P) return; if(!dk||!isDeckLine(g)){close(); return;}
-  const it=GEARDB[g.key], ch=IP.child!=null&&S.gear[IP.child]?IP.child:null; if(ch==null) IP.child=null;
-  const name=dk.name, price=S.gear.filter(x=>(x.key&&/^(deck|prog2?):/.test(x.key))||(!x.key&&(x.cat==='deck'||x.cat==='prog'))).reduce((a,x)=>a+(+x.cost||0)*(+x.qty||1),0);
+
+// ---------- vehicles and drones ----------
+const STATN=['Handling','Speed','Body','Armor','Signature','Pilot'];
+function vehInfo(gi){const g=S.gear[gi], it=GEARDB[g.key], name=vehName(g), r2=typeof R2OBJ!=='undefined'&&!!R2OBJ[g.key];
+  let v=null, R=null, tiles;
+  if(r2){v=vbFixG(g); R=v?VB.calc(v,g.vb):null;}
+  if(v&&R){tiles=VB.statLine(v,R.s).map(([k,a,b])=>[k,b,String(a)!==String(b)?'was '+a:'',String(a)!==String(b)?'chg':'']);
+    // the stat line leaves out Body (Rigging shows it in its own column) and the cargo and load the build-out works against
+    const at=Math.max(0,tiles.findIndex(t=>t[0]==='Accel')+1)||2; tiles.splice(at,0,['Body',v.B]);
+    tiles.push(['Cargo space',VB.fmtN(R.Cmax)+' CF',R.cf?VB.fmtN(R.cf)+' used':''],['Load',VB.fmtN(R.Lmax)+' kg',R.load?VB.fmtN(R.load)+' kg used':'']);}
+  else {const d=VSTAT[g.key]||[], o=g.vs||{}; tiles=STATN.map((l,j)=>{const typed=o[j]!==undefined&&o[j]!=='', x=typed?o[j]:d[j]; return [l,x==null||x===''?'?':x,x==null||x===''?'not listed: fill it in under Build':typed&&d[j]!=null&&String(d[j])!==String(o[j])?'book '+d[j]:'',x==null||x===''?'bad':''];});}
+  const here=S.gear.map((w,i)=>[w,i]).filter(([w])=>w!==g&&w.at===name), weap=here.filter(([w])=>isWeap(w)), other=here.filter(([w])=>!isWeap(w));
+  const drone=v?!!v.drone:/drone/i.test((GCATNAME[g.cat]||'')+' '+(it.s||''));
+  return {g,gi,it,name,r2,v,R,tiles,weap,other,drone,mounts:typeof vehMounts==='function'?vehMounts(name):null,kind:(drone?'Drone':'Vehicle')+' · '+pgc(r2?R2OBJ[g.key].pg:it.pg)};}
+const weapRow=([w,i])=>`<div class="iprow"><span><button type="button" class="iplink" data-ipchild="${i}">${esc(GEARDB[w.key].n)}</button>${GEARDB[w.key].s?` <small>${esc(GEARDB[w.key].s)}</small>`:''}</span><b>${fmt(cost(w))}¥</b></div>`;
+function vehBuilt(V){const M=V.mounts, R=V.R;
+  const mods=R&&R.rows.length?R.rows.map(r=>row(esc(r.d.n)+(r.d.kind==='level'||r.l>1?' '+r.l:''),'',(r.cost?fmt(r.cost)+'¥':'—'))).join(''):row('None yet','',V.r2?'—':'');
+  return `${tilesHTML(V.tiles)}
+   <div class="iprows">${head2(V.r2?'Modifications · R2 p. 118–146':'Modifications')}
+   ${V.r2?mods:'<p class="note">Build-outs use the Rigger 2 list (it has cargo space and load). Add the Rigger 2 version of this vehicle from Gear to customize it.</p>'}
+   ${head2('Weapons')}
+   ${M&&M.n!=null?row('Weapon mounts',M.tur?'plus a turret, which holds weapons by Weapon Value (R2 p. 135)':'R2 p. 131–135',`${M.used} of ${M.n} used`):''}
+   ${V.weap.length?V.weap.map(weapRow).join(''):row('None mounted','set a gun’s Mounted on, or move it here in Stash','')}
+   ${V.other.length?row('Also stowed in it',V.other.map(([w])=>esc(w.name||(GEARDB[w.key]||{}).n||'item')).join(', '),''):''}</div>${lockerHTML(V.g)}`;}
+function rigNow(){const vcr=gearLevel('body:Vehicle Control Rig'), base=Math.floor((attrNow('quick')+attrNow('int'))/2), r2=booksOn().r2; return {vcr,base,r2};}
+function vehPlay(V){const g=V.g, rg=rigNow(), dmg=Math.max(0,Math.min(10,+g.vdmg||0)), X=window.SR2B2||{}, lvl=X.VDM?X.VDM(dmg):'', mod=X.VDMT?X.VDMT(dmg):0;
+  return `<div class="iprows">${head2(rg.vcr?`Rigged · Vehicle Control Rig ${rg.vcr}`:'Rigging')}
+   ${rg.vcr?row('Control Pool',rg.r2?'R2 p. 16':'core p. 85',esc(String(rg.base+2*rg.vcr)))+row('Rigged Initiative','Reaction + rig',esc(`${rg.base+2*rg.vcr} + ${1+rg.vcr}D6`)):row('Control Pool','needs a Vehicle Control Rig · core p. 85','—')}
+   ${head2('Damage')}
+   ${row(dmg?esc(lvl):'Undamaged',dmg?`${dmg} of 10 boxes · +${mod} to its Position and Crash Tests · core p. 109`:'core p. 109',dmg?esc(String(dmg)):'0')}
+   ${head2('Weapons on it')}
+   ${V.weap.length?V.weap.map(weapRow).join(''):row('None mounted','','')}
+   ${head2('Kept at')}
+   ${row(esc(g.at||`With ${S.handle||S.name||'you'}`),'change it under Build','')}
+   ${rg.r2?row('Monthly overhead','1% of its cost, rounded up, plus 10¥ per Stress Point that month · R2 p. 18',fmt(Math.ceil((+g.cost||0)/100))+'¥'):''}</div>
+   <p class="note">Mark damage or repair it, and roll its tests, under Game night › Vehicle tests. Its weapons fire from the Attack panel with Gunnery (R2 p. 58).</p>`;}
+function vehBuild(V){const g=V.g, gi=V.gi;
+  let ed='';
+  if(V.r2){VB_OPEN.add(gi); ed=vbEditor(g,gi).replace(/^\s*<details[^>]*>\s*<summary>[\s\S]*?<\/summary>/,'<div class="wb vbuild ipvb">').replace(/<\/details>\s*$/,'</div>');}
+  else {const d=VSTAT[g.key]||[], o=g.vs||{};
+    ed=`<div class="ipvs">${STATN.map((l,j)=>{const x=o[j]!==undefined&&o[j]!==''?o[j]:(d[j]??''); return `<label>${l}<input data-vs="${gi}" data-j="${j}" value="${esc(String(x))}" placeholder="?" class="${d[j]==null&&(o[j]===undefined||o[j]==='')?'bad-text':''}"></label>`;}).join('')}</div>
+     <p class="note">Stats from the book: core p. 264–265 (cruise/max speed) or FoF p. 62–69. A red box means that stat isn’t listed here; fill it in from the book. Build-outs use the Rigger 2 list: add its Rigger 2 version from Gear to customize it.</p>`;}
+  const P=typeof stashPlaces==='function'?stashPlaces().filter(p=>p!==V.name):[];
+  const kept=`<label class="ipkept">Kept at <select data-mnt="${gi}"><option value="">With ${esc(S.handle||S.name||'you')}</option>${P.map(p=>`<option value="${esc(p)}"${g.at===p?' selected':''}>${esc(p)}</option>`).join('')}</select></label>`;
+  return `${ed}<div class="ipsec">${head2('Where it lives')}${kept}<p class="note">Places come from Stash and storage; a drone can ride in a van.</p></div>`;}
+function vehChild(V,i){const w=S.gear[i], it=w&&GEARDB[w.key]; if(!it) return '<p class="note">That weapon is no longer on the sheet.</p>';
+  const d=DESC[w.key]?DESC[w.key][0]:'';
+  return `${d?`<p>${esc(d)}</p>`:''}${it.s?`<p class="note">${esc(it.s)}</p>`:''}${tilesHTML([['Price',fmt(cost(w))+'¥'],['Mounted on',w.at===V.name?V.name:w.at||'carried']])}
+   ${typeof mountHTML==='function'?mountHTML(w,i).replace(/id="g_mnt_/,'id="ip_mnt_').replace(/for="g_mnt_/,'for="ip_mnt_'):''}
+   <p class="note">Its add-ons are under Weapons and armor › Add-ons. ${esc(pgc(it.pg))}</p>`;}
+
+// ---------- the panel ----------
+function draw(){const P=$i('b2item'); if(!IP.open||!P) return; const g=S.gear[IP.gi], k=kindOf(g); if(!k){close(); return;}
+  const ch=IP.child!=null&&S.gear[IP.child]?IP.child:null; if(ch==null) IP.child=null;
+  const body=$i('ipBody'), host=$i('ipHost'), foot=$i('ipFoot'); let name, price, kind, childName='', childKind='', html='';
+  if(k==='deck'){const dk=typeof deckInfo==='function'?deckInfo():null; if(!dk){close(); return;}
+    name=dk.name; price=S.gear.filter(x=>(x.key&&/^(deck|prog2?):/.test(x.key))||(!x.key&&(x.cat==='deck'||x.cat==='prog'))).reduce((a,x)=>a+cost(x),0); kind='Cyberdeck · '+pgc(GEARDB[g.key]&&GEARDB[g.key].pg)+' · deck, programs and options';
+    if(ch!=null){childName=progName(S.gear[ch]); childKind='Program on the '+esc(name)+' · '+esc(pgc(GEARDB[S.gear[ch].key].pg)); html=deckChild(dk,ch);}
+    else if(IP.sec!=='build') html=IP.sec==='play'?deckPlay(dk):deckBuilt(dk,g);}
+  else {const V=vehInfo(IP.gi); name=V.name; price=cost(g); kind=V.kind;
+    if(ch!=null){const w=S.gear[ch]; childName=esc(GEARDB[w.key].n); childKind=(w.at===V.name?'Mounted on the ':'Was on the ')+esc(name)+' · '+esc(pgc(GEARDB[w.key].pg)); html=vehChild(V,ch);}
+    else html=IP.sec==='play'?vehPlay(V):IP.sec==='build'?vehBuild(V):vehBuilt(V);}
   const crumb=ch!=null?`<button type="button" class="ghost ipback" data-ipback="1">‹ ${esc(name)}</button>`:'';
-  const head=`<div class="iptop">${crumb}<span class="ipcrumb">${esc(ch!=null?name+' › '+progName(S.gear[ch]).replace(/&amp;/g,'&'):'Gear › '+name)}</span><button type="button" class="ghost ipx" data-ipx="1">Close</button></div>
-   <div class="iph"><h2 id="ipTitle">${ch!=null?progName(S.gear[ch]):esc(name)}</h2><b>${ch!=null?fmt((+S.gear[ch].cost||0)*(+S.gear[ch].qty||1)):fmt(price)}¥</b></div>
-   <p class="ipkind">${ch!=null?'Program on the '+esc(name)+' · '+esc(pgc(GEARDB[S.gear[ch].key].pg)):'Cyberdeck · '+esc(pgc(it&&it.pg))+(ch==null?' · deck, programs and options':'')}</p>
+  $i('ipHead').innerHTML=`<div class="iptop">${crumb}<span class="ipcrumb">${ch!=null?esc(name)+' › '+childName:'Gear › '+esc(name)}</span><button type="button" class="ghost ipx" data-ipx="1">Close</button></div>
+   <div class="iph"><h2 id="ipTitle">${ch!=null?childName:esc(name)}</h2><b>${fmt(ch!=null?cost(S.gear[ch]):price)}¥</b></div>
+   <p class="ipkind">${ch!=null?childKind:esc(kind)}</p>
    ${ch==null?`<div class="iptabs" role="tablist" aria-label="Sections">${Object.keys(SECN).map(s=>`<button type="button" role="tab" data-ipsec="${s}" aria-selected="${IP.sec===s}">${SECN[s]}</button>`).join('')}</div>`:''}`;
-  $i('ipHead').innerHTML=head;
-  const body=$i('ipBody'), host=$i('ipHost');
-  if(ch!=null){cardHome(); host.hidden=true; body.hidden=false; body.innerHTML=childHTML(dk,ch);}
-  else if(IP.sec==='build'){body.hidden=true; body.innerHTML=''; host.hidden=false; cardIn();}
-  else {cardHome(); host.hidden=true; body.hidden=false; body.innerHTML=IP.sec==='play'?playHTML(dk):builtHTML(dk);}
+  const deckBuild=k==='deck'&&ch==null&&IP.sec==='build';
+  if(deckBuild){body.hidden=true; body.innerHTML=''; host.hidden=false; cardIn();}
+  else {cardHome(); host.hidden=true; body.hidden=false; body.innerHTML=html;}
+  foot.hidden=!(ch==null&&IP.sec==='build'); foot.innerHTML=foot.hidden?'':noteHTML(IP.gi);
   P.setAttribute('aria-labelledby','ipTitle');}
 function stub(){const s=$i('ipDeckHome'); if(!s) return; const gi=deckGi(), dk=gi>=0&&typeof deckInfo==='function'?deckInfo():null;
   document.body.classList.toggle('b2ipdk',!!dk); s.hidden=!dk; if(!dk){s.innerHTML=''; return;}
   const n=dk.utils.length, ld=dk.utils.filter(u=>u.g.loaded).length;
   s.innerHTML=`<div class="ipstub"><button type="button" class="iplink" data-ipopen="${gi}">${esc(dk.name)}</button><small>Cyberdeck · MPCP ${dk.mpcp}</small><span class="ipchip">${ld} of ${n} loaded · ${fmt(dk.used)}/${fmt(dk.am)} Mp</span></div>`;}
-function open(gi,sec,from){if(gi<0||!isDeckLine(S.gear[gi])) return; IP.open=true; IP.gi=gi; IP.child=null; IP.sec=sec||(document.body.classList.contains('b2gn')?'play':'build'); IP.from=from||null;
+function open(gi,sec,from){if(gi<0||!kindOf(S.gear[gi])) return; IP.open=true; IP.gi=gi; IP.g=S.gear[gi]; IP.child=null; IP.cg=null; IP.sec=sec||(document.body.classList.contains('b2gn')?'play':'build'); IP.from=from||null;
   let P=$i('b2item'); document.body.classList.add('b2ip');
-  if(!P){P=document.createElement('aside'); P.id='b2item'; P.className='b2item'; P.setAttribute('aria-label','Item'); P.innerHTML='<div id="ipHead"></div><div id="ipBody"></div><div id="ipHost" hidden></div>'; document.body.appendChild(P);
+  if(!P){P=document.createElement('aside'); P.id='b2item'; P.className='b2item'; P.setAttribute('aria-label','Item'); P.innerHTML='<div id="ipHead"></div><div id="ipBody"></div><div id="ipHost" hidden></div><div id="ipFoot" hidden></div>'; document.body.appendChild(P);
     const sc=document.createElement('button'); sc.type='button'; sc.id='b2ipscrim'; sc.className='b2ipscrim'; sc.tabIndex=-1; sc.setAttribute('aria-label','Close'); sc.dataset.ipx='1'; document.body.appendChild(sc);}
   P.hidden=false; $i('b2ipscrim').hidden=false; draw(); syncBtns(); const t=P.querySelector('[data-ipsec][aria-selected="true"]')||P.querySelector('.ipx'); if(t) t.focus({preventScroll:true});}
-function close(){if(!IP.open) return; IP.open=false; cardHome(); const P=$i('b2item'); if(P) P.hidden=true; const sc=$i('b2ipscrim'); if(sc) sc.hidden=true; document.body.classList.remove('b2ip'); syncBtns();
+function close(){if(!IP.open) return; IP.open=false; IP.g=null; IP.cg=null; cardHome(); const P=$i('b2item'); if(P) P.hidden=true; const sc=$i('b2ipscrim'); if(sc) sc.hidden=true; document.body.classList.remove('b2ip'); syncBtns();
   const f=IP.from&&document.querySelector(IP.from); IP.from=null; if(f&&f.offsetParent!==null) f.focus({preventScroll:true});}
 // the openers say whether the panel is open: Open the deck reads Close the deck while it is, like the old fold
 function syncBtns(){const on=IP.open&&IP.gi===deckGi();
   document.querySelectorAll('[data-st="deck"]').forEach(b=>{b.setAttribute('aria-expanded',String(on)); b.setAttribute('aria-controls','b2item'); if(b.classList.contains('gdeckbtn')) b.textContent=on?'Close the deck':'Open the deck';});
-  document.querySelectorAll('[data-ipopen]').forEach(b=>{b.setAttribute('aria-expanded',String(IP.open&&IP.gi===+b.dataset.ipopen)); b.setAttribute('aria-controls','b2item');});}
+  document.querySelectorAll('[data-ipopen]').forEach(b=>{b.setAttribute('aria-expanded',String(IP.open&&IP.gi===+b.dataset.ipopen)); b.setAttribute('aria-controls','b2item');});
+  document.querySelectorAll('#gearBody .gname[data-gopen]').forEach(b=>{const i=+b.dataset.gopen, k=kindOf(S.gear[i]); if(k==='veh'||(k==='deck'&&i===deckGi())){b.setAttribute('aria-expanded',String(IP.open&&IP.gi===i)); b.setAttribute('aria-controls','b2item');}});}
 // an opener pressed again while its item is showing closes the panel (a toggle, as Open the deck was)
 const toggle=(gi,sec,from)=>{if(IP.open&&IP.gi===gi) close(); else open(gi,sec,from);};
 // the page keeps a one-line deck row where the card was (Game night's Gear and ammo shows it; the Runner tab has the Gear row)
 function mount(){const c=$i('deckCard'); if(!c||$i('ipDeckHome')) return; const s=document.createElement('section'); s.id='ipDeckHome'; s.className='card ses ipdeckhome'; s.hidden=true; c.parentElement.insertBefore(s,c);}
-const _render=render; render=function(){_render.apply(this,arguments); try{mount(); stub(); if(IP.open&&!isDeckLine(S.gear[IP.gi])) close(); if(IP.open) draw(); syncBtns();}catch(err){console.error(err);}};
-// openers: the deck's Gear row name, its Open the deck button, the one-line deck row; inside: sections, a program, back, close
+// the open item is followed by identity, so removing a line above it (or a Stash merge) doesn't switch the panel to another item
+function follow(){if(!IP.open) return; const i=S.gear.indexOf(IP.g); if(i<0){close(); return;} IP.gi=i;
+  if(IP.child!=null){const c=S.gear.indexOf(IP.cg); IP.child=c<0?null:c; if(c<0) IP.cg=null;}}
+const _render=render; render=function(){_render.apply(this,arguments); try{mount(); stub(); follow(); if(IP.open&&!kindOf(S.gear[IP.gi])) close(); if(IP.open) draw(); syncBtns();}catch(err){console.error(err);}};
+// openers: an item's Gear row name (the deck in use, any vehicle), Open the deck, the one-line deck row and Rigging's vehicle names
+// (data-ipopen); inside: sections, a thing inside the item, back, close
 document.addEventListener('click',e=>{const t=e.target; if(!t||!t.closest) return;
   const op=t.closest('[data-ipopen]'); if(op){e.preventDefault(); e.stopPropagation(); toggle(+op.dataset.ipopen,null,`[data-ipopen="${op.dataset.ipopen}"]`); return;}
-  const gn=t.closest('.gname[data-gopen]'); if(gn&&isDeckLine(S.gear[+gn.dataset.gopen])&&+gn.dataset.gopen===deckGi()){e.preventDefault(); e.stopPropagation(); toggle(+gn.dataset.gopen,null,`.gname[data-gopen="${gn.dataset.gopen}"]`); return;}
+  const gn=t.closest('.gname[data-gopen]'); if(gn){const i=+gn.dataset.gopen, k=kindOf(S.gear[i]); if(k==='veh'||(k==='deck'&&i===deckGi())){e.preventDefault(); e.stopPropagation(); toggle(i,null,`.gname[data-gopen="${i}"]`); return;}}
   const db=t.closest('[data-st="deck"]'); if(db){e.preventDefault(); e.stopPropagation(); toggle(deckGi(),'build','[data-st="deck"]'); return;}
   if(!IP.open) return;
   const P=$i('b2item'); if(t.closest('[data-ipx]')){close(); return;}
-  if(P&&P.contains(t)){const s=t.closest('[data-ipsec]'); if(s){IP.sec=s.dataset.ipsec; IP.child=null; draw(); const n=P.querySelector(`[data-ipsec="${IP.sec}"]`); if(n) n.focus({preventScroll:true}); return;}
-    const c=t.closest('[data-ipchild]'); if(c){IP.child=+c.dataset.ipchild; draw(); const b=P.querySelector('.ipback'); if(b) b.focus({preventScroll:true}); return;}
-    if(t.closest('[data-ipback]')){const k=IP.child; IP.child=null; draw(); const n=P.querySelector(`[data-ipchild="${k}"]`)||P.querySelector('[data-ipsec][aria-selected="true"]'); if(n) n.focus({preventScroll:true});}
+  if(P&&P.contains(t)){const s=t.closest('[data-ipsec]'); if(s){IP.sec=s.dataset.ipsec; IP.child=null; IP.cg=null; draw(); const n=P.querySelector(`[data-ipsec="${IP.sec}"]`); if(n) n.focus({preventScroll:true}); return;}
+    const c=t.closest('[data-ipchild]'); if(c){IP.child=+c.dataset.ipchild; IP.cg=S.gear[IP.child]; draw(); const b=P.querySelector('.ipback'); if(b) b.focus({preventScroll:true}); return;}
+    if(t.closest('[data-ipback]')){const k=IP.child; IP.child=null; IP.cg=null; draw(); const n=P.querySelector(`[data-ipchild="${k}"]`)||P.querySelector('[data-ipsec][aria-selected="true"]'); if(n) n.focus({preventScroll:true});}
     return;}
   close();},true);
-// a Loaded tick inside the panel: keep focus on it after the redraw (PROGUI.refocus finds the page's copy first). Capture phase,
-// because the page's own change handler redraws the panel and the ticked box is gone from it by the time a bubbling listener runs.
-document.addEventListener('change',e=>{const t=e.target, P=$i('b2item'); if(!P||!P.contains(t)||!t.dataset||t.dataset.pgld===undefined) return; const sel=`[data-pgld="D"][data-pgid="${CSS.escape(t.dataset.pgid)}"]`;
-  setTimeout(()=>{const n=$i('b2item')&&$i('b2item').querySelector(sel); if(n) n.focus({preventScroll:true});},0);},true);
+// a control inside the panel keeps focus after the redraw its change causes. Found again by its data attributes (the page's own
+// refocus helpers look in the whole page). Capture phase, because the page's change handler redraws the panel before a
+// bubbling listener would run, and the changed control is gone by then.
+const sig=el=>{const a=[...el.attributes].filter(x=>/^data-/.test(x.name)&&!/^data-(st|ipsec)$/.test(x.name)).map(x=>`[${x.name}="${CSS.escape(x.value)}"]`).join(''); return a?el.tagName.toLowerCase()+a:(el.id?'#'+CSS.escape(el.id):null);};
+// Ticks and menus: focus goes back to the changed control (the page's handlers redraw at once, so it is found by its attributes).
+// Typed boxes: their change fires as they are left, before Tab moves focus on, so the panel waits for the move, notes where focus
+// went, then redraws if needed and puts it there; focus never jumps back to the box just left.
+// A stat box (data-vs) saves as it's typed without redrawing; leaving it redraws, so Rigging's table shows the new number.
+const typed=el=>el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&!/^(checkbox|radio|button|submit|range|color|file)$/.test(el.type));
+const refocus=sel=>{const p=$i('b2item'), n=sel&&p&&p.querySelector(sel); if(n&&document.activeElement!==n) n.focus({preventScroll:true});};
+document.addEventListener('change',e=>{const t=e.target, P=$i('b2item'); if(!P||!t||!P.contains(t)) return;
+  if(typed(t)){const redraw=!!(t.dataset&&t.dataset.vs!==undefined);
+    setTimeout(()=>{const a=document.activeElement, p=$i('b2item'), sel=a&&a!==document.body&&p&&p.contains(a)?sig(a):null; if(redraw) render(); refocus(sel);},0); return;}
+  const sel=sig(t); if(sel) setTimeout(()=>refocus(sel),0);},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&IP.open){e.preventDefault(); close();}});
-window.SR2IP={open:(gi,sec)=>open(gi==null?deckGi():gi,sec||'built'),close,state:IP,deckGi};
-// a saved runner is drawn once before this module wraps render (page load), so add the deck row now as well
-try{mount(); stub(); syncBtns();}catch(err){console.error(err);}
+// redraw: the wrapped render (window.__sr2.render is the page's own, from before the modules wrapped it); checks use it
+window.SR2IP={open:(gi,sec)=>open(gi==null?deckGi():gi,sec||'built'),close,state:IP,deckGi,kindOf,redraw:()=>render()};
+// a saved runner is drawn once before this module wraps render (page load): draw again now, so the deck row is added and Rigging
+// switches to its summary table (it checks for window.SR2IP)
+try{render();}catch(err){console.error(err);}
 })();
 
 /*@end:b2*/
