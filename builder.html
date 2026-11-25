@@ -747,6 +747,51 @@ body.b2mk .layout,body.b2mk .sesnote,body.b2mk .mbar,body.b2mk #b2strip,body.b2m
 .mktabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}.mktabs button{min-height:var(--tap);padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;cursor:pointer}.mktabs button[aria-selected="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
 .mkitems{margin:4px 0 0;padding-left:16px;font-size:var(--t-sm);color:var(--muted)}
 
+/* Item panel, stage 1: decks (one home for each item). Docked on the right on laptops, a tall sheet on phones */
+.b2item{position:fixed;top:var(--jumpH,0px);right:0;bottom:0;z-index:40;width:min(32rem,42vw);box-sizing:border-box;overflow-y:auto;overscroll-behavior:contain;padding:16px;background:var(--panel);border-left:1px solid var(--brand);box-shadow:-8px 0 24px rgba(0,0,0,.12);display:flex;flex-direction:column;gap:12px}
+.b2item[hidden]{display:none}
+@media (min-width:40.0625em){body.b2ip{padding-right:min(32rem,42vw)}}
+.b2ipscrim{display:none}
+.iptop{display:flex;align-items:center;gap:8px}
+.ipcrumb{margin-right:auto;font-size:var(--t-xs);color:var(--muted)}
+.iph{display:flex;align-items:baseline;gap:12px}.iph h2{margin:0;margin-right:auto;font-size:var(--t-lg)}.iph b{font-family:var(--f-mono)}
+.ipkind{margin:0;font-size:var(--t-xs);color:var(--muted)}
+.iptabs{display:flex;gap:4px;padding:4px;background:var(--panel-2);border-radius:var(--radius)}
+.iptabs button{flex:1 1 0;min-height:2.5rem;border:0;border-radius:4px;background:transparent;color:var(--muted);font-weight:600}
+.iptabs button[aria-selected="true"]{background:var(--panel);color:var(--brand);box-shadow:inset 0 -2px 0 var(--brand)}
+.iptabs button:focus-visible,.iplink:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.iptiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.iptiles>div{display:flex;flex-direction:column;min-width:0;padding:8px;background:var(--panel-2);border-radius:var(--radius)}
+.iptiles b{font-family:var(--f-mono)}.iptiles small{font-size:var(--t-xs);color:var(--muted)}
+.iprows{display:flex;flex-direction:column}
+.iprow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:4px 0;border-bottom:1px solid var(--line)}
+.iprow small{font-size:var(--t-xs);color:var(--muted)}.iprow b{font-family:var(--f-mono);text-align:right}
+.ipmemh{display:flex;justify-content:space-between;font-size:var(--t-xs);font-weight:600;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.ipmemh b{font-family:var(--f-mono)}
+.ipbar{height:8px;border-radius:999px;background:var(--line);overflow:hidden}.ipbar i{display:block;height:8px;background:var(--brand)}
+.ipsec{display:flex;flex-direction:column}
+.ipprog{display:flex;align-items:center;gap:12px;min-height:2.75rem;border-bottom:1px solid var(--line)}
+.ipprog small{margin-right:auto;font-size:var(--t-xs);color:var(--muted)}.ipprog small.b2warn{color:var(--warn)}.ipprog b{font-family:var(--f-mono)}
+.iplink{min-height:1.5rem;padding:0;border:0;background:transparent;color:var(--brand);font-weight:600;text-decoration:underline;text-underline-offset:3px;text-align:left;cursor:pointer}
+.ipload{display:flex;flex-direction:row;align-items:center;gap:8px;min-height:2.75rem;font-size:var(--t-sm);font-weight:400;color:var(--ink);letter-spacing:normal;text-transform:none}  /* not the page's stacked field-label look */.ipload small{font-size:var(--t-xs);color:var(--muted)}.ipload small.b2warn{color:var(--warn)}
+.ipback{min-height:2rem}
+body.b2ipdk #deckCard{display:none!important}
+#ipHost #deckCard{display:block!important;margin:0;padding:0;border:0;box-shadow:none}
+.ipdeckhome{display:none}
+body.b2gear .ipdeckhome:not([hidden]){display:block}
+.ipstub{display:flex;flex-wrap:wrap;align-items:center;gap:12px}.ipstub small{margin-right:auto;font-size:var(--t-xs);color:var(--muted)}
+.ipchip{padding:4px 8px;border-radius:999px;background:var(--panel-2);font:500 var(--t-xs) var(--f-mono)}
+@media (max-width:40em){
+  .b2item{top:auto;left:0;right:0;width:auto;max-height:92vh;z-index:61;border-left:0;border-top:1px solid var(--brand);border-radius:var(--radius) var(--radius) 0 0;box-shadow:0 -8px 24px rgba(0,0,0,.18);padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+  body.b2ip .b2ipscrim:not([hidden]){display:block;position:fixed;inset:0;z-index:60;min-height:0;padding:0;border:0;border-radius:0;background:var(--scrim)}
+  .iptabs button,.ipx,.ipback,.iplink{min-height:44px}
+  .iptiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+/* With the panel open a laptop's columns get narrower; the damage track's ten boxes drop to two rows of five
+   rather than shrink under the 24px touch size (framework rule) */
+div:has(>.track){container-type:inline-size}
+@container (max-width:17.5rem){.track{grid-template-columns:repeat(5,minmax(0,1fr))}}
+
 /*@end:b2css*/
 </style></head><body>
 <div class="wrap" id="appRoot">
@@ -1001,7 +1046,7 @@ body.b2mk .layout,body.b2mk .sesnote,body.b2mk .mbar,body.b2mk #b2strip,body.b2m
     </aside>
   </div>
 </div>
-<script>window.__SR2_EMBED={"stamp":"1795547995232","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwv2wzzw","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795547995212}}};</script>
+<script>window.__SR2_EMBED={"stamp":"1795553673271","char":{"mode":"standard","prio":{"race":"","magic":"","attr":"","skills":"","res":""},"name":"","handle":"","race":"Human","magic":"none","tradition":"","concept":"","attrs":{"body":1,"quick":1,"str":1,"cha":1,"int":1,"wil":1},"skills":[],"powers":[],"gear":[],"contacts":[{"name":"","role":"","level":"Contact"},{"name":"","role":"","level":"Contact"}],"phys":0,"stun":0,"kEarned":0,"kSpent":0,"kPoolBonus":0,"nuyenNow":"","nyLog":[],"ammoT":{},"places":["Stash"],"cashRoll":null,"lifestyleOff":true,"irErrata":false,"notes":"","langs":[],"adv":[],"totem":"","books":{"ssc":true,"r2":true,"vr2":false,"fof":true},"vr2deck":null,"optRecoil":false,"id":"cmwv6ap7d","_calc":{"ess":6,"bi":0,"biMax":1,"awake":false,"adept":false,"init":0,"magic":0,"nuyen":null,"resLeft":null,"est":false,"at":1795553673255}}};</script>
 <script id="appJs">
 const SKINENV={sel:'skinSel',mono:'var(--f-mono)',map:{bg:'--bg',panel:'--panel',panel2:'--panel-2',ink:'--ink',muted:'--muted',line:'--line',accent:'--brand',accentInk:'--brand-ink',accentSoft:'--brand-soft',price:'--action',ok:'--ok',okSoft:'--ok-soft',warn:'--warn',warnSoft:'--warn-soft',bad:'--bad',badSoft:'--bad-soft',font:'--f-body'}};
 /*@shared:skillweb*/
@@ -1133,7 +1178,7 @@ return {P,LIST,get,now,apply,init,restorePrev};
 // tools on the site carry ?v=CODE so browsers fetch a fresh copy, and on the site the page checks version.txt and offers
 // a refresh when a newer build is out. Saved characters live in browser storage for the whole site, so a refresh keeps them.
 const SRHEAD=(()=>{
-const BUILD='4cedd7e'; const built=/^[0-9a-f]{7}$/.test(BUILD);
+const BUILD='129c50f'; const built=/^[0-9a-f]{7}$/.test(BUILD);
 const SITE={builder:'builder.html',locker:'gear-locker.html',gm:'gm-screen.html'};
 const FILE={builder:'SR2_Runner_Builder.html',locker:'SR2_Gear_Locker.html',gm:'SR2_GM_Screen.html'};
 function hrefs(){const f=(location.pathname.split('/').pop()||'').toLowerCase();
@@ -2961,7 +3006,7 @@ if(typeof document!=='undefined'){
 .vgrp{border:1px solid var(--line);border-radius:var(--radius);margin:4px 0;padding:0 12px}.vgrp>summary{cursor:pointer;padding:8px 0;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}.vgrp>summary b{font-size:var(--t-md)}.vgrp-n{font-size:var(--t-sm);color:var(--muted)}
 .vcl{list-style:none;margin:0 0 4px;padding:0}.vck{border-top:1px solid var(--line);padding:8px 0}.vck-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.vck-h label{display:inline-flex;flex-direction:row;justify-content:flex-start;align-items:baseline;margin:0;font-weight:400;gap:8px;flex:1;min-width:12rem;cursor:pointer;text-transform:none;letter-spacing:0;font-size:var(--t-sm);color:var(--ink)}.vck-h input{min-width:0;padding:0;width:24px;height:24px;flex:none;margin:0;align-self:center;accent-color:var(--accent)}.vck-p{font-size:var(--t-xs);color:var(--muted)}
 .vck-c{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin:4px 0 0 24px;font-size:var(--t-sm)}.vck-s{display:inline-flex;flex-direction:row;align-items:center;gap:4px;color:var(--muted);text-transform:none;letter-spacing:0;font-size:var(--t-sm)}.vck-s select{font:inherit;padding:4px 8px;border:1px solid var(--line);border-radius:4px;background:var(--panel,transparent);color:var(--ink)}
-.vck-n{font-family:var(--mono,monospace);font-variant-numeric:tabular-nums}.vck-c>select{font:inherit;font-size:var(--t-sm);padding:4px 8px;border:1px solid var(--line);border-radius:4px;background:var(--panel,transparent);color:var(--ink);max-width:100%;min-width:0}.gsl .vck-c,.gsl .vck-d{margin-left:0}.gsl .vck-c>select{width:100%;max-width:32rem}.gsl .vck-h b{font-size:var(--t-sm)}.gsl .vck.on .vck-h b{color:var(--accent)}.vck.on{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 10%,transparent),transparent 70%)}.vck.on .vck-h b{color:var(--accent)}.vck.no .vck-h label{cursor:default;color:var(--muted)}.vck.no input{opacity:.5}.vck-w{color:var(--muted);font-style:italic}
+.vck-n{font-family:var(--f-mono,var(--mono,monospace));font-variant-numeric:tabular-nums}.vck-c>select{font:inherit;font-size:var(--t-sm);padding:4px 8px;border:1px solid var(--line);border-radius:4px;background:var(--panel,transparent);color:var(--ink);max-width:100%;min-width:0}.gsl .vck-c,.gsl .vck-d{margin-left:0}.gsl .vck-c>select{width:100%;max-width:32rem}.gsl .vck-h b{font-size:var(--t-sm)}.gsl .vck.on .vck-h b{color:var(--accent)}.vck.on{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 10%,transparent),transparent 70%)}.vck.on .vck-h b{color:var(--accent)}.vck.no .vck-h label{cursor:default;color:var(--muted)}.vck.no input{opacity:.5}.vck-w{color:var(--muted);font-style:italic}
 .vck-tag{font-size:var(--t-xs);font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:1px solid var(--line);border-radius:4px;padding:0 4px;color:var(--muted);align-self:center}.vck.fac .vck-h b{color:var(--ink)}.vck.fac input{opacity:.7}.vck-fac{font-size:var(--t-xs);line-height:1.45;margin:4px 0 8px;color:var(--ink)}.vck-fac span{color:var(--muted)}.vck-sum{font-size:var(--t-sm);line-height:1.5;margin:4px 0 8px}.vck-gm{font-size:var(--t-xs);margin:4px 0;padding:8px 8px;border-left:3px solid var(--accent);color:var(--ink)}
 .vck-d{margin:4px 0 0 24px;font-size:var(--t-sm)}.vck-d summary{cursor:pointer;color:var(--muted);width:max-content}.vck-d p{margin:4px 0 0;line-height:1.45;color:var(--ink)}`;
   (document.head||document.documentElement).appendChild(st);
@@ -5885,7 +5930,8 @@ function gearPass(){const body=$('gearBody'); if(!body) return; const di=deckInd
     const tot=S.gear.filter(g=>(g.key&&/^(deck|prog2?):/.test(g.key))||(!g.key&&(g.cat==='deck'||g.cat==='prog'))).reduce((a,g)=>a+(+g.cost||0)*(+g.qty||1),0);
     const parts=[`MPCP ${dk.mpcp}`,dk.ri?`Response ${dk.ri}`:'',hj?`${hj} hitcher${hj>1?'s':''}`:'',`${fmt(dk.am)} Mp active`,`${fmt(dk.sm)} Mp storage`].filter(Boolean);
     const d=document.createElement('div'); d.className='gdeck';
-    d.innerHTML=`<span class="gdsum">${H(parts.join(' · '))}</span><span class="gdtot">Deck, programs and options: ${fmt(tot)}¥</span><button type="button" class="ghost gdeckbtn" data-st="deck" aria-expanded="${!!Q.deck}" aria-controls="deckCard">${Q.deck?'Close the deck':'Open the deck'}</button>`;
+    const IPX=window.SR2IP, dkOn=IPX?!!(IPX.state.open&&IPX.state.gi===IPX.deckGi()):!!Q.deck;  // fix10: the deck opens in the item panel
+    d.innerHTML=`<span class="gdsum">${H(parts.join(' · '))}</span><span class="gdtot">Deck, programs and options: ${fmt(tot)}¥</span><button type="button" class="ghost gdeckbtn" data-st="deck" aria-expanded="${dkOn}" aria-controls="${IPX?'b2item':'deckCard'}">${dkOn?'Close the deck':'Open the deck'}</button>`;
     nb.parentElement.insertBefore(d,nb.parentElement.querySelector('.gmore'));}}
   document.body.classList.toggle('b2dk-shut',!!dk&&!Q.deck);}
 // ---------- Between runs: tag the In play section's parts ----------
@@ -6290,6 +6336,103 @@ function draw(){const R=document.getElementById('b2market'); const tb=document.q
   R.innerHTML=html(); R.querySelectorAll('details').forEach(d=>{if(openD.has(d.className)) d.open=true; else if(shutD.has(d.className)) d.open=false;});
   if(keep){const sel='['+keep.split('&').map(p=>{const [k,v]=p.split('='); return 'data-'+k.replace(/[A-Z]/g,m=>'-'+m.toLowerCase())+'="'+v+'"';}).join('][')+']'; const el=R.querySelector(sel); if(el){el.focus(); try{if(pos!=null&&el.setSelectionRange) el.setSelectionRange(pos,pos);}catch(e){}}}}
 window.SR2MK={draw,fromSend,addItems,priceAll,avRec,CTTRADE,mk};
+})();
+
+// ---------- Item panel, stage 1: decks (one home for each item; player-approved 2026-11-24, design board row 11) ----------
+// A gear item opens one panel: docked on the right on laptops, a tall sheet on phones. Three sections in a fixed order: As
+// built (read-only), In play (what changes during a run) and Build (what changes between runs). Stage 1 covers cyberdecks
+// and their programs. The deck's existing card moves into Build while it shows, so its rules code and controls (data-pgck,
+// data-pgr, data-pgld, the VR2 deck build, the deck picker) are unchanged; In play's Loaded ticks use the same controls.
+// A click outside the panel, Escape or Close shuts it (popover rule 5 applies to panels too, by the player's call).
+(function(){
+const IP={open:false,gi:-1,sec:'built',child:null,from:null};
+const SECN={built:'As built',play:'In play',build:'Build'};
+const $i=id=>document.getElementById(id);
+const lap=()=>window.matchMedia('(min-width:40.0625em)').matches;
+const isDeckLine=g=>!!(g&&g.key&&(/^deck:Custom cyberdeck/.test(g.key)||(GEARDB[g.key]&&GEARDB[g.key].mpcp)));
+const pgc=p=>p?(/^p\./.test(p)?'core '+p:p):'';
+function deckGi(){const a=typeof activeDeck==='function'?activeDeck():null; const cu=S.gear.findIndex(g=>/^deck:Custom cyberdeck/.test(g.key||'')); if(cu>=0) return cu; return a?S.gear.indexOf(a):S.gear.findIndex(isDeckLine);}
+function memBar(used,of,lab){const pct=of&&isFinite(of)?Math.min(100,Math.round(used/of*100)):0;
+  return `<div class="ipmem"><div class="ipmemh"><span>${esc(lab)}</span><b>${fmt(used)} of ${fmt(of)} Mp</b></div><div class="ipbar" role="img" aria-label="${esc(lab)}: ${fmt(used)} of ${fmt(of)} Mp"><i style="width:${pct}%"></i></div></div>`;}
+function row(k,s,v,cls){return `<div class="iprow${cls?' '+cls:''}"><span>${k}${s?` <small>${esc(s)}</small>`:''}</span><b>${v}</b></div>`;}
+function progName(g){const it=GEARDB[g.key]; return esc((it?it.n:g.n||'Program')+(g.r?' '+g.r:''));}
+function builtHTML(dk){const vr=!!dk.vr2, tiles=[['MPCP',dk.mpcp],['Hardening',dk.h],['Active memory',fmt(dk.am)+' Mp',fmt(dk.used)+' loaded'],['Storage',fmt(dk.sm)+' Mp',fmt(dk.stored)+' used'],['Load',dk.ls!=null?dk.ls+' Mp/turn':'—'],['I/O',dk.io+' Mp/turn']];
+  if(dk.ri) tiles.push(['Response Increase',dk.ri]);
+  const mx=typeof matrixInfo==='function'?matrixInfo():null, modes=mx&&typeof mxIniModes==='function'?mxIniModes(mx):[], per=dk.persona||{}, pv=['Bod','Evasion','Masking','Sensors'].map(n=>n+' '+(+per[n]||0)).join(' · ');
+  return `<div class="iptiles">${tiles.map(([k,v,s])=>`<div><span class="b2k">${esc(k)}</span><b>${esc(String(v))}</b>${s?`<small>${esc(s)}</small>`:''}</div>`).join('')}</div>
+   <div class="iprows">${mx?row('Hacking Pool',(mx.poolHow?mx.poolHow+' · ':'')+(vr?'VR2 p. 18':'core p. 85'),esc(String(mx.pool))):''}
+   ${modes.filter(m=>m.id!=='tort').map(m=>row('Matrix Initiative',(m.sh||m.l)+' · core p. 178',esc(`${m.r} + ${m.d}D6`))).join('')}
+   ${row('Persona',vr?'VR2 p. 16–18':'persona chips · core p. 174',Object.values(per).some(v=>+v)?esc(pv):'<span class="b2warn">none yet</span>')}</div>`;}
+function playHTML(dk){const L=dk.utils.slice().sort((a,b)=>(GEARDB[a.g.key].n||'').localeCompare(GEARDB[b.g.key].n||''));
+  const list=L.map(u=>{const fits=u.g.loaded||dk.used+u.size<=dk.am, why=u.g.loaded?'loaded':fits?'on the deck':`needs ${fmt(dk.used+u.size-dk.am)} Mp more free`;
+    return `<div class="ipprog"><input type="checkbox" data-pgld="D" data-pgid="${esc(u.g.key)}" aria-label="Load ${progName(u.g)}"${u.g.loaded?' checked':''}${fits?'':' disabled'}><button type="button" class="iplink" data-ipchild="${u.i}">${progName(u.g)}</button><small class="${fits?'':'b2warn'}">${esc(why)}</small><b>${fmt(u.size)} Mp</b></div>`;}).join('');
+  return `${memBar(dk.used,dk.am,'Active memory')}
+   <div class="ipsec"><span class="b2k">Programs on the deck · tick what you load for the run</span>${list||'<p class="note">No programs on this deck yet. Add them under Build.</p>'}</div>
+   ${(dk.loose||[]).length?`<p class="note">Typed in by hand: ${dk.loose.map(g=>esc(g.n||'program')).join(', ')} (not counted in memory).</p>`:''}
+   <p class="note">Ticks take effect at once, and the Attack menu flags a program that isn't loaded. Storage on the deck: ${fmt(dk.stored)} of ${fmt(dk.sm)} Mp.</p>`;}
+function childHTML(dk,i){const g=S.gear[i], it=g&&GEARDB[g.key]; if(!it) return '<p class="note">That program is no longer on the sheet.</p>';
+  const u=dk.utils.find(x=>x.i===i), size=u?u.size:0, fits=g.loaded||dk.used+size<=dk.am, d=DESC[g.key]?DESC[g.key][0]:'';
+  return `${d?`<p>${esc(d)}</p>`:''}<div class="iptiles"><div><span class="b2k">Rating</span><b>${esc(String(g.r||1))}</b></div><div><span class="b2k">Size</span><b>${fmt(size)} Mp</b></div><div><span class="b2k">Price</span><b>${fmt((+g.cost||0)*(+g.qty||1))}¥</b></div></div>
+   <label class="ipload"><input type="checkbox" data-pgld="D" data-pgid="${esc(g.key)}"${g.loaded?' checked':''}${fits?'':' disabled'}> Loaded for this run <small class="${fits?'':'b2warn'}">${esc(g.loaded?'in active memory':fits?fmt(dk.am-dk.used)+' Mp free':`needs ${fmt(dk.used+size-dk.am)} Mp more free`)}</small></label>
+   <p class="note">Change its rating under Build. ${esc(pgc(it.pg))}</p>`;}
+// the deck card lives in the page (hidden) unless the panel's Build section shows it
+function cardHome(){const c=$i('deckCard'), h=$i('ipDeckHome'); if(c&&h&&c.parentElement!==h.parentElement){h.parentElement.insertBefore(c,h.nextSibling);}}
+function cardIn(){const c=$i('deckCard'), host=$i('ipHost'); if(c&&host&&c.parentElement!==host){host.appendChild(c); c.hidden=false;}}
+function draw(){const P=$i('b2item'), dk=typeof deckInfo==='function'?deckInfo():null, g=S.gear[IP.gi];
+  if(!IP.open||!P) return; if(!dk||!isDeckLine(g)){close(); return;}
+  const it=GEARDB[g.key], ch=IP.child!=null&&S.gear[IP.child]?IP.child:null; if(ch==null) IP.child=null;
+  const name=dk.name, price=S.gear.filter(x=>(x.key&&/^(deck|prog2?):/.test(x.key))||(!x.key&&(x.cat==='deck'||x.cat==='prog'))).reduce((a,x)=>a+(+x.cost||0)*(+x.qty||1),0);
+  const crumb=ch!=null?`<button type="button" class="ghost ipback" data-ipback="1">‹ ${esc(name)}</button>`:'';
+  const head=`<div class="iptop">${crumb}<span class="ipcrumb">${esc(ch!=null?name+' › '+progName(S.gear[ch]).replace(/&amp;/g,'&'):'Gear › '+name)}</span><button type="button" class="ghost ipx" data-ipx="1">Close</button></div>
+   <div class="iph"><h2 id="ipTitle">${ch!=null?progName(S.gear[ch]):esc(name)}</h2><b>${ch!=null?fmt((+S.gear[ch].cost||0)*(+S.gear[ch].qty||1)):fmt(price)}¥</b></div>
+   <p class="ipkind">${ch!=null?'Program on the '+esc(name)+' · '+esc(pgc(GEARDB[S.gear[ch].key].pg)):'Cyberdeck · '+esc(pgc(it&&it.pg))+(ch==null?' · deck, programs and options':'')}</p>
+   ${ch==null?`<div class="iptabs" role="tablist" aria-label="Sections">${Object.keys(SECN).map(s=>`<button type="button" role="tab" data-ipsec="${s}" aria-selected="${IP.sec===s}">${SECN[s]}</button>`).join('')}</div>`:''}`;
+  $i('ipHead').innerHTML=head;
+  const body=$i('ipBody'), host=$i('ipHost');
+  if(ch!=null){cardHome(); host.hidden=true; body.hidden=false; body.innerHTML=childHTML(dk,ch);}
+  else if(IP.sec==='build'){body.hidden=true; body.innerHTML=''; host.hidden=false; cardIn();}
+  else {cardHome(); host.hidden=true; body.hidden=false; body.innerHTML=IP.sec==='play'?playHTML(dk):builtHTML(dk);}
+  P.setAttribute('aria-labelledby','ipTitle');}
+function stub(){const s=$i('ipDeckHome'); if(!s) return; const gi=deckGi(), dk=gi>=0&&typeof deckInfo==='function'?deckInfo():null;
+  document.body.classList.toggle('b2ipdk',!!dk); s.hidden=!dk; if(!dk){s.innerHTML=''; return;}
+  const n=dk.utils.length, ld=dk.utils.filter(u=>u.g.loaded).length;
+  s.innerHTML=`<div class="ipstub"><button type="button" class="iplink" data-ipopen="${gi}">${esc(dk.name)}</button><small>Cyberdeck · MPCP ${dk.mpcp}</small><span class="ipchip">${ld} of ${n} loaded · ${fmt(dk.used)}/${fmt(dk.am)} Mp</span></div>`;}
+function open(gi,sec,from){if(gi<0||!isDeckLine(S.gear[gi])) return; IP.open=true; IP.gi=gi; IP.child=null; IP.sec=sec||(document.body.classList.contains('b2gn')?'play':'build'); IP.from=from||null;
+  let P=$i('b2item'); document.body.classList.add('b2ip');
+  if(!P){P=document.createElement('aside'); P.id='b2item'; P.className='b2item'; P.setAttribute('aria-label','Item'); P.innerHTML='<div id="ipHead"></div><div id="ipBody"></div><div id="ipHost" hidden></div>'; document.body.appendChild(P);
+    const sc=document.createElement('button'); sc.type='button'; sc.id='b2ipscrim'; sc.className='b2ipscrim'; sc.tabIndex=-1; sc.setAttribute('aria-label','Close'); sc.dataset.ipx='1'; document.body.appendChild(sc);}
+  P.hidden=false; $i('b2ipscrim').hidden=false; draw(); syncBtns(); const t=P.querySelector('[data-ipsec][aria-selected="true"]')||P.querySelector('.ipx'); if(t) t.focus({preventScroll:true});}
+function close(){if(!IP.open) return; IP.open=false; cardHome(); const P=$i('b2item'); if(P) P.hidden=true; const sc=$i('b2ipscrim'); if(sc) sc.hidden=true; document.body.classList.remove('b2ip'); syncBtns();
+  const f=IP.from&&document.querySelector(IP.from); IP.from=null; if(f&&f.offsetParent!==null) f.focus({preventScroll:true});}
+// the openers say whether the panel is open: Open the deck reads Close the deck while it is, like the old fold
+function syncBtns(){const on=IP.open&&IP.gi===deckGi();
+  document.querySelectorAll('[data-st="deck"]').forEach(b=>{b.setAttribute('aria-expanded',String(on)); b.setAttribute('aria-controls','b2item'); if(b.classList.contains('gdeckbtn')) b.textContent=on?'Close the deck':'Open the deck';});
+  document.querySelectorAll('[data-ipopen]').forEach(b=>{b.setAttribute('aria-expanded',String(IP.open&&IP.gi===+b.dataset.ipopen)); b.setAttribute('aria-controls','b2item');});}
+// an opener pressed again while its item is showing closes the panel (a toggle, as Open the deck was)
+const toggle=(gi,sec,from)=>{if(IP.open&&IP.gi===gi) close(); else open(gi,sec,from);};
+// the page keeps a one-line deck row where the card was (Game night's Gear and ammo shows it; the Runner tab has the Gear row)
+function mount(){const c=$i('deckCard'); if(!c||$i('ipDeckHome')) return; const s=document.createElement('section'); s.id='ipDeckHome'; s.className='card ses ipdeckhome'; s.hidden=true; c.parentElement.insertBefore(s,c);}
+const _render=render; render=function(){_render.apply(this,arguments); try{mount(); stub(); if(IP.open&&!isDeckLine(S.gear[IP.gi])) close(); if(IP.open) draw(); syncBtns();}catch(err){console.error(err);}};
+// openers: the deck's Gear row name, its Open the deck button, the one-line deck row; inside: sections, a program, back, close
+document.addEventListener('click',e=>{const t=e.target; if(!t||!t.closest) return;
+  const op=t.closest('[data-ipopen]'); if(op){e.preventDefault(); e.stopPropagation(); toggle(+op.dataset.ipopen,null,`[data-ipopen="${op.dataset.ipopen}"]`); return;}
+  const gn=t.closest('.gname[data-gopen]'); if(gn&&isDeckLine(S.gear[+gn.dataset.gopen])&&+gn.dataset.gopen===deckGi()){e.preventDefault(); e.stopPropagation(); toggle(+gn.dataset.gopen,null,`.gname[data-gopen="${gn.dataset.gopen}"]`); return;}
+  const db=t.closest('[data-st="deck"]'); if(db){e.preventDefault(); e.stopPropagation(); toggle(deckGi(),'build','[data-st="deck"]'); return;}
+  if(!IP.open) return;
+  const P=$i('b2item'); if(t.closest('[data-ipx]')){close(); return;}
+  if(P&&P.contains(t)){const s=t.closest('[data-ipsec]'); if(s){IP.sec=s.dataset.ipsec; IP.child=null; draw(); const n=P.querySelector(`[data-ipsec="${IP.sec}"]`); if(n) n.focus({preventScroll:true}); return;}
+    const c=t.closest('[data-ipchild]'); if(c){IP.child=+c.dataset.ipchild; draw(); const b=P.querySelector('.ipback'); if(b) b.focus({preventScroll:true}); return;}
+    if(t.closest('[data-ipback]')){const k=IP.child; IP.child=null; draw(); const n=P.querySelector(`[data-ipchild="${k}"]`)||P.querySelector('[data-ipsec][aria-selected="true"]'); if(n) n.focus({preventScroll:true});}
+    return;}
+  close();},true);
+// a Loaded tick inside the panel: keep focus on it after the redraw (PROGUI.refocus finds the page's copy first). Capture phase,
+// because the page's own change handler redraws the panel and the ticked box is gone from it by the time a bubbling listener runs.
+document.addEventListener('change',e=>{const t=e.target, P=$i('b2item'); if(!P||!P.contains(t)||!t.dataset||t.dataset.pgld===undefined) return; const sel=`[data-pgld="D"][data-pgid="${CSS.escape(t.dataset.pgid)}"]`;
+  setTimeout(()=>{const n=$i('b2item')&&$i('b2item').querySelector(sel); if(n) n.focus({preventScroll:true});},0);},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&IP.open){e.preventDefault(); close();}});
+window.SR2IP={open:(gi,sec)=>open(gi==null?deckGi():gi,sec||'built'),close,state:IP,deckGi};
+// a saved runner is drawn once before this module wraps render (page load), so add the deck row now as well
+try{mount(); stub(); syncBtns();}catch(err){console.error(err);}
 })();
 
 /*@end:b2*/

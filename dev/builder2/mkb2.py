@@ -9,6 +9,7 @@ js=open('builder2/b2ui.js').read()+'\n'+open('builder2/b2steps.js').read(); css=
 mjs=open('builder2/b2market.js').read()  # the Marketplace tab (2026-11-23), with the Gear Locker's Availability and Street Index table
 if mjs.count('/*AVAIL*/{}')!=1: sys.exit('b2market.js: AVAIL placeholder not found once')
 js+='\n'+mjs.replace('/*AVAIL*/{}',open('gear/avail_data.json').read().strip()); css+='\n'+open('builder2/b2market.css').read()
+js+='\n'+open('builder2/b2item.js').read(); css+='\n'+open('builder2/b2item.css').read()  # one home for each item, stage 1: decks (2026-11-24)
 end='\n})();\n</script>'
 if s.count(end)!=1: sys.exit('builder script end not found once')
 s=s.replace(end,'\n/*@b2*/\n'+js+'\n/*@end:b2*/'+end)

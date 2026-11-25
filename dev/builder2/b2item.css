@@ -1,0 +1,44 @@
+/* Item panel, stage 1: decks (one home for each item). Docked on the right on laptops, a tall sheet on phones */
+.b2item{position:fixed;top:var(--jumpH,0px);right:0;bottom:0;z-index:40;width:min(32rem,42vw);box-sizing:border-box;overflow-y:auto;overscroll-behavior:contain;padding:16px;background:var(--panel);border-left:1px solid var(--brand);box-shadow:-8px 0 24px rgba(0,0,0,.12);display:flex;flex-direction:column;gap:12px}
+.b2item[hidden]{display:none}
+@media (min-width:40.0625em){body.b2ip{padding-right:min(32rem,42vw)}}
+.b2ipscrim{display:none}
+.iptop{display:flex;align-items:center;gap:8px}
+.ipcrumb{margin-right:auto;font-size:var(--t-xs);color:var(--muted)}
+.iph{display:flex;align-items:baseline;gap:12px}.iph h2{margin:0;margin-right:auto;font-size:var(--t-lg)}.iph b{font-family:var(--f-mono)}
+.ipkind{margin:0;font-size:var(--t-xs);color:var(--muted)}
+.iptabs{display:flex;gap:4px;padding:4px;background:var(--panel-2);border-radius:var(--radius)}
+.iptabs button{flex:1 1 0;min-height:2.5rem;border:0;border-radius:4px;background:transparent;color:var(--muted);font-weight:600}
+.iptabs button[aria-selected="true"]{background:var(--panel);color:var(--brand);box-shadow:inset 0 -2px 0 var(--brand)}
+.iptabs button:focus-visible,.iplink:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.iptiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.iptiles>div{display:flex;flex-direction:column;min-width:0;padding:8px;background:var(--panel-2);border-radius:var(--radius)}
+.iptiles b{font-family:var(--f-mono)}.iptiles small{font-size:var(--t-xs);color:var(--muted)}
+.iprows{display:flex;flex-direction:column}
+.iprow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:4px 0;border-bottom:1px solid var(--line)}
+.iprow small{font-size:var(--t-xs);color:var(--muted)}.iprow b{font-family:var(--f-mono);text-align:right}
+.ipmemh{display:flex;justify-content:space-between;font-size:var(--t-xs);font-weight:600;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.ipmemh b{font-family:var(--f-mono)}
+.ipbar{height:8px;border-radius:999px;background:var(--line);overflow:hidden}.ipbar i{display:block;height:8px;background:var(--brand)}
+.ipsec{display:flex;flex-direction:column}
+.ipprog{display:flex;align-items:center;gap:12px;min-height:2.75rem;border-bottom:1px solid var(--line)}
+.ipprog small{margin-right:auto;font-size:var(--t-xs);color:var(--muted)}.ipprog small.b2warn{color:var(--warn)}.ipprog b{font-family:var(--f-mono)}
+.iplink{min-height:1.5rem;padding:0;border:0;background:transparent;color:var(--brand);font-weight:600;text-decoration:underline;text-underline-offset:3px;text-align:left;cursor:pointer}
+.ipload{display:flex;flex-direction:row;align-items:center;gap:8px;min-height:2.75rem;font-size:var(--t-sm);font-weight:400;color:var(--ink);letter-spacing:normal;text-transform:none}  /* not the page's stacked field-label look */.ipload small{font-size:var(--t-xs);color:var(--muted)}.ipload small.b2warn{color:var(--warn)}
+.ipback{min-height:2rem}
+body.b2ipdk #deckCard{display:none!important}
+#ipHost #deckCard{display:block!important;margin:0;padding:0;border:0;box-shadow:none}
+.ipdeckhome{display:none}
+body.b2gear .ipdeckhome:not([hidden]){display:block}
+.ipstub{display:flex;flex-wrap:wrap;align-items:center;gap:12px}.ipstub small{margin-right:auto;font-size:var(--t-xs);color:var(--muted)}
+.ipchip{padding:4px 8px;border-radius:999px;background:var(--panel-2);font:500 var(--t-xs) var(--f-mono)}
+@media (max-width:40em){
+  .b2item{top:auto;left:0;right:0;width:auto;max-height:92vh;z-index:61;border-left:0;border-top:1px solid var(--brand);border-radius:var(--radius) var(--radius) 0 0;box-shadow:0 -8px 24px rgba(0,0,0,.18);padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+  body.b2ip .b2ipscrim:not([hidden]){display:block;position:fixed;inset:0;z-index:60;min-height:0;padding:0;border:0;border-radius:0;background:var(--scrim)}
+  .iptabs button,.ipx,.ipback,.iplink{min-height:44px}
+  .iptiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+/* With the panel open a laptop's columns get narrower; the damage track's ten boxes drop to two rows of five
+   rather than shrink under the 24px touch size (framework rule) */
+div:has(>.track){container-type:inline-size}
+@container (max-width:17.5rem){.track{grid-template-columns:repeat(5,minmax(0,1fr))}}

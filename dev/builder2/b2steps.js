@@ -97,7 +97,8 @@ function gearPass(){const body=$('gearBody'); if(!body) return; const di=deckInd
     const tot=S.gear.filter(g=>(g.key&&/^(deck|prog2?):/.test(g.key))||(!g.key&&(g.cat==='deck'||g.cat==='prog'))).reduce((a,g)=>a+(+g.cost||0)*(+g.qty||1),0);
     const parts=[`MPCP ${dk.mpcp}`,dk.ri?`Response ${dk.ri}`:'',hj?`${hj} hitcher${hj>1?'s':''}`:'',`${fmt(dk.am)} Mp active`,`${fmt(dk.sm)} Mp storage`].filter(Boolean);
     const d=document.createElement('div'); d.className='gdeck';
-    d.innerHTML=`<span class="gdsum">${H(parts.join(' · '))}</span><span class="gdtot">Deck, programs and options: ${fmt(tot)}¥</span><button type="button" class="ghost gdeckbtn" data-st="deck" aria-expanded="${!!Q.deck}" aria-controls="deckCard">${Q.deck?'Close the deck':'Open the deck'}</button>`;
+    const IPX=window.SR2IP, dkOn=IPX?!!(IPX.state.open&&IPX.state.gi===IPX.deckGi()):!!Q.deck;  // fix10: the deck opens in the item panel
+    d.innerHTML=`<span class="gdsum">${H(parts.join(' · '))}</span><span class="gdtot">Deck, programs and options: ${fmt(tot)}¥</span><button type="button" class="ghost gdeckbtn" data-st="deck" aria-expanded="${dkOn}" aria-controls="${IPX?'b2item':'deckCard'}">${dkOn?'Close the deck':'Open the deck'}</button>`;
     nb.parentElement.insertBefore(d,nb.parentElement.querySelector('.gmore'));}}
   document.body.classList.toggle('b2dk-shut',!!dk&&!Q.deck);}
 // ---------- Between runs: tag the In play section's parts ----------
